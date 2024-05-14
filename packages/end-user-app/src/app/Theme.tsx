@@ -3,7 +3,7 @@
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 
-export default function ({ children }: { children: React.ReactNode }) {
+export default function Theme({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       theme={createTheme({
