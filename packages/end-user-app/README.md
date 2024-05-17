@@ -11,12 +11,18 @@ yarn workspace @app/end-user-app dev
 
 ### Amplify
 
-- Environment variables
+- App settings > General settings
+
+    - Platform: `WEB_COMPUTE`
+    - Framework: `Next.js - SSR`
+
+
+- Hosting > Environment variables
 
     - AMPLIFY_DIFF_DEPLOY=false
     - AMPLIFY_MONOREPO_APP_ROOT=packages/end-user-app
 
-- `amplify.yml`
+- Hosting > Build settings
 
     ```yml
     version: 1
