@@ -64,13 +64,18 @@ export default function ModuleLayout({
           <Divider />
           <List disablePadding>
             {navigations.map((navigation) => (
-              <Link key={navigation.title} href={navigation.href}>
-                <ListItem disablePadding>
-                  <ListItemButton>
+              <ListItem disablePadding>
+                <Link
+                  key={navigation.title}
+                  href={navigation.href}
+                  passHref
+                  legacyBehavior
+                >
+                  <ListItemButton component="a">
                     <ListItemText primary={navigation.title} />
                   </ListItemButton>
-                </ListItem>
-              </Link>
+                </Link>
+              </ListItem>
             ))}
           </List>
         </Stack>
