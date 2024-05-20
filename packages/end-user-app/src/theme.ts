@@ -9,6 +9,14 @@ const theme = createTheme({
         disableTouchRipple: true,
       },
     },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'white',
+          color: 'black',
+        },
+      },
+    },
   },
 
   palette: {

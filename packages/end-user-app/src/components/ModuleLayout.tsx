@@ -1,4 +1,5 @@
 'use client'
+
 import { AccountCircle } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -45,11 +46,18 @@ export default function ModuleLayout({
         direction="row"
         divider={<Divider orientation="vertical" flexItem />}
       >
-        <Stack sx={{ width: 240, height: '100vh' }}>
+        <Stack
+          sx={{
+            width: 240,
+            height: '100vh',
+            position: 'sticky',
+            top: 0,
+          }}
+        >
           <AppBar
-            position="static"
+            position="sticky"
             // color="primary"
-            color="transparent"
+            // color="transparent"
             elevation={0}
           >
             <Toolbar disableGutters>
@@ -60,17 +68,20 @@ export default function ModuleLayout({
                 {moduleName}
               </Typography>
             </Toolbar>
+            <Divider />
           </AppBar>
-          <Divider />
-          <List disablePadding>
+          <List
+            disablePadding
+            sx={{
+              flexGrow: 1,
+              overflowY: 'hidden',
+              '&:hover': { overflowY: 'auto' },
+              // scrollbarGutter: 'stable',
+            }}
+          >
             {navigations.map((navigation) => (
-              <ListItem disablePadding>
-                <Link
-                  key={navigation.title}
-                  href={navigation.href}
-                  passHref
-                  legacyBehavior
-                >
+              <ListItem key={navigation.title} disablePadding>
+                <Link href={navigation.href} passHref legacyBehavior>
                   <ListItemButton component="a">
                     <ListItemText primary={navigation.title} />
                   </ListItemButton>
@@ -79,8 +90,13 @@ export default function ModuleLayout({
             ))}
           </List>
         </Stack>
+
         <Stack sx={{ flexGrow: 1 }}>
-          <AppBar position="static" color="transparent" elevation={0}>
+          <AppBar
+            position="sticky"
+            // color="transparent"
+            elevation={0}
+          >
             <Toolbar disableGutters>
               <IconButton size="large" color="inherit">
                 <MenuIcon />
@@ -108,8 +124,8 @@ export default function ModuleLayout({
                 <MenuItem onClick={handleClose}>My account</MenuItem>
               </Menu>
             </Toolbar>
+            <Divider />
           </AppBar>
-          <Divider />
           {children}
         </Stack>
       </Stack>
