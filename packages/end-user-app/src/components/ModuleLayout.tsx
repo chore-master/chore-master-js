@@ -1,15 +1,19 @@
 'use client'
 
-import { AccountCircle } from '@mui/icons-material'
+import { Logout, PersonAdd, Settings } from '@mui/icons-material'
+// import { AccountCircle } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
 import MenuIcon from '@mui/icons-material/Menu'
 import {
   AppBar,
+  Avatar,
   Box,
   IconButton,
+  ListItemIcon,
   Menu,
   MenuItem,
   Toolbar,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import Divider from '@mui/material/Divider'
@@ -31,12 +35,13 @@ export default function ModuleLayout({
   children: React.ReactNode
 }>) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }
 
-  const handleClose = () => {
+  const handleCloseMenu = () => {
     setAnchorEl(null)
   }
 
@@ -102,10 +107,83 @@ export default function ModuleLayout({
                 <MenuIcon />
               </IconButton>
               <Box sx={{ flexGrow: 1 }} />
-              <IconButton size="large" color="inherit" onClick={handleMenu}>
+              {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
-              </IconButton>
+              </IconButton> */}
+              <Tooltip title="Account settings">
+                <IconButton
+                  onClick={handleAvatarClick}
+                  size="small"
+                  sx={{ ml: 2 }}
+                  // aria-controls={open ? 'account-menu' : undefined}
+                  // aria-haspopup="true"
+                  // aria-expanded={open ? 'true' : undefined}
+                >
+                  <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                </IconButton>
+              </Tooltip>
               <Menu
+                anchorEl={anchorEl}
+                id="account-menu"
+                open={open}
+                onClose={handleCloseMenu}
+                onClick={handleCloseMenu}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                    mt: 1.5,
+                    '& .MuiAvatar-root': {
+                      width: 32,
+                      height: 32,
+                      ml: -0.5,
+                      mr: 1,
+                    },
+                    '&::before': {
+                      content: '""',
+                      display: 'block',
+                      position: 'absolute',
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: 'background.paper',
+                      transform: 'translateY(-50%) rotate(45deg)',
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem onClick={handleCloseMenu}>
+                  <Avatar /> Profile
+                </MenuItem>
+                <MenuItem onClick={handleCloseMenu}>
+                  <Avatar /> My account
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleCloseMenu}>
+                  <ListItemIcon>
+                    <PersonAdd fontSize="small" />
+                  </ListItemIcon>
+                  Add another account
+                </MenuItem>
+                <MenuItem onClick={handleCloseMenu}>
+                  <ListItemIcon>
+                    <Settings fontSize="small" />
+                  </ListItemIcon>
+                  Settings
+                </MenuItem>
+                <MenuItem onClick={handleCloseMenu}>
+                  <ListItemIcon>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </Menu>
+              {/* <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
                 anchorOrigin={{
@@ -118,11 +196,11 @@ export default function ModuleLayout({
                   horizontal: 'left',
                 }}
                 open={Boolean(anchorEl)}
-                onClose={handleClose}
+                onClose={handleCloseMenu}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-              </Menu>
+                <MenuItem onClick={handleCloseMenu}>Profile</MenuItem>
+                <MenuItem onClick={handleCloseMenu}>My account</MenuItem>
+              </Menu> */}
             </Toolbar>
             <Divider />
           </AppBar>
