@@ -35,7 +35,7 @@ export default function ModuleLayout({
   children: React.ReactNode
 }>) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
+  const isMenuOpen = Boolean(anchorEl)
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -115,9 +115,9 @@ export default function ModuleLayout({
                   onClick={handleAvatarClick}
                   size="small"
                   sx={{ ml: 2 }}
-                  // aria-controls={open ? 'account-menu' : undefined}
-                  // aria-haspopup="true"
-                  // aria-expanded={open ? 'true' : undefined}
+                  aria-controls={isMenuOpen ? 'account-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={isMenuOpen ? 'true' : undefined}
                 >
                   <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
                 </IconButton>
@@ -125,7 +125,7 @@ export default function ModuleLayout({
               <Menu
                 anchorEl={anchorEl}
                 id="account-menu"
-                open={open}
+                open={isMenuOpen}
                 onClose={handleCloseMenu}
                 onClick={handleCloseMenu}
                 PaperProps={{
