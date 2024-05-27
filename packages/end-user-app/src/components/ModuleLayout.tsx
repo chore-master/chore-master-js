@@ -8,6 +8,7 @@ import {
   AppBar,
   Avatar,
   Box,
+  Drawer,
   IconButton,
   ListItemIcon,
   Menu,
@@ -34,8 +35,13 @@ export default function ModuleLayout({
   navigations: any[]
   children: React.ReactNode
 }>) {
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const isMenuOpen = Boolean(anchorEl)
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setIsDrawerOpen(newOpen)
+  }
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -47,6 +53,24 @@ export default function ModuleLayout({
 
   return (
     <React.Fragment>
+      <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
+        <List disablePadding>
+          <ListItem disablePadding>
+            <Link href="/module1" passHref legacyBehavior>
+              <ListItemButton component="a">
+                <ListItemText primary="Module 1" />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+          <ListItem disablePadding>
+            <Link href="/module2" passHref legacyBehavior>
+              <ListItemButton component="a">
+                <ListItemText primary="Module 2" />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+        </List>
+      </Drawer>
       <Stack
         direction="row"
         divider={<Divider orientation="vertical" flexItem />}
@@ -66,7 +90,11 @@ export default function ModuleLayout({
             elevation={0}
           >
             <Toolbar disableGutters>
-              <IconButton size="large" color="inherit">
+              <IconButton
+                size="large"
+                color="inherit"
+                onClick={toggleDrawer(true)}
+              >
                 <AppsIcon />
               </IconButton>
               <Typography variant="h6" component="div">
