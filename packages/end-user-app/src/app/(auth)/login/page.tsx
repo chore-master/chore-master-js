@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 export default function Page() {
   const { HOST, IAM_API_HOST } = getConfig()
-  const nextURI = encodeURI(`${HOST}/`)
+  const nextURI = encodeURI(`${HOST}/module1`)
 
   // React.useEffect(() => {
   //   apiAgent.get(`/openapi.json`, {
@@ -24,7 +24,7 @@ export default function Page() {
   //   } as any)
   // })
   return (
-    <Link href={`${IAM_API_HOST}/api/auth/google/authorize?nextURI=${nextURI}`}>
+    <Link href={`${IAM_API_HOST}/v1/auth/google/authorize?next_uri=${nextURI}`}>
       Login with Google
     </Link>
   )
