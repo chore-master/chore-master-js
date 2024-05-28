@@ -204,12 +204,14 @@ export default function ModuleLayout({
                   </ListItemIcon>
                   Settings
                 </MenuItem>
-                <MenuItem onClick={handleCloseMenu}>
-                  <ListItemIcon>
-                    <Logout fontSize="small" />
-                  </ListItemIcon>
-                  Logout
-                </MenuItem>
+                <Link href="/logout" passHref legacyBehavior>
+                  <MenuItem component="a" onClick={handleCloseMenu}>
+                    <ListItemIcon>
+                      <Logout fontSize="small" />
+                    </ListItemIcon>
+                    Logout
+                  </MenuItem>
+                </Link>
               </Menu>
               {/* <Menu
                 id="menu-appbar"
