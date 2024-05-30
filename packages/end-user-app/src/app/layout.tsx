@@ -1,10 +1,7 @@
-import Divider from '@mui/material/Divider'
-import Stack from '@mui/material/Stack'
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import Header from './Header'
-import SideNavigation from './SideNavigation'
-import Theme from './Theme'
+import ThemeProvider from '../components/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,7 +10,7 @@ export const metadata: Metadata = {
   description: 'Chore Master',
 }
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -21,19 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Theme>
-          <Stack
-            direction="row"
-            divider={<Divider orientation="vertical" flexItem />}
-          >
-            <SideNavigation />
-            <Stack sx={{ flexGrow: 1 }}>
-              <Header />
-              <Divider />
-              {children}
-            </Stack>
-          </Stack>
-        </Theme>
+        <AppRouterCacheProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   )
