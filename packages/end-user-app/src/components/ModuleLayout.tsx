@@ -1,5 +1,6 @@
 'use client'
 
+import { useEndUser } from '@/utils/auth'
 import { Logout, PersonAdd, Settings } from '@mui/icons-material'
 // import { AccountCircle } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
@@ -37,6 +38,7 @@ export default function ModuleLayout({
 }>) {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const { isLoading: isEndUserLoading, endUser } = useEndUser()
   const isMenuOpen = Boolean(anchorEl)
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -138,7 +140,7 @@ export default function ModuleLayout({
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
               </IconButton> */}
-              <Tooltip title="Account settings">
+              <Tooltip title={(endUser as any).email}>
                 <IconButton
                   onClick={handleAvatarClick}
                   size="small"
@@ -147,7 +149,7 @@ export default function ModuleLayout({
                   aria-haspopup="true"
                   aria-expanded={isMenuOpen ? 'true' : undefined}
                 >
-                  <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                  <Avatar sx={{ width: 32, height: 32 }}>我</Avatar>
                 </IconButton>
               </Tooltip>
               <Menu
@@ -204,12 +206,14 @@ export default function ModuleLayout({
                   </ListItemIcon>
                   Settings
                 </MenuItem>
-                <MenuItem onClick={handleCloseMenu}>
-                  <ListItemIcon>
-                    <Logout fontSize="small" />
-                  </ListItemIcon>
-                  Logout
-                </MenuItem>
+                <Link href="/logout" passHref legacyBehavior>
+                  <MenuItem component="a" onClick={handleCloseMenu}>
+                    <ListItemIcon>
+                      <Logout fontSize="small" />
+                    </ListItemIcon>
+                    Logout
+                  </MenuItem>
+                </Link>
               </Menu>
               {/* <Menu
                 id="menu-appbar"
