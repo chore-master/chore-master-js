@@ -140,7 +140,7 @@ export default function ModuleLayout({
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
               </IconButton> */}
-              <Tooltip title={(endUser as any).email}>
+              <Tooltip title={(endUser as any)?.email}>
                 <IconButton
                   onClick={handleAvatarClick}
                   size="small"
