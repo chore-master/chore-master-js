@@ -2,7 +2,6 @@
 
 import { useEndUser } from '@/utils/auth'
 import { Logout, PersonAdd, Settings } from '@mui/icons-material'
-// import { AccountCircle } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
 import MenuIcon from '@mui/icons-material/Menu'
 import {
@@ -12,6 +11,7 @@ import {
   Drawer,
   IconButton,
   ListItemIcon,
+  ListSubheader,
   Menu,
   MenuItem,
   Toolbar,
@@ -25,7 +25,7 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import Stack from '@mui/material/Stack'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 
 export default function ModuleLayout({
@@ -37,9 +37,11 @@ export default function ModuleLayout({
   navigations: any[]
   children: React.ReactNode
 }>) {
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false)
+  const [isSideNavOpen, setIsSideNavOpen] = React.useState<boolean>(true)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
   const { endUser, isLoading: isLoadingEndUser, res: endUserRes } = useEndUser()
   const isMenuOpen = Boolean(anchorEl)
 
@@ -74,6 +76,13 @@ export default function ModuleLayout({
       <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
         <List disablePadding>
           <ListItem disablePadding>
+            <Link href="/treasury" passHref legacyBehavior>
+              <ListItemButton component="a">
+                <ListItemText primary="財務管理" />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+          <ListItem disablePadding>
             <Link href="/module1" passHref legacyBehavior>
               <ListItemButton component="a">
                 <ListItemText primary="Module 1" />
@@ -93,54 +102,70 @@ export default function ModuleLayout({
         direction="row"
         divider={<Divider orientation="vertical" flexItem />}
       >
-        <Stack
-          sx={{
-            width: 240,
-            height: '100vh',
-            position: 'sticky',
-            top: 0,
-          }}
-        >
-          <AppBar
-            position="sticky"
-            // color="primary"
-            // color="transparent"
-            elevation={0}
-          >
-            <Toolbar disableGutters>
-              <IconButton
-                size="large"
-                color="inherit"
-                onClick={toggleDrawer(true)}
-              >
-                <AppsIcon />
-              </IconButton>
-              <Typography variant="h6" component="div">
-                {moduleName}
-              </Typography>
-            </Toolbar>
-            <Divider />
-          </AppBar>
-          <List
-            disablePadding
+        {isSideNavOpen ? (
+          <Stack
             sx={{
-              flexGrow: 1,
-              overflowY: 'hidden',
-              '&:hover': { overflowY: 'auto' },
-              // scrollbarGutter: 'stable',
+              width: 240,
+              height: '100vh',
+              position: 'sticky',
+              top: 0,
             }}
           >
-            {navigations.map((navigation) => (
-              <ListItem key={navigation.title} disablePadding>
-                <Link href={navigation.href} passHref legacyBehavior>
-                  <ListItemButton component="a">
-                    <ListItemText primary={navigation.title} />
-                  </ListItemButton>
-                </Link>
-              </ListItem>
-            ))}
-          </List>
-        </Stack>
+            <AppBar
+              position="sticky"
+              // color="primary"
+              // color="transparent"
+              elevation={0}
+            >
+              <Toolbar disableGutters>
+                <IconButton
+                  size="large"
+                  color="inherit"
+                  onClick={toggleDrawer(true)}
+                >
+                  <AppsIcon />
+                </IconButton>
+                <Typography variant="h6" component="div">
+                  {moduleName}
+                </Typography>
+              </Toolbar>
+              <Divider />
+            </AppBar>
+            <List
+              disablePadding
+              sx={{
+                flexGrow: 1,
+                overflowY: 'hidden',
+                '&:hover': { overflowY: 'auto' },
+                // scrollbarGutter: 'stable',
+              }}
+            >
+              {navigations.map((nav) => {
+                if (nav.header) {
+                  return <ListSubheader>{nav.header}</ListSubheader>
+                } else {
+                  return (
+                    <ListItem key={nav.title} disablePadding>
+                      <Link href={nav.href} passHref legacyBehavior>
+                        <ListItemButton
+                          component="a"
+                          selected={
+                            (nav.selectedWhenExactlyMatched &&
+                              pathname === nav.href) ||
+                            (nav.selectedWhenPartiallyMatched &&
+                              pathname.startsWith(nav.href))
+                          }
+                        >
+                          <ListItemText primary={nav.title} />
+                        </ListItemButton>
+                      </Link>
+                    </ListItem>
+                  )
+                }
+              })}
+            </List>
+          </Stack>
+        ) : null}
 
         <Stack sx={{ flexGrow: 1 }}>
           <AppBar
@@ -149,7 +174,11 @@ export default function ModuleLayout({
             elevation={0}
           >
             <Toolbar disableGutters>
-              <IconButton size="large" color="inherit">
+              <IconButton
+                size="large"
+                color="inherit"
+                onClick={() => setIsSideNavOpen((open) => !open)}
+              >
                 <MenuIcon />
               </IconButton>
               <Box sx={{ flexGrow: 1 }} />
