@@ -84,16 +84,9 @@ export default function ModuleLayout({
             </Link>
           </ListItem>
           <ListItem disablePadding>
-            <Link href="/module1" passHref legacyBehavior>
+            <Link href="/sample-module" passHref legacyBehavior>
               <ListItemButton component="a">
-                <ListItemText primary="Module 1" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
-          <ListItem disablePadding>
-            <Link href="/module2" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemText primary="Module 2" />
+                <ListItemText primary="範例模組" />
               </ListItemButton>
             </Link>
           </ListItem>
