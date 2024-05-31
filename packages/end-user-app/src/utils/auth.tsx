@@ -1,29 +1,36 @@
 import { iamAPIAgent } from '@/utils/apiAgent'
 import React from 'react'
 
-const EndUserContext = React.createContext({
+interface EndUserContextType {
+  isLoading: boolean
+  res: any
+  endUser: object | null
+  sync: any
+}
+
+const EndUserContext = React.createContext<EndUserContextType>({
   isLoading: false,
-  error: null,
+  res: null,
   endUser: null,
   sync: async () => {},
 })
 
 export const EndUserProvider = (props: any) => {
   const [isLoading, setIsLoading] = React.useState(false)
-  const [error, setError] = React.useState(null)
+  const [res, setRes] = React.useState(null)
   const [endUser, setEndUser] = React.useState(null)
 
   const fetchEndUser = async () => {
     setIsLoading(true)
     iamAPIAgent.get('/v1/end_users/me', {
       params: {},
-      onFail: (_status: any, data: any) => {
-        setError(data)
+      onFail: ({ res }: any) => {
+        setRes(res)
         setEndUser(null)
         setIsLoading(false)
       },
-      onSuccess: async (data: any) => {
-        setError(null)
+      onSuccess: async ({ res, data }: any) => {
+        setRes(res)
         setEndUser(data)
         setIsLoading(false)
       },
@@ -36,7 +43,7 @@ export const EndUserProvider = (props: any) => {
 
   return (
     <EndUserContext.Provider
-      value={{ isLoading, error, endUser, sync: fetchEndUser }}
+      value={{ isLoading, res, endUser, sync: fetchEndUser }}
       {...props}
     />
   )
@@ -46,7 +53,7 @@ export const useEndUser = () => {
   const endUserContext = React.useContext(EndUserContext)
   return {
     isLoading: endUserContext.isLoading,
-    error: endUserContext.error,
+    res: endUserContext.res,
     endUser: endUserContext.endUser,
     sync: endUserContext.sync,
   }

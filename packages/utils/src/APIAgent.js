@@ -9,19 +9,24 @@ class APIAgent {
     let res
     try {
       res = await fetch(`${this._apiHost}${path}`, options)
-    } catch (err) {
-      callbacks?.onError(err)
+    } catch (error) {
+      callbacks?.onError({ res, error })
       return
     }
-    if (res.status === 500) {
-      callbacks?.onFail(StatusEnum.FAILED, { message: res.statusText }, res)
+    if (res.status >= 500) {
+      callbacks?.onFail({
+        res,
+        status: StatusEnum.FAILED,
+        message: res.statusText,
+      })
       return
     }
     const { status, data } = await res.json()
     if (status !== StatusEnum.SUCCESS) {
-      callbacks.onFail && callbacks.onFail(status, data, res)
+      callbacks.onFail &&
+        callbacks.onFail({ res, status, message: data.message, data })
     } else {
-      callbacks.onSuccess && callbacks.onSuccess(data)
+      callbacks.onSuccess && callbacks.onSuccess({ res, data })
     }
     return res
   }

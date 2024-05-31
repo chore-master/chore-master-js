@@ -25,6 +25,7 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import Stack from '@mui/material/Stack'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 
 export default function ModuleLayout({
@@ -38,7 +39,8 @@ export default function ModuleLayout({
 }>) {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const { isLoading: isEndUserLoading, endUser } = useEndUser()
+  const router = useRouter()
+  const { endUser, isLoading: isLoadingEndUser, res: endUserRes } = useEndUser()
   const isMenuOpen = Boolean(anchorEl)
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -51,6 +53,20 @@ export default function ModuleLayout({
 
   const handleCloseMenu = () => {
     setAnchorEl(null)
+  }
+
+  React.useEffect(() => {
+    if (endUserRes?.status === 401) {
+      router.push('/login')
+    }
+  }, [endUserRes])
+
+  if (!endUser || isLoadingEndUser) {
+    return (
+      <React.Fragment>
+        <Typography>Loading...</Typography>
+      </React.Fragment>
+    )
   }
 
   return (

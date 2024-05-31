@@ -2,6 +2,7 @@
 
 // import apiAgent from '@/utils/apiAgent'
 import getConfig from '@/utils/config'
+import Container from '@mui/material/Container'
 import Link from 'next/link'
 
 export default function Page() {
@@ -24,8 +25,12 @@ export default function Page() {
   //   } as any)
   // })
   return (
-    <Link href={`${IAM_API_HOST}/v1/auth/google/authorize?next_uri=${nextURI}`}>
-      Login with Google
-    </Link>
+    <Container>
+      <Link
+        href={`${IAM_API_HOST}/v1/auth/google/authorize?next_uri=${nextURI}`}
+      >
+        Login with Google
+      </Link>
+    </Container>
   )
 }
