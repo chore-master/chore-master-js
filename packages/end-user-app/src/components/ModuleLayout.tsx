@@ -8,6 +8,7 @@ import {
   AppBar,
   Avatar,
   Box,
+  Collapse,
   Drawer,
   IconButton,
   ListItemIcon,
@@ -102,7 +103,7 @@ export default function ModuleLayout({
         direction="row"
         divider={<Divider orientation="vertical" flexItem />}
       >
-        {isSideNavOpen ? (
+        <Collapse orientation="horizontal" in={isSideNavOpen}>
           <Stack
             sx={{
               width: 240,
@@ -142,7 +143,9 @@ export default function ModuleLayout({
             >
               {navigations.map((nav) => {
                 if (nav.header) {
-                  return <ListSubheader>{nav.header}</ListSubheader>
+                  return (
+                    <ListSubheader key={nav.header}>{nav.header}</ListSubheader>
+                  )
                 } else {
                   return (
                     <ListItem key={nav.title} disablePadding>
@@ -165,9 +168,9 @@ export default function ModuleLayout({
               })}
             </List>
           </Stack>
-        ) : null}
+        </Collapse>
 
-        <Stack sx={{ flexGrow: 1 }}>
+        <Stack sx={{ flexGrow: 1, background: 'hsla(215, 15%, 97%, 0.5)' }}>
           <AppBar
             position="sticky"
             // color="transparent"

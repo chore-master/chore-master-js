@@ -1,5 +1,5 @@
-import Container from '@mui/material/Container'
+import ModuleContainer from '@/components/ModuleContainer'
 
 export default function Page() {
-  return <Container>儀表板</Container>
+  return <ModuleContainer>儀表板</ModuleContainer>
 }

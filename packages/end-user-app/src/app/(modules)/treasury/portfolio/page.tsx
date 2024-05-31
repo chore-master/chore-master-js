@@ -1,5 +1,5 @@
-import Container from '@mui/material/Container'
+import ModuleContainer from '@/components/ModuleContainer'
 
 export default function Page() {
-  return <Container>投資組合</Container>
+  return <ModuleContainer>投資組合</ModuleContainer>
 }
