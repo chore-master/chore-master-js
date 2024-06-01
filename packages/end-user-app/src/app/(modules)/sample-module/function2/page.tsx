@@ -1,10 +1,10 @@
+import ModuleContainer from '@/components/ModuleContainer'
 import SampleComponent from '@module/utils/SampleComponent'
-import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 
 export default function Page() {
   return (
-    <Container>
+    <ModuleContainer>
       Function 2<SampleComponent>xx</SampleComponent>
       <Typography>text</Typography>
       <Typography>text</Typography>
@@ -60,6 +60,6 @@ export default function Page() {
       <Typography>text</Typography>
       <Typography>text</Typography>
       <Typography>text</Typography>
-    </Container>
+    </ModuleContainer>
   )
 }

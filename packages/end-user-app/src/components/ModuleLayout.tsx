@@ -1,31 +1,31 @@
 'use client'
 
 import { useEndUser } from '@/utils/auth'
-import { Logout, PersonAdd, Settings } from '@mui/icons-material'
-// import { AccountCircle } from '@mui/icons-material'
+import { Logout } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
 import MenuIcon from '@mui/icons-material/Menu'
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Drawer,
-  IconButton,
-  ListItemIcon,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import AppBar from '@mui/material/AppBar'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Collapse from '@mui/material/Collapse'
 import Divider from '@mui/material/Divider'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import LinearProgress from '@mui/material/LinearProgress'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
+import ListSubheader from '@mui/material/ListSubheader'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
+import Toolbar from '@mui/material/Toolbar'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 
 export default function ModuleLayout({
@@ -37,9 +37,11 @@ export default function ModuleLayout({
   navigations: any[]
   children: React.ReactNode
 }>) {
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false)
+  const [isSideNavOpen, setIsSideNavOpen] = React.useState<boolean>(true)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
   const { endUser, isLoading: isLoadingEndUser, res: endUserRes } = useEndUser()
   const isMenuOpen = Boolean(anchorEl)
 
@@ -63,9 +65,15 @@ export default function ModuleLayout({
 
   if (!endUser || isLoadingEndUser) {
     return (
-      <React.Fragment>
-        <Typography>Loading...</Typography>
-      </React.Fragment>
+      <Box
+        sx={{
+          width: '100vw',
+          height: '100vh',
+          background: 'hsla(215, 15%, 97%, 0.5)',
+        }}
+      >
+        <LinearProgress />
+      </Box>
     )
   }
 
@@ -74,16 +82,16 @@ export default function ModuleLayout({
       <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
         <List disablePadding>
           <ListItem disablePadding>
-            <Link href="/module1" passHref legacyBehavior>
+            <Link href="/treasury" passHref legacyBehavior>
               <ListItemButton component="a">
-                <ListItemText primary="Module 1" />
+                <ListItemText primary="財務管理" />
               </ListItemButton>
             </Link>
           </ListItem>
           <ListItem disablePadding>
-            <Link href="/module2" passHref legacyBehavior>
+            <Link href="/sample-module" passHref legacyBehavior>
               <ListItemButton component="a">
-                <ListItemText primary="Module 2" />
+                <ListItemText primary="範例模組" />
               </ListItemButton>
             </Link>
           </ListItem>
@@ -93,17 +101,76 @@ export default function ModuleLayout({
         direction="row"
         divider={<Divider orientation="vertical" flexItem />}
       >
-        <Stack
-          sx={{
-            width: 240,
-            height: '100vh',
-            position: 'sticky',
-            top: 0,
-          }}
-        >
+        <Collapse orientation="horizontal" in={isSideNavOpen}>
+          <Stack
+            sx={{
+              width: 240,
+              height: '100vh',
+              position: 'sticky',
+              top: 0,
+            }}
+          >
+            <AppBar
+              position="sticky"
+              // color="primary"
+              // color="transparent"
+              elevation={0}
+            >
+              <Toolbar disableGutters>
+                <IconButton
+                  size="large"
+                  color="inherit"
+                  onClick={toggleDrawer(true)}
+                >
+                  <AppsIcon />
+                </IconButton>
+                <Typography variant="h6" component="div">
+                  {moduleName}
+                </Typography>
+              </Toolbar>
+              <Divider />
+            </AppBar>
+            <List
+              disablePadding
+              sx={{
+                flexGrow: 1,
+                overflowY: 'hidden',
+                '&:hover': { overflowY: 'auto' },
+                // scrollbarGutter: 'stable',
+              }}
+            >
+              {navigations.map((nav) => {
+                if (nav.header) {
+                  return (
+                    <ListSubheader key={nav.header}>{nav.header}</ListSubheader>
+                  )
+                } else {
+                  return (
+                    <ListItem key={nav.title} disablePadding>
+                      <Link href={nav.href} passHref legacyBehavior>
+                        <ListItemButton
+                          component="a"
+                          selected={
+                            (nav.selectedWhenExactlyMatched &&
+                              pathname === nav.href) ||
+                            (nav.selectedWhenPartiallyMatched &&
+                              pathname.startsWith(nav.href))
+                          }
+                        >
+                          <ListItemText primary={nav.title} />
+                        </ListItemButton>
+                      </Link>
+                    </ListItem>
+                  )
+                }
+              })}
+            </List>
+          </Stack>
+        </Collapse>
+
+        <Stack sx={{ flexGrow: 1, background: 'hsla(215, 15%, 97%, 0.5)' }}>
           <AppBar
             position="sticky"
-            // color="primary"
             // color="transparent"
             elevation={0}
           >
@@ -111,45 +178,8 @@ export default function ModuleLayout({
               <IconButton
                 size="large"
                 color="inherit"
-                onClick={toggleDrawer(true)}
+                onClick={() => setIsSideNavOpen((open) => !open)}
               >
-                <AppsIcon />
-              </IconButton>
-              <Typography variant="h6" component="div">
-                {moduleName}
-              </Typography>
-            </Toolbar>
-            <Divider />
-          </AppBar>
-          <List
-            disablePadding
-            sx={{
-              flexGrow: 1,
-              overflowY: 'hidden',
-              '&:hover': { overflowY: 'auto' },
-              // scrollbarGutter: 'stable',
-            }}
-          >
-            {navigations.map((navigation) => (
-              <ListItem key={navigation.title} disablePadding>
-                <Link href={navigation.href} passHref legacyBehavior>
-                  <ListItemButton component="a">
-                    <ListItemText primary={navigation.title} />
-                  </ListItemButton>
-                </Link>
-              </ListItem>
-            ))}
-          </List>
-        </Stack>
-
-        <Stack sx={{ flexGrow: 1 }}>
-          <AppBar
-            position="sticky"
-            // color="transparent"
-            elevation={0}
-          >
-            <Toolbar disableGutters>
-              <IconButton size="large" color="inherit">
                 <MenuIcon />
               </IconButton>
               <Box sx={{ flexGrow: 1 }} />
@@ -165,7 +195,9 @@ export default function ModuleLayout({
                   aria-haspopup="true"
                   aria-expanded={isMenuOpen ? 'true' : undefined}
                 >
-                  <Avatar sx={{ width: 32, height: 32 }}>我</Avatar>
+                  <Avatar sx={{ width: 32, height: 32 }}>
+                    {(endUser as any).email.substring(0, 1).toUpperCase()}
+                  </Avatar>
                 </IconButton>
               </Tooltip>
               <Menu
@@ -203,14 +235,16 @@ export default function ModuleLayout({
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
-                <MenuItem onClick={handleCloseMenu}>
-                  <Avatar /> Profile
-                </MenuItem>
-                <MenuItem onClick={handleCloseMenu}>
+                <Link href="/iam" passHref legacyBehavior>
+                  <MenuItem component="a" onClick={handleCloseMenu}>
+                    <Avatar /> 帳戶中心
+                  </MenuItem>
+                </Link>
+                {/* <MenuItem onClick={handleCloseMenu}>
                   <Avatar /> My account
-                </MenuItem>
+                </MenuItem> */}
                 <Divider />
-                <MenuItem onClick={handleCloseMenu}>
+                {/* <MenuItem onClick={handleCloseMenu}>
                   <ListItemIcon>
                     <PersonAdd fontSize="small" />
                   </ListItemIcon>
@@ -221,13 +255,13 @@ export default function ModuleLayout({
                     <Settings fontSize="small" />
                   </ListItemIcon>
                   Settings
-                </MenuItem>
+                </MenuItem> */}
                 <Link href="/logout" passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseMenu}>
                     <ListItemIcon>
                       <Logout fontSize="small" />
                     </ListItemIcon>
-                    Logout
+                    登出目前裝置
                   </MenuItem>
                 </Link>
               </Menu>

@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export default function Page() {
   const { HOST, IAM_API_HOST } = getConfig()
-  const nextURI = encodeURI(`${HOST}/module1`)
+  const nextURI = encodeURI(`${HOST}/treasury`)
 
   // React.useEffect(() => {
   //   apiAgent.get(`/openapi.json`, {
