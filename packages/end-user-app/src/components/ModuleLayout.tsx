@@ -1,30 +1,29 @@
 'use client'
 
 import { useEndUser } from '@/utils/auth'
-import { Logout, PersonAdd, Settings } from '@mui/icons-material'
+import { Logout } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
 import MenuIcon from '@mui/icons-material/Menu'
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Collapse,
-  Drawer,
-  IconButton,
-  ListItemIcon,
-  ListSubheader,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import AppBar from '@mui/material/AppBar'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Collapse from '@mui/material/Collapse'
 import Divider from '@mui/material/Divider'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import LinearProgress from '@mui/material/LinearProgress'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
+import ListSubheader from '@mui/material/ListSubheader'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
+import Toolbar from '@mui/material/Toolbar'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
@@ -66,9 +65,15 @@ export default function ModuleLayout({
 
   if (!endUser || isLoadingEndUser) {
     return (
-      <React.Fragment>
-        <Typography>Loading...</Typography>
-      </React.Fragment>
+      <Box
+        sx={{
+          width: '100vw',
+          height: '100vh',
+          background: 'hsla(215, 15%, 97%, 0.5)',
+        }}
+      >
+        <LinearProgress />
+      </Box>
     )
   }
 
@@ -228,14 +233,16 @@ export default function ModuleLayout({
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
-                <MenuItem onClick={handleCloseMenu}>
-                  <Avatar /> Profile
-                </MenuItem>
-                <MenuItem onClick={handleCloseMenu}>
+                <Link href="/iam" passHref legacyBehavior>
+                  <MenuItem component="a" onClick={handleCloseMenu}>
+                    <Avatar /> 帳戶中心
+                  </MenuItem>
+                </Link>
+                {/* <MenuItem onClick={handleCloseMenu}>
                   <Avatar /> My account
-                </MenuItem>
+                </MenuItem> */}
                 <Divider />
-                <MenuItem onClick={handleCloseMenu}>
+                {/* <MenuItem onClick={handleCloseMenu}>
                   <ListItemIcon>
                     <PersonAdd fontSize="small" />
                   </ListItemIcon>
@@ -246,13 +253,13 @@ export default function ModuleLayout({
                     <Settings fontSize="small" />
                   </ListItemIcon>
                   Settings
-                </MenuItem>
+                </MenuItem> */}
                 <Link href="/logout" passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseMenu}>
                     <ListItemIcon>
                       <Logout fontSize="small" />
                     </ListItemIcon>
-                    Logout
+                    登出目前裝置
                   </MenuItem>
                 </Link>
               </Menu>
