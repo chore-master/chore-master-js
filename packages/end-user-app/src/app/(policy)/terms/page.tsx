@@ -8,11 +8,16 @@ export default function Page() {
         服務條款
       </Typography>
 
+      <Typography paragraph>
+        歡迎使用 Chore
+        Master（以下稱「本網站」或「我們」）。使用本網站即表示您同意遵守以下服務條款。請仔細閱讀這些條款。
+      </Typography>
+
       <Typography variant="h6" gutterBottom>
         使用條件
       </Typography>
       <Typography paragraph>使用本網站，您必須：</Typography>
-      <Typography component="ul">
+      <Typography component="ul" gutterBottom>
         <Typography component="li">
           使用 Google 帳號登入並授權我們存取您的電子郵件地址及基本個人資訊。
         </Typography>
@@ -34,7 +39,7 @@ export default function Page() {
         使用規範
       </Typography>
       <Typography paragraph>您同意不從事以下行為：</Typography>
-      <Typography component="ul">
+      <Typography component="ul" gutterBottom>
         <Typography component="li">以任何非法方式或目的使用本網站。</Typography>
         <Typography component="li">試圖破壞或干擾本網站的正常運行。</Typography>
         <Typography component="li">

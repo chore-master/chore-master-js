@@ -8,13 +8,18 @@ export default function Page() {
         隱私權政策
       </Typography>
 
+      <Typography paragraph>
+        Chore
+        Master（以下稱「本網站」或「我們」）重視您的隱私。這份隱私權政策旨在告知您我們如何收集、使用、存儲和保護您的個人資料。
+      </Typography>
+
       <Typography variant="h6" gutterBottom>
         資料收集
       </Typography>
       <Typography paragraph>
         當您使用 Google 帳號登入本網站時，我們會收集以下個人資料：
       </Typography>
-      <Typography component="ul">
+      <Typography component="ul" gutterBottom>
         <Typography component="li">您的電子郵件地址</Typography>
         <Typography component="li">
           基本個人資訊（例如，您的姓名和個人資料圖片）
@@ -24,7 +29,7 @@ export default function Page() {
         此外，我們會索取以下 Google Drive 和 Spreadsheet
         的存取權限，以便提供完整的應用程式功能：
       </Typography>
-      <Typography component="ul">
+      <Typography component="ul" gutterBottom>
         <Typography component="li">存取您的 Google Drive</Typography>
         <Typography component="li">
           存取和管理您的 Google Spreadsheet
@@ -35,7 +40,7 @@ export default function Page() {
         資料使用
       </Typography>
       <Typography paragraph>我們收集的個人資料將用於以下目的：</Typography>
-      <Typography component="ul">
+      <Typography component="ul" gutterBottom>
         <Typography component="li">驗證您的身份並提供登入服務</Typography>
         <Typography component="li">提供和改善我們的服務</Typography>
         <Typography component="li">
@@ -49,7 +54,7 @@ export default function Page() {
       <Typography paragraph>
         我們不會與任何第三方共享、出售、出租或以其他方式披露您的個人資料，除非在以下情況下：
       </Typography>
-      <Typography component="ul">
+      <Typography component="ul" gutterBottom>
         <Typography component="li">獲得您的明確同意</Typography>
         <Typography component="li">為了遵守法律法規或應政府要求</Typography>
         <Typography component="li">
@@ -70,7 +75,7 @@ export default function Page() {
       <Typography paragraph>
         由於我們的應用程式特性，用戶不具備以下權利：
       </Typography>
-      <Typography component="ul">
+      <Typography component="ul" gutterBottom>
         <Typography component="li">
           刪除權：用戶無法要求刪除我們所持有的個人資料
         </Typography>
