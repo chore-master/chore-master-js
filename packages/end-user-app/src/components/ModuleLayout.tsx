@@ -195,7 +195,9 @@ export default function ModuleLayout({
                   aria-haspopup="true"
                   aria-expanded={isMenuOpen ? 'true' : undefined}
                 >
-                  <Avatar sx={{ width: 32, height: 32 }}>我</Avatar>
+                  <Avatar sx={{ width: 32, height: 32 }}>
+                    {(endUser as any).email.substring(0, 1).toUpperCase()}
+                  </Avatar>
                 </IconButton>
               </Tooltip>
               <Menu

@@ -7,6 +7,15 @@ export default function Page() {
   return (
     <ModuleContainer>
       <Stack>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
+        <Typography>帳戶列表</Typography>
         <Typography>資產配置</Typography>
         <Typography>資產配置</Typography>
         <Typography>資產配置</Typography>
