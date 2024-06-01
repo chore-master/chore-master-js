@@ -12,6 +12,7 @@ import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import LinearProgress from '@mui/material/LinearProgress'
+import MuiLink from '@mui/material/Link'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -80,7 +81,7 @@ export default function ModuleLayout({
   return (
     <React.Fragment>
       <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
-        <List disablePadding>
+        <List disablePadding sx={{ flexGrow: 1 }}>
           <ListItem disablePadding>
             <Link href="/treasury" passHref legacyBehavior>
               <ListItemButton component="a">
@@ -96,6 +97,14 @@ export default function ModuleLayout({
             </Link>
           </ListItem>
         </List>
+        <Stack direction="row" spacing={1} p={1}>
+          <MuiLink color="inherit" variant="body2" href="/privacy">
+            隱私權
+          </MuiLink>
+          <MuiLink color="inherit" variant="body2" href="/terms">
+            服務條款
+          </MuiLink>
+        </Stack>
       </Drawer>
       <Stack
         direction="row"
