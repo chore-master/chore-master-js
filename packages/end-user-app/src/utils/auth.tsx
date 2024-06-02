@@ -8,6 +8,7 @@ interface EndUserType {
 
 interface EndUserContextType {
   isLoading: boolean
+  successLoadedCount: number
   res: any
   endUser: EndUserType | null
   sync: any
@@ -15,6 +16,7 @@ interface EndUserContextType {
 
 const EndUserContext = React.createContext<EndUserContextType>({
   isLoading: false,
+  successLoadedCount: 0,
   res: null,
   endUser: null,
   sync: async () => {},
@@ -22,6 +24,7 @@ const EndUserContext = React.createContext<EndUserContextType>({
 
 export const EndUserProvider = (props: any) => {
   const [isLoading, setIsLoading] = React.useState(false)
+  const [successLoadedCount, setSuccessLoadedCount] = React.useState(0)
   const [res, setRes] = React.useState(null)
   const [endUser, setEndUser] = React.useState(null)
 
@@ -37,6 +40,7 @@ export const EndUserProvider = (props: any) => {
       onSuccess: async ({ res, data }: any) => {
         setRes(res)
         setEndUser(data)
+        setSuccessLoadedCount((c) => c + 1)
         setIsLoading(false)
       },
     })
@@ -48,7 +52,13 @@ export const EndUserProvider = (props: any) => {
 
   return (
     <EndUserContext.Provider
-      value={{ isLoading, res, endUser, sync: fetchEndUser }}
+      value={{
+        isLoading,
+        successLoadedCount,
+        res,
+        endUser,
+        sync: fetchEndUser,
+      }}
       {...props}
     />
   )
@@ -58,6 +68,7 @@ export const useEndUser = () => {
   const endUserContext = React.useContext(EndUserContext)
   return {
     isLoading: endUserContext.isLoading,
+    successLoadedCount: endUserContext.successLoadedCount,
     res: endUserContext.res,
     endUser: endUserContext.endUser,
     sync: endUserContext.sync,

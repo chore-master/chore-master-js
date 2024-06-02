@@ -43,7 +43,11 @@ export default function ModuleLayout({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const { endUser, isLoading: isLoadingEndUser, res: endUserRes } = useEndUser()
+  const {
+    endUser,
+    successLoadedCount: endUserSuccessLoadedCount,
+    res: endUserRes,
+  } = useEndUser()
   const isMenuOpen = Boolean(anchorEl)
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -76,7 +80,7 @@ export default function ModuleLayout({
     }
   }, [endUser])
 
-  if (!endUser || isLoadingEndUser) {
+  if (!endUser || endUserSuccessLoadedCount === 0) {
     return (
       <Box
         sx={{

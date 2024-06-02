@@ -6,8 +6,8 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useEndUser } from '@/utils/auth'
+import LoadingButton from '@mui/lab/LoadingButton'
 import { Box } from '@mui/material'
-import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
@@ -41,8 +41,8 @@ export default function Page() {
     })
   }
 
-  const onSubmitGoogleIntegrationForm: SubmitHandler<Inputs> = (data) => {
-    choreMasterAPIAgent.patch('/v1/integrations/google', data, {
+  const onSubmitGoogleIntegrationForm: SubmitHandler<Inputs> = async (data) => {
+    await choreMasterAPIAgent.patch('/v1/integrations/google', data, {
       onFail: ({ message }: any) => {
         alert(message)
       },
@@ -96,14 +96,15 @@ export default function Page() {
                   rules={{ required: 'First name is required' }}
                 />
               </FormControl>
-              <Button
+              <LoadingButton
                 variant="contained"
                 onClick={googleIntegrationForm.handleSubmit(
                   onSubmitGoogleIntegrationForm
                 )}
+                loading={googleIntegrationForm.formState.isSubmitting}
               >
                 儲存
-              </Button>
+              </LoadingButton>
             </Stack>
           </Box>
         </ModuleFunctionBody>
