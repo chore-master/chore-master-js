@@ -8,15 +8,17 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
-      moduleName="Module 2"
+      moduleName="帳戶中心"
       navigations={[
         {
-          title: 'Dashboard',
-          href: '/module2',
+          title: '儀表板',
+          href: '/iam',
+          selectedWhenExactlyMatched: true,
         },
         {
-          title: 'Function 1',
-          href: '/module2/function1',
+          title: '整合',
+          href: '/iam/integration',
+          selectedWhenPartiallyMatched: true,
         },
       ]}
     >
