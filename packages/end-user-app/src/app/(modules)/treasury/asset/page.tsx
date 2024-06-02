@@ -1,12 +1,12 @@
 'use client'
 
-import Box from '@mui/material/Box'
+import ModuleFunction, {
+  ModuleFunctionBody,
+  ModuleFunctionHeader,
+} from '@/components/ModuleFunction'
 import Button from '@mui/material/Button'
-import CardActions from '@mui/material/CardActions'
-import CardContent from '@mui/material/CardContent'
-import CardHeader from '@mui/material/CardHeader'
-import Paper from '@mui/material/Paper'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
+import React from 'react'
 
 const rows: GridRowsProp = [
   { id: 1, col1: 'Hello', col2: 'World' },
@@ -26,41 +26,26 @@ const columns: GridColDef[] = [
 
 export default function Page() {
   return (
-    <>
-      <Box p={3}>
-        <Box sx={{ margin: '0 auto', maxWidth: 1200 }}>
-          <CardHeader
-            title="帳戶列表"
-            action={
-              <CardActions>
-                <Button size="small">Learn More</Button>
-              </CardActions>
-            }
-          />
-          <CardContent>
-            <Paper elevation={1}>
-              <DataGrid rows={rows} columns={columns} autoHeight />
-            </Paper>
-          </CardContent>
-        </Box>
-      </Box>
-      <Box p={3}>
-        <Box sx={{ margin: '0 auto', maxWidth: 1200 }}>
-          <CardHeader
-            title="資產配置"
-            action={
-              <CardActions>
-                <Button variant="contained">新增</Button>
-              </CardActions>
-            }
-          />
-          <CardContent>
-            <Paper elevation={1}>
-              <DataGrid rows={rows} columns={columns} autoHeight />
-            </Paper>
-          </CardContent>
-        </Box>
-      </Box>
-    </>
+    <React.Fragment>
+      <ModuleFunction>
+        <ModuleFunctionHeader
+          title="帳戶列表"
+          actions={<Button size="small">Learn More</Button>}
+        />
+        <ModuleFunctionBody>
+          <DataGrid rows={rows} columns={columns} autoHeight />
+        </ModuleFunctionBody>
+      </ModuleFunction>
+
+      <ModuleFunction>
+        <ModuleFunctionHeader
+          title="資產配置"
+          actions={<Button variant="contained">新增</Button>}
+        />
+        <ModuleFunctionBody>
+          <DataGrid rows={rows} columns={columns} autoHeight />
+        </ModuleFunctionBody>
+      </ModuleFunction>
+    </React.Fragment>
   )
 }

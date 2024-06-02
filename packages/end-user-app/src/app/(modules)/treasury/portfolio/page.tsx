@@ -1,5 +1,5 @@
-import ModuleContainer from '@/components/ModuleContainer'
+import ModuleFunction from '@/components/ModuleFunction'
 
 export default function Page() {
-  return <ModuleContainer>投資組合</ModuleContainer>
+  return <ModuleFunction>投資組合</ModuleFunction>
 }

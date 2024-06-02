@@ -1,5 +1,5 @@
-import ModuleContainer from '@/components/ModuleContainer'
+import ModuleFunction from '@/components/ModuleFunction'
 
 export default function Page() {
-  return <ModuleContainer>Function 1-1</ModuleContainer>
+  return <ModuleFunction>Function 1-1</ModuleFunction>
 }

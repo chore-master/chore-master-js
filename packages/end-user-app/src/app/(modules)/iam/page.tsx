@@ -1,5 +1,5 @@
-import ModuleContainer from '@/components/ModuleContainer'
+import ModuleFunction from '@/components/ModuleFunction'
 
 export default function Page() {
-  return <ModuleContainer>儀表板</ModuleContainer>
+  return <ModuleFunction>儀表板</ModuleFunction>
 }
