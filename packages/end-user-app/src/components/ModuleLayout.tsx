@@ -65,8 +65,14 @@ export default function ModuleLayout({
   }, [endUserRes])
 
   React.useEffect(() => {
-    if (!endUser?.root_folder_id) {
-      router.push('/iam/integration')
+    if (endUserRes?.status === 403) {
+      router.push('/login')
+    }
+  }, [endUserRes])
+
+  React.useEffect(() => {
+    if (endUser?.is_onboarded === false) {
+      router.push('/iam')
     }
   }, [endUser])
 

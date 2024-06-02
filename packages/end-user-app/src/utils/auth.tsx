@@ -3,7 +3,7 @@ import React from 'react'
 
 interface EndUserType {
   email: string
-  root_folder_id?: string
+  is_onboarded?: boolean
 }
 
 interface EndUserContextType {
