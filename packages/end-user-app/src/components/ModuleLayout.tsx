@@ -110,21 +110,23 @@ export default function ModuleLayout({
         direction="row"
         divider={<Divider orientation="vertical" flexItem />}
       >
-        <Collapse orientation="horizontal" in={isSideNavOpen}>
+        <Collapse
+          orientation="horizontal"
+          in={isSideNavOpen}
+          sx={{
+            overflowX: 'hidden',
+            position: 'sticky',
+            top: 0,
+            height: '100vh',
+          }}
+        >
           <Stack
             sx={{
               width: 240,
-              height: '100vh',
-              position: 'sticky',
-              top: 0,
+              height: '100%',
             }}
           >
-            <AppBar
-              position="sticky"
-              // color="primary"
-              // color="transparent"
-              elevation={0}
-            >
+            <AppBar position="sticky" elevation={0}>
               <Toolbar disableGutters>
                 <IconButton
                   size="large"
@@ -145,7 +147,6 @@ export default function ModuleLayout({
                 flexGrow: 1,
                 overflowY: 'hidden',
                 '&:hover': { overflowY: 'auto' },
-                // scrollbarGutter: 'stable',
               }}
             >
               {navigations.map((nav) => {
@@ -177,12 +178,14 @@ export default function ModuleLayout({
           </Stack>
         </Collapse>
 
-        <Stack sx={{ flexGrow: 1, background: 'hsla(215, 15%, 97%, 0.5)' }}>
-          <AppBar
-            position="sticky"
-            // color="transparent"
-            elevation={0}
-          >
+        <Stack
+          sx={{
+            flex: '1 0 0px',
+            background: 'hsla(215, 15%, 97%, 0.5)',
+            minWidth: 320,
+          }}
+        >
+          <AppBar position="sticky" elevation={0}>
             <Toolbar disableGutters>
               <IconButton
                 size="large"
