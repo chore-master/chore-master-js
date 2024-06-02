@@ -1,10 +1,15 @@
 import { iamAPIAgent } from '@/utils/apiAgent'
 import React from 'react'
 
+interface EndUserType {
+  email: string
+  root_folder_id?: string
+}
+
 interface EndUserContextType {
   isLoading: boolean
   res: any
-  endUser: object | null
+  endUser: EndUserType | null
   sync: any
 }
 

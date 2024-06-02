@@ -15,6 +15,11 @@ export default function Layout({
           href: '/iam',
           selectedWhenExactlyMatched: true,
         },
+        {
+          title: '整合',
+          href: '/iam/integration',
+          selectedWhenPartiallyMatched: true,
+        },
       ]}
     >
       {children}

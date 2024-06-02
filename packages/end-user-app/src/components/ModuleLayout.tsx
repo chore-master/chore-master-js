@@ -64,6 +64,12 @@ export default function ModuleLayout({
     }
   }, [endUserRes])
 
+  React.useEffect(() => {
+    if (!endUser?.root_folder_id) {
+      router.push('/iam/integration')
+    }
+  }, [endUser])
+
   if (!endUser || isLoadingEndUser) {
     return (
       <Box
@@ -198,7 +204,7 @@ export default function ModuleLayout({
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
               </IconButton> */}
-              <Tooltip title={(endUser as any)?.email}>
+              <Tooltip title={endUser.email}>
                 <IconButton
                   onClick={handleAvatarClick}
                   size="small"

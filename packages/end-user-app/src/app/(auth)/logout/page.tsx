@@ -1,6 +1,8 @@
 'use client'
 
 import { iamAPIAgent } from '@/utils/apiAgent'
+import Box from '@mui/material/Box'
+import LinearProgress from '@mui/material/LinearProgress'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -18,5 +20,15 @@ export default function Page() {
     })
   })
 
-  return <React.Fragment>Loggining out...</React.Fragment>
+  return (
+    <Box
+      sx={{
+        width: '100vw',
+        height: '100vh',
+        background: 'hsla(215, 15%, 97%, 0.5)',
+      }}
+    >
+      <LinearProgress />
+    </Box>
+  )
 }
