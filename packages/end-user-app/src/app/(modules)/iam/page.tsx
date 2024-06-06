@@ -16,8 +16,7 @@ import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 type Inputs = {
-  root_folder_id: string
-  profile_folder_id: string
+  drive_root_folder_id: string
 }
 
 export default function Page() {
@@ -36,7 +35,9 @@ export default function Page() {
         alert(message)
       },
       onSuccess: async ({ data }: any) => {
-        googleIntegrationForm.reset(data)
+        googleIntegrationForm.reset({
+          drive_root_folder_id: data?.drive?.root_folder_id,
+        })
       },
     })
   }
@@ -49,6 +50,7 @@ export default function Page() {
       onSuccess: () => {
         fetchGoogleIntegration()
         syncEndUser()
+        alert('掛載完成。')
       },
     })
   }
@@ -56,40 +58,24 @@ export default function Page() {
   return (
     <React.Fragment>
       <ModuleFunction>
-        <ModuleFunctionHeader title="Google 整合" />
+        <ModuleFunctionHeader title="Google 服務整合" />
         <ModuleFunctionBody>
           <Box p={2}>
             <Typography mb={3}>
               Chore Master 使用您的 Google Drive 及 Spreadsheet
-              來儲存資料狀態，您必須完成此設定才能開始使用完整服務。
+              來儲存資料狀態，您必須完成此設定才能使用完整服務。
             </Typography>
             <Stack component="form" spacing={3} autoComplete="off">
               <FormControl>
                 <Controller
-                  name="root_folder_id"
+                  name="drive_root_folder_id"
                   control={googleIntegrationForm.control}
                   defaultValue=""
                   render={({ field }) => (
                     <TextField
                       {...field}
                       required
-                      label="Google Drive 根目錄資料夾 ID"
-                      variant="standard"
-                    />
-                  )}
-                  rules={{ required: 'First name is required' }}
-                />
-              </FormControl>
-              <FormControl>
-                <Controller
-                  name="profile_folder_id"
-                  control={googleIntegrationForm.control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      required
-                      label="Google Drive 身份資料夾 ID"
+                      label="掛載至 Google Drive 資料夾 ID"
                       variant="standard"
                     />
                   )}
@@ -103,7 +89,7 @@ export default function Page() {
                 )}
                 loading={googleIntegrationForm.formState.isSubmitting}
               >
-                儲存
+                掛載
               </LoadingButton>
             </Stack>
           </Box>

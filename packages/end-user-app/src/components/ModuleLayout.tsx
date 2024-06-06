@@ -75,7 +75,7 @@ export default function ModuleLayout({
   }, [endUserRes])
 
   React.useEffect(() => {
-    if (endUser?.is_onboarded === false) {
+    if (endUser?.is_mounted === false) {
       router.push('/iam')
     }
   }, [endUser])
