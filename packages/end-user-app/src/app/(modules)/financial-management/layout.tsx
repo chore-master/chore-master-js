@@ -12,17 +12,17 @@ export default function Layout({
       navigations={[
         {
           title: '儀表板',
-          href: '/treasury',
+          href: '/financial-management',
           selectedWhenExactlyMatched: true,
         },
         {
-          title: '資產配置',
-          href: '/treasury/asset',
+          title: '帳戶',
+          href: '/financial-management/account',
           selectedWhenPartiallyMatched: true,
         },
         {
-          title: '投資組合',
-          href: '/treasury/portfolio',
+          title: '資產存摺',
+          href: '/financial-management/passbook',
           selectedWhenPartiallyMatched: true,
         },
       ]}

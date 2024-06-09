@@ -99,7 +99,7 @@ export default function ModuleLayout({
       <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
         <List disablePadding sx={{ flexGrow: 1 }}>
           <ListItem disablePadding>
-            <Link href="/treasury" passHref legacyBehavior>
+            <Link href="/financial-management" passHref legacyBehavior>
               <ListItemButton component="a">
                 <ListItemText primary="財務管理" />
               </ListItemButton>
