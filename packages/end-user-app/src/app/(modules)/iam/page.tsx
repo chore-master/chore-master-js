@@ -29,7 +29,7 @@ export default function Page() {
   }, [])
 
   const fetchGoogleIntegration = () => {
-    choreMasterAPIAgent.get('/v1/integrations/google', {
+    choreMasterAPIAgent.get('/v1/account_center/integrations/google', {
       params: {},
       onFail: ({ message }: any) => {
         alert(message)
@@ -43,16 +43,20 @@ export default function Page() {
   }
 
   const onSubmitGoogleIntegrationForm: SubmitHandler<Inputs> = async (data) => {
-    await choreMasterAPIAgent.patch('/v1/integrations/google', data, {
-      onFail: ({ message }: any) => {
-        alert(message)
-      },
-      onSuccess: () => {
-        fetchGoogleIntegration()
-        syncEndUser()
-        alert('掛載完成。')
-      },
-    })
+    await choreMasterAPIAgent.patch(
+      '/v1/account_center/integrations/google',
+      data,
+      {
+        onFail: ({ message }: any) => {
+          alert(message)
+        },
+        onSuccess: () => {
+          fetchGoogleIntegration()
+          syncEndUser()
+          alert('掛載完成。')
+        },
+      }
+    )
   }
 
   return (

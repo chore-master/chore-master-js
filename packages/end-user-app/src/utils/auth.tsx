@@ -30,7 +30,7 @@ export const EndUserProvider = (props: any) => {
 
   const fetchEndUser = async () => {
     setIsLoading(true)
-    iamAPIAgent.get('/v1/end_users/me', {
+    iamAPIAgent.get('/v1/account_center/end_users/me', {
       params: {},
       onFail: ({ res }: any) => {
         setRes(res)
