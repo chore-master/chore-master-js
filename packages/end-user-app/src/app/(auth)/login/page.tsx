@@ -5,7 +5,7 @@ import Link from 'next/link'
 export default function Page() {
   const { HOST, IAM_API_HOST } = getConfig()
   const errorRedirectURI = encodeURI(`${HOST}/login`)
-  const successRedirectURI = encodeURI(`${HOST}/treasury`)
+  const successRedirectURI = encodeURI(`${HOST}/financial-management`)
 
   return (
     <Container>
