@@ -21,7 +21,6 @@ type Inputs = {
 
 export default function Page() {
   const { sync: syncEndUser } = useEndUser()
-  const [] = React.useState(false)
   const googleIntegrationForm = useForm<Inputs>()
 
   React.useEffect(() => {
@@ -83,7 +82,7 @@ export default function Page() {
                       variant="standard"
                     />
                   )}
-                  rules={{ required: 'First name is required' }}
+                  rules={{ required: '必填' }}
                 />
               </FormControl>
               <LoadingButton
