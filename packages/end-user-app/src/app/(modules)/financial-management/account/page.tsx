@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -15,11 +16,14 @@ import FormControl from '@mui/material/FormControl'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridActionsCellItem,
+  GridColDef,
+  GridRowId,
+} from '@mui/x-data-grid'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-
-const columns: GridColDef[] = [{ field: 'name', headerName: '名字' }]
 
 type CreateAccountFormInputs = {
   name: string
@@ -32,7 +36,7 @@ export default function Page() {
   const createAccountForm = useForm<CreateAccountFormInputs>()
 
   React.useEffect(() => {
-    fetchRows()
+    fetchAccounts()
   }, [])
 
   const toggleCreateAccountDrawer =
@@ -40,7 +44,7 @@ export default function Page() {
       setIsCreateAccountDrawerOpen(isOpen)
     }
 
-  const fetchRows = async () => {
+  const fetchAccounts = async () => {
     choreMasterAPIAgent.get('/v1/financial_management/accounts', {
       params: {},
       onFail: ({ message }: any) => {
@@ -62,10 +66,42 @@ export default function Page() {
       onSuccess: () => {
         createAccountForm.reset()
         setIsCreateAccountDrawerOpen(false)
-        fetchRows()
+        fetchAccounts()
       },
     })
   }
+
+  const onDeleteAccountClick = (id: GridRowId) => () => {
+    choreMasterAPIAgent.delete(`/v1/financial_management/accounts/${id}`, {
+      onFail: ({ message }: any) => {
+        alert(message)
+      },
+      onSuccess: () => {
+        fetchAccounts()
+      },
+    })
+  }
+
+  const columns: GridColDef[] = [
+    { field: 'name', headerName: '名字', flex: 1 },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: '操作',
+      width: 100,
+      cellClassName: 'actions',
+      getActions: ({ id }) => {
+        return [
+          <GridActionsCellItem
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={onDeleteAccountClick(id)}
+            color="inherit"
+          />,
+        ]
+      },
+    },
+  ]
 
   return (
     <React.Fragment>
