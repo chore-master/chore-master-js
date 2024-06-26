@@ -6,6 +6,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
+import EditIcon from '@mui/icons-material/Edit'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -21,6 +22,8 @@ import {
   GridActionsCellItem,
   GridColDef,
   GridRowId,
+  GridRowModes,
+  GridRowModesModel,
 } from '@mui/x-data-grid'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
@@ -31,6 +34,10 @@ type CreateAccountFormInputs = {
 
 export default function Page() {
   const [rows, setRows] = React.useState([])
+  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
+    {}
+  )
+
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>()
@@ -71,6 +78,10 @@ export default function Page() {
     })
   }
 
+  const onEditAccountClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
+  }
+
   const onDeleteAccountClick = (id: GridRowId) => () => {
     choreMasterAPIAgent.delete(`/v1/financial_management/accounts/${id}`, {
       onFail: ({ message }: any) => {
@@ -92,6 +103,13 @@ export default function Page() {
       cellClassName: 'actions',
       getActions: ({ id }) => {
         return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={onEditAccountClick(id)}
+            color="inherit"
+          />,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
@@ -121,6 +139,10 @@ export default function Page() {
           <DataGrid
             rows={rows}
             columns={columns}
+            editMode="row"
+            rowModesModel={rowModesModel}
+            // onRowEditStop={handleRowEditStop}
+            processRowUpdate={processRowUpdate}
             getRowId={(row) => row.reference}
             autoHeight
           />
