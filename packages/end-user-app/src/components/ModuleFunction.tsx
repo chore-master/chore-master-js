@@ -16,6 +16,7 @@ export default function ModuleFunction({
     </Box>
   )
 }
+
 export const ModuleFunctionHeader = ({
   children,
   title,
@@ -34,6 +35,7 @@ export const ModuleFunctionHeader = ({
     </CardHeader>
   )
 }
+
 export const ModuleFunctionBody = ({
   children,
 }: Readonly<{

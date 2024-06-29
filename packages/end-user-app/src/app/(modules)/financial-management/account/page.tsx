@@ -1,5 +1,6 @@
 'use client'
 
+import { ModuleDataGrid } from '@/components/ModuleDataGrid'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -18,22 +19,24 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import {
-  DataGrid,
   GridActionsCellItem,
   GridColDef,
   GridRowId,
   GridRowModes,
   GridRowModesModel,
+  GridRowsProp,
 } from '@mui/x-data-grid'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import { v4 as uuidv4 } from 'uuid'
 
 type CreateAccountFormInputs = {
   name: string
 }
 
 export default function Page() {
-  const [rows, setRows] = React.useState([])
+  const [accountRows, setAccountRows] = React.useState<GridRowsProp>([])
+  const [isLoadingAccountRows, setIsLoadingAccountRows] = React.useState(false)
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {}
   )
@@ -43,7 +46,7 @@ export default function Page() {
   const createAccountForm = useForm<CreateAccountFormInputs>()
 
   React.useEffect(() => {
-    fetchAccounts()
+    fetchAccountRows()
   }, [])
 
   const toggleCreateAccountDrawer =
@@ -51,16 +54,25 @@ export default function Page() {
       setIsCreateAccountDrawerOpen(isOpen)
     }
 
-  const fetchAccounts = async () => {
-    choreMasterAPIAgent.get('/v1/financial_management/accounts', {
+  const fetchAccountRows = async () => {
+    setIsLoadingAccountRows(true)
+    await choreMasterAPIAgent.get('/v1/financial_management/accounts', {
       params: {},
       onFail: ({ message }: any) => {
         alert(message)
       },
       onSuccess: async ({ data }: any) => {
-        setRows(data)
+        setAccountRows(data)
       },
     })
+    setIsLoadingAccountRows(false)
+  }
+
+  const getNewAccountRow = () => {
+    return {
+      reference: uuidv4(),
+      name: '',
+    }
   }
 
   const onSubmitCreateAccountForm: SubmitHandler<
@@ -73,7 +85,7 @@ export default function Page() {
       onSuccess: () => {
         createAccountForm.reset()
         setIsCreateAccountDrawerOpen(false)
-        fetchAccounts()
+        fetchAccountRows()
       },
     })
   }
@@ -88,12 +100,12 @@ export default function Page() {
         alert(message)
       },
       onSuccess: () => {
-        fetchAccounts()
+        fetchAccountRows()
       },
     })
   }
 
-  const columns: GridColDef[] = [
+  const accountColumns: GridColDef[] = [
     { field: 'name', headerName: '名字', flex: 1 },
     {
       field: 'actions',
@@ -136,15 +148,13 @@ export default function Page() {
           }
         />
         <ModuleFunctionBody>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            editMode="row"
-            rowModesModel={rowModesModel}
-            // onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
+          <ModuleDataGrid
+            rows={accountRows}
+            columns={accountColumns}
+            getNewRow={getNewAccountRow}
+            setRows={setAccountRows}
             getRowId={(row) => row.reference}
-            autoHeight
+            loading={isLoadingAccountRows}
           />
         </ModuleFunctionBody>
       </ModuleFunction>
