@@ -6,8 +6,11 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import AddIcon from '@mui/icons-material/Add'
+import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -22,6 +25,7 @@ import {
   GridActionsCellItem,
   GridColDef,
   GridRowId,
+  GridRowModel,
   GridRowModes,
   GridRowModesModel,
   GridRowsProp,
@@ -37,10 +41,8 @@ type CreateAccountFormInputs = {
 export default function Page() {
   const [accountRows, setAccountRows] = React.useState<GridRowsProp>([])
   const [isLoadingAccountRows, setIsLoadingAccountRows] = React.useState(false)
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
-  )
-
+  const [accountRowModesModel, setAccountRowModesModel] =
+    React.useState<GridRowModesModel>({})
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>()
@@ -68,14 +70,7 @@ export default function Page() {
     setIsLoadingAccountRows(false)
   }
 
-  const getNewAccountRow = () => {
-    return {
-      reference: uuidv4(),
-      name: '',
-    }
-  }
-
-  const onSubmitCreateAccountForm: SubmitHandler<
+  const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.post('/v1/financial_management/accounts', data, {
@@ -90,42 +85,156 @@ export default function Page() {
     })
   }
 
-  const onEditAccountClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
+  const getNewAccountRow = () => {
+    return {
+      isNew: true,
+      reference: uuidv4(),
+      name: '',
+    }
   }
 
-  const onDeleteAccountClick = (id: GridRowId) => () => {
-    choreMasterAPIAgent.delete(`/v1/financial_management/accounts/${id}`, {
-      onFail: ({ message }: any) => {
-        alert(message)
-      },
-      onSuccess: () => {
-        fetchAccountRows()
-      },
+  const handleEditAccountClick = (reference: GridRowId) => () => {
+    setAccountRowModesModel({
+      ...accountRowModesModel,
+      [reference]: { mode: GridRowModes.Edit },
     })
   }
 
+  const handleSaveAccountClick = (reference: GridRowId) => () => {
+    setAccountRowModesModel({
+      ...accountRowModesModel,
+      [reference]: { mode: GridRowModes.View },
+    })
+  }
+
+  const handleDeleteAccountClick = (reference: GridRowId) => async () => {
+    setIsLoadingAccountRows(true)
+    await choreMasterAPIAgent.delete(
+      `/v1/financial_management/accounts/${reference}`,
+      {
+        onFail: ({ message }: any) => {
+          alert(message)
+        },
+        onSuccess: () => {
+          setAccountRows(
+            accountRows.filter((row) => row.reference !== reference)
+          )
+        },
+      }
+    )
+    setIsLoadingAccountRows(false)
+  }
+
+  const handleCancelEditAccountClick = (reference: GridRowId) => () => {
+    setAccountRowModesModel({
+      ...accountRowModesModel,
+      [reference]: { mode: GridRowModes.View, ignoreModifications: true },
+    })
+
+    const editedRow = accountRows.find((row) => row.reference === reference)
+    if (editedRow!.isNew) {
+      setAccountRows(accountRows.filter((row) => row.reference !== reference))
+    }
+  }
+
+  const handleUpsertAccountRow = async ({
+    isNew,
+    ...upsertedRow
+  }: GridRowModel) => {
+    setIsLoadingAccountRows(true)
+    if (isNew) {
+      await choreMasterAPIAgent.post(
+        '/v1/financial_management/accounts',
+        upsertedRow,
+        {
+          onFail: ({ message }: any) => {
+            alert(message)
+          },
+          onSuccess: () => {
+            setAccountRows(
+              accountRows.map((row) =>
+                row.reference === upsertedRow.reference ? upsertedRow : row
+              )
+            )
+          },
+        }
+      )
+    } else {
+      await choreMasterAPIAgent.patch(
+        `/v1/financial_management/accounts/${upsertedRow.reference}`,
+        upsertedRow,
+        {
+          onFail: ({ message }: any) => {
+            alert(message)
+          },
+          onSuccess: () => {
+            setAccountRows(
+              accountRows.map((row) =>
+                row.reference === upsertedRow.reference ? upsertedRow : row
+              )
+            )
+          },
+        }
+      )
+    }
+    setIsLoadingAccountRows(false)
+    return upsertedRow
+  }
+
   const accountColumns: GridColDef[] = [
-    { field: 'name', headerName: '名字', flex: 1 },
+    {
+      field: 'reference',
+      headerName: '識別碼',
+      hideSortIcons: true,
+      sortable: false,
+    },
+    {
+      field: 'name',
+      type: 'string',
+      headerName: '名字',
+      editable: true,
+      flex: 1,
+    },
     {
       field: 'actions',
       type: 'actions',
-      headerName: '操作',
-      width: 100,
+      // headerName: '操作',
+      // width: 100,
       cellClassName: 'actions',
       getActions: ({ id }) => {
+        const isInEditMode =
+          accountRowModesModel[id]?.mode === GridRowModes.Edit
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              sx={{
+                color: 'primary.main',
+              }}
+              onClick={handleSaveAccountClick(id)}
+            />,
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelEditAccountClick(id)}
+              color="inherit"
+            />,
+          ]
+        }
         return [
           <GridActionsCellItem
             icon={<EditIcon />}
             label="Edit"
             className="textPrimary"
-            onClick={onEditAccountClick(id)}
+            onClick={handleEditAccountClick(id)}
             color="inherit"
           />,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={onDeleteAccountClick(id)}
+            onClick={handleDeleteAccountClick(id)}
             color="inherit"
           />,
         ]
@@ -141,9 +250,10 @@ export default function Page() {
           actions={
             <Button
               variant="contained"
+              startIcon={<AddIcon />}
               onClick={toggleCreateAccountDrawer(true)}
             >
-              新增
+              引導式新增
             </Button>
           }
         />
@@ -151,10 +261,13 @@ export default function Page() {
           <ModuleDataGrid
             rows={accountRows}
             columns={accountColumns}
+            rowModesModel={accountRowModesModel}
+            onRowModesModelChange={setAccountRowModesModel}
             getNewRow={getNewAccountRow}
             setRows={setAccountRows}
-            getRowId={(row) => row.reference}
+            processRowUpdate={handleUpsertAccountRow}
             loading={isLoadingAccountRows}
+            getRowId={(row) => row.reference}
           />
         </ModuleFunctionBody>
       </ModuleFunction>
@@ -191,7 +304,7 @@ export default function Page() {
                   <LoadingButton
                     variant="contained"
                     onClick={createAccountForm.handleSubmit(
-                      onSubmitCreateAccountForm
+                      handleSubmitCreateAccountForm
                     )}
                     loading={createAccountForm.formState.isSubmitting}
                   >

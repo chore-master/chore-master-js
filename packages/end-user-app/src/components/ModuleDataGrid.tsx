@@ -1,7 +1,11 @@
+import zhTWGrid from '@/utils/zhTWGrid'
 import AddIcon from '@mui/icons-material/Add'
+import { LinearProgress } from '@mui/material'
 import Button from '@mui/material/Button'
 import {
   DataGrid,
+  GridEventListener,
+  GridRowEditStopReasons,
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
@@ -38,7 +42,7 @@ function EditToolbar(props: EditToolbarProps) {
         startIcon={<AddIcon />}
         onClick={onInsertRowClick}
       >
-        新增一行
+        新增一筆
       </Button>
     </GridToolbarContainer>
   )
@@ -53,23 +57,34 @@ export const ModuleDataGrid = ({
   setRows: EditToolbarProps['setRows']
 }> &
   React.ComponentPropsWithoutRef<typeof DataGrid>) => {
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {}
-  )
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
+    params,
+    event
+  ) => {
+    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true
+    }
+  }
 
   return (
     <DataGrid
+      onRowEditStop={handleRowEditStop}
       autoHeight
       editMode="row"
-      rowModesModel={rowModesModel}
       slots={{
+        loadingOverlay: LinearProgress as GridSlots['loadingOverlay'],
         toolbar: EditToolbar as GridSlots['toolbar'],
       }}
       slotProps={{
-        toolbar: { getNewRow, setRows, setRowModesModel },
+        toolbar: {
+          getNewRow,
+          setRows,
+          setRowModesModel: rest.onRowModesModelChange,
+        },
       }}
       localeText={{
-        noRowsLabel: '沒有資料',
+        ...zhTWGrid,
+        footerRowSelected: (count) => `已選取 ${count.toLocaleString()} 筆`,
         MuiTablePagination: {
           getItemAriaLabel: (type: string) => {
             if (type === 'first') {
