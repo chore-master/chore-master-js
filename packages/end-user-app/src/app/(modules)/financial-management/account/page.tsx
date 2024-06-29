@@ -11,6 +11,7 @@ import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -45,16 +46,21 @@ export default function Page() {
     React.useState<GridRowModesModel>({})
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
+  const [isViewAccountDrawerOpen, setIsViewAccountDrawerOpen] =
+    React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>()
 
   React.useEffect(() => {
     fetchAccountRows()
   }, [])
 
-  const toggleCreateAccountDrawer =
-    (isOpen: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-      setIsCreateAccountDrawerOpen(isOpen)
-    }
+  const toggleCreateAccountDrawer = (isOpen: boolean) => () => {
+    setIsCreateAccountDrawerOpen(isOpen)
+  }
+
+  const toggleViewAccountDrawer = (isOpen: boolean) => () => {
+    setIsViewAccountDrawerOpen(isOpen)
+  }
 
   const fetchAccountRows = async () => {
     setIsLoadingAccountRows(true)
@@ -91,6 +97,11 @@ export default function Page() {
       reference: uuidv4(),
       name: '',
     }
+  }
+
+  const handleViewAccountClick = (reference: GridRowId) => () => {
+    console.log('View account', reference)
+    setIsViewAccountDrawerOpen(true)
   }
 
   const handleEditAccountClick = (reference: GridRowId) => () => {
@@ -223,9 +234,14 @@ export default function Page() {
         }
         return [
           <GridActionsCellItem
+            icon={<VisibilityIcon />}
+            label="View"
+            onClick={handleViewAccountClick(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
             icon={<EditIcon />}
             label="Edit"
-            className="textPrimary"
             onClick={handleEditAccountClick(id)}
             color="inherit"
           />,
@@ -269,6 +285,14 @@ export default function Page() {
           />
         </ModuleFunctionBody>
       </ModuleFunction>
+
+      <Drawer
+        anchor="right"
+        open={isViewAccountDrawerOpen}
+        onClose={toggleViewAccountDrawer(false)}
+      >
+        <Box sx={{ minWidth: 320 }}>Coming soon...</Box>
+      </Drawer>
 
       <Drawer
         anchor="right"
