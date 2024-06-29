@@ -68,6 +68,14 @@ export const ModuleDataGrid = ({
 
   return (
     <DataGrid
+      // checkboxSelection
+      initialState={{
+        columns: {
+          columnVisibilityModel: {
+            reference: false,
+          },
+        },
+      }}
       onRowEditStop={handleRowEditStop}
       autoHeight
       editMode="row"

@@ -196,10 +196,8 @@ export default function Page() {
       flex: 1,
     },
     {
-      field: 'actions',
+      field: '互動',
       type: 'actions',
-      // headerName: '操作',
-      // width: 100,
       cellClassName: 'actions',
       getActions: ({ id }) => {
         const isInEditMode =
