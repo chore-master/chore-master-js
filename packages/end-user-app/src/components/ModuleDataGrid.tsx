@@ -49,6 +49,7 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 export const ModuleDataGrid = ({
+  columnVisibilityModel,
   getNewRow,
   setRows,
   ...rest
@@ -65,15 +66,16 @@ export const ModuleDataGrid = ({
       event.defaultMuiPrevented = true
     }
   }
-
+  const mergedColumnVisibilityModel = {
+    reference: false,
+    ...columnVisibilityModel,
+  }
   return (
     <DataGrid
       // checkboxSelection
       initialState={{
         columns: {
-          columnVisibilityModel: {
-            reference: false,
-          },
+          columnVisibilityModel: mergedColumnVisibilityModel,
         },
       }}
       onRowEditStop={handleRowEditStop}
