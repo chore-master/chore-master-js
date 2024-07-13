@@ -21,8 +21,13 @@ export default function Layout({
           selectedWhenPartiallyMatched: true,
         },
         {
-          title: '資產存摺',
-          href: '/financial-management/passbook',
+          title: '資產',
+          href: '/financial-management/asset',
+          selectedWhenPartiallyMatched: true,
+        },
+        {
+          title: '淨值',
+          href: '/financial-management/net-value',
           selectedWhenPartiallyMatched: true,
         },
       ]}

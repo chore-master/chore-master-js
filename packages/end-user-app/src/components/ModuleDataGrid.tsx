@@ -53,7 +53,7 @@ export const ModuleDataGrid = ({
   setRows,
   ...rest
 }: Readonly<{
-  getNewRow: EditToolbarProps['getNewRow']
+  getNewRow?: EditToolbarProps['getNewRow']
   setRows: EditToolbarProps['setRows']
 }> &
   React.ComponentPropsWithoutRef<typeof DataGrid>) => {
