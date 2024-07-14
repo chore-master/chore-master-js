@@ -43,7 +43,11 @@ export default function ModuleLayout({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const { endUser, isLoading: isLoadingEndUser, res: endUserRes } = useEndUser()
+  const {
+    endUser,
+    successLoadedCount: endUserSuccessLoadedCount,
+    res: endUserRes,
+  } = useEndUser()
   const isMenuOpen = Boolean(anchorEl)
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -65,12 +69,18 @@ export default function ModuleLayout({
   }, [endUserRes])
 
   React.useEffect(() => {
-    if (!endUser?.root_folder_id) {
-      router.push('/iam/integration')
+    if (endUserRes?.status === 403) {
+      router.push('/login')
+    }
+  }, [endUserRes])
+
+  React.useEffect(() => {
+    if (endUser?.is_mounted === false) {
+      router.push('/iam')
     }
   }, [endUser])
 
-  if (!endUser || isLoadingEndUser) {
+  if (!endUser || endUserSuccessLoadedCount === 0) {
     return (
       <Box
         sx={{
@@ -89,7 +99,7 @@ export default function ModuleLayout({
       <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
         <List disablePadding sx={{ flexGrow: 1 }}>
           <ListItem disablePadding>
-            <Link href="/treasury" passHref legacyBehavior>
+            <Link href="/financial-management" passHref legacyBehavior>
               <ListItemButton component="a">
                 <ListItemText primary="財務管理" />
               </ListItemButton>
