@@ -55,7 +55,7 @@ export const ModuleDataGrid = ({
   ...rest
 }: Readonly<{
   getNewRow?: EditToolbarProps['getNewRow']
-  setRows: EditToolbarProps['setRows']
+  setRows?: EditToolbarProps['setRows']
 }> &
   React.ComponentPropsWithoutRef<typeof DataGrid>) => {
   const handleRowEditStop: GridEventListener<'rowEditStop'> = (
