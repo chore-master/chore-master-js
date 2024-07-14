@@ -1,6 +1,5 @@
 // import { zhTW } from '@mui/x-data-grid/locales'
-
-export default {
+const zhTWGrid = {
   // Root
   noRowsLabel: '沒有資料',
   noResultsOverlayLabel: '沒有結果',
@@ -147,3 +146,5 @@ export default {
   aggregationFunctionLabelMax: '最大',
   aggregationFunctionLabelSize: '尺寸',
 }
+
+export default zhTWGrid

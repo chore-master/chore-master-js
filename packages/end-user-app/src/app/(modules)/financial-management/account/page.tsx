@@ -216,6 +216,7 @@ export default function Page() {
         if (isInEditMode) {
           return [
             <GridActionsCellItem
+              key="save"
               icon={<SaveIcon />}
               label="Save"
               sx={{
@@ -224,6 +225,7 @@ export default function Page() {
               onClick={handleSaveAccountClick(id)}
             />,
             <GridActionsCellItem
+              key="cancel"
               icon={<CancelIcon />}
               label="Cancel"
               className="textPrimary"
@@ -234,18 +236,21 @@ export default function Page() {
         }
         return [
           <GridActionsCellItem
+            key="view"
             icon={<VisibilityIcon />}
             label="View"
             onClick={handleViewAccountClick(id)}
             color="inherit"
           />,
           <GridActionsCellItem
+            key="edit"
             icon={<EditIcon />}
             label="Edit"
             onClick={handleEditAccountClick(id)}
             color="inherit"
           />,
           <GridActionsCellItem
+            key="delete"
             icon={<DeleteIcon />}
             label="Delete"
             onClick={handleDeleteAccountClick(id)}

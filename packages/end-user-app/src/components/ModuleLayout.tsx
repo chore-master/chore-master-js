@@ -66,19 +66,19 @@ export default function ModuleLayout({
     if (endUserRes?.status === 401) {
       router.push('/login')
     }
-  }, [endUserRes])
+  }, [endUserRes, router])
 
   React.useEffect(() => {
     if (endUserRes?.status === 403) {
       router.push('/login')
     }
-  }, [endUserRes])
+  }, [endUserRes, router])
 
   React.useEffect(() => {
     if (endUser?.is_mounted === false) {
       router.push('/iam')
     }
-  }, [endUser])
+  }, [endUser, router])
 
   if (!endUser || endUserSuccessLoadedCount === 0) {
     return (
