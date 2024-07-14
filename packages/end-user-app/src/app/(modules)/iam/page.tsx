@@ -25,7 +25,7 @@ export default function Page() {
 
   React.useEffect(() => {
     fetchGoogleIntegration()
-  }, [])
+  })
 
   const fetchGoogleIntegration = () => {
     choreMasterAPIAgent.get('/v1/account_center/integrations/google', {
