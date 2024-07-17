@@ -45,8 +45,6 @@ export default function Page() {
     endpoint: '/v1/financial_management/accounts',
     defaultList: [],
   })
-  // const [accountRows, setAccountRows] = React.useState<GridRowsProp>([])
-  // const [isLoadingAccountRows, setIsLoadingAccountRows] = React.useState(false)
   const [accountRowModesModel, setAccountRowModesModel] =
     React.useState<GridRowModesModel>({})
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
@@ -55,10 +53,6 @@ export default function Page() {
     React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>()
 
-  // React.useEffect(() => {
-  //   fetchAccountRows()
-  // }, [])
-
   const toggleCreateAccountDrawer = (isOpen: boolean) => () => {
     setIsCreateAccountDrawerOpen(isOpen)
   }
@@ -66,20 +60,6 @@ export default function Page() {
   const toggleViewAccountDrawer = (isOpen: boolean) => () => {
     setIsViewAccountDrawerOpen(isOpen)
   }
-
-  // const fetchAccountRows = async () => {
-  //   setIsLoadingAccountRows(true)
-  //   await choreMasterAPIAgent.get('/v1/financial_management/accounts', {
-  //     params: {},
-  //     onFail: ({ message }: any) => {
-  //       alert(message)
-  //     },
-  //     onSuccess: async ({ data }: any) => {
-  //       setAccountRows(data)
-  //     },
-  //   })
-  //   setIsLoadingAccountRows(false)
-  // }
 
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
@@ -92,7 +72,6 @@ export default function Page() {
         createAccountForm.reset()
         setIsCreateAccountDrawerOpen(false)
         account.fetchAll()
-        // fetchAccountRows()
       },
     })
   }
@@ -126,21 +105,6 @@ export default function Page() {
 
   const handleDeleteAccountClick = (reference: GridRowId) => async () => {
     await account.deleteByReference(reference)
-    // setIsLoadingAccountRows(true)
-    // await choreMasterAPIAgent.delete(
-    //   `/v1/financial_management/accounts/${reference}`,
-    //   {
-    //     onFail: ({ message }: any) => {
-    //       alert(message)
-    //     },
-    //     onSuccess: () => {
-    //       setAccountRows(
-    //         accountRows.filter((row) => row.reference !== reference)
-    //       )
-    //     },
-    //   }
-    // )
-    // setIsLoadingAccountRows(false)
   }
 
   const handleCancelEditAccountClick = (reference: GridRowId) => () => {
@@ -152,15 +116,6 @@ export default function Page() {
     if (editedRow!.isNew) {
       account.setList(account.list.filter((row) => row.reference !== reference))
     }
-    // setAccountRowModesModel({
-    //   ...accountRowModesModel,
-    //   [reference]: { mode: GridRowModes.View, ignoreModifications: true },
-    // })
-
-    // const editedRow = accountRows.find((row) => row.reference === reference)
-    // if (editedRow!.isNew) {
-    //   setAccountRows(accountRows.filter((row) => row.reference !== reference))
-    // }
   }
 
   const handleUpsertAccountRow = async ({
@@ -171,44 +126,6 @@ export default function Page() {
       isNew,
       upsertedEntity: upsertedRow,
     })
-    // setIsLoadingAccountRows(true)
-    // if (isNew) {
-    //   await choreMasterAPIAgent.post(
-    //     '/v1/financial_management/accounts',
-    //     upsertedRow,
-    //     {
-    //       onFail: ({ message }: any) => {
-    //         alert(message)
-    //       },
-    //       onSuccess: () => {
-    //         setAccountRows(
-    //           accountRows.map((row) =>
-    //             row.reference === upsertedRow.reference ? upsertedRow : row
-    //           )
-    //         )
-    //       },
-    //     }
-    //   )
-    // } else {
-    //   await choreMasterAPIAgent.patch(
-    //     `/v1/financial_management/accounts/${upsertedRow.reference}`,
-    //     upsertedRow,
-    //     {
-    //       onFail: ({ message }: any) => {
-    //         alert(message)
-    //       },
-    //       onSuccess: () => {
-    //         setAccountRows(
-    //           accountRows.map((row) =>
-    //             row.reference === upsertedRow.reference ? upsertedRow : row
-    //           )
-    //         )
-    //       },
-    //     }
-    //   )
-    // }
-    // setIsLoadingAccountRows(false)
-    // return upsertedRow
   }
 
   const accountColumns: GridColDef[] = [
