@@ -109,3 +109,103 @@ export const useEntities = (entityKeyToEntityConfigMap: any) => {
     ...entityMap,
   }
 }
+
+export function useEntity<T>({
+  endpoint,
+  defaultList,
+}: {
+  endpoint: string
+  defaultList: any
+}) {
+  const [entities, setEntities] = React.useState<T>(defaultList)
+  const [isLoadingEntities, setIsLoadingEntities] = React.useState(false)
+
+  React.useEffect(() => {
+    fetchEntities()
+  }, [endpoint])
+
+  const fetchEntities = async () => {
+    setIsLoadingEntities(true)
+    await choreMasterAPIAgent.get(endpoint, {
+      params: {},
+      onFail: ({ message }: any) => {
+        alert(message)
+      },
+      onSuccess: async ({ data }: any) => {
+        setEntities(data)
+      },
+    })
+    setIsLoadingEntities(false)
+  }
+
+  const upsertEntityByReference = async ({
+    isNew,
+    upsertedEntity,
+  }: {
+    isNew: boolean
+    upsertedEntity: any
+  }) => {
+    setIsLoadingEntities(true)
+    if (isNew) {
+      await choreMasterAPIAgent.post(endpoint, upsertedEntity, {
+        onFail: ({ message }: any) => {
+          alert(message)
+        },
+        onSuccess: () => {
+          setEntities(
+            (entities as any).map((entity: any) =>
+              entity.reference === upsertedEntity.reference
+                ? upsertedEntity
+                : entity
+            )
+          )
+        },
+      })
+    } else {
+      await choreMasterAPIAgent.patch(
+        `${endpoint}/${upsertedEntity.reference}`,
+        upsertedEntity,
+        {
+          onFail: ({ message }: any) => {
+            alert(message)
+          },
+          onSuccess: () => {
+            setEntities(
+              (entities as any).map((entity: any) =>
+                entity.reference === upsertedEntity.reference
+                  ? upsertedEntity
+                  : entity
+              )
+            )
+          },
+        }
+      )
+    }
+    setIsLoadingEntities(false)
+    return upsertedEntity
+  }
+
+  const deleteEntityByReference = async (reference: any) => {
+    setIsLoadingEntities(true)
+    await choreMasterAPIAgent.delete(`${endpoint}/${reference}`, {
+      onFail: ({ message }: any) => {
+        alert(message)
+      },
+      onSuccess: () => {
+        setEntities(
+          (entities as any).filter((row: any) => row.reference !== reference)
+        )
+      },
+    })
+    setIsLoadingEntities(false)
+  }
+
+  return {
+    list: entities,
+    setList: setEntities,
+    isLoading: isLoadingEntities,
+    fetchAll: fetchEntities,
+    upsertByReference: upsertEntityByReference,
+    deleteByReference: deleteEntityByReference,
+  }
+}
