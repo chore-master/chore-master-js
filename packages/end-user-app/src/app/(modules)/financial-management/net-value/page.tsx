@@ -7,21 +7,90 @@ import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
+import FormControl from '@mui/material/FormControl'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 import {
   GridActionsCellItem,
   GridColDef,
+  GridRenderCellParams,
   GridRenderEditCellParams,
   GridRowId,
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
   GridRowsProp,
+  useGridApiContext,
 } from '@mui/x-data-grid'
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-function CustomEditComponent(props: GridRenderEditCellParams) {
-  return <input type="text" />
+const ForeignEntity = ({
+  params,
+  localFieldToForeignEntityMap,
+  localFieldName,
+  foreignFieldName,
+}: {
+  params: GridRenderCellParams
+  localFieldToForeignEntityMap: any
+  localFieldName: string
+  foreignFieldName: string
+}) => {
+  const localFieldValue = params.row?.[localFieldName]
+  const foreignEntity = localFieldToForeignEntityMap?.[localFieldValue]
+  return foreignEntity?.[foreignFieldName]
+}
+
+const ForeignEntityEditor = ({
+  params,
+  localFieldToForeignEntityMap,
+  localFieldName,
+  foreignFieldName,
+}: {
+  params: GridRenderEditCellParams
+  localFieldToForeignEntityMap: any
+  localFieldName: string
+  foreignFieldName: string
+}) => {
+  const { id, value, field, hasFocus } = params
+  const apiRef = useGridApiContext()
+  const ref = React.useRef<HTMLInputElement>(null)
+  const localFieldValue = params.row?.[localFieldName]
+
+  React.useLayoutEffect(() => {
+    if (hasFocus) {
+      ref.current?.focus()
+    }
+  }, [hasFocus])
+
+  const handleValueChange = (event: SelectChangeEvent) => {
+    const newValue = event.target.value
+    apiRef.current.setEditCellValue({
+      id,
+      field: localFieldName,
+      value: newValue,
+    })
+  }
+
+  return (
+    <FormControl size="small">
+      <Select
+        defaultValue={localFieldValue}
+        value={value}
+        onChange={handleValueChange}
+        displayEmpty
+        autoWidth
+      >
+        {Object.entries(localFieldToForeignEntityMap).map(
+          ([key, value]: any) => (
+            <MenuItem key={key} value={key}>
+              {value[foreignFieldName]}
+            </MenuItem>
+          )
+        )}
+      </Select>
+    </FormControl>
+  )
 }
 
 export default function Page() {
@@ -37,27 +106,37 @@ export default function Page() {
     endpoint: '/v1/financial_management/net_values',
     defaultList: [],
   })
-  const [netValueRows, setNetValueRows] = React.useState<GridRowsProp>([])
+  // const [netValueRows, setNetValueRows] = React.useState<GridRowsProp>([])
   const [netValueRowModesModel, setNetValueRowModesModel] =
     React.useState<GridRowModesModel>({})
+  const [accountReferenceToAccountMap, setAccountReferenceToAccountMap] =
+    React.useState({})
+  const [assetReferenceToAssetMap, setAssetReferenceToAssetMap] =
+    React.useState({})
 
   React.useEffect(() => {
-    const accountReferenceToAccountMap = account.getMapByReference()
-    const assetReferenceToAssetMap = asset.getMapByReference()
-    setNetValueRows(
-      netValue.list.map((netValue) => {
-        const account =
-          accountReferenceToAccountMap?.[netValue.account_reference]
-        const settlementAsset =
-          assetReferenceToAssetMap?.[netValue.settlement_asset_reference]
-        return {
-          ...netValue,
-          account_name: account?.name,
-          settlement_asset_name: settlementAsset?.symbol,
-        }
-      })
-    )
-  }, [account.list, asset.list, netValue.list])
+    setAccountReferenceToAccountMap(account.getMapByReference())
+  }, [account.list])
+  React.useEffect(() => {
+    setAssetReferenceToAssetMap(asset.getMapByReference())
+  }, [asset.list])
+  // React.useEffect(() => {
+  //   const accountReferenceToAccountMap = account.getMapByReference()
+  //   const assetReferenceToAssetMap = asset.getMapByReference()
+  //   setNetValueRows(
+  //     netValue.list.map((netValue) => {
+  //       const account =
+  //         accountReferenceToAccountMap?.[netValue.account_reference]
+  //       const settlementAsset =
+  //         assetReferenceToAssetMap?.[netValue.settlement_asset_reference]
+  //       return {
+  //         ...netValue,
+  //         account_name: account?.name,
+  //         settlement_asset_symbol: settlementAsset?.symbol,
+  //       }
+  //     })
+  //   )
+  // }, [account.list, asset.list, netValue.list])
 
   const getNewNetValueRow = () => {
     return {
@@ -65,6 +144,7 @@ export default function Page() {
       reference: uuidv4(),
       account_reference: account.list[0]?.reference,
       settlement_asset_reference: asset.list[0]?.reference,
+      settled_time: new Date().toISOString(),
     }
   }
 
@@ -126,14 +206,30 @@ export default function Page() {
       field: 'account_name',
       type: 'string',
       headerName: '帳戶名稱',
+      editable: true,
+      flex: 1,
+      renderCell: (params: GridRenderCellParams) => (
+        <ForeignEntity
+          params={params}
+          localFieldToForeignEntityMap={accountReferenceToAccountMap}
+          localFieldName="account_reference"
+          foreignFieldName="name"
+        />
+      ),
       renderEditCell: (params: GridRenderEditCellParams) => (
-        <CustomEditComponent {...params} />
+        <ForeignEntityEditor
+          params={params}
+          localFieldToForeignEntityMap={accountReferenceToAccountMap}
+          localFieldName="account_reference"
+          foreignFieldName="name"
+        />
       ),
     },
     {
       field: 'amount',
-      type: 'string',
+      type: 'number',
       headerName: '數量',
+      editable: true,
     },
     {
       field: 'settlement_asset_reference',
@@ -142,9 +238,26 @@ export default function Page() {
       sortable: false,
     },
     {
-      field: 'settlement_asset_name',
+      field: 'settlement_asset_symbol',
       type: 'string',
       headerName: '結算資產識別符號',
+      editable: true,
+      renderCell: (params: GridRenderCellParams) => (
+        <ForeignEntity
+          params={params}
+          localFieldToForeignEntityMap={assetReferenceToAssetMap}
+          localFieldName="settlement_asset_reference"
+          foreignFieldName="symbol"
+        />
+      ),
+      renderEditCell: (params: GridRenderEditCellParams) => (
+        <ForeignEntityEditor
+          params={params}
+          localFieldToForeignEntityMap={assetReferenceToAssetMap}
+          localFieldName="settlement_asset_reference"
+          foreignFieldName="symbol"
+        />
+      ),
     },
     {
       field: 'settled_time',
@@ -206,12 +319,17 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionBody>
           <ModuleDataGrid
-            rows={netValueRows}
+            // rows={netValueRows}
+            rows={netValue.list}
             columns={netValueColumns}
             rowModesModel={netValueRowModesModel}
             onRowModesModelChange={setNetValueRowModesModel}
             getNewRow={getNewNetValueRow}
-            setRows={setNetValueRows}
+            // setRows={setNetValueRows}
+            // setRows={(wtf) => {
+            //   netValue.setList(wtf)
+            // }}
+            setRows={netValue.setList}
             processRowUpdate={handleUpsertNetValueRow}
             loading={netValue.isLoading}
             getRowId={(row) => row.reference}
