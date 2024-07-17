@@ -2,64 +2,45 @@
 
 import { ModuleDataGrid } from '@/components/ModuleDataGrid'
 import ModuleFunction, { ModuleFunctionBody } from '@/components/ModuleFunction'
-import { useEntities } from '@/utils/entity'
-import { GridColDef, GridRowModesModel } from '@mui/x-data-grid'
+import { useEntity } from '@/utils/entity'
+import { GridColDef, GridRowModesModel, GridRowsProp } from '@mui/x-data-grid'
 import React from 'react'
 
 export default function Page() {
+  const account = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/accounts',
+    defaultList: [],
+  })
+  const asset = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/assets',
+    defaultList: [],
+  })
+  const netValue = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/net_values',
+    defaultList: [],
+  })
+  const [netValueRows, setNetValueRows] = React.useState<GridRowsProp>([])
   const [netValueRowModesModel, setNetValueRowModesModel] =
     React.useState<GridRowModesModel>({})
 
-  const entities = useEntities({
-    account: { endpoint: '/v1/financial_management/accounts' },
-    asset: { endpoint: '/v1/financial_management/assets' },
-    netValue: { endpoint: '/v1/financial_management/net_values' },
-  })
-
-  const accountReferenceToAccountMap = entities.account.list.reduce(
-    (acc: any, entity: any) => {
-      acc[entity['reference']] = entity
-      return acc
-    },
-    {}
-  )
-  const assetReferenceToAssetMap = entities.asset.list.reduce(
-    (acc: any, entity: any) => {
-      acc[entity['reference']] = entity
-      return acc
-    },
-    {}
-  )
-  const netValueRows =
-    entities.netValue?.list.map((netValue) => {
-      const account = accountReferenceToAccountMap?.[netValue.account_reference]
-      const settlementAsset =
-        assetReferenceToAssetMap?.[netValue.settlement_asset_reference]
-
-      return {
-        ...netValue,
-        account_name: account?.name,
-        settlement_asset_name: settlementAsset?.symbol,
-      }
-    }) || []
-
   React.useEffect(() => {
-    if (!entities.account?.isFetchedAll) {
-      entities.account?.fetchAll()
-    }
-  }, [entities.account?.isFetchedAll])
+    const accountReferenceToAccountMap = account.getMapByReference()
+    const assetReferenceToAssetMap = asset.getMapByReference()
+    setNetValueRows(
+      netValue.list.map((netValue) => {
+        const account =
+          accountReferenceToAccountMap?.[netValue.account_reference]
+        const settlementAsset =
+          assetReferenceToAssetMap?.[netValue.settlement_asset_reference]
 
-  React.useEffect(() => {
-    if (!entities.asset?.isFetchedAll) {
-      entities.asset?.fetchAll()
-    }
-  }, [entities.asset?.isFetchedAll])
-
-  React.useEffect(() => {
-    if (!entities.netValue?.isFetchedAll) {
-      entities.netValue?.fetchAll()
-    }
-  }, [entities.netValue?.isFetchedAll])
+        return {
+          ...netValue,
+          account_name: account?.name,
+          settlement_asset_name: settlementAsset?.symbol,
+        }
+      })
+    )
+  }, [account.list, asset.list, netValue.list])
 
   const netValueColumns: GridColDef[] = [
     {
@@ -121,8 +102,8 @@ export default function Page() {
             columns={netValueColumns}
             rowModesModel={netValueRowModesModel}
             onRowModesModelChange={setNetValueRowModesModel}
-            setRows={entities.netValue?.setList}
-            loading={entities.netValue?.isFetchingAll}
+            setRows={netValue.setList}
+            loading={netValue.isLoading}
             getRowId={(row) => row.reference}
             columnVisibilityModel={{
               account_reference: false,

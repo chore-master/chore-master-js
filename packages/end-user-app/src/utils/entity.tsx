@@ -200,6 +200,13 @@ export function useEntity<T>({
     setIsLoadingEntities(false)
   }
 
+  const getMapByReference = () => {
+    return (entities as any).reduce((m: any, entity: any) => {
+      m[entity['reference']] = entity
+      return m
+    }, {})
+  }
+
   return {
     list: entities,
     setList: setEntities,
@@ -207,5 +214,6 @@ export function useEntity<T>({
     fetchAll: fetchEntities,
     upsertByReference: upsertEntityByReference,
     deleteByReference: deleteEntityByReference,
+    getMapByReference,
   }
 }
