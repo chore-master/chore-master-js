@@ -319,19 +319,14 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionBody>
           <ModuleDataGrid
-            // rows={netValueRows}
             rows={netValue.list}
             columns={netValueColumns}
             rowModesModel={netValueRowModesModel}
             onRowModesModelChange={setNetValueRowModesModel}
             getNewRow={getNewNetValueRow}
-            // setRows={setNetValueRows}
-            // setRows={(wtf) => {
-            //   netValue.setList(wtf)
-            // }}
             setRows={netValue.setList}
             processRowUpdate={handleUpsertNetValueRow}
-            loading={netValue.isLoading}
+            loading={netValue.isLoading || account.isLoading || asset.isLoading}
             getRowId={(row) => row.reference}
             columnVisibilityModel={{
               account_reference: false,
