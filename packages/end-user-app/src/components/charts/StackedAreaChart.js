@@ -10,6 +10,7 @@ export default function StackedAreaChart({
   accessDate,
   accessValue,
   accessGroup,
+  mapGroupToLegendText,
 }) {
   const chartLayout = Object.assign(
     {
@@ -26,6 +27,7 @@ export default function StackedAreaChart({
   const xAxisRef = React.useRef()
   const yAxisRef = React.useRef()
   const tickLineRef = React.useRef()
+  const legendRef = React.useRef()
 
   const positiveData = data.filter((d) => accessValue(d) >= 0)
   const negativeData = data.filter((d) => accessValue(d) <= 0)
@@ -69,11 +71,40 @@ export default function StackedAreaChart({
     .y1((d) => yScale(d[1]))
 
   React.useEffect(() => {
+    const legend = d3.select(legendRef.current)
+    legend.selectAll('*').remove()
+    const size = 20
+    const spacing = 25
+
+    legend
+      .selectAll('rect')
+      .data(colorScale.domain())
+      .enter()
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', (d, i) => i * spacing)
+      .attr('width', size)
+      .attr('height', size)
+      .style('fill', colorScale)
+
+    legend
+      .selectAll('text')
+      .data(colorScale.domain().map(mapGroupToLegendText))
+      .enter()
+      .append('text')
+      .attr('x', size + 5)
+      .attr('y', (d, i) => i * spacing + size / 1.5)
+      .text((d) => d)
+      .style('font-size', '15px')
+      .attr('alignment-baseline', 'middle')
+  }, [data, mapGroupToLegendText])
+
+  React.useEffect(() => {
     const yTicks = yScale.ticks()
 
     const xAxis = d3
       .axisBottom(xScale)
-      .ticks(chartMeasure.width / 160)
+      .ticks(chartMeasure.width / 200)
       // .ticks(d3.timeDay.every(1))
       .tickSizeOuter(0)
       .tickFormat(d3.timeFormat('%Y-%m-%d'))
@@ -116,12 +147,15 @@ export default function StackedAreaChart({
       />
       <g ref={yAxisRef} transform={`translate(${chartLayout.marginLeft},0)`} />
       <g ref={tickLineRef} />
-      {positiveSeries.map((D, idx) => (
-        <path key={idx} d={area(D)} fill={colorScale(D.key)} />
-      ))}
-      {negativeSeries.map((D, idx) => (
-        <path key={idx} d={area(D)} fill={colorScale(D.key)} />
-      ))}
+      <g ref={legendRef} />
+      <g>
+        {positiveSeries.map((D, idx) => (
+          <path key={idx} d={area(D)} fill={colorScale(D.key)} />
+        ))}
+        {negativeSeries.map((D, idx) => (
+          <path key={idx} d={area(D)} fill={colorScale(D.key)} />
+        ))}
+      </g>
     </svg>
   )
 }

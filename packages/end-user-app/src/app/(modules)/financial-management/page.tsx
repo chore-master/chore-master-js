@@ -15,10 +15,10 @@ import { GridRowsProp } from '@mui/x-data-grid'
 import React from 'react'
 
 export default function Page() {
-  // const account = useEntity<GridRowsProp>({
-  //   endpoint: '/v1/financial_management/accounts',
-  //   defaultList: [],
-  // })
+  const account = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/accounts',
+    defaultList: [],
+  })
   const asset = useEntity<GridRowsProp>({
     endpoint: '/v1/financial_management/assets',
     defaultList: [],
@@ -28,6 +28,11 @@ export default function Page() {
     defaultList: [],
   })
   const [selectedAssetReference, setSelectedAssetReference] = React.useState()
+  const [accountReferenceToAccountMap, setAccountReferenceToAccountMap] =
+    React.useState({})
+  React.useEffect(() => {
+    setAccountReferenceToAccountMap(account.getMapByReference())
+  }, [account.list])
 
   React.useEffect(() => {
     if (!selectedAssetReference) {
@@ -57,10 +62,10 @@ export default function Page() {
 
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="淨值"
+          title="淨值組成"
           actions={
             <FormControl variant="standard" sx={{ minWidth: 120 }}>
-              <InputLabel>結算貨幣</InputLabel>
+              <InputLabel>結算資產</InputLabel>
               <Select
                 value={selectedAssetReference || ''}
                 onChange={handleSelectedAssetChange}
@@ -84,6 +89,9 @@ export default function Page() {
             accessDate={(d: any) => new Date(d.settled_time)}
             accessValue={(d: any) => parseFloat(d.amount)}
             accessGroup={(d: any) => d.account_reference}
+            mapGroupToLegendText={(group: string) =>
+              (accountReferenceToAccountMap as any)?.[group]?.name
+            }
           />
         </ModuleFunctionBody>
       </ModuleFunction>
