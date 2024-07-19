@@ -4,6 +4,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import StackedAreaChart from '@/components/charts/StackedAreaChart'
 import Button from '@mui/material/Button'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import React from 'react'
@@ -28,12 +29,15 @@ export default function Page() {
   return (
     <React.Fragment>
       <ModuleFunction>
-        <ModuleFunctionHeader
-          title="帳戶列表"
-          actions={<Button size="small">Learn More</Button>}
-        />
+        <ModuleFunctionHeader title="淨值" />
         <ModuleFunctionBody>
-          <DataGrid rows={rows} columns={columns} autoHeight />
+          <StackedAreaChart
+            data={[
+              { x: 1, y: 10 },
+              { x: 5, y: 7 },
+              { x: 2, y: 3 },
+            ]}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
 
