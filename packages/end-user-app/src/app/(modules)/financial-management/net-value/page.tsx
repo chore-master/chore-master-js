@@ -179,10 +179,10 @@ export default function Page() {
     }
   }
 
-  const handleUpsertNetValueRow = async ({
-    isNew,
-    ...upsertedRow
-  }: GridRowModel) => {
+  const handleUpsertNetValueRow = async (
+    { isNew, ...upsertedRow }: GridRowModel,
+    _oldRow: GridRowModel
+  ) => {
     return await netValue.upsertByReference({
       isNew,
       upsertedEntity: upsertedRow,
