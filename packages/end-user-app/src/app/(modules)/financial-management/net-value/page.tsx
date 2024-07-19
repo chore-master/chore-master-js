@@ -198,7 +198,9 @@ export default function Page() {
     },
     {
       field: 'account_reference',
+      type: 'string',
       headerName: '帳戶識別碼',
+      editable: true,
       hideSortIcons: true,
       sortable: false,
     },
@@ -233,7 +235,9 @@ export default function Page() {
     },
     {
       field: 'settlement_asset_reference',
+      type: 'string',
       headerName: '結算資產識別碼',
+      editable: true,
       hideSortIcons: true,
       sortable: false,
     },
