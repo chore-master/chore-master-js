@@ -4,7 +4,13 @@ import { useMeasure } from 'react-use'
 
 // https://observablehq.com/@mbostock/most-popular-operating-systems-2003-2020
 // https://observablehq.com/@d3/stacked-area-chart/2
-export default function StackedAreaChart({ data, colors, layout }) {
+export default function StackedAreaChart({
+  layout,
+  data,
+  accessDate,
+  accessValue,
+  accessGroup,
+}) {
   const chartLayout = Object.assign(
     {
       width: 640,
@@ -19,42 +25,33 @@ export default function StackedAreaChart({ data, colors, layout }) {
   const [chartRef, chartMeasure] = useMeasure()
   const xAxisRef = React.useRef()
   const yAxisRef = React.useRef()
+  const tickLineRef = React.useRef()
 
-  const positiveData = data.filter((d) => d.value >= 0)
-  const negativeData = data.filter((d) => d.value <= 0)
-  const keys = d3.union(data.map((d) => d.group))
+  const positiveData = data.filter((d) => accessValue(d) >= 0)
+  const negativeData = data.filter((d) => accessValue(d) <= 0)
+  const keys = d3.union(data.map(accessGroup))
 
   const stack = d3
     .stack()
     .keys(keys)
     .value(([, D], key) => D.get(key) || 0)
   const positiveSeries = stack(
-    d3.rollup(
-      positiveData,
-      ([d]) => d.value,
-      (d) => d.domain,
-      (d) => d.group
-    )
+    d3.rollup(positiveData, ([d]) => accessValue(d), accessDate, accessGroup)
   )
   const negativeSeries = stack(
-    d3.rollup(
-      negativeData,
-      ([d]) => d.value,
-      (d) => d.domain,
-      (d) => d.group
-    )
+    d3.rollup(negativeData, ([d]) => accessValue(d), accessDate, accessGroup)
   )
 
   const xScale = d3
     .scaleUtc()
-    .domain(d3.extent(data, (d) => d.domain))
+    .domain(d3.extent(data, accessDate))
     .range([
       chartLayout.marginLeft,
       chartMeasure.width - chartLayout.marginRight,
     ])
   const yScale = d3
     .scaleLinear()
-    .range([
+    .rangeRound([
       chartMeasure.height - chartLayout.marginBottom,
       chartLayout.marginTop,
     ])
@@ -62,7 +59,6 @@ export default function StackedAreaChart({ data, colors, layout }) {
 
   yScale.domain([
     d3.min(negativeSeries, (d) => d3.min(d, (d) => d[1])),
-
     d3.max(positiveSeries, (d) => d3.max(d, (d) => d[1])),
   ])
 
@@ -73,13 +69,30 @@ export default function StackedAreaChart({ data, colors, layout }) {
     .y1((d) => yScale(d[1]))
 
   React.useEffect(() => {
+    const yTicks = yScale.ticks()
+
     const xAxis = d3
       .axisBottom(xScale)
+      .tickSizeOuter(0)
       .ticks(d3.timeDay.every(1))
       .tickFormat(d3.timeFormat('%Y-%m-%d'))
-    const yAxis = d3.axisLeft(yScale)
+    const yAxis = d3.axisLeft(yScale).ticks(chartMeasure.height / 40)
     d3.select(xAxisRef.current).call(xAxis)
     d3.select(yAxisRef.current).call(yAxis)
+    const tickLines = d3.select(tickLineRef.current)
+    tickLines.selectAll('*').remove()
+    tickLines
+      .selectAll('.y-tick')
+      .data(yTicks)
+      .enter()
+      .append('line')
+      .attr('class', 'y-tick')
+      .attr('x1', chartLayout.marginLeft)
+      .attr('x2', chartMeasure.width - chartLayout.marginRight)
+      .attr('y1', (d) => yScale(d))
+      .attr('y2', (d) => yScale(d))
+      .attr('stroke', 'lightgray')
+      .attr('stroke-width', 0.5)
   }, [
     chartMeasure.width,
     chartMeasure.height,
@@ -101,23 +114,12 @@ export default function StackedAreaChart({ data, colors, layout }) {
         })`}
       />
       <g ref={yAxisRef} transform={`translate(${chartLayout.marginLeft},0)`} />
+      <g ref={tickLineRef} />
       {positiveSeries.map((D, idx) => (
-        <path
-          key={idx}
-          d={area(D)}
-          fill={colorScale(D.key)}
-          // stroke="currentColor"
-          // strokeWidth="1.5"
-        />
+        <path key={idx} d={area(D)} fill={colorScale(D.key)} />
       ))}
       {negativeSeries.map((D, idx) => (
-        <path
-          key={idx}
-          d={area(D)}
-          fill={colorScale(D.key)}
-          // stroke="currentColor"
-          // strokeWidth="1.5"
-        />
+        <path key={idx} d={area(D)} fill={colorScale(D.key)} />
       ))}
     </svg>
   )

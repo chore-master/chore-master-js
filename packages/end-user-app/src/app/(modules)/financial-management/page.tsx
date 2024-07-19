@@ -47,13 +47,13 @@ export default function Page() {
         <ModuleFunctionHeader title="面積圖" />
         <ModuleFunctionBody>
           <StackedAreaChart
+            layout={{ width: '100%' }}
             data={[
               {
                 domain: new Date('2024-07-19T00:00:00Z'),
                 group: 'xyz',
                 value: 123.45,
               },
-
               {
                 domain: new Date('2024-07-21T00:00:00Z'),
                 group: 'abc',
@@ -70,8 +70,9 @@ export default function Page() {
                 value: -20,
               },
             ]}
-            colors={['#ff8c00', '#6b486b', '#98abc5', '#cccccc', 'red']}
-            layout={{ width: '100%' }}
+            accessDate={(d: any) => d.domain}
+            accessValue={(d: any) => d.value}
+            accessGroup={(d: any) => d.group}
           />
         </ModuleFunctionBody>
       </ModuleFunction>
