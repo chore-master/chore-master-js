@@ -4,7 +4,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import StackedAreaChart from '@/components/charts/StackedAreaChart'
+import LineChart from '@/components/charts/LineChart'
 import Button from '@mui/material/Button'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import React from 'react'
@@ -31,12 +31,13 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionHeader title="淨值" />
         <ModuleFunctionBody>
-          <StackedAreaChart
+          <LineChart
             data={[
               { x: 1, y: 10 },
               { x: 5, y: 7 },
               { x: 2, y: 3 },
             ]}
+            layout={{ width: '100%' }}
           />
         </ModuleFunctionBody>
       </ModuleFunction>
