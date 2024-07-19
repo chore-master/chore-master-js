@@ -73,8 +73,9 @@ export default function StackedAreaChart({
 
     const xAxis = d3
       .axisBottom(xScale)
+      .ticks(chartMeasure.width / 160)
+      // .ticks(d3.timeDay.every(1))
       .tickSizeOuter(0)
-      .ticks(d3.timeDay.every(1))
       .tickFormat(d3.timeFormat('%Y-%m-%d'))
     const yAxis = d3.axisLeft(yScale).ticks(chartMeasure.height / 40)
     d3.select(xAxisRef.current).call(xAxis)

@@ -6,27 +6,39 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import LineChart from '@/components/charts/LineChart'
 import StackedAreaChart from '@/components/charts/StackedAreaChart'
-import Button from '@mui/material/Button'
-import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
+import { useEntity } from '@/utils/entity'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import { GridRowsProp } from '@mui/x-data-grid'
 import React from 'react'
 
-const rows: GridRowsProp = [
-  { id: 1, col1: 'Hello', col2: 'World' },
-  { id: 2, col1: 'DataGridPro', col2: 'is Awesome' },
-  { id: 3, col1: 'MUI', col2: 'is Amazing' },
-  { id: 4, col1: 'XYZ', col2: 'is Amazing' },
-  { id: 5, col1: 'ABCD', col2: 'is Amazing' },
-]
-
-const columns: GridColDef[] = [
-  { field: 'col1', headerName: 'Column 1', width: 150 },
-  { field: 'col2', headerName: 'Column 2', width: 150 },
-  { field: 'col3', headerName: 'Column 3', width: 150 },
-  { field: 'col4', headerName: 'Column 4', width: 150 },
-  { field: 'col5', headerName: 'Column 5', width: 150 },
-]
-
 export default function Page() {
+  // const account = useEntity<GridRowsProp>({
+  //   endpoint: '/v1/financial_management/accounts',
+  //   defaultList: [],
+  // })
+  const asset = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/assets',
+    defaultList: [],
+  })
+  const netValue = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/net_values',
+    defaultList: [],
+  })
+  const [selectedAssetReference, setSelectedAssetReference] = React.useState()
+
+  React.useEffect(() => {
+    if (!selectedAssetReference) {
+      setSelectedAssetReference(asset.list[0]?.reference)
+    }
+  }, [asset.list])
+
+  const handleSelectedAssetChange = (event: SelectChangeEvent) => {
+    setSelectedAssetReference(event.target.value as any)
+  }
+
   return (
     <React.Fragment>
       <ModuleFunction>
@@ -44,46 +56,35 @@ export default function Page() {
       </ModuleFunction>
 
       <ModuleFunction>
-        <ModuleFunctionHeader title="面積圖" />
-        <ModuleFunctionBody>
-          <StackedAreaChart
-            layout={{ width: '100%' }}
-            data={[
-              {
-                domain: new Date('2024-07-19T00:00:00Z'),
-                group: 'xyz',
-                value: 123.45,
-              },
-              {
-                domain: new Date('2024-07-21T00:00:00Z'),
-                group: 'abc',
-                value: 111,
-              },
-              {
-                domain: new Date('2024-07-22T00:00:00Z'),
-                group: 'abc',
-                value: -10,
-              },
-              {
-                domain: new Date('2024-07-20T00:00:00Z'),
-                group: 'abc',
-                value: -20,
-              },
-            ]}
-            accessDate={(d: any) => d.domain}
-            accessValue={(d: any) => d.value}
-            accessGroup={(d: any) => d.group}
-          />
-        </ModuleFunctionBody>
-      </ModuleFunction>
-
-      <ModuleFunction>
         <ModuleFunctionHeader
-          title="資產配置"
-          actions={<Button variant="contained">新增</Button>}
+          title="淨值"
+          actions={
+            <FormControl variant="standard" sx={{ minWidth: 120 }}>
+              <InputLabel>結算貨幣</InputLabel>
+              <Select
+                value={selectedAssetReference || ''}
+                onChange={handleSelectedAssetChange}
+                autoWidth
+              >
+                {asset.list.map((a) => (
+                  <MenuItem key={a.reference} value={a.reference}>
+                    {a.symbol}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          }
         />
         <ModuleFunctionBody>
-          <DataGrid rows={rows} columns={columns} autoHeight />
+          <StackedAreaChart
+            layout={{ width: '100%', marginLeft: 100 }}
+            data={netValue.list.filter(
+              (d) => d.settlement_asset_reference === selectedAssetReference
+            )}
+            accessDate={(d: any) => new Date(d.settled_time)}
+            accessValue={(d: any) => parseFloat(d.amount)}
+            accessGroup={(d: any) => d.account_reference}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
     </React.Fragment>
