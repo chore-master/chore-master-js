@@ -2,48 +2,9 @@ import * as d3 from 'd3'
 import React from 'react'
 import { useMeasure } from 'react-use'
 
-function fillMissingData(data, keys) {
-  data.forEach((item, index) => {
-    keys.forEach((key) => {
-      if (item[key] === undefined || item[key] === null) {
-        // Find the last non-null value in the previous data points
-        let lastValidIndex = index - 1
-        while (
-          lastValidIndex >= 0 &&
-          (data[lastValidIndex][key] === undefined ||
-            data[lastValidIndex][key] === null)
-        ) {
-          lastValidIndex -= 1
-        }
-        item[key] = lastValidIndex >= 0 ? data[lastValidIndex][key] : 0
-      }
-    })
-  })
-}
-
-// function separateData(data, keys) {
-//   const positiveData = data.map((d) => {
-//     let obj = { x: d.x }
-//     keys.forEach((key) => (obj[key] = Math.max(0, d[key])))
-//     return obj
-//   })
-
-//   const negativeData = data.map((d) => {
-//     let obj = { x: d.x }
-//     keys.forEach((key) => (obj[key] = Math.min(0, d[key])))
-//     return obj
-//   })
-
-//   return { positiveData, negativeData }
-// }
-
+// https://observablehq.com/@mbostock/most-popular-operating-systems-2003-2020
+// https://observablehq.com/@d3/stacked-area-chart/2
 export default function StackedAreaChart({ data, colors, layout }) {
-  // const keys = Array.from(new Set(data.map((d) => d.group)))
-  const keys = d3.union(data.map((d) => d.group))
-  // fillMissingData(data, keys)
-  // const { positiveData, negativeData } = separateData(data, keys)
-  const positiveData = data.filter((d) => d.value >= 0)
-  const negativeData = data.filter((d) => d.value <= 0)
   const chartLayout = Object.assign(
     {
       width: 640,
@@ -59,8 +20,33 @@ export default function StackedAreaChart({ data, colors, layout }) {
   const xAxisRef = React.useRef()
   const yAxisRef = React.useRef()
 
+  const positiveData = data.filter((d) => d.value >= 0)
+  const negativeData = data.filter((d) => d.value <= 0)
+  const keys = d3.union(data.map((d) => d.group))
+
+  const stack = d3
+    .stack()
+    .keys(keys)
+    .value(([, D], key) => D.get(key) || 0)
+  const positiveSeries = stack(
+    d3.rollup(
+      positiveData,
+      ([d]) => d.value,
+      (d) => d.domain,
+      (d) => d.group
+    )
+  )
+  const negativeSeries = stack(
+    d3.rollup(
+      negativeData,
+      ([d]) => d.value,
+      (d) => d.domain,
+      (d) => d.group
+    )
+  )
+
   const xScale = d3
-    .scaleLinear()
+    .scaleUtc()
     .domain(d3.extent(data, (d) => d.domain))
     .range([
       chartLayout.marginLeft,
@@ -72,32 +58,24 @@ export default function StackedAreaChart({ data, colors, layout }) {
       chartMeasure.height - chartLayout.marginBottom,
       chartLayout.marginTop,
     ])
-
-  const stackGenerator = d3
-    .stack()
-    .keys(keys)
-    .value((d, _key) => d.value)
-    .order(d3.stackOrderNone)
-    .offset(d3.stackOffsetNone)
-
-  const positiveSeries = stackGenerator(positiveData)
-  const negativeSeries = stackGenerator(negativeData)
+  const colorScale = d3.scaleOrdinal().domain(keys).range(d3.schemeTableau10)
 
   yScale.domain([
-    d3.min(negativeSeries, (d) => d3.min(d, (item) => item[1])),
-    d3.max(positiveSeries, (d) => d3.max(d, (item) => item[1])),
+    d3.min(negativeSeries, (d) => d3.min(d, (d) => d[1])),
+
+    d3.max(positiveSeries, (d) => d3.max(d, (d) => d[1])),
   ])
 
-  const areaGenerator = d3
+  const area = d3
     .area()
-    .x((d) => xScale(d.data.domain))
+    .x((d) => xScale(d.data[0]))
     .y0((d) => yScale(d[0]))
     .y1((d) => yScale(d[1]))
 
   React.useEffect(() => {
     const xAxis = d3
       .axisBottom(xScale)
-      // .ticks(d3.timeHour.every(6))
+      .ticks(d3.timeDay.every(1))
       .tickFormat(d3.timeFormat('%Y-%m-%d'))
     const yAxis = d3.axisLeft(yScale)
     d3.select(xAxisRef.current).call(xAxis)
@@ -123,22 +101,22 @@ export default function StackedAreaChart({ data, colors, layout }) {
         })`}
       />
       <g ref={yAxisRef} transform={`translate(${chartLayout.marginLeft},0)`} />
-      {positiveSeries.map((layer, idx) => (
+      {positiveSeries.map((D, idx) => (
         <path
           key={idx}
-          d={areaGenerator(layer)}
-          fill={colors[idx]}
-          stroke="currentColor"
-          strokeWidth="1.5"
+          d={area(D)}
+          fill={colorScale(D.key)}
+          // stroke="currentColor"
+          // strokeWidth="1.5"
         />
       ))}
-      {negativeSeries.map((layer, idx) => (
+      {negativeSeries.map((D, idx) => (
         <path
           key={idx}
-          d={areaGenerator(layer)}
-          fill={colors[idx]}
-          stroke="currentColor"
-          strokeWidth="1.5"
+          d={area(D)}
+          fill={colorScale(D.key)}
+          // stroke="currentColor"
+          // strokeWidth="1.5"
         />
       ))}
     </svg>

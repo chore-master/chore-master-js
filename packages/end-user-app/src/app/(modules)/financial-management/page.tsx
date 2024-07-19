@@ -49,27 +49,27 @@ export default function Page() {
           <StackedAreaChart
             data={[
               {
-                domain: new Date('2024-07-19T03:16:55.620000Z'),
+                domain: new Date('2024-07-19T00:00:00Z'),
                 group: 'xyz',
                 value: 123.45,
               },
+
               {
-                domain: new Date('2024-07-20T03:16:55.620000Z'),
-                group: 'abc',
-                value: -20,
-              },
-              {
-                domain: new Date('2024-07-21T03:16:55.620000Z'),
+                domain: new Date('2024-07-21T00:00:00Z'),
                 group: 'abc',
                 value: 111,
               },
-              // { date: 1, E: 5 },
-              // { date: 2, A: 15, B: 15, C: 20, E: -5 },
-              // { date: 3, B: 10, C: -10, E: -30 },
-              // { date: 4, A: 15, C: 10, D: 5 },
-              // { date: 5, D: 15 },
+              {
+                domain: new Date('2024-07-22T00:00:00Z'),
+                group: 'abc',
+                value: -10,
+              },
+              {
+                domain: new Date('2024-07-20T00:00:00Z'),
+                group: 'abc',
+                value: -20,
+              },
             ]}
-            // keys={['A', 'B', 'C', 'D', 'E']}
             colors={['#ff8c00', '#6b486b', '#98abc5', '#cccccc', 'red']}
             layout={{ width: '100%' }}
           />
