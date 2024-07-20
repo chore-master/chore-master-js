@@ -179,10 +179,10 @@ export default function Page() {
     }
   }
 
-  const handleUpsertNetValueRow = async ({
-    isNew,
-    ...upsertedRow
-  }: GridRowModel) => {
+  const handleUpsertNetValueRow = async (
+    { isNew, ...upsertedRow }: GridRowModel,
+    _oldRow: GridRowModel
+  ) => {
     return await netValue.upsertByReference({
       isNew,
       upsertedEntity: upsertedRow,
@@ -198,7 +198,9 @@ export default function Page() {
     },
     {
       field: 'account_reference',
+      type: 'string',
       headerName: '帳戶識別碼',
+      editable: true,
       hideSortIcons: true,
       sortable: false,
     },
@@ -233,7 +235,9 @@ export default function Page() {
     },
     {
       field: 'settlement_asset_reference',
+      type: 'string',
       headerName: '結算資產識別碼',
+      editable: true,
       hideSortIcons: true,
       sortable: false,
     },
@@ -319,19 +323,14 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionBody>
           <ModuleDataGrid
-            // rows={netValueRows}
             rows={netValue.list}
             columns={netValueColumns}
             rowModesModel={netValueRowModesModel}
             onRowModesModelChange={setNetValueRowModesModel}
             getNewRow={getNewNetValueRow}
-            // setRows={setNetValueRows}
-            // setRows={(wtf) => {
-            //   netValue.setList(wtf)
-            // }}
             setRows={netValue.setList}
             processRowUpdate={handleUpsertNetValueRow}
-            loading={netValue.isLoading}
+            loading={netValue.isLoading || account.isLoading || asset.isLoading}
             getRowId={(row) => row.reference}
             columnVisibilityModel={{
               account_reference: false,
