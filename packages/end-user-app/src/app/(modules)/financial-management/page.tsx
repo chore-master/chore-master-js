@@ -8,13 +8,14 @@ import LineChart from '@/components/charts/LineChart'
 import StackedAreaChart from '@/components/charts/StackedAreaChart'
 import { colors, useLegend } from '@/utils/chart'
 import { useEntity } from '@/utils/entity'
-import Autocomplete from '@mui/material/Autocomplete'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
 import { GridRowsProp } from '@mui/x-data-grid'
 import React from 'react'
 
@@ -31,26 +32,29 @@ export default function Page() {
     endpoint: '/v1/financial_management/net_values',
     defaultList: [],
   })
-  // const [selectedAssetReference, setSelectedAssetReference] = React.useState()
   // const [accountReferenceToAccountMap, setAccountReferenceToAccountMap] =
   //   React.useState({})
-  const [accountNames, setAccountNames] = React.useState<string[]>([])
+  // const [accountNames, setAccountNames] = React.useState<string[]>([])
   const [filteredAssetReference, setFilteredAssetReference] =
     React.useState<string>()
   const [filteredAccounts, setFilteredAccounts] = React.useState<any>([])
   const [filteredNetValues, setFilteredNetValues] = React.useState<any>([])
-  const accountLegend = useLegend({ labels: accountNames, colors })
+  const accountLegend = useLegend({
+    // labels: accountNames,
+    labels: account.list.map((a) => a.reference),
+    colors,
+  })
 
   React.useEffect(() => {
     // setAccountReferenceToAccountMap(account.getMapByReference())
-    setAccountNames(account.list.map((a) => a.name))
+    // setAccountNames(account.list.map((a) => a.name))
     if (filteredAccounts.length === 0 && account.list.length > 0) {
-      setFilteredAccounts([...account.list])
+      setFilteredAccounts(account.list)
     }
   }, [account.list])
 
   React.useEffect(() => {
-    if (filteredAssetReference && filteredAccounts.length > 0) {
+    if (filteredAssetReference) {
       const filteredAccountReferenceSet = new Set(
         filteredAccounts.map((a: any) => a.reference)
       )
@@ -91,24 +95,6 @@ export default function Page() {
                   </MenuItem>
                 ))}
               </Select>
-              {/* <Autocomplete
-                value={filteredAsset || {}}
-                onChange={(event: any, newValue: any) =>
-                  setFilteredAsset(newValue)
-                }
-                size="small"
-                // disableCloseOnSelect
-                options={asset.list}
-                getOptionLabel={(option) => option.symbol}
-                // defaultValue={[top100Films[13], top100Films[12], top100Films[11]]}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="結算資產分類"
-                    variant="standard"
-                  />
-                )}
-              /> */}
             </FormControl>
           }
         />
@@ -126,12 +112,72 @@ export default function Page() {
             colorScale={accountLegend.colorScale}
           />
           <Stack component="form" spacing={3} p={2} autoComplete="off">
-            <FormControl
+            <Stack
+              direction="row"
+              // spacing={1}
+              sx={{
+                // display: 'flex',
+                // justifyContent: 'center',
+                flexWrap: 'wrap',
+                // listStyle: 'none',
+                // p: 0.5,
+                // m: 0.5,
+              }}
+            >
+              <Button
+                variant="text"
+                onClick={() => setFilteredAccounts(account.list)}
+              >
+                選取全部
+              </Button>
+              <Button variant="text" onClick={() => setFilteredAccounts([])}>
+                反選全部
+              </Button>
+              {account.list.map((a) => (
+                <Box key={a.reference} sx={{ p: 0.5 }}>
+                  <Chip
+                    label={a.name}
+                    size="small"
+                    onClick={() => {
+                      const isActive = filteredAccounts.find(
+                        (fa: any) => fa.reference === a.reference
+                      )
+                        ? true
+                        : false
+                      if (isActive) {
+                        setFilteredAccounts((as: any) =>
+                          as.filter((fa: any) => fa.reference !== a.reference)
+                        )
+                      } else {
+                        setFilteredAccounts((as: any) => [...as, a])
+                      }
+                    }}
+                    variant={
+                      filteredAccounts.find(
+                        (fa: any) => fa.reference === a.reference
+                      )
+                        ? undefined
+                        : 'outlined'
+                    }
+                    avatar={
+                      <svg>
+                        <circle
+                          r="9"
+                          cx="9"
+                          cy="9"
+                          fill={accountLegend.colorScale(a.reference)}
+                        />
+                      </svg>
+                    }
+                  />
+                </Box>
+              ))}
+            </Stack>
+            {/* <FormControl
             // sx={{ minWidth: 120, maxWidth: 640 }}
             >
               <Autocomplete
                 value={filteredAccounts}
-                // defaultValue={(account.list.length > 0 ?? account.list) as any}
                 onChange={(event: any, newValue: any) =>
                   setFilteredAccounts(newValue)
                 }
@@ -139,17 +185,15 @@ export default function Page() {
                   option.reference === value.reference
                 }
                 multiple
-                // limitTags={8}
                 size="small"
                 disableCloseOnSelect
                 options={account.list}
                 getOptionLabel={(option) => option.name}
-                // defaultValue={[top100Films[13], top100Films[12], top100Films[11]]}
                 renderInput={(params) => (
                   <TextField {...params} label="帳戶" variant="standard" />
                 )}
               />
-            </FormControl>
+            </FormControl> */}
           </Stack>
         </ModuleFunctionBody>
       </ModuleFunction>
