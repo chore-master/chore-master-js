@@ -2,64 +2,192 @@
 
 import { ModuleDataGrid } from '@/components/ModuleDataGrid'
 import ModuleFunction, { ModuleFunctionBody } from '@/components/ModuleFunction'
-import { useEntities } from '@/utils/entity'
-import { GridColDef, GridRowModesModel } from '@mui/x-data-grid'
+import { useEntity } from '@/utils/entity'
+import CancelIcon from '@mui/icons-material/Close'
+import DeleteIcon from '@mui/icons-material/DeleteOutlined'
+import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
+import FormControl from '@mui/material/FormControl'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import {
+  GridActionsCellItem,
+  GridColDef,
+  GridRenderCellParams,
+  GridRenderEditCellParams,
+  GridRowId,
+  GridRowModel,
+  GridRowModes,
+  GridRowModesModel,
+  GridRowsProp,
+  useGridApiContext,
+} from '@mui/x-data-grid'
 import React from 'react'
+import { v4 as uuidv4 } from 'uuid'
+
+const ForeignEntity = ({
+  params,
+  localFieldToForeignEntityMap,
+  localFieldName,
+  foreignFieldName,
+}: {
+  params: GridRenderCellParams
+  localFieldToForeignEntityMap: any
+  localFieldName: string
+  foreignFieldName: string
+}) => {
+  const localFieldValue = params.row?.[localFieldName]
+  const foreignEntity = localFieldToForeignEntityMap?.[localFieldValue]
+  return foreignEntity?.[foreignFieldName]
+}
+
+const ForeignEntityEditor = ({
+  params,
+  localFieldToForeignEntityMap,
+  localFieldName,
+  foreignFieldName,
+}: {
+  params: GridRenderEditCellParams
+  localFieldToForeignEntityMap: any
+  localFieldName: string
+  foreignFieldName: string
+}) => {
+  const { id, value, field, hasFocus } = params
+  const apiRef = useGridApiContext()
+  const ref = React.useRef<HTMLInputElement>(null)
+  const localFieldValue = params.row?.[localFieldName]
+
+  React.useLayoutEffect(() => {
+    if (hasFocus) {
+      ref.current?.focus()
+    }
+  }, [hasFocus])
+
+  const handleValueChange = (event: SelectChangeEvent) => {
+    const newValue = event.target.value
+    apiRef.current.setEditCellValue({
+      id,
+      field: localFieldName,
+      value: newValue,
+    })
+  }
+
+  return (
+    <FormControl size="small">
+      <Select
+        defaultValue={localFieldValue}
+        value={value}
+        onChange={handleValueChange}
+        displayEmpty
+        autoWidth
+      >
+        {Object.entries(localFieldToForeignEntityMap).map(
+          ([key, value]: any) => (
+            <MenuItem key={key} value={key}>
+              {value[foreignFieldName]}
+            </MenuItem>
+          )
+        )}
+      </Select>
+    </FormControl>
+  )
+}
 
 export default function Page() {
+  const account = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/accounts',
+    defaultList: [],
+  })
+  const asset = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/assets',
+    defaultList: [],
+  })
+  const netValue = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/net_values',
+    defaultList: [],
+  })
+  // const [netValueRows, setNetValueRows] = React.useState<GridRowsProp>([])
   const [netValueRowModesModel, setNetValueRowModesModel] =
     React.useState<GridRowModesModel>({})
-
-  const entities = useEntities({
-    account: { endpoint: '/v1/financial_management/accounts' },
-    asset: { endpoint: '/v1/financial_management/assets' },
-    netValue: { endpoint: '/v1/financial_management/net_values' },
-  })
-
-  const accountReferenceToAccountMap = entities.account.list.reduce(
-    (acc: any, entity: any) => {
-      acc[entity['reference']] = entity
-      return acc
-    },
-    {}
-  )
-  const assetReferenceToAssetMap = entities.asset.list.reduce(
-    (acc: any, entity: any) => {
-      acc[entity['reference']] = entity
-      return acc
-    },
-    {}
-  )
-  const netValueRows =
-    entities.netValue?.list.map((netValue) => {
-      const account = accountReferenceToAccountMap?.[netValue.account_reference]
-      const settlementAsset =
-        assetReferenceToAssetMap?.[netValue.settlement_asset_reference]
-
-      return {
-        ...netValue,
-        account_name: account?.name,
-        settlement_asset_name: settlementAsset?.symbol,
-      }
-    }) || []
+  const [accountReferenceToAccountMap, setAccountReferenceToAccountMap] =
+    React.useState({})
+  const [assetReferenceToAssetMap, setAssetReferenceToAssetMap] =
+    React.useState({})
 
   React.useEffect(() => {
-    if (!entities.account?.isFetchedAll) {
-      entities.account?.fetchAll()
-    }
-  }, [entities.account?.isFetchedAll])
-
+    setAccountReferenceToAccountMap(account.getMapByReference())
+  }, [account.list])
   React.useEffect(() => {
-    if (!entities.asset?.isFetchedAll) {
-      entities.asset?.fetchAll()
-    }
-  }, [entities.asset?.isFetchedAll])
+    setAssetReferenceToAssetMap(asset.getMapByReference())
+  }, [asset.list])
+  // React.useEffect(() => {
+  //   const accountReferenceToAccountMap = account.getMapByReference()
+  //   const assetReferenceToAssetMap = asset.getMapByReference()
+  //   setNetValueRows(
+  //     netValue.list.map((netValue) => {
+  //       const account =
+  //         accountReferenceToAccountMap?.[netValue.account_reference]
+  //       const settlementAsset =
+  //         assetReferenceToAssetMap?.[netValue.settlement_asset_reference]
+  //       return {
+  //         ...netValue,
+  //         account_name: account?.name,
+  //         settlement_asset_symbol: settlementAsset?.symbol,
+  //       }
+  //     })
+  //   )
+  // }, [account.list, asset.list, netValue.list])
 
-  React.useEffect(() => {
-    if (!entities.netValue?.isFetchedAll) {
-      entities.netValue?.fetchAll()
+  const getNewNetValueRow = () => {
+    return {
+      isNew: true,
+      reference: uuidv4(),
+      account_reference: account.list[0]?.reference,
+      settlement_asset_reference: asset.list[0]?.reference,
+      settled_time: new Date().toISOString(),
     }
-  }, [entities.netValue?.isFetchedAll])
+  }
+
+  const handleEditNetValueClick = (reference: GridRowId) => () => {
+    setNetValueRowModesModel({
+      ...netValueRowModesModel,
+      [reference]: { mode: GridRowModes.Edit },
+    })
+  }
+
+  const handleSaveNetValueClick = (reference: GridRowId) => () => {
+    setNetValueRowModesModel({
+      ...netValueRowModesModel,
+      [reference]: { mode: GridRowModes.View },
+    })
+  }
+
+  const handleDeleteNetValueClick = (reference: GridRowId) => async () => {
+    await netValue.deleteByReference(reference)
+  }
+
+  const handleCancelEditNetValueClick = (reference: GridRowId) => () => {
+    setNetValueRowModesModel({
+      ...netValueRowModesModel,
+      [reference]: { mode: GridRowModes.View, ignoreModifications: true },
+    })
+    const editedRow = netValue.list.find((row) => row.reference === reference)
+    if (editedRow!.isNew) {
+      netValue.setList(
+        netValue.list.filter((row) => row.reference !== reference)
+      )
+    }
+  }
+
+  const handleUpsertNetValueRow = async (
+    { isNew, ...upsertedRow }: GridRowModel,
+    _oldRow: GridRowModel
+  ) => {
+    return await netValue.upsertByReference({
+      isNew,
+      upsertedEntity: upsertedRow,
+    })
+  }
 
   const netValueColumns: GridColDef[] = [
     {
@@ -70,7 +198,9 @@ export default function Page() {
     },
     {
       field: 'account_reference',
+      type: 'string',
       headerName: '帳戶識別碼',
+      editable: true,
       hideSortIcons: true,
       sortable: false,
     },
@@ -78,22 +208,60 @@ export default function Page() {
       field: 'account_name',
       type: 'string',
       headerName: '帳戶名稱',
+      editable: true,
+      flex: 1,
+      renderCell: (params: GridRenderCellParams) => (
+        <ForeignEntity
+          params={params}
+          localFieldToForeignEntityMap={accountReferenceToAccountMap}
+          localFieldName="account_reference"
+          foreignFieldName="name"
+        />
+      ),
+      renderEditCell: (params: GridRenderEditCellParams) => (
+        <ForeignEntityEditor
+          params={params}
+          localFieldToForeignEntityMap={accountReferenceToAccountMap}
+          localFieldName="account_reference"
+          foreignFieldName="name"
+        />
+      ),
     },
     {
       field: 'amount',
-      type: 'string',
+      type: 'number',
       headerName: '數量',
+      editable: true,
     },
     {
       field: 'settlement_asset_reference',
+      type: 'string',
       headerName: '結算資產識別碼',
+      editable: true,
       hideSortIcons: true,
       sortable: false,
     },
     {
-      field: 'settlement_asset_name',
+      field: 'settlement_asset_symbol',
       type: 'string',
       headerName: '結算資產識別符號',
+      editable: true,
+      renderCell: (params: GridRenderCellParams) => (
+        <ForeignEntity
+          params={params}
+          localFieldToForeignEntityMap={assetReferenceToAssetMap}
+          localFieldName="settlement_asset_reference"
+          foreignFieldName="symbol"
+        />
+      ),
+      renderEditCell: (params: GridRenderEditCellParams) => (
+        <ForeignEntityEditor
+          params={params}
+          localFieldToForeignEntityMap={assetReferenceToAssetMap}
+          localFieldName="settlement_asset_reference"
+          foreignFieldName="symbol"
+        />
+      ),
     },
     {
       field: 'settled_time',
@@ -107,7 +275,45 @@ export default function Page() {
       type: 'actions',
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        return []
+        const isInEditMode =
+          netValueRowModesModel[id]?.mode === GridRowModes.Edit
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              key="save"
+              icon={<SaveIcon />}
+              label="Save"
+              sx={{
+                color: 'primary.main',
+              }}
+              onClick={handleSaveNetValueClick(id)}
+            />,
+            <GridActionsCellItem
+              key="cancel"
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelEditNetValueClick(id)}
+              color="inherit"
+            />,
+          ]
+        }
+        return [
+          <GridActionsCellItem
+            key="edit"
+            icon={<EditIcon />}
+            label="Edit"
+            onClick={handleEditNetValueClick(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            key="delete"
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={handleDeleteNetValueClick(id)}
+            color="inherit"
+          />,
+        ]
       },
     },
   ]
@@ -117,12 +323,14 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionBody>
           <ModuleDataGrid
-            rows={netValueRows}
+            rows={netValue.list}
             columns={netValueColumns}
             rowModesModel={netValueRowModesModel}
             onRowModesModelChange={setNetValueRowModesModel}
-            setRows={entities.netValue?.setList}
-            loading={entities.netValue?.isFetchingAll}
+            getNewRow={getNewNetValueRow}
+            setRows={netValue.setList}
+            processRowUpdate={handleUpsertNetValueRow}
+            loading={netValue.isLoading || account.isLoading || asset.isLoading}
             getRowId={(row) => row.reference}
             columnVisibilityModel={{
               account_reference: false,

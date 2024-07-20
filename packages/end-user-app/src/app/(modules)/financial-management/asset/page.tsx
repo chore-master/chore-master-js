@@ -2,7 +2,7 @@
 
 import { ModuleDataGrid } from '@/components/ModuleDataGrid'
 import ModuleFunction, { ModuleFunctionBody } from '@/components/ModuleFunction'
-import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useEntity } from '@/utils/entity'
 import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
@@ -20,28 +20,12 @@ import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 export default function Page() {
-  const [assetRows, setAssetRows] = React.useState<GridRowsProp>([])
-  const [isLoadingAssetRows, setIsLoadingAssetRows] = React.useState(false)
+  const asset = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/assets',
+    defaultList: [],
+  })
   const [assetRowModesModel, setAssetRowModesModel] =
     React.useState<GridRowModesModel>({})
-
-  React.useEffect(() => {
-    fetchAssetRows()
-  }, [])
-
-  const fetchAssetRows = async () => {
-    setIsLoadingAssetRows(true)
-    await choreMasterAPIAgent.get('/v1/financial_management/assets', {
-      params: {},
-      onFail: ({ message }: any) => {
-        alert(message)
-      },
-      onSuccess: async ({ data }: any) => {
-        setAssetRows(data)
-      },
-    })
-    setIsLoadingAssetRows(false)
-  }
 
   const getNewAssetRow = () => {
     return {
@@ -66,19 +50,7 @@ export default function Page() {
   }
 
   const handleDeleteAssetClick = (reference: GridRowId) => async () => {
-    setIsLoadingAssetRows(true)
-    await choreMasterAPIAgent.delete(
-      `/v1/financial_management/assets/${reference}`,
-      {
-        onFail: ({ message }: any) => {
-          alert(message)
-        },
-        onSuccess: () => {
-          setAssetRows(assetRows.filter((row) => row.reference !== reference))
-        },
-      }
-    )
-    setIsLoadingAssetRows(false)
+    await asset.deleteByReference(reference)
   }
 
   const handleCancelEditAssetClick = (reference: GridRowId) => () => {
@@ -86,10 +58,9 @@ export default function Page() {
       ...assetRowModesModel,
       [reference]: { mode: GridRowModes.View, ignoreModifications: true },
     })
-
-    const editedRow = assetRows.find((row) => row.reference === reference)
+    const editedRow = asset.list.find((row) => row.reference === reference)
     if (editedRow!.isNew) {
-      setAssetRows(assetRows.filter((row) => row.reference !== reference))
+      asset.setList(asset.list.filter((row) => row.reference !== reference))
     }
   }
 
@@ -97,44 +68,7 @@ export default function Page() {
     isNew,
     ...upsertedRow
   }: GridRowModel) => {
-    setIsLoadingAssetRows(true)
-    if (isNew) {
-      await choreMasterAPIAgent.post(
-        '/v1/financial_management/assets',
-        upsertedRow,
-        {
-          onFail: ({ message }: any) => {
-            alert(message)
-          },
-          onSuccess: () => {
-            setAssetRows(
-              assetRows.map((row) =>
-                row.reference === upsertedRow.reference ? upsertedRow : row
-              )
-            )
-          },
-        }
-      )
-    } else {
-      await choreMasterAPIAgent.patch(
-        `/v1/financial_management/assets/${upsertedRow.reference}`,
-        upsertedRow,
-        {
-          onFail: ({ message }: any) => {
-            alert(message)
-          },
-          onSuccess: () => {
-            setAssetRows(
-              assetRows.map((row) =>
-                row.reference === upsertedRow.reference ? upsertedRow : row
-              )
-            )
-          },
-        }
-      )
-    }
-    setIsLoadingAssetRows(false)
-    return upsertedRow
+    return await asset.upsertByReference({ isNew, upsertedEntity: upsertedRow })
   }
 
   const accountColumns: GridColDef[] = [
@@ -203,14 +137,14 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionBody>
           <ModuleDataGrid
-            rows={assetRows}
+            rows={asset.list}
             columns={accountColumns}
             rowModesModel={assetRowModesModel}
             onRowModesModelChange={setAssetRowModesModel}
             getNewRow={getNewAssetRow}
-            setRows={setAssetRows}
+            setRows={asset.setList}
             processRowUpdate={handleUpsertAssetRow}
-            loading={isLoadingAssetRows}
+            loading={asset.isLoading}
             getRowId={(row) => row.reference}
           />
         </ModuleFunctionBody>

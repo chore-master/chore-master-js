@@ -4,48 +4,233 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import StackedAreaChart from '@/components/charts/StackedAreaChart'
+import { colors, useLegend } from '@/utils/chart'
+import { useEntity } from '@/utils/entity'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
+import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import Stack from '@mui/material/Stack'
+import { GridRowsProp } from '@mui/x-data-grid'
 import React from 'react'
 
-const rows: GridRowsProp = [
-  { id: 1, col1: 'Hello', col2: 'World' },
-  { id: 2, col1: 'DataGridPro', col2: 'is Awesome' },
-  { id: 3, col1: 'MUI', col2: 'is Amazing' },
-  { id: 4, col1: 'XYZ', col2: 'is Amazing' },
-  { id: 5, col1: 'ABCD', col2: 'is Amazing' },
-]
-
-const columns: GridColDef[] = [
-  { field: 'col1', headerName: 'Column 1', width: 150 },
-  { field: 'col2', headerName: 'Column 2', width: 150 },
-  { field: 'col3', headerName: 'Column 3', width: 150 },
-  { field: 'col4', headerName: 'Column 4', width: 150 },
-  { field: 'col5', headerName: 'Column 5', width: 150 },
-]
-
 export default function Page() {
+  const account = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/accounts',
+    defaultList: [],
+  })
+  const asset = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/assets',
+    defaultList: [],
+  })
+  const netValue = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/net_values',
+    defaultList: [],
+  })
+  const [filteredAssetReference, setFilteredAssetReference] =
+    React.useState<string>()
+  const [filterableAccounts, setFilterableAccounts] = React.useState<any>([])
+  const [filteredAccounts, setFilteredAccounts] = React.useState<any>([])
+  const [filteredNetValues, setFilteredNetValues] = React.useState<any>([])
+  const accountLegend = useLegend({
+    labels: account.list.map((a) => a.reference),
+    colors,
+  })
+
+  React.useEffect(() => {
+    if (
+      filteredAssetReference &&
+      account.list.length > 0 &&
+      netValue.list.length > 0
+    ) {
+      const filterableAccountReferenceSet = new Set(
+        netValue.list
+          .filter(
+            (d) => d.settlement_asset_reference === filteredAssetReference
+          )
+          .map((d) => d.account_reference)
+      )
+      setFilterableAccounts(
+        account.list.filter((a) =>
+          filterableAccountReferenceSet.has(a.reference)
+        )
+      )
+    }
+  }, [account.list, filteredAssetReference, netValue.list])
+
+  React.useEffect(() => {
+    setFilteredAccounts(filterableAccounts)
+  }, [filterableAccounts])
+
+  React.useEffect(() => {
+    if (filteredAssetReference) {
+      const filteredAccountReferenceSet = new Set(
+        filteredAccounts.map((a: any) => a.reference)
+      )
+      setFilteredNetValues(
+        netValue.list.filter(
+          (d) =>
+            d.settlement_asset_reference === filteredAssetReference &&
+            filteredAccountReferenceSet.has(d.account_reference)
+        )
+      )
+    }
+  }, [filteredAssetReference, filteredAccounts, netValue.list])
+
+  React.useEffect(() => {
+    if (!filteredAssetReference && asset.list.length > 0) {
+      setFilteredAssetReference(asset.list[0].reference)
+    }
+  }, [asset.list])
+
   return (
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="帳戶列表"
-          actions={<Button size="small">Learn More</Button>}
+          title="淨值組成"
+          actions={
+            asset.isLoading ? (
+              <CircularProgress color="inherit" size={20} />
+            ) : (
+              <FormControl variant="standard" sx={{ minWidth: 120 }}>
+                <InputLabel>結算資產分類</InputLabel>
+
+                <Select
+                  value={filteredAssetReference || ''}
+                  onChange={(event: SelectChangeEvent) => {
+                    setFilteredAssetReference(event.target.value)
+                  }}
+                  autoWidth
+                >
+                  {asset.list.map((a) => (
+                    <MenuItem key={a.reference} value={a.reference}>
+                      {a.symbol}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )
+          }
         />
-        <ModuleFunctionBody>
-          <DataGrid rows={rows} columns={columns} autoHeight />
+        <ModuleFunctionBody
+          loading={netValue.isLoading || asset.isLoading || account.isLoading}
+        >
+          <StackedAreaChart
+            layout={{
+              width: '100%',
+              marginTop: 48,
+              marginLeft: 96,
+              marginRight: 96,
+              minWidth: 320,
+            }}
+            datapoints={filteredNetValues}
+            accessDate={(d: any) => new Date(d.settled_time)}
+            accessValue={(d: any) => parseFloat(d.amount)}
+            accessGroup={(d: any) => d.account_reference}
+            // mapGroupToLegendText={(group: string) =>
+            //   (accountReferenceToAccountMap as any)?.[group]?.name
+            // }
+            // colors={colors}
+            colorScale={accountLegend.colorScale}
+          />
+          <Stack
+            direction="row"
+            p={2}
+            sx={{
+              flexWrap: 'wrap',
+            }}
+          >
+            <Button
+              variant="text"
+              onClick={() => setFilteredAccounts(filterableAccounts)}
+            >
+              選取全部
+            </Button>
+            <Button variant="text" onClick={() => setFilteredAccounts([])}>
+              反選全部
+            </Button>
+            {filterableAccounts.map((a: any) => (
+              <Box key={a.reference} sx={{ p: 0.5 }}>
+                <Chip
+                  label={a.name}
+                  size="small"
+                  onClick={() => {
+                    const isActive = filteredAccounts.find(
+                      (fa: any) => fa.reference === a.reference
+                    )
+                      ? true
+                      : false
+                    if (isActive) {
+                      setFilteredAccounts((as: any) =>
+                        as.filter((fa: any) => fa.reference !== a.reference)
+                      )
+                    } else {
+                      setFilteredAccounts((as: any) => [...as, a])
+                    }
+                  }}
+                  variant={
+                    filteredAccounts.find(
+                      (fa: any) => fa.reference === a.reference
+                    )
+                      ? undefined
+                      : 'outlined'
+                  }
+                  avatar={
+                    <svg>
+                      <circle
+                        r="9"
+                        cx="9"
+                        cy="9"
+                        fill={accountLegend.colorScale(a.reference)}
+                      />
+                    </svg>
+                  }
+                />
+              </Box>
+            ))}
+          </Stack>
+          {/* <FormControl
+            // sx={{ minWidth: 120, maxWidth: 640 }}
+            >
+              <Autocomplete
+                value={filteredAccounts}
+                onChange={(event: any, newValue: any) =>
+                  setFilteredAccounts(newValue)
+                }
+                isOptionEqualToValue={(option, value) =>
+                  option.reference === value.reference
+                }
+                multiple
+                size="small"
+                disableCloseOnSelect
+                options={account.list}
+                getOptionLabel={(option) => option.name}
+                renderInput={(params) => (
+                  <TextField {...params} label="帳戶" variant="standard" />
+                )}
+              />
+            </FormControl> */}
         </ModuleFunctionBody>
       </ModuleFunction>
 
-      <ModuleFunction>
-        <ModuleFunctionHeader
-          title="資產配置"
-          actions={<Button variant="contained">新增</Button>}
-        />
+      {/* <ModuleFunction>
+        <ModuleFunctionHeader title="範例折線圖" />
         <ModuleFunctionBody>
-          <DataGrid rows={rows} columns={columns} autoHeight />
+          <LineChart
+            layout={{ width: '100%' }}
+            data={[
+              { x: 1, y: 10 },
+              { x: 5, y: 7 },
+              { x: 2, y: 3 },
+            ]}
+          />
         </ModuleFunctionBody>
-      </ModuleFunction>
+      </ModuleFunction> */}
     </React.Fragment>
   )
 }
