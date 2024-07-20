@@ -4,13 +4,13 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import LineChart from '@/components/charts/LineChart'
 import StackedAreaChart from '@/components/charts/StackedAreaChart'
 import { colors, useLegend } from '@/utils/chart'
 import { useEntity } from '@/utils/entity'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -94,27 +94,40 @@ export default function Page() {
         <ModuleFunctionHeader
           title="淨值組成"
           actions={
-            <FormControl variant="standard" sx={{ minWidth: 120 }}>
-              <InputLabel>結算資產分類</InputLabel>
-              <Select
-                value={filteredAssetReference || ''}
-                onChange={(event: SelectChangeEvent) => {
-                  setFilteredAssetReference(event.target.value)
-                }}
-                autoWidth
-              >
-                {asset.list.map((a) => (
-                  <MenuItem key={a.reference} value={a.reference}>
-                    {a.symbol}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            asset.isLoading ? (
+              <CircularProgress color="inherit" size={20} />
+            ) : (
+              <FormControl variant="standard" sx={{ minWidth: 120 }}>
+                <InputLabel>結算資產分類</InputLabel>
+
+                <Select
+                  value={filteredAssetReference || ''}
+                  onChange={(event: SelectChangeEvent) => {
+                    setFilteredAssetReference(event.target.value)
+                  }}
+                  autoWidth
+                >
+                  {asset.list.map((a) => (
+                    <MenuItem key={a.reference} value={a.reference}>
+                      {a.symbol}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )
           }
         />
-        <ModuleFunctionBody>
+        <ModuleFunctionBody
+          loading={netValue.isLoading || asset.isLoading || account.isLoading}
+        >
           <StackedAreaChart
-            layout={{ width: '100%', marginLeft: 100 }}
+            layout={{
+              width: '100%',
+              marginTop: 48,
+              marginLeft: 96,
+              marginRight: 96,
+              minWidth: 320,
+            }}
             datapoints={filteredNetValues}
             accessDate={(d: any) => new Date(d.settled_time)}
             accessValue={(d: any) => parseFloat(d.amount)}
@@ -125,69 +138,63 @@ export default function Page() {
             // colors={colors}
             colorScale={accountLegend.colorScale}
           />
-          <Stack component="form" spacing={3} p={2} autoComplete="off">
-            <Stack
-              direction="row"
-              // spacing={1}
-              sx={{
-                // display: 'flex',
-                // justifyContent: 'center',
-                flexWrap: 'wrap',
-                // listStyle: 'none',
-                // p: 0.5,
-                // m: 0.5,
-              }}
+          <Stack
+            direction="row"
+            p={2}
+            sx={{
+              flexWrap: 'wrap',
+            }}
+          >
+            <Button
+              variant="text"
+              onClick={() => setFilteredAccounts(filterableAccounts)}
             >
-              <Button
-                variant="text"
-                onClick={() => setFilteredAccounts(filterableAccounts)}
-              >
-                選取全部
-              </Button>
-              <Button variant="text" onClick={() => setFilteredAccounts([])}>
-                反選全部
-              </Button>
-              {filterableAccounts.map((a: any) => (
-                <Box key={a.reference} sx={{ p: 0.5 }}>
-                  <Chip
-                    label={a.name}
-                    size="small"
-                    onClick={() => {
-                      const isActive = filteredAccounts.find(
-                        (fa: any) => fa.reference === a.reference
+              選取全部
+            </Button>
+            <Button variant="text" onClick={() => setFilteredAccounts([])}>
+              反選全部
+            </Button>
+            {filterableAccounts.map((a: any) => (
+              <Box key={a.reference} sx={{ p: 0.5 }}>
+                <Chip
+                  label={a.name}
+                  size="small"
+                  onClick={() => {
+                    const isActive = filteredAccounts.find(
+                      (fa: any) => fa.reference === a.reference
+                    )
+                      ? true
+                      : false
+                    if (isActive) {
+                      setFilteredAccounts((as: any) =>
+                        as.filter((fa: any) => fa.reference !== a.reference)
                       )
-                        ? true
-                        : false
-                      if (isActive) {
-                        setFilteredAccounts((as: any) =>
-                          as.filter((fa: any) => fa.reference !== a.reference)
-                        )
-                      } else {
-                        setFilteredAccounts((as: any) => [...as, a])
-                      }
-                    }}
-                    variant={
-                      filteredAccounts.find(
-                        (fa: any) => fa.reference === a.reference
-                      )
-                        ? undefined
-                        : 'outlined'
+                    } else {
+                      setFilteredAccounts((as: any) => [...as, a])
                     }
-                    avatar={
-                      <svg>
-                        <circle
-                          r="9"
-                          cx="9"
-                          cy="9"
-                          fill={accountLegend.colorScale(a.reference)}
-                        />
-                      </svg>
-                    }
-                  />
-                </Box>
-              ))}
-            </Stack>
-            {/* <FormControl
+                  }}
+                  variant={
+                    filteredAccounts.find(
+                      (fa: any) => fa.reference === a.reference
+                    )
+                      ? undefined
+                      : 'outlined'
+                  }
+                  avatar={
+                    <svg>
+                      <circle
+                        r="9"
+                        cx="9"
+                        cy="9"
+                        fill={accountLegend.colorScale(a.reference)}
+                      />
+                    </svg>
+                  }
+                />
+              </Box>
+            ))}
+          </Stack>
+          {/* <FormControl
             // sx={{ minWidth: 120, maxWidth: 640 }}
             >
               <Autocomplete
@@ -208,11 +215,10 @@ export default function Page() {
                 )}
               />
             </FormControl> */}
-          </Stack>
         </ModuleFunctionBody>
       </ModuleFunction>
 
-      <ModuleFunction>
+      {/* <ModuleFunction>
         <ModuleFunctionHeader title="範例折線圖" />
         <ModuleFunctionBody>
           <LineChart
@@ -224,7 +230,7 @@ export default function Page() {
             ]}
           />
         </ModuleFunctionBody>
-      </ModuleFunction>
+      </ModuleFunction> */}
     </React.Fragment>
   )
 }

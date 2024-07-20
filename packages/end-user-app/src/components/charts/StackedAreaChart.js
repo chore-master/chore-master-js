@@ -17,6 +17,7 @@ export default function StackedAreaChart({
   const chartLayout = Object.assign(
     {
       width: 640,
+      minWidth: undefined,
       height: 400,
       marginTop: 20,
       marginRight: 20,
@@ -28,9 +29,10 @@ export default function StackedAreaChart({
   const [chartRef, chartMeasure] = useMeasure()
   const [data, setData] = React.useState(datapoints)
   const xAxisRef = React.useRef()
-  const yAxisRef = React.useRef()
+  const leftYAxisRef = React.useRef()
+  const rightYAxisRef = React.useRef()
   const tickLineRef = React.useRef()
-  const legendRef = React.useRef()
+  // const legendRef = React.useRef()
 
   const positiveData = data.filter((d) => accessValue(d) >= 0)
   const negativeData = data.filter((d) => accessValue(d) <= 0)
@@ -62,12 +64,6 @@ export default function StackedAreaChart({
       chartMeasure.height - chartLayout.marginBottom,
       chartLayout.marginTop,
     ])
-  // const colorScale = d3
-  //   .scaleOrdinal()
-  //   .domain(keys)
-  //   // .range(d3.schemeTableau10)
-  //   // .range([...new Array(32)].map(() => d3.interpolateSinebow(Math.random())))
-  //   .range(colors)
   const area = d3
     .area()
     .x((d) => xScale(d.data[0]))
@@ -116,9 +112,11 @@ export default function StackedAreaChart({
       // .ticks(d3.timeDay.every(1))
       .tickSizeOuter(0)
       .tickFormat(d3.timeFormat('%Y-%m-%d'))
-    const yAxis = d3.axisLeft(yScale).ticks(chartMeasure.height / 40)
+    const leftYAxis = d3.axisLeft(yScale).ticks(chartMeasure.height / 40)
+    const rightYAxis = d3.axisRight(yScale).ticks(chartMeasure.height / 40)
     d3.select(xAxisRef.current).call(xAxis)
-    d3.select(yAxisRef.current).call(yAxis)
+    d3.select(leftYAxisRef.current).call(leftYAxis)
+    d3.select(rightYAxisRef.current).call(rightYAxis)
     const tickLines = d3.select(tickLineRef.current)
     tickLines.selectAll('*').remove()
     tickLines
@@ -137,7 +135,8 @@ export default function StackedAreaChart({
     chartMeasure.width,
     chartMeasure.height,
     xAxisRef,
-    yAxisRef,
+    leftYAxisRef,
+    rightYAxisRef,
     xScale,
     yScale,
   ])
@@ -145,17 +144,12 @@ export default function StackedAreaChart({
   return (
     <svg
       ref={chartRef}
-      style={{ width: chartLayout.width, height: chartLayout.height }}
+      style={{
+        width: chartLayout.width,
+        minWidth: chartLayout.minWidth,
+        height: chartLayout.height,
+      }}
     >
-      <g
-        ref={xAxisRef}
-        transform={`translate(0,${
-          chartMeasure.height - chartLayout.marginBottom
-        })`}
-      />
-      <g ref={yAxisRef} transform={`translate(${chartLayout.marginLeft},0)`} />
-      <g ref={tickLineRef} />
-      <g ref={legendRef} />
       <g>
         {positiveSeries.map((D, idx) => (
           <path key={idx} d={area(D)} fill={colorScale(D.key)} />
@@ -164,6 +158,24 @@ export default function StackedAreaChart({
           <path key={idx} d={area(D)} fill={colorScale(D.key)} />
         ))}
       </g>
+      <g
+        ref={xAxisRef}
+        transform={`translate(0,${
+          chartMeasure.height - chartLayout.marginBottom
+        })`}
+      />
+      <g
+        ref={leftYAxisRef}
+        transform={`translate(${chartLayout.marginLeft},0)`}
+      />
+      <g
+        ref={rightYAxisRef}
+        transform={`translate(${
+          chartMeasure.width - chartLayout.marginRight
+        },0)`}
+      />
+      <g ref={tickLineRef} />
+      {/* <g ref={legendRef} /> */}
     </svg>
   )
 }

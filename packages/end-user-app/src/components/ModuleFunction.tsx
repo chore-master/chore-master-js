@@ -3,6 +3,7 @@ import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import Container from '@mui/material/Container'
+import LinearProgress from '@mui/material/LinearProgress'
 import Paper from '@mui/material/Paper'
 
 export default function ModuleFunction({
@@ -38,12 +39,17 @@ export const ModuleFunctionHeader = ({
 
 export const ModuleFunctionBody = ({
   children,
+  loading,
 }: Readonly<{
   children?: React.ReactNode
+  loading?: boolean
 }>) => {
   return (
     <CardContent>
-      <Paper elevation={1}>{children}</Paper>
+      <Paper elevation={1} sx={{ overflowX: 'auto' }}>
+        {loading ? <LinearProgress color="inherit" /> : null}
+        {children}
+      </Paper>
     </CardContent>
   )
 }
