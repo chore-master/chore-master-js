@@ -10,7 +10,9 @@ export default function StackedAreaChart({
   accessDate,
   accessValue,
   accessGroup,
-  mapGroupToLegendText,
+  // mapGroupToLegendText,
+  // colors,
+  colorScale,
 }) {
   const chartLayout = Object.assign(
     {
@@ -60,33 +62,12 @@ export default function StackedAreaChart({
       chartMeasure.height - chartLayout.marginBottom,
       chartLayout.marginTop,
     ])
-  const colorScale = d3
-    .scaleOrdinal()
-    .domain(keys)
-    // .range(d3.schemeTableau10)
-    // .range([...new Array(32)].map(() => d3.interpolateSinebow(Math.random())))
-    .range([
-      '#393b79',
-      '#5254a3',
-      '#6b6ecf',
-      '#9c9ede',
-      '#637939',
-      '#8ca252',
-      '#b5cf6b',
-      '#cedb9c',
-      '#8c6d31',
-      '#bd9e39',
-      '#e7ba52',
-      '#e7cb94',
-      '#843c39',
-      '#ad494a',
-      '#d6616b',
-      '#e7969c',
-      '#7b4173',
-      '#a55194',
-      '#ce6dbd',
-      '#de9ed6',
-    ])
+  // const colorScale = d3
+  //   .scaleOrdinal()
+  //   .domain(keys)
+  //   // .range(d3.schemeTableau10)
+  //   // .range([...new Array(32)].map(() => d3.interpolateSinebow(Math.random())))
+  //   .range(colors)
   const area = d3
     .area()
     .x((d) => xScale(d.data[0]))
@@ -97,34 +78,34 @@ export default function StackedAreaChart({
     setData(datapoints)
   }, [datapoints])
 
-  React.useEffect(() => {
-    const legend = d3.select(legendRef.current)
-    legend.selectAll('*').remove()
-    const size = 20
-    const spacing = 25
+  // React.useEffect(() => {
+  //   const legend = d3.select(legendRef.current)
+  //   legend.selectAll('*').remove()
+  //   const size = 20
+  //   const spacing = 25
 
-    legend
-      .selectAll('rect')
-      .data(colorScale.domain())
-      .enter()
-      .append('rect')
-      .attr('x', 0)
-      .attr('y', (d, i) => i * spacing)
-      .attr('width', size)
-      .attr('height', size)
-      .style('fill', colorScale)
+  //   legend
+  //     .selectAll('rect')
+  //     .data(colorScale.domain())
+  //     .enter()
+  //     .append('rect')
+  //     .attr('x', 0)
+  //     .attr('y', (d, i) => i * spacing)
+  //     .attr('width', size)
+  //     .attr('height', size)
+  //     .style('fill', colorScale)
 
-    legend
-      .selectAll('text')
-      .data(colorScale.domain().map(mapGroupToLegendText))
-      .enter()
-      .append('text')
-      .attr('x', size + 5)
-      .attr('y', (d, i) => i * spacing + size / 1.5)
-      .text((d) => d)
-      .style('font-size', '15px')
-      .attr('alignment-baseline', 'middle')
-  }, [colorScale, mapGroupToLegendText])
+  //   legend
+  //     .selectAll('text')
+  //     .data(colorScale.domain().map(mapGroupToLegendText))
+  //     .enter()
+  //     .append('text')
+  //     .attr('x', size + 5)
+  //     .attr('y', (d, i) => i * spacing + size / 1.5)
+  //     .text((d) => d)
+  //     .style('font-size', '15px')
+  //     .attr('alignment-baseline', 'middle')
+  // }, [colorScale, mapGroupToLegendText])
 
   React.useEffect(() => {
     const yTicks = yScale.ticks()
