@@ -32,26 +32,40 @@ export default function Page() {
     endpoint: '/v1/financial_management/net_values',
     defaultList: [],
   })
-  // const [accountReferenceToAccountMap, setAccountReferenceToAccountMap] =
-  //   React.useState({})
-  // const [accountNames, setAccountNames] = React.useState<string[]>([])
   const [filteredAssetReference, setFilteredAssetReference] =
     React.useState<string>()
+  const [filterableAccounts, setFilterableAccounts] = React.useState<any>([])
   const [filteredAccounts, setFilteredAccounts] = React.useState<any>([])
   const [filteredNetValues, setFilteredNetValues] = React.useState<any>([])
   const accountLegend = useLegend({
-    // labels: accountNames,
     labels: account.list.map((a) => a.reference),
     colors,
   })
 
   React.useEffect(() => {
-    // setAccountReferenceToAccountMap(account.getMapByReference())
-    // setAccountNames(account.list.map((a) => a.name))
-    if (filteredAccounts.length === 0 && account.list.length > 0) {
-      setFilteredAccounts(account.list)
+    if (
+      filteredAssetReference &&
+      account.list.length > 0 &&
+      netValue.list.length > 0
+    ) {
+      const filterableAccountReferenceSet = new Set(
+        netValue.list
+          .filter(
+            (d) => d.settlement_asset_reference === filteredAssetReference
+          )
+          .map((d) => d.account_reference)
+      )
+      setFilterableAccounts(
+        account.list.filter((a) =>
+          filterableAccountReferenceSet.has(a.reference)
+        )
+      )
     }
-  }, [account.list])
+  }, [account.list, filteredAssetReference, netValue.list])
+
+  React.useEffect(() => {
+    setFilteredAccounts(filterableAccounts)
+  }, [filterableAccounts])
 
   React.useEffect(() => {
     if (filteredAssetReference) {
@@ -126,14 +140,14 @@ export default function Page() {
             >
               <Button
                 variant="text"
-                onClick={() => setFilteredAccounts(account.list)}
+                onClick={() => setFilteredAccounts(filterableAccounts)}
               >
                 選取全部
               </Button>
               <Button variant="text" onClick={() => setFilteredAccounts([])}>
                 反選全部
               </Button>
-              {account.list.map((a) => (
+              {filterableAccounts.map((a: any) => (
                 <Box key={a.reference} sx={{ p: 0.5 }}>
                   <Chip
                     label={a.name}
