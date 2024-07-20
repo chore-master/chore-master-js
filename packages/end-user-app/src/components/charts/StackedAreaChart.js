@@ -6,7 +6,7 @@ import { useMeasure } from 'react-use'
 // https://observablehq.com/@d3/stacked-area-chart/2
 export default function StackedAreaChart({
   layout,
-  data,
+  datapoints,
   accessDate,
   accessValue,
   accessGroup,
@@ -24,6 +24,7 @@ export default function StackedAreaChart({
     layout
   )
   const [chartRef, chartMeasure] = useMeasure()
+  const [data, setData] = React.useState(datapoints)
   const xAxisRef = React.useRef()
   const yAxisRef = React.useRef()
   const tickLineRef = React.useRef()
@@ -32,7 +33,6 @@ export default function StackedAreaChart({
   const positiveData = data.filter((d) => accessValue(d) >= 0)
   const negativeData = data.filter((d) => accessValue(d) <= 0)
   const keys = d3.union(data.map(accessGroup))
-
   const stack = d3
     .stack()
     .keys(keys)
@@ -43,7 +43,6 @@ export default function StackedAreaChart({
   const negativeSeries = stack(
     d3.rollup(negativeData, ([d]) => accessValue(d), accessDate, accessGroup)
   )
-
   const xScale = d3
     .scaleUtc()
     .domain(d3.extent(data, accessDate))
@@ -53,22 +52,50 @@ export default function StackedAreaChart({
     ])
   const yScale = d3
     .scaleLinear()
+    .domain([
+      d3.min(negativeSeries, (d) => d3.min(d, (d) => d[1])) || 0,
+      d3.max(positiveSeries, (d) => d3.max(d, (d) => d[1])) || 0,
+    ])
     .rangeRound([
       chartMeasure.height - chartLayout.marginBottom,
       chartLayout.marginTop,
     ])
-  const colorScale = d3.scaleOrdinal().domain(keys).range(d3.schemeTableau10)
-
-  yScale.domain([
-    d3.min(negativeSeries, (d) => d3.min(d, (d) => d[1])),
-    d3.max(positiveSeries, (d) => d3.max(d, (d) => d[1])),
-  ])
-
+  const colorScale = d3
+    .scaleOrdinal()
+    .domain(keys)
+    // .range(d3.schemeTableau10)
+    // .range([...new Array(32)].map(() => d3.interpolateSinebow(Math.random())))
+    .range([
+      '#393b79',
+      '#5254a3',
+      '#6b6ecf',
+      '#9c9ede',
+      '#637939',
+      '#8ca252',
+      '#b5cf6b',
+      '#cedb9c',
+      '#8c6d31',
+      '#bd9e39',
+      '#e7ba52',
+      '#e7cb94',
+      '#843c39',
+      '#ad494a',
+      '#d6616b',
+      '#e7969c',
+      '#7b4173',
+      '#a55194',
+      '#ce6dbd',
+      '#de9ed6',
+    ])
   const area = d3
     .area()
     .x((d) => xScale(d.data[0]))
     .y0((d) => yScale(d[0]))
     .y1((d) => yScale(d[1]))
+
+  React.useEffect(() => {
+    setData(datapoints)
+  }, [datapoints])
 
   React.useEffect(() => {
     const legend = d3.select(legendRef.current)
@@ -97,7 +124,7 @@ export default function StackedAreaChart({
       .text((d) => d)
       .style('font-size', '15px')
       .attr('alignment-baseline', 'middle')
-  }, [data, mapGroupToLegendText])
+  }, [colorScale, mapGroupToLegendText])
 
   React.useEffect(() => {
     const yTicks = yScale.ticks()

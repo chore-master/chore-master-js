@@ -30,13 +30,14 @@ export default function Page() {
   const [selectedAssetReference, setSelectedAssetReference] = React.useState()
   const [accountReferenceToAccountMap, setAccountReferenceToAccountMap] =
     React.useState({})
+
   React.useEffect(() => {
     setAccountReferenceToAccountMap(account.getMapByReference())
   }, [account.list])
 
   React.useEffect(() => {
-    if (!selectedAssetReference) {
-      setSelectedAssetReference(asset.list[0]?.reference)
+    if (!selectedAssetReference && asset.list.length > 0) {
+      setSelectedAssetReference(asset.list[0].reference)
     }
   }, [asset.list])
 
@@ -46,20 +47,6 @@ export default function Page() {
 
   return (
     <React.Fragment>
-      <ModuleFunction>
-        <ModuleFunctionHeader title="線圖" />
-        <ModuleFunctionBody>
-          <LineChart
-            data={[
-              { x: 1, y: 10 },
-              { x: 5, y: 7 },
-              { x: 2, y: 3 },
-            ]}
-            layout={{ width: '100%' }}
-          />
-        </ModuleFunctionBody>
-      </ModuleFunction>
-
       <ModuleFunction>
         <ModuleFunctionHeader
           title="淨值組成"
@@ -83,7 +70,7 @@ export default function Page() {
         <ModuleFunctionBody>
           <StackedAreaChart
             layout={{ width: '100%', marginLeft: 100 }}
-            data={netValue.list.filter(
+            datapoints={netValue.list.filter(
               (d) => d.settlement_asset_reference === selectedAssetReference
             )}
             accessDate={(d: any) => new Date(d.settled_time)}
@@ -92,6 +79,20 @@ export default function Page() {
             mapGroupToLegendText={(group: string) =>
               (accountReferenceToAccountMap as any)?.[group]?.name
             }
+          />
+        </ModuleFunctionBody>
+      </ModuleFunction>
+
+      <ModuleFunction>
+        <ModuleFunctionHeader title="範例折線圖" />
+        <ModuleFunctionBody>
+          <LineChart
+            layout={{ width: '100%' }}
+            data={[
+              { x: 1, y: 10 },
+              { x: 5, y: 7 },
+              { x: 2, y: 3 },
+            ]}
           />
         </ModuleFunctionBody>
       </ModuleFunction>
