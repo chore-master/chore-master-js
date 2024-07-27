@@ -30,6 +30,11 @@ export default function Layout({
           href: '/financial-management/net-value',
           selectedWhenPartiallyMatched: true,
         },
+        {
+          title: '帳單',
+          href: '/financial-management/bill',
+          selectedWhenPartiallyMatched: true,
+        },
       ]}
     >
       {children}

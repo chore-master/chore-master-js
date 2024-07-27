@@ -248,8 +248,8 @@ export default function Page() {
                 )}
                 loading={sinoTradeIntegrationForm.formState.isSubmitting}
                 disabled={
-                  sinoTradeIntegrationFormAccountFieldArray.fields.length ===
-                    0 || !sinoTradeIntegrationForm.formState.isValid
+                  !sinoTradeIntegrationForm.formState.isDirty ||
+                  !sinoTradeIntegrationForm.formState.isValid
                 }
               >
                 儲存

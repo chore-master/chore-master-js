@@ -32,11 +32,11 @@ export default function Page() {
     endpoint: '/v1/financial_management/assets',
     defaultList: [],
   })
-  const netValue = useEntity<GridRowsProp>({
-    endpoint: '/v1/financial_management/net_values',
+  const bill = useEntity<GridRowsProp>({
+    endpoint: '/v1/financial_management/bills',
     defaultList: [],
   })
-  const [netValueRowModesModel, setNetValueRowModesModel] =
+  const [billRowModesModel, setBillRowModesModel] =
     React.useState<GridRowModesModel>({})
   const [accountReferenceToAccountMap, setAccountReferenceToAccountMap] =
     React.useState({})
@@ -50,44 +50,46 @@ export default function Page() {
     setAssetReferenceToAssetMap(asset.getMapByReference())
   }, [asset.list])
 
-  const getNewNetValueRow = () => {
+  const getNewBillRow = () => {
     return {
       isNew: true,
       reference: uuidv4(),
       account_reference: account.list[0]?.reference,
-      settlement_asset_reference: asset.list[0]?.reference,
-      settled_time: new Date().toISOString(),
+      business_type: 'trade',
+      accounting_type: 'buy',
+      amount_change: 0,
+      asset_reference: asset.list[0]?.reference,
+      order_reference: null,
+      billed_time: new Date().toISOString(),
     }
   }
 
-  const handleEditNetValueClick = (reference: GridRowId) => () => {
-    setNetValueRowModesModel({
-      ...netValueRowModesModel,
+  const handleEditBillClick = (reference: GridRowId) => () => {
+    setBillRowModesModel({
+      ...billRowModesModel,
       [reference]: { mode: GridRowModes.Edit },
     })
   }
 
-  const handleSaveNetValueClick = (reference: GridRowId) => () => {
-    setNetValueRowModesModel({
-      ...netValueRowModesModel,
+  const handleSaveBillClick = (reference: GridRowId) => () => {
+    setBillRowModesModel({
+      ...billRowModesModel,
       [reference]: { mode: GridRowModes.View },
     })
   }
 
-  const handleDeleteNetValueClick = (reference: GridRowId) => async () => {
-    await netValue.deleteByReference(reference)
+  const handleDeleteBillClick = (reference: GridRowId) => async () => {
+    await bill.deleteByReference(reference)
   }
 
-  const handleCancelEditNetValueClick = (reference: GridRowId) => () => {
-    setNetValueRowModesModel({
-      ...netValueRowModesModel,
+  const handleCancelEditBillClick = (reference: GridRowId) => () => {
+    setBillRowModesModel({
+      ...billRowModesModel,
       [reference]: { mode: GridRowModes.View, ignoreModifications: true },
     })
-    const editedRow = netValue.list.find((row) => row.reference === reference)
+    const editedRow = bill.list.find((row) => row.reference === reference)
     if (editedRow!.isNew) {
-      netValue.setList(
-        netValue.list.filter((row) => row.reference !== reference)
-      )
+      bill.setList(bill.list.filter((row) => row.reference !== reference))
     }
   }
 
@@ -95,7 +97,7 @@ export default function Page() {
     { isNew, ...upsertedRow }: GridRowModel,
     _oldRow: GridRowModel
   ) => {
-    return await netValue.upsertByReference({
+    return await bill.upsertByReference({
       isNew,
       upsertedEntity: upsertedRow,
     })
@@ -187,8 +189,7 @@ export default function Page() {
       type: 'actions',
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode =
-          netValueRowModesModel[id]?.mode === GridRowModes.Edit
+        const isInEditMode = billRowModesModel[id]?.mode === GridRowModes.Edit
         if (isInEditMode) {
           return [
             <GridActionsCellItem
@@ -198,14 +199,14 @@ export default function Page() {
               sx={{
                 color: 'primary.main',
               }}
-              onClick={handleSaveNetValueClick(id)}
+              onClick={handleSaveBillClick(id)}
             />,
             <GridActionsCellItem
               key="cancel"
               icon={<CancelIcon />}
               label="Cancel"
               className="textPrimary"
-              onClick={handleCancelEditNetValueClick(id)}
+              onClick={handleCancelEditBillClick(id)}
               color="inherit"
             />,
           ]
@@ -215,14 +216,14 @@ export default function Page() {
             key="edit"
             icon={<EditIcon />}
             label="Edit"
-            onClick={handleEditNetValueClick(id)}
+            onClick={handleEditBillClick(id)}
             color="inherit"
           />,
           <GridActionsCellItem
             key="delete"
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={handleDeleteNetValueClick(id)}
+            onClick={handleDeleteBillClick(id)}
             color="inherit"
           />,
         ]
@@ -235,14 +236,14 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionBody>
           <ModuleDataGrid
-            rows={netValue.list}
+            rows={bill.list}
             columns={netValueColumns}
-            rowModesModel={netValueRowModesModel}
-            onRowModesModelChange={setNetValueRowModesModel}
-            getNewRow={getNewNetValueRow}
-            setRows={netValue.setList}
+            rowModesModel={billRowModesModel}
+            onRowModesModelChange={setBillRowModesModel}
+            getNewRow={getNewBillRow}
+            setRows={bill.setList}
             processRowUpdate={handleUpsertNetValueRow}
-            loading={netValue.isLoading || account.isLoading || asset.isLoading}
+            loading={bill.isLoading || account.isLoading || asset.isLoading}
             getRowId={(row) => row.reference}
             columnVisibilityModel={{
               account_reference: false,
