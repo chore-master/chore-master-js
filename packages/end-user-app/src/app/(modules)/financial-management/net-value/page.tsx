@@ -3,12 +3,21 @@
 import ForeignEntity from '@/components/ForeignEntity'
 import ForeignEntityEditor from '@/components/ForeignEntityEditor'
 import { ModuleDataGrid } from '@/components/ModuleDataGrid'
-import ModuleFunction, { ModuleFunctionBody } from '@/components/ModuleFunction'
+import ModuleFunction, {
+  ModuleFunctionBody,
+  ModuleFunctionHeader,
+} from '@/components/ModuleFunction'
+import getConfig from '@/utils/config'
 import { useEntity } from '@/utils/entity'
 import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SaveIcon from '@mui/icons-material/Save'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import {
   GridActionsCellItem,
   GridColDef,
@@ -20,10 +29,15 @@ import {
   GridRowModesModel,
   GridRowsProp,
 } from '@mui/x-data-grid'
+import Link from 'next/link'
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
+const { CHORE_MASTER_API_HOST } = getConfig()
+
 export default function Page() {
+  const [netValueAnchorEl, setNetValueAnchorEl] =
+    React.useState<null | HTMLElement>(null)
   const account = useEntity<GridRowsProp>({
     endpoint: '/v1/financial_management/accounts',
     defaultList: [],
@@ -42,6 +56,14 @@ export default function Page() {
     React.useState({})
   const [assetReferenceToAssetMap, setAssetReferenceToAssetMap] =
     React.useState({})
+
+  const handleOpenNetValueMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setNetValueAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseNetValueMenu = () => {
+    setNetValueAnchorEl(null)
+  }
 
   React.useEffect(() => {
     setAccountReferenceToAccountMap(account.getMapByReference())
@@ -233,6 +255,38 @@ export default function Page() {
   return (
     <React.Fragment>
       <ModuleFunction>
+        <ModuleFunctionHeader
+          title="淨值列表"
+          actions={[
+            <Box>
+              <IconButton onClick={handleOpenNetValueMenu}>
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                anchorEl={netValueAnchorEl}
+                open={Boolean(netValueAnchorEl)}
+                onClose={handleCloseNetValueMenu}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <Link
+                  href={`${CHORE_MASTER_API_HOST}/v1/account_center/integrations/google/spreadsheets/financial_management/spreadsheet_url?sheet_title=net_value`}
+                  passHref
+                  legacyBehavior
+                >
+                  <MenuItem
+                    component="a"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleCloseNetValueMenu}
+                  >
+                    開啟資料來源試算表
+                  </MenuItem>
+                </Link>
+              </Menu>
+            </Box>,
+          ]}
+        />
         <ModuleFunctionBody>
           <ModuleDataGrid
             rows={netValue.list}

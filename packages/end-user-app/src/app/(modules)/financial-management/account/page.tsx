@@ -1,16 +1,17 @@
 'use client'
-
 import { ModuleDataGrid } from '@/components/ModuleDataGrid'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import getConfig from '@/utils/config'
 import { useEntity } from '@/utils/entity'
 import AddIcon from '@mui/icons-material/Add'
 import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SaveIcon from '@mui/icons-material/Save'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import LoadingButton from '@mui/lab/LoadingButton'
@@ -20,6 +21,9 @@ import CardActions from '@mui/material/CardActions'
 import CardHeader from '@mui/material/CardHeader'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
@@ -32,6 +36,7 @@ import {
   GridRowModesModel,
   GridRowsProp,
 } from '@mui/x-data-grid'
+import Link from 'next/link'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
@@ -40,7 +45,11 @@ type CreateAccountFormInputs = {
   name: string
 }
 
+const { CHORE_MASTER_API_HOST } = getConfig()
+
 export default function Page() {
+  const [accountAnchorEl, setAccountAnchorEl] =
+    React.useState<null | HTMLElement>(null)
   const account = useEntity<GridRowsProp>({
     endpoint: '/v1/financial_management/accounts',
     defaultList: [],
@@ -52,6 +61,14 @@ export default function Page() {
   const [isViewAccountDrawerOpen, setIsViewAccountDrawerOpen] =
     React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>()
+
+  const handleOpenAccountMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAccountAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseAccountMenu = () => {
+    setAccountAnchorEl(null)
+  }
 
   const toggleCreateAccountDrawer = (isOpen: boolean) => () => {
     setIsCreateAccountDrawerOpen(isOpen)
@@ -202,15 +219,43 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionHeader
           title="帳戶列表"
-          actions={
+          actions={[
             <Button
+              key="create"
               variant="contained"
               startIcon={<AddIcon />}
               onClick={toggleCreateAccountDrawer(true)}
             >
               引導式新增
-            </Button>
-          }
+            </Button>,
+            <Box>
+              <IconButton onClick={handleOpenAccountMenu}>
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                anchorEl={accountAnchorEl}
+                open={Boolean(accountAnchorEl)}
+                onClose={handleCloseAccountMenu}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <Link
+                  href={`${CHORE_MASTER_API_HOST}/v1/account_center/integrations/google/spreadsheets/financial_management/spreadsheet_url?sheet_title=account`}
+                  passHref
+                  legacyBehavior
+                >
+                  <MenuItem
+                    component="a"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleCloseAccountMenu}
+                  >
+                    開啟資料來源試算表
+                  </MenuItem>
+                </Link>
+              </Menu>
+            </Box>,
+          ]}
         />
         <ModuleFunctionBody>
           <ModuleDataGrid
