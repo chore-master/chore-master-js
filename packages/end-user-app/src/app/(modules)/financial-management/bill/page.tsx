@@ -258,7 +258,7 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="淨值列表"
+          title="帳單列表"
           actions={[
             <Box>
               <IconButton onClick={handleOpenBillMenu}>

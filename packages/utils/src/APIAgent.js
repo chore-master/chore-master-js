@@ -35,7 +35,7 @@ class APIAgent {
     let query = ''
     if (params) {
       query = Object.keys(params)
-        .filter((k) => params[k] !== undefined)
+        .filter((k) => params[k] !== undefined && params[k] !== null)
         .map((k) => {
           const escapedKey = encodeURIComponent(k)
           let value = params[k]
