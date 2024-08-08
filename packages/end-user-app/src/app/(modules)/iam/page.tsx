@@ -7,6 +7,7 @@ import ModuleFunction, {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useEndUser } from '@/utils/auth'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import FolderIcon from '@mui/icons-material/Folder'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { Box } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
@@ -16,6 +17,12 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
+import Input from '@mui/material/Input'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Popper from '@mui/material/Popper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -43,6 +50,32 @@ type SinoTradeInputs = {
     secret_key: string
   }[]
 }
+
+function PopperComponent({ children, ...other }: any) {
+  return (
+    <Popper {...other}>
+      {/* test */}
+      {children}
+      {/* teeest */}
+    </Popper>
+  )
+}
+
+const ListboxComponent = React.forwardRef<
+  HTMLUListElement,
+  React.HTMLAttributes<HTMLElement>
+>(function ListboxComponent(props, ref) {
+  const { children, ...other } = props
+  return (
+    <List ref={ref} dense {...other}>
+      <ListItem>
+        <Input fullWidth placeholder="搜尋資料夾名稱" />
+      </ListItem>
+      {children}
+      <ListItem>test</ListItem>
+    </List>
+  )
+})
 
 export default function Page() {
   const { sync: syncEndUser } = useEndUser()
@@ -206,9 +239,13 @@ export default function Page() {
                         onChange(newValue)
                       }}
                       // {...field}
+                      // PopperComponent={PopperComponent}
+                      ListboxComponent={ListboxComponent}
                       noOptionsText="無資料夾"
                       loadingText="載入中..."
-                      selectOnFocus
+                      // disableCloseOnSelect
+                      // selectOnFocus
+                      disableClearable
                       handleHomeEndKeys
                       freeSolo
                       open={isGoogleDriveFolderAutocompleteOpen}
@@ -228,9 +265,15 @@ export default function Page() {
                       renderOption={(props, option) => {
                         const { key, ...optionProps } = props
                         return (
-                          <li key={key} {...optionProps}>
-                            {`${option.name}(${option.id})`}
-                          </li>
+                          <ListItem key={key} {...optionProps}>
+                            <ListItemIcon>
+                              <FolderIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={option.name}
+                              secondary={option.id}
+                            />
+                          </ListItem>
                         )
                       }}
                       isOptionEqualToValue={(option, value) =>
