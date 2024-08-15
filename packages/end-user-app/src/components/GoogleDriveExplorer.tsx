@@ -4,7 +4,7 @@ import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import LinearProgress from '@mui/material/LinearProgress'
 import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Stack from '@mui/material/Stack'
@@ -111,12 +111,15 @@ export default React.forwardRef(
 
           <List dense>
             {googleDriveFolderOptions.map((option) => (
-              <ListItem key={option.id}>
+              <ListItemButton
+                key={option.id}
+                onClick={() => onSelected(option.id)}
+              >
                 <ListItemIcon>
                   <FolderIcon />
                 </ListItemIcon>
                 <ListItemText primary={option.name} secondary={option.id} />
-              </ListItem>
+              </ListItemButton>
             ))}
           </List>
         </Stack>
