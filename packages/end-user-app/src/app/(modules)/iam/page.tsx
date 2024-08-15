@@ -1,5 +1,6 @@
 'use client'
 
+import GoogleDriveExplorer from '@/components/GoogleDriveExplorer'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -7,22 +8,19 @@ import ModuleFunction, {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useEndUser } from '@/utils/auth'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import FolderIcon from '@mui/icons-material/Folder'
+import ManageSearchIcon from '@mui/icons-material/ManageSearch'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { Box } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
-import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Popper from '@mui/material/Popper'
+import InputAdornment from '@mui/material/InputAdornment'
+import InputLabel from '@mui/material/InputLabel'
+import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -40,7 +38,7 @@ type GoogleDriveFolderOption = {
 }
 
 type GoogleInputs = {
-  drive_root_folder: GoogleDriveFolderOption
+  drive_root_folder_id: string
 }
 
 type SinoTradeInputs = {
@@ -51,31 +49,31 @@ type SinoTradeInputs = {
   }[]
 }
 
-function PopperComponent({ children, ...other }: any) {
-  return (
-    <Popper {...other}>
-      {/* test */}
-      {children}
-      {/* teeest */}
-    </Popper>
-  )
-}
+// function PopperComponent({ children, ...other }: any) {
+//   return (
+//     <Popper {...other}>
+//       {/* test */}
+//       {children}
+//       {/* teeest */}
+//     </Popper>
+//   )
+// }
 
-const ListboxComponent = React.forwardRef<
-  HTMLUListElement,
-  React.HTMLAttributes<HTMLElement>
->(function ListboxComponent(props, ref) {
-  const { children, ...other } = props
-  return (
-    <List ref={ref} dense {...other}>
-      <ListItem>
-        <Input fullWidth placeholder="搜尋資料夾名稱" />
-      </ListItem>
-      {children}
-      <ListItem>test</ListItem>
-    </List>
-  )
-})
+// const ListboxComponent = React.forwardRef<
+//   HTMLUListElement,
+//   React.HTMLAttributes<HTMLElement>
+// >(function ListboxComponent(props, ref) {
+//   const { children, ...other } = props
+//   return (
+//     <List ref={ref} dense {...other}>
+//       <ListItem>
+//         <Input fullWidth placeholder="搜尋資料夾名稱" />
+//       </ListItem>
+//       {children}
+//       <ListItem>test</ListItem>
+//     </List>
+//   )
+// })
 
 export default function Page() {
   const { sync: syncEndUser } = useEndUser()
@@ -93,6 +91,8 @@ export default function Page() {
   ] = React.useState()
   const [googleDriveFolderOptions, setGoogleDriveFolderOptions] =
     React.useState<readonly GoogleDriveFolderOption[]>([])
+  const [isGoogleDriveExplorerModalOpen, setIsGoogleDriveExplorerModalOpen] =
+    React.useState(false)
   const googleIntegrationForm = useForm<GoogleInputs>()
   const sinoTradeIntegrationForm = useForm<SinoTradeInputs>()
   const sinoTradeIntegrationFormAccountFieldArray = useFieldArray({
@@ -111,6 +111,9 @@ export default function Page() {
     }
   }, [isGoogleDriveFolderAutocompleteOpen])
 
+  const handleCloseGoogleDriveExplorerModal = () =>
+    setIsGoogleDriveExplorerModalOpen(false)
+
   const fetchGoogleIntegration = () => {
     choreMasterAPIAgent.get('/v1/account_center/integrations/google', {
       params: {},
@@ -120,7 +123,7 @@ export default function Page() {
       onSuccess: async ({ data }: any) => {
         if (data?.drive?.root_folder_id) {
           googleIntegrationForm.reset({
-            drive_root_folder: { id: data.drive.root_folder_id },
+            drive_root_folder_id: data.drive.root_folder_id,
           })
         }
       },
@@ -212,22 +215,32 @@ export default function Page() {
               來儲存資料狀態，您必須完成此設定才能使用完整服務。
             </Typography>
             <Stack component="form" spacing={3} autoComplete="off">
-              <FormControl>
-                {/* <Controller
-                  name="drive_root_folder_id_old"
-                  control={googleIntegrationForm.control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <TextField
+              <Controller
+                name="drive_root_folder_id"
+                control={googleIntegrationForm.control}
+                defaultValue=""
+                rules={{ required: '必填' }}
+                render={({ field }) => (
+                  <FormControl variant="standard" required>
+                    <InputLabel>掛載至 Google Drive 資料夾 ID</InputLabel>
+                    <Input
                       {...field}
-                      required
-                      label="掛載至 Google Drive 資料夾 ID"
-                      variant="standard"
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() =>
+                              setIsGoogleDriveExplorerModalOpen(true)
+                            }
+                          >
+                            <ManageSearchIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      }
                     />
-                  )}
-                  rules={{ required: '必填' }}
-                /> */}
-                <Controller
+                  </FormControl>
+                )}
+              />
+              {/* <Controller
                   name="drive_root_folder"
                   control={googleIntegrationForm.control}
                   defaultValue={{ id: '', name: '' }}
@@ -300,8 +313,8 @@ export default function Page() {
                       )}
                     />
                   )}
-                />
-              </FormControl>
+                /> */}
+
               <LoadingButton
                 variant="contained"
                 onClick={googleIntegrationForm.handleSubmit(
@@ -417,6 +430,28 @@ export default function Page() {
           </Box>
         </ModuleFunctionBody>
       </ModuleFunction>
+
+      <Modal
+        open={isGoogleDriveExplorerModalOpen}
+        onClose={handleCloseGoogleDriveExplorerModal}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <GoogleDriveExplorer
+          sx={{
+            minWidth: '10vw',
+            maxWidth: '80vw',
+            maxHeight: '80vh',
+          }}
+          onSelected={(folderId) => {
+            googleIntegrationForm.setValue('drive_root_folder_id', folderId)
+            handleCloseGoogleDriveExplorerModal()
+          }}
+        />
+      </Modal>
     </React.Fragment>
   )
 }
