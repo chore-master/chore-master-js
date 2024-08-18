@@ -1,16 +1,19 @@
 'use client'
-
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { NoSsr } from '@mui/base/NoSsr'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import List from '@mui/material/List'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
 import React from 'react'
+import { useWindowSize } from 'react-use'
+import './page.css'
 
 interface Node {
   name: string
 }
+
 interface Link {
   source: string
   target: string
@@ -23,6 +26,7 @@ export default function Page() {
     nodes: [],
     links: [],
   })
+  const { width, height } = useWindowSize()
 
   React.useEffect(() => {
     fetchData()
@@ -43,11 +47,23 @@ export default function Page() {
   }
 
   return (
-    <Box p={2}>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+      }}
+    >
       {isLoadingData ? (
         <CircularProgress />
       ) : (
-        <React.Fragment>
+        <Box p={2}>
+          <NoSsr>
+            <Typography>
+              Window: {width}x{height}
+            </Typography>
+          </NoSsr>
           <Typography>Nodes</Typography>
           <List>
             {data.nodes.map((node) => (
@@ -63,7 +79,7 @@ export default function Page() {
               </ListItemText>
             ))}
           </List>
-        </React.Fragment>
+        </Box>
       )}
     </Box>
   )
