@@ -106,6 +106,13 @@ export default function ModuleLayout({
             </Link>
           </ListItem>
           <ListItem disablePadding>
+            <Link href="/widget" passHref legacyBehavior>
+              <ListItemButton component="a">
+                <ListItemText primary="小工具" />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+          <ListItem disablePadding>
             <Link href="/sample-module" passHref legacyBehavior>
               <ListItemButton component="a">
                 <ListItemText primary="範例模組" />
