@@ -12,6 +12,8 @@ import React from 'react'
 
 export default function Page() {
   const { HOST } = getConfig()
+  const iframeRef = React.useRef(null)
+  const [iframeHeight, setIframeHeight] = React.useState('0px')
 
   return (
     <React.Fragment>
@@ -28,7 +30,26 @@ export default function Page() {
               nulla pariatur. Excepteur sint occaecat cupidatat non proident,
               sunt in culpa qui officia deserunt mollit anim id est laborum.
             </Typography>
-            <iframe src={`${HOST}/widget/sankey`} />
+            <iframe
+              ref={iframeRef}
+              // onLoad={() => {
+              //   setTimeout(() => {
+              //     setIframeHeight(
+              //       (iframeRef.current as any).contentWindow.document.body
+              //         .scrollHeight
+              //     )
+              //   }, 5000)
+              // }}
+              src={`${HOST}/widget/sankey`}
+              style={{
+                border: 0,
+                overflow: 'hidden',
+                width: '100%',
+                // height: iframeHeight,
+                height: 480,
+                minHeight: 128,
+              }}
+            />
             <Typography>
               Phasellus dignissim massa vel justo bibendum blandit. Proin
               eleifend mauris leo. Maecenas convallis, lacus semper pretium
