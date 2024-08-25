@@ -442,7 +442,7 @@ export default function Page() {
       >
         <GoogleDriveExplorer
           sx={{
-            minWidth: '10vw',
+            minWidth: '60vw',
             maxWidth: '80vw',
             maxHeight: '80vh',
           }}
