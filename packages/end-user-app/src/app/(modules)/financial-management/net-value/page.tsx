@@ -13,9 +13,12 @@ import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import SaveIcon from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import {
@@ -280,7 +283,10 @@ export default function Page() {
                     rel="noopener noreferrer"
                     onClick={handleCloseNetValueMenu}
                   >
-                    開啟資料來源試算表
+                    <ListItemIcon>
+                      <OpenInNewIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>在試算表顯示</ListItemText>
                   </MenuItem>
                 </Link>
               </Menu>
