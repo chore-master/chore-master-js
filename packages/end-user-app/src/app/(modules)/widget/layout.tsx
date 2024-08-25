@@ -8,7 +8,7 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
-      moduleName="外掛"
+      moduleName="小工具"
       navigations={[
         {
           title: '儀表板',
