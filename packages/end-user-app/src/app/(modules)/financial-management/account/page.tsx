@@ -228,7 +228,7 @@ export default function Page() {
             >
               引導式新增
             </Button>,
-            <Box>
+            <Box key="more">
               <IconButton onClick={handleOpenAccountMenu}>
                 <MoreVertIcon />
               </IconButton>

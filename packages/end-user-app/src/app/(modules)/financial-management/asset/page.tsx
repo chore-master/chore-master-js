@@ -161,7 +161,7 @@ export default function Page() {
         <ModuleFunctionHeader
           title="資產列表"
           actions={[
-            <Box>
+            <Box key="more">
               <IconButton onClick={handleOpenAssetMenu}>
                 <MoreVertIcon />
               </IconButton>

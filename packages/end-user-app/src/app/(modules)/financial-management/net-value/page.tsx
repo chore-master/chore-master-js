@@ -258,7 +258,7 @@ export default function Page() {
         <ModuleFunctionHeader
           title="淨值列表"
           actions={[
-            <Box>
+            <Box key="more">
               <IconButton onClick={handleOpenNetValueMenu}>
                 <MoreVertIcon />
               </IconButton>
