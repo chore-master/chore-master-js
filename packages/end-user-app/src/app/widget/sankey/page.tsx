@@ -1,4 +1,5 @@
 'use client'
+import SankeyChart from '@/components/charts/SankeyChart'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { NoSsr } from '@mui/base/NoSsr'
 import Box from '@mui/material/Box'
@@ -21,7 +22,7 @@ interface Link {
 }
 
 export default function Page() {
-  const [isLoadingData, setIsLoadingData] = React.useState(false)
+  const [isLoadingData, setIsLoadingData] = React.useState(true)
   const [data, setData] = React.useState<{ nodes: Node[]; links: Link[] }>({
     nodes: [],
     links: [],
@@ -33,7 +34,9 @@ export default function Page() {
   }, [])
 
   const fetchData = async () => {
-    setIsLoadingData(true)
+    if (!isLoadingData) {
+      setIsLoadingData(true)
+    }
     await choreMasterAPIAgent.get('/widget/sankey', {
       params: {},
       onFail: ({ message }: any) => {
@@ -59,6 +62,17 @@ export default function Page() {
         <CircularProgress />
       ) : (
         <Box p={2}>
+          <SankeyChart
+            datapoints={[
+              { source: 'A', target: 'B', value: 10 },
+              { source: 'A', target: 'C', value: 20 },
+              { source: 'B', target: 'D', value: 30 },
+              { source: 'C', target: 'D', value: 40 },
+            ]}
+            accessSource={(d) => d.source}
+            accessTarget={(d) => d.target}
+            accessValue={(d) => d.value}
+          />
           <NoSsr>
             <Typography>
               Window: {width}x{height}
