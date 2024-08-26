@@ -3,7 +3,11 @@
 import { useEndUser } from '@/utils/auth'
 import { Logout } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
+import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
+import HelpIcon from '@mui/icons-material/Help'
+import LocalAtmIcon from '@mui/icons-material/LocalAtm'
 import MenuIcon from '@mui/icons-material/Menu'
+import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
@@ -101,13 +105,29 @@ export default function ModuleLayout({
           <ListItem disablePadding>
             <Link href="/financial-management" passHref legacyBehavior>
               <ListItemButton component="a">
+                <ListItemIcon>
+                  <LocalAtmIcon />
+                </ListItemIcon>
                 <ListItemText primary="財務管理" />
+              </ListItemButton>
+            </Link>
+          </ListItem>
+          <ListItem disablePadding>
+            <Link href="/trade" passHref legacyBehavior>
+              <ListItemButton component="a">
+                <ListItemIcon>
+                  <CandlestickChartIcon />
+                </ListItemIcon>
+                <ListItemText primary="交易" />
               </ListItemButton>
             </Link>
           </ListItem>
           <ListItem disablePadding>
             <Link href="/widget" passHref legacyBehavior>
               <ListItemButton component="a">
+                <ListItemIcon>
+                  <WidgetsIcon />
+                </ListItemIcon>
                 <ListItemText primary="小工具" />
               </ListItemButton>
             </Link>
@@ -115,6 +135,9 @@ export default function ModuleLayout({
           <ListItem disablePadding>
             <Link href="/sample-module" passHref legacyBehavior>
               <ListItemButton component="a">
+                <ListItemIcon>
+                  <HelpIcon />
+                </ListItemIcon>
                 <ListItemText primary="範例模組" />
               </ListItemButton>
             </Link>
