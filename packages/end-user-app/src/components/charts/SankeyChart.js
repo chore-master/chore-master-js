@@ -6,10 +6,12 @@ import { useMeasure } from 'react-use'
 
 export default function SankeyChart({
   layout,
-  datapoints,
-  accessSource,
-  accessTarget,
-  accessValue,
+  nodeDatapoints,
+  linkDatapoints,
+  accessNodeId,
+  accessLinkSource,
+  accessLinkTarget,
+  accessLinkValue,
 }) {
   const chartLayout = Object.assign(
     {
@@ -24,15 +26,16 @@ export default function SankeyChart({
     layout
   )
   const [chartRef, chartMeasure] = useMeasure()
-  const [data, setData] = React.useState(datapoints)
-  const linkRef = React.useRef()
-  const nodeRef = React.useRef()
-  const nodeGroups = Array.from(
-    new Set(data.flatMap((d) => [accessSource(d), accessTarget(d)])),
-    (d) => ({ id: d })
-  )
-  const colorScale = d3.scaleOrdinal().domain(nodeGroups).range(colors)
+  const [nodesData, setNodesData] = React.useState(nodeDatapoints)
+  const [linksData, setLinksData] = React.useState(linkDatapoints)
+  const linksGroupRef = React.useRef()
+  const nodesGroupRef = React.useRef()
 
+  if (nodesData.length === 0 || linksData.length === 0) {
+    return null
+  }
+
+  const colorScale = d3.scaleOrdinal().domain(nodesData).range(colors)
   const sankeyGenerator = sankey()
     .nodeWidth(15)
     .nodePadding(10)
@@ -46,24 +49,33 @@ export default function SankeyChart({
     .nodeId((node) => node.id)
     .nodeAlign(sankeyCenter)
 
-  const { nodes, links } = sankeyGenerator({
-    nodes: nodeGroups,
-    links: data.map((d) => ({
-      source: accessSource(d),
-      target: accessTarget(d),
-      value: accessValue(d),
-    })),
-  })
+  let nodes = [{ id: '' }]
+  let links = [{ source: '', target: '', value: 0 }]
+  if (nodesData.length > 0) {
+    const generated = sankeyGenerator({
+      nodes: nodesData.map((d) => ({ id: accessNodeId(d) })),
+      links: linksData.map((d) => ({
+        source: accessLinkSource(d),
+        target: accessLinkTarget(d),
+        value: accessLinkValue(d),
+      })),
+    })
+    nodes = generated.nodes
+    links = generated.links
+  }
 
   React.useEffect(() => {
-    setData(datapoints)
-  }, [datapoints])
+    setNodesData(nodeDatapoints)
+  }, [nodeDatapoints])
 
   React.useEffect(() => {
-    const linkSelection = d3.select(linkRef.current)
-    linkSelection.selectAll('*').remove()
+    setLinksData(linkDatapoints)
+  }, [linkDatapoints])
 
-    linkSelection
+  React.useEffect(() => {
+    const linksGroup = d3.select(linksGroupRef.current)
+    linksGroup.selectAll('*').remove()
+    linksGroup
       .selectAll('path')
       .data(links)
       .enter()
@@ -74,10 +86,9 @@ export default function SankeyChart({
       .attr('stroke', (d) => colorScale(d.source.id))
       .attr('stroke-opacity', 0.5)
 
-    const nodeSelection = d3.select(nodeRef.current)
-    nodeSelection.selectAll('*').remove()
-
-    nodeSelection
+    const nodesGroup = d3.select(nodesGroupRef.current)
+    nodesGroup.selectAll('*').remove()
+    nodesGroup
       .selectAll('rect')
       .data(nodes)
       .enter()
@@ -90,7 +101,7 @@ export default function SankeyChart({
       .style('stroke', '#000')
       .style('stroke-width', 1)
 
-    nodeSelection
+    nodesGroup
       .selectAll('text')
       .data(nodes)
       .enter()
@@ -101,7 +112,7 @@ export default function SankeyChart({
       .text((d) => d.id)
       .style('font-size', '12px')
       .style('fill', '#000')
-  }, [data, links, nodes, colorScale])
+  }, [links, nodes, colorScale])
 
   return (
     <svg
@@ -112,8 +123,8 @@ export default function SankeyChart({
         height: chartLayout.height,
       }}
     >
-      <g ref={linkRef} />
-      <g ref={nodeRef} />
+      <g ref={linksGroupRef} />
+      <g ref={nodesGroupRef} />
     </svg>
   )
 }

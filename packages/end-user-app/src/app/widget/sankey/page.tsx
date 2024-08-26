@@ -1,12 +1,9 @@
 'use client'
+
 import SankeyChart from '@/components/charts/SankeyChart'
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import { NoSsr } from '@mui/base/NoSsr'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
-import List from '@mui/material/List'
-import ListItemText from '@mui/material/ListItemText'
-import Typography from '@mui/material/Typography'
 import React from 'react'
 import { useMeasure, useWindowSize } from 'react-use'
 import './page.css'
@@ -70,40 +67,13 @@ export default function Page() {
           <Box p={2}>
             <SankeyChart
               layout={{}}
-              datapoints={[
-                { source: 'A', target: 'B', value: 10 },
-                { source: 'A', target: 'C', value: 20 },
-                { source: 'B', target: 'D', value: 30 },
-                { source: 'C', target: 'D', value: 40 },
-              ]}
-              accessSource={(d) => d.source}
-              accessTarget={(d) => d.target}
-              accessValue={(d) => d.value}
+              nodeDatapoints={data.nodes}
+              linkDatapoints={data.links}
+              accessNodeId={(node: any) => node.id}
+              accessLinkSource={(link: any) => link.source}
+              accessLinkTarget={(link: any) => link.target}
+              accessLinkValue={(link: any) => link.value}
             />
-            {false ? (
-              <>
-                <NoSsr>
-                  <Typography>
-                    Window: {windowSize.width}x{windowSize.height}
-                  </Typography>
-                </NoSsr>
-                <Typography>Nodes</Typography>
-                <List>
-                  {data.nodes.map((node) => (
-                    <ListItemText key={node.name}>{node.name}</ListItemText>
-                  ))}
-                </List>
-                <Typography>Links</Typography>
-                <List>
-                  {data.links.map((link, i) => (
-                    <ListItemText key={i}>
-                      Source: {link.source}, Target: {link.target}, Value:{' '}
-                      {link.value}
-                    </ListItemText>
-                  ))}
-                </List>
-              </>
-            ) : null}
           </Box>
         )}
       </Box>

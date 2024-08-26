@@ -175,7 +175,6 @@ export default function StackedAreaChart({
         },0)`}
       />
       <g ref={tickLineRef} />
-      {/* <g ref={legendRef} /> */}
     </svg>
   )
 }
