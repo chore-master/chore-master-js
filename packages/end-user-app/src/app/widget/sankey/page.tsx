@@ -8,7 +8,7 @@ import List from '@mui/material/List'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
 import React from 'react'
-import { useWindowSize } from 'react-use'
+import { useMeasure, useWindowSize } from 'react-use'
 import './page.css'
 
 interface Node {
@@ -27,7 +27,8 @@ export default function Page() {
     nodes: [],
     links: [],
   })
-  const { width, height } = useWindowSize()
+  const windowSize = useWindowSize()
+  const [contentBoxRef, contentBoxMeasure] = useMeasure()
 
   React.useEffect(() => {
     fetchData()
@@ -53,48 +54,59 @@ export default function Page() {
     <Box
       sx={{
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
         height: '100%',
+        justifyContent:
+          contentBoxMeasure.width < windowSize.width ? 'center' : 'flex-start',
+        alignItems:
+          contentBoxMeasure.height < windowSize.height
+            ? 'center'
+            : 'flex-start',
       }}
     >
-      {isLoadingData ? (
-        <CircularProgress />
-      ) : (
-        <Box p={2}>
-          <SankeyChart
-            datapoints={[
-              { source: 'A', target: 'B', value: 10 },
-              { source: 'A', target: 'C', value: 20 },
-              { source: 'B', target: 'D', value: 30 },
-              { source: 'C', target: 'D', value: 40 },
-            ]}
-            accessSource={(d) => d.source}
-            accessTarget={(d) => d.target}
-            accessValue={(d) => d.value}
-          />
-          <NoSsr>
-            <Typography>
-              Window: {width}x{height}
-            </Typography>
-          </NoSsr>
-          <Typography>Nodes</Typography>
-          <List>
-            {data.nodes.map((node) => (
-              <ListItemText key={node.name}>{node.name}</ListItemText>
-            ))}
-          </List>
-          <Typography>Links</Typography>
-          <List>
-            {data.links.map((link, i) => (
-              <ListItemText key={i}>
-                Source: {link.source}, Target: {link.target}, Value:{' '}
-                {link.value}
-              </ListItemText>
-            ))}
-          </List>
-        </Box>
-      )}
+      <Box ref={contentBoxRef}>
+        {isLoadingData ? (
+          <CircularProgress />
+        ) : (
+          <Box p={2}>
+            <SankeyChart
+              layout={{}}
+              datapoints={[
+                { source: 'A', target: 'B', value: 10 },
+                { source: 'A', target: 'C', value: 20 },
+                { source: 'B', target: 'D', value: 30 },
+                { source: 'C', target: 'D', value: 40 },
+              ]}
+              accessSource={(d) => d.source}
+              accessTarget={(d) => d.target}
+              accessValue={(d) => d.value}
+            />
+            {false ? (
+              <>
+                <NoSsr>
+                  <Typography>
+                    Window: {windowSize.width}x{windowSize.height}
+                  </Typography>
+                </NoSsr>
+                <Typography>Nodes</Typography>
+                <List>
+                  {data.nodes.map((node) => (
+                    <ListItemText key={node.name}>{node.name}</ListItemText>
+                  ))}
+                </List>
+                <Typography>Links</Typography>
+                <List>
+                  {data.links.map((link, i) => (
+                    <ListItemText key={i}>
+                      Source: {link.source}, Target: {link.target}, Value:{' '}
+                      {link.value}
+                    </ListItemText>
+                  ))}
+                </List>
+              </>
+            ) : null}
+          </Box>
+        )}
+      </Box>
     </Box>
   )
 }
