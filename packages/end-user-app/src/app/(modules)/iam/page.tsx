@@ -40,6 +40,10 @@ import {
   useForm,
 } from 'react-hook-form'
 
+type CoreInputs = {
+  relational_database_origin: string
+}
+
 type GoogleInputs = {
   drive_root_folder_id: string
 }
@@ -86,6 +90,7 @@ export default function Page() {
   const { sync: syncEndUser } = useEndUser()
   const [isGoogleDriveExplorerModalOpen, setIsGoogleDriveExplorerModalOpen] =
     React.useState(false)
+  const coreIntegrationForm = useForm<CoreInputs>()
   const googleIntegrationForm = useForm<GoogleInputs>()
   const sinoTradeIntegrationForm = useForm<SinoTradeInputs>()
   const sinoTradeIntegrationFormAccountFieldArray = useFieldArray({
@@ -109,6 +114,22 @@ export default function Page() {
 
   const handleCloseDriveFolderIdInput = () => {
     setDriveFolderIdInputAnchorEl(null)
+  }
+
+  const fetchCoreIntegration = () => {
+    choreMasterAPIAgent.get('/v1/account_center/integrations/core', {
+      params: {},
+      onFail: ({ message }: any) => {
+        alert(message)
+      },
+      onSuccess: async ({ data }: any) => {
+        if (data?.drive?.root_folder_id) {
+          coreIntegrationForm.reset({
+            relational_database_origin: data.relational_database?.origin,
+          })
+        }
+      },
+    })
   }
 
   const fetchGoogleIntegration = () => {
@@ -139,6 +160,25 @@ export default function Page() {
         })
       },
     })
+  }
+
+  const onSubmitCoreIntegrationForm: SubmitHandler<CoreInputs> = async (
+    data
+  ) => {
+    await choreMasterAPIAgent.patch(
+      '/v1/account_center/integrations/core',
+      data,
+      {
+        onFail: ({ message }: any) => {
+          alert(message)
+        },
+        onSuccess: () => {
+          fetchCoreIntegration()
+          syncEndUser()
+          alert('掛載完成。')
+        },
+      }
+    )
   }
 
   const onSubmitGoogleIntegrationForm: SubmitHandler<GoogleInputs> = async (
@@ -181,6 +221,43 @@ export default function Page() {
   return (
     <React.Fragment>
       <ModuleFunction>
+        <ModuleFunctionHeader title="資料庫" />
+        <ModuleFunctionBody>
+          <Box p={2}>
+            <Typography mb={3}>
+              Chore Master
+              使用關聯式資料庫來儲存此帳戶產生的資料，您必須完成此設定才能使用完整服務。
+            </Typography>
+            <Stack component="form" spacing={3} autoComplete="off">
+              <Controller
+                control={coreIntegrationForm.control}
+                name="relational_database_origin"
+                defaultValue=""
+                rules={{ required: '必填' }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="連線字串"
+                    variant="standard"
+                  />
+                )}
+              />
+              <LoadingButton
+                variant="contained"
+                onClick={coreIntegrationForm.handleSubmit(
+                  onSubmitCoreIntegrationForm
+                )}
+                loading={coreIntegrationForm.formState.isSubmitting}
+              >
+                掛載
+              </LoadingButton>
+            </Stack>
+          </Box>
+        </ModuleFunctionBody>
+      </ModuleFunction>
+
+      <ModuleFunction>
         <ModuleFunctionHeader title="Google 服務整合" />
         <ModuleFunctionBody>
           <Box p={2}>
@@ -190,8 +267,8 @@ export default function Page() {
             </Typography>
             <Stack component="form" spacing={3} autoComplete="off">
               <Controller
-                name="drive_root_folder_id"
                 control={googleIntegrationForm.control}
+                name="drive_root_folder_id"
                 defaultValue=""
                 rules={{ required: '必填' }}
                 render={({ field }) => (
@@ -288,6 +365,7 @@ export default function Page() {
                         <Controller
                           control={sinoTradeIntegrationForm.control}
                           name={`accounts.${index}.name`}
+                          rules={{ required: '必填' }}
                           render={({ field }) => (
                             <TextField
                               {...field}
@@ -296,11 +374,11 @@ export default function Page() {
                               variant="standard"
                             />
                           )}
-                          rules={{ required: '必填' }}
                         />
                         <Controller
                           control={sinoTradeIntegrationForm.control}
                           name={`accounts.${index}.api_key`}
+                          rules={{ required: '必填' }}
                           render={({ field }) => (
                             <TextField
                               {...field}
@@ -309,11 +387,11 @@ export default function Page() {
                               variant="standard"
                             />
                           )}
-                          rules={{ required: '必填' }}
                         />
                         <Controller
                           control={sinoTradeIntegrationForm.control}
                           name={`accounts.${index}.secret_key`}
+                          rules={{ required: '必填' }}
                           render={({ field }) => (
                             <TextField
                               {...field}
@@ -322,7 +400,6 @@ export default function Page() {
                               variant="standard"
                             />
                           )}
-                          rules={{ required: '必填' }}
                         />
                         <Button
                           variant="outlined"
