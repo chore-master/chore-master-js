@@ -42,6 +42,7 @@ import {
 
 type CoreInputs = {
   relational_database_origin: string
+  relational_database_schema_name?: string
 }
 
 type GoogleInputs = {
@@ -99,6 +100,7 @@ export default function Page() {
   })
 
   React.useEffect(() => {
+    fetchCoreIntegration()
     fetchGoogleIntegration()
     fetchSinoTradeIntegration()
   }, [])
@@ -123,11 +125,11 @@ export default function Page() {
         alert(message)
       },
       onSuccess: async ({ data }: any) => {
-        if (data?.drive?.root_folder_id) {
-          coreIntegrationForm.reset({
-            relational_database_origin: data.relational_database?.origin,
-          })
-        }
+        coreIntegrationForm.reset({
+          relational_database_origin: data.relational_database_origin || '',
+          relational_database_schema_name:
+            data.relational_database_schema_name || '',
+        })
       },
     })
   }
@@ -241,6 +243,14 @@ export default function Page() {
                     label="連線字串"
                     variant="standard"
                   />
+                )}
+              />
+              <Controller
+                control={coreIntegrationForm.control}
+                name="relational_database_schema_name"
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} label="綱要" variant="standard" />
                 )}
               />
               <LoadingButton
