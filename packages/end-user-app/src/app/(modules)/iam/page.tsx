@@ -14,6 +14,9 @@ import React from 'react'
 interface CoreData {
   relational_database_origin?: string
   relational_database_schema_name?: string
+  current_revision?: {
+    revision?: string
+  }
 }
 
 export default function Page() {
@@ -34,6 +37,7 @@ export default function Page() {
           ...d,
           relational_database_origin: data.relational_database_origin,
           relational_database_schema_name: data.relational_database_schema_name,
+          current_revision: data.current_revision,
         }))
       },
     })
@@ -52,6 +56,9 @@ export default function Page() {
               </ListItemText>
               <ListItemText>
                 綱要：{coreData.relational_database_schema_name || '未設定'}
+              </ListItemText>
+              <ListItemText>
+                目前版本：{coreData?.current_revision?.revision || '無'}
               </ListItemText>
             </List>
           </Box>
