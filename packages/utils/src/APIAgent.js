@@ -26,7 +26,7 @@ class APIAgent {
       callbacks.onFail &&
         callbacks.onFail({ res, status, message: data.message, data })
     } else {
-      callbacks.onSuccess && callbacks.onSuccess({ res, data })
+      callbacks.onSuccess && (await callbacks.onSuccess({ res, data }))
     }
     return res
   }

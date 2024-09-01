@@ -1,5 +1,6 @@
 'use client'
 
+import AutoLoadingButton from '@/components/AutoLoadingButton'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -38,7 +39,6 @@ const rootRevision = {
 export default function Page() {
   const [allRevisions, setAllRevisions] = React.useState<Revision[]>([])
   const [appliedRevision, setAppliedRevision] = React.useState<Revision>()
-  // const [focusedRevision, setFocusedRevision] = React.useState(null)
   const [focusedRevisionScriptContent, setFocusedRevisionScriptContent] =
     React.useState(null)
   // const { sync: syncEndUser } = useEndUser()
@@ -49,8 +49,8 @@ export default function Page() {
     fetchCoreIntegration()
   }, [])
 
-  const fetchCoreIntegration = () => {
-    choreMasterAPIAgent.get('/v1/account_center/integrations/core', {
+  const fetchCoreIntegration = async () => {
+    await choreMasterAPIAgent.get('/v1/account_center/integrations/core', {
       params: {},
       onFail: ({ message }: any) => {
         alert(message)
@@ -82,8 +82,8 @@ export default function Page() {
         onFail: ({ message }: any) => {
           alert(message)
         },
-        onSuccess: () => {
-          fetchCoreIntegration()
+        onSuccess: async () => {
+          await fetchCoreIntegration()
         },
       }
     )
@@ -97,8 +97,8 @@ export default function Page() {
         onFail: ({ message }: any) => {
           alert(message)
         },
-        onSuccess: () => {
-          fetchCoreIntegration()
+        onSuccess: async () => {
+          await fetchCoreIntegration()
         },
       }
     )
@@ -116,8 +116,8 @@ export default function Page() {
         onFail: ({ message }: any) => {
           alert(message)
         },
-        onSuccess: () => {
-          fetchCoreIntegration()
+        onSuccess: async () => {
+          await fetchCoreIntegration()
         },
       }
     )
@@ -131,8 +131,8 @@ export default function Page() {
         onFail: ({ message }: any) => {
           alert(message)
         },
-        onSuccess: () => {
-          fetchCoreIntegration()
+        onSuccess: async () => {
+          await fetchCoreIntegration()
         },
       }
     )
@@ -145,8 +145,8 @@ export default function Page() {
         onFail: ({ message }: any) => {
           alert(message)
         },
-        onSuccess: () => {
-          fetchCoreIntegration()
+        onSuccess: async () => {
+          await fetchCoreIntegration()
         },
       }
     )
@@ -160,8 +160,8 @@ export default function Page() {
         onFail: ({ message }: any) => {
           alert(message)
         },
-        onSuccess: ({ data }: any) => {
-          setFocusedRevisionScriptContent(data.script_content)
+        onSuccess: async ({ data }: any) => {
+          await setFocusedRevisionScriptContent(data.script_content)
         },
       }
     )
@@ -231,38 +231,38 @@ export default function Page() {
               if (isAppliedRevision) {
                 secondaryAction = (
                   <Stack direction="row" spacing={1}>
-                    <Button
+                    <AutoLoadingButton
                       variant="contained"
                       disabled={isHeadRevision}
                       onClick={onUpgradeClick}
                     >
                       升版至最新
-                    </Button>
-                    <Button
+                    </AutoLoadingButton>
+                    <AutoLoadingButton
                       disabled={isRootRevision}
                       onClick={onDowngradeClick}
                     >
                       降版
-                    </Button>
-                    <Button
+                    </AutoLoadingButton>
+                    <AutoLoadingButton
                       disabled={!isHeadRevision}
                       onClick={onGenerateRevisionClick}
                     >
                       建立新版
-                    </Button>
+                    </AutoLoadingButton>
                   </Stack>
                 )
               } else if (isHeadRevision) {
                 secondaryAction = (
                   <Stack direction="row" spacing={1}>
-                    <Button
+                    <AutoLoadingButton
                       color="warning"
-                      onClick={() =>
-                        handleDeleteRevision(iteratedRevision.revision)
+                      onClick={async () =>
+                        await handleDeleteRevision(iteratedRevision.revision)
                       }
                     >
                       刪除
-                    </Button>
+                    </AutoLoadingButton>
                   </Stack>
                 )
               }
