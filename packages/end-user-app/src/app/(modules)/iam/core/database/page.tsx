@@ -5,7 +5,6 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import { useEndUser } from '@/utils/auth'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { Box } from '@mui/material'
 import Button from '@mui/material/Button'
@@ -31,8 +30,8 @@ interface Revision {
 
 export default function Page() {
   const [allRevisions, setAllRevisions] = React.useState<Revision[]>([])
-  const [currentRevision, setCurrentRevision] = React.useState<Revision>()
-  const { sync: syncEndUser } = useEndUser()
+  const [appliedRevision, setAppliedRevision] = React.useState<Revision>()
+  // const { sync: syncEndUser } = useEndUser()
 
   const coreIntegrationForm = useForm<CoreInputs>()
 
@@ -52,8 +51,17 @@ export default function Page() {
           relational_database_schema_name:
             data.relational_database_schema_name || '',
         })
-        setAllRevisions(data.all_revisions)
-        setCurrentRevision(data.current_revision)
+        if (data.applied_revision) {
+          setAllRevisions(data.all_revisions)
+          setAppliedRevision(data.applied_revision)
+        } else {
+          const dummyRevision = {
+            revision: 'N/A',
+            is_head: data.all_revisions.length === 0,
+          }
+          setAllRevisions([...data.all_revisions, dummyRevision])
+          setAppliedRevision(dummyRevision)
+        }
       },
     })
   }
@@ -124,6 +132,20 @@ export default function Page() {
     )
   }
 
+  const handleDeleteRevision = async (revision: string) => {
+    await choreMasterAPIAgent.delete(
+      `/v1/account_center/integrations/core/relational_database/migrations/${revision}`,
+      {
+        onFail: ({ message }: any) => {
+          alert(message)
+        },
+        onSuccess: () => {
+          fetchCoreIntegration()
+        },
+      }
+    )
+  }
+
   return (
     <React.Fragment>
       <ModuleFunction>
@@ -175,42 +197,69 @@ export default function Page() {
         <ModuleFunctionHeader title="版本及遷移" />
         <ModuleFunctionBody>
           <List>
-            {allRevisions.map((revision) => (
-              <ListItem
-                key={revision.revision}
-                secondaryAction={
-                  revision.revision === currentRevision?.revision ? (
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        variant="contained"
-                        disabled={revision.is_head}
-                        onClick={onUpgradeClick}
-                      >
-                        升版
-                      </Button>
-                      <Button onClick={onDowngradeClick}>降版</Button>
-                      <Button
-                        disabled={!revision.is_head}
-                        onClick={onGenerateRevisionClick}
-                      >
-                        建立新版
-                      </Button>
-                    </Stack>
-                  ) : null
-                }
-              >
-                <ListItemText>
-                  <Chip
-                    label={revision.revision}
-                    color={
-                      revision.revision === currentRevision?.revision
-                        ? 'primary'
-                        : undefined
-                    }
-                  />
-                </ListItemText>
-              </ListItem>
-            ))}
+            {allRevisions.map((iteratedRevision) => {
+              const headRevision = allRevisions[0]
+              const baseRevision = allRevisions[allRevisions.length - 1]
+              const isHeadRevision =
+                iteratedRevision.revision === headRevision?.revision
+              const isBaseRevision =
+                iteratedRevision.revision === baseRevision?.revision
+              const isAppliedRevision =
+                iteratedRevision.revision === appliedRevision?.revision
+
+              let secondaryAction = undefined
+              if (isAppliedRevision) {
+                secondaryAction = (
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="contained"
+                      disabled={isHeadRevision}
+                      onClick={onUpgradeClick}
+                    >
+                      升版
+                    </Button>
+                    <Button
+                      disabled={isBaseRevision}
+                      onClick={onDowngradeClick}
+                    >
+                      降版
+                    </Button>
+                    <Button
+                      disabled={!isHeadRevision}
+                      onClick={onGenerateRevisionClick}
+                    >
+                      建立新版
+                    </Button>
+                  </Stack>
+                )
+              } else if (isHeadRevision) {
+                secondaryAction = (
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      color="warning"
+                      onClick={() =>
+                        handleDeleteRevision(iteratedRevision.revision)
+                      }
+                    >
+                      刪除
+                    </Button>
+                  </Stack>
+                )
+              }
+              return (
+                <ListItem
+                  key={iteratedRevision.revision}
+                  secondaryAction={secondaryAction}
+                >
+                  <ListItemText>
+                    <Chip
+                      label={iteratedRevision.revision}
+                      color={isAppliedRevision ? 'primary' : undefined}
+                    />
+                  </ListItemText>
+                </ListItem>
+              )
+            })}
           </List>
         </ModuleFunctionBody>
       </ModuleFunction>
