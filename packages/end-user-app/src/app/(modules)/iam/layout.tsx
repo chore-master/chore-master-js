@@ -15,6 +15,27 @@ export default function Layout({
           href: '/iam',
           selectedWhenExactlyMatched: true,
         },
+        {
+          header: '基礎設施',
+        },
+        {
+          title: '資料庫',
+          href: '/iam/core/database',
+          selectedWhenPartiallyMatched: true,
+        },
+        {
+          header: '服務整合',
+        },
+        {
+          title: 'Google',
+          href: '/iam/integrations/google',
+          selectedWhenPartiallyMatched: true,
+        },
+        {
+          title: '永豐',
+          href: '/iam/integrations/sinotrade',
+          selectedWhenPartiallyMatched: true,
+        },
       ]}
     >
       {children}
