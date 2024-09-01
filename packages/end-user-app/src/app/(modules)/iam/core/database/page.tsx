@@ -6,8 +6,13 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { Box } from '@mui/material'
+import Accordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Dialog from '@mui/material/Dialog'
@@ -18,6 +23,12 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Stack from '@mui/material/Stack'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import React from 'react'
@@ -167,6 +178,25 @@ export default function Page() {
     )
   }
 
+  const onResetClick = async (revision: string) => {
+    const isConfirmed = confirm('即將重設此資料庫至原始狀態，確定要繼續嗎？')
+    if (!isConfirmed) {
+      return
+    }
+    await choreMasterAPIAgent.post(
+      `/v1/account_center/integrations/core/relational_database/reset`,
+      null,
+      {
+        onFail: ({ message }: any) => {
+          alert(message)
+        },
+        onSuccess: async ({ data }: any) => {
+          alert('格式化完成。')
+        },
+      }
+    )
+  }
+
   return (
     <React.Fragment>
       <ModuleFunction>
@@ -211,6 +241,46 @@ export default function Page() {
               </LoadingButton>
             </Stack>
           </Box>
+        </ModuleFunctionBody>
+        <ModuleFunctionBody>
+          <Accordion>
+            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+              <Stack spacing={1} direction="row" alignItems="center">
+                <InfoOutlinedIcon fontSize="small" />
+                <Typography>連線範本</Typography>
+              </Stack>
+            </AccordionSummary>
+            <TableContainer component={AccordionDetails}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>資料庫服務</TableCell>
+                    <TableCell>範例連線字串</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      {'SQLite'}
+                    </TableCell>
+                    <TableCell>
+                      <pre>{'sqlite+aiosqlite:///./local.db'}</pre>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      {'PostgreSQL'}
+                    </TableCell>
+                    <TableCell>
+                      <pre>
+                        {'postgresql://user:password@postgresserver/db'}
+                      </pre>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Accordion>
         </ModuleFunctionBody>
       </ModuleFunction>
 
@@ -291,9 +361,13 @@ export default function Page() {
         <ModuleFunctionHeader title="進階操作" />
         <ModuleFunctionBody>
           <Box p={2}>
-            <Button variant="contained" color="error">
+            <AutoLoadingButton
+              variant="contained"
+              color="error"
+              onClick={onResetClick}
+            >
               格式化
-            </Button>
+            </AutoLoadingButton>
           </Box>
         </ModuleFunctionBody>
       </ModuleFunction>
@@ -304,14 +378,11 @@ export default function Page() {
         fullWidth
       >
         <DialogTitle sx={{ m: 0, p: 2 }}>遷移程式碼</DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <Box component="pre">{focusedRevisionScriptContent}</Box>
         </DialogContent>
         <DialogActions>
-          <Button
-            autoFocus
-            onClick={() => setFocusedRevisionScriptContent(null)}
-          >
+          <Button onClick={() => setFocusedRevisionScriptContent(null)}>
             關閉
           </Button>
         </DialogActions>
