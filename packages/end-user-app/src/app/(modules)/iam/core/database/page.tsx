@@ -9,6 +9,10 @@ import LoadingButton from '@mui/lab/LoadingButton'
 import { Box } from '@mui/material'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -34,6 +38,9 @@ const rootRevision = {
 export default function Page() {
   const [allRevisions, setAllRevisions] = React.useState<Revision[]>([])
   const [appliedRevision, setAppliedRevision] = React.useState<Revision>()
+  // const [focusedRevision, setFocusedRevision] = React.useState(null)
+  const [focusedRevisionScriptContent, setFocusedRevisionScriptContent] =
+    React.useState(null)
   // const { sync: syncEndUser } = useEndUser()
 
   const coreIntegrationForm = useForm<CoreInputs>()
@@ -140,6 +147,21 @@ export default function Page() {
         },
         onSuccess: () => {
           fetchCoreIntegration()
+        },
+      }
+    )
+  }
+
+  const handleRevisionClick = async (revision: string) => {
+    await choreMasterAPIAgent.get(
+      `/v1/account_center/integrations/core/relational_database/migrations/${revision}`,
+      {
+        params: {},
+        onFail: ({ message }: any) => {
+          alert(message)
+        },
+        onSuccess: ({ data }: any) => {
+          setFocusedRevisionScriptContent(data.script_content)
         },
       }
     )
@@ -253,6 +275,9 @@ export default function Page() {
                     <Chip
                       label={iteratedRevision.revision}
                       color={isAppliedRevision ? 'primary' : undefined}
+                      onClick={() =>
+                        handleRevisionClick(iteratedRevision.revision)
+                      }
                     />
                   </ListItemText>
                 </ListItem>
@@ -272,6 +297,25 @@ export default function Page() {
           </Box>
         </ModuleFunctionBody>
       </ModuleFunction>
+
+      <Dialog
+        onClose={() => setFocusedRevisionScriptContent(null)}
+        open={Boolean(focusedRevisionScriptContent)}
+        fullWidth
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }}>遷移程式碼</DialogTitle>
+        <DialogContent>
+          <Box component="pre">{focusedRevisionScriptContent}</Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            autoFocus
+            onClick={() => setFocusedRevisionScriptContent(null)}
+          >
+            關閉
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   )
 }
