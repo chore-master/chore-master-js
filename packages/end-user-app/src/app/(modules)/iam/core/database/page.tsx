@@ -256,6 +256,7 @@ export default function Page() {
                   <TableRow>
                     <TableCell>資料庫服務</TableCell>
                     <TableCell>範例連線字串</TableCell>
+                    <TableCell>範例綱要</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -266,6 +267,7 @@ export default function Page() {
                     <TableCell>
                       <pre>{'sqlite+aiosqlite:///./local.db'}</pre>
                     </TableCell>
+                    <TableCell>{'（不支援）'}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">
@@ -275,6 +277,9 @@ export default function Page() {
                       <pre>
                         {'postgresql://user:password@postgresserver/db'}
                       </pre>
+                    </TableCell>
+                    <TableCell>
+                      <pre>{'public'}</pre>
                     </TableCell>
                   </TableRow>
                 </TableBody>
