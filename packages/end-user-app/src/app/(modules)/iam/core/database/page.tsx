@@ -25,7 +25,10 @@ type CoreInputs = {
 
 interface Revision {
   revision: string
-  is_head: boolean
+}
+
+const rootRevision = {
+  revision: 'N/A',
 }
 
 export default function Page() {
@@ -55,12 +58,8 @@ export default function Page() {
           setAllRevisions(data.all_revisions)
           setAppliedRevision(data.applied_revision)
         } else {
-          const dummyRevision = {
-            revision: 'N/A',
-            is_head: data.all_revisions.length === 0,
-          }
-          setAllRevisions([...data.all_revisions, dummyRevision])
-          setAppliedRevision(dummyRevision)
+          setAllRevisions([...data.all_revisions, rootRevision])
+          setAppliedRevision(rootRevision)
         }
       },
     })
@@ -199,11 +198,10 @@ export default function Page() {
           <List>
             {allRevisions.map((iteratedRevision) => {
               const headRevision = allRevisions[0]
-              const baseRevision = allRevisions[allRevisions.length - 1]
               const isHeadRevision =
                 iteratedRevision.revision === headRevision?.revision
-              const isBaseRevision =
-                iteratedRevision.revision === baseRevision?.revision
+              const isRootRevision =
+                iteratedRevision.revision === rootRevision.revision
               const isAppliedRevision =
                 iteratedRevision.revision === appliedRevision?.revision
 
@@ -216,10 +214,10 @@ export default function Page() {
                       disabled={isHeadRevision}
                       onClick={onUpgradeClick}
                     >
-                      升版
+                      升版至最新
                     </Button>
                     <Button
-                      disabled={isBaseRevision}
+                      disabled={isRootRevision}
                       onClick={onDowngradeClick}
                     >
                       降版
