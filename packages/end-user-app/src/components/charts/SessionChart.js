@@ -1,8 +1,7 @@
 import React from 'react'
 import Plot from 'react-plotly.js'
-import { useMeasure } from 'react-use'
 
-export default function SessionChart({ layout, priceDatapoints }) {
+export default function SessionChart({ layout, datapoints }) {
   const chartLayout = Object.assign(
     {
       width: 640,
@@ -15,27 +14,44 @@ export default function SessionChart({ layout, priceDatapoints }) {
     },
     layout
   )
-  const [chartRef, chartMeasure] = useMeasure()
-  const [pricesData, setPricesData] = React.useState(priceDatapoints)
+  const [data, setData] = React.useState(datapoints)
 
   const timeSeriesData = [
     {
       type: 'scatter',
       mode: 'lines',
-      name: 'Price High', // Replace with appropriate name if needed
-      x: pricesData.map((point) => point.timeUTC), // Assuming priceDatapoints has a `time` field
-      y: pricesData.map((point) => point.value), // Assuming priceDatapoints has a `priceHigh` field
+      name: 'IR', // Replace with appropriate name if needed
+      x: data.map((point) => point.timeUTC), // Assuming datapoints has a `time` field
+      y: data.map((point) => point.value), // Assuming datapoints has a `priceHigh` field
       line: { color: '#17BECF' },
     },
     // {
     //   type: 'scatter',
     //   mode: 'lines',
     //   name: 'Price Low', // Replace with appropriate name if needed
-    //   x: pricesData.map((point) => point.time), // Assuming priceDatapoints has a `time` field
-    //   y: pricesData.map((point) => point.priceLow), // Assuming priceDatapoints has a `priceLow` field
+    //   x: data.map((point) => point.time), // Assuming datapoints has a `time` field
+    //   y: data.map((point) => point.priceLow), // Assuming datapoints has a `priceLow` field
     //   line: { color: '#7F7F7F' },
     // },
   ]
+
+  const annotationArrows = data
+    .filter((d) => d.side)
+    .map((point) => ({
+      x: point.timeUTC, // Time of the long/short action
+      y: point.value, // Price level for long/short action
+      xref: 'x',
+      yref: 'y',
+      // text: point.side === 'long' ? 'Long' : 'Short', // Label "Long" or "Short"
+      showarrow: true,
+      arrowhead: 1,
+      ax: 0,
+      ay: point.side === 'long' ? 32 : -32, // Adjust arrow position
+      font: {
+        color: point.side === 'long' ? 'green' : 'red',
+      },
+      arrowcolor: point.side === 'long' ? 'green' : 'red',
+    }))
 
   const plotLayout = {
     autosize: true,
@@ -74,11 +90,12 @@ export default function SessionChart({ layout, priceDatapoints }) {
       autorange: true,
       type: 'linear',
     },
+    annotations: annotationArrows,
   }
 
   React.useEffect(() => {
-    setPricesData(priceDatapoints)
-  }, [priceDatapoints])
+    setData(datapoints)
+  }, [datapoints])
 
   return (
     <Plot
@@ -90,6 +107,7 @@ export default function SessionChart({ layout, priceDatapoints }) {
         height: chartLayout.height,
         minWidth: chartLayout.minWidth,
       }}
+      config={{ responsive: true }}
     />
   )
 }

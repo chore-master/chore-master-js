@@ -18,7 +18,7 @@ type UploadSessionInputs = {
 
 export default function Page() {
   const uploadSessionForm = useForm<UploadSessionInputs>()
-  const [priceDataPoints, setPriceDataPoints] = React.useState<any>([])
+  const [datapoints, setDatapoints] = React.useState<any>([])
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -32,22 +32,30 @@ export default function Page() {
         Papa.parse(csvText, {
           header: true,
           complete: (result: ParseResult<any>) => {
-            setPriceDataPoints(
+            setDatapoints(
               result.data
+                .filter((row) => {
+                  if (!row.context) {
+                    return false
+                  }
+                  if (
+                    row.operation === 'take' &&
+                    row.symbol !== 'ETH/USDT:USDT-240927'
+                  ) {
+                    return false
+                  }
+                  return true
+                })
                 .map((row) => {
-                  if (row.context) {
-                    const context = JSON.parse(row.context)
-                    return {
-                      timeUTC: row.datetime_utc,
-                      value: context.order_perp_implied_term_ir
-                        ? context.order_perp_implied_term_ir
-                        : null,
-                    }
-                  } else {
-                    return null
+                  const context = JSON.parse(row.context)
+                  return {
+                    timeUTC: row.datetime_utc,
+                    value: context.order_perp_implied_term_ir
+                      ? context.order_perp_implied_term_ir
+                      : null,
+                    side: row.side,
                   }
                 })
-                .filter((d) => d !== null)
             )
           },
           error: (error: any) => {
@@ -107,7 +115,7 @@ export default function Page() {
               marginRight: 48,
               minWidth: 480,
             }}
-            priceDatapoints={priceDataPoints}
+            datapoints={datapoints}
           />
         </ModuleFunctionBody>
       </ModuleFunction>
