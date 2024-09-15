@@ -275,7 +275,7 @@ export default function Page() {
                     </TableCell>
                     <TableCell>
                       <pre>
-                        {'postgresql://user:password@postgresserver/db'}
+                        {'postgresql+asyncpg://user:password@postgresserver/db'}
                       </pre>
                     </TableCell>
                     <TableCell>
