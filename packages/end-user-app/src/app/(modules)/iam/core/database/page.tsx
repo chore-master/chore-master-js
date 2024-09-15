@@ -191,6 +191,7 @@ export default function Page() {
           alert(message)
         },
         onSuccess: async ({ data }: any) => {
+          await fetchCoreIntegration()
           alert('格式化完成。')
         },
       }
