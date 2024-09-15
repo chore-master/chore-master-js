@@ -4,6 +4,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import SessionChart from '@/components/charts/SessionChart'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -17,6 +18,7 @@ type UploadSessionInputs = {
 
 export default function Page() {
   const uploadSessionForm = useForm<UploadSessionInputs>()
+  const [priceDataPoints, setPriceDataPoints] = React.useState<any>([])
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -31,6 +33,24 @@ export default function Page() {
           header: true,
           complete: (result: ParseResult<any>) => {
             console.log(result.data)
+            setPriceDataPoints(
+              result.data
+                .map((row) => {
+                  if (row.context) {
+                    const context = JSON.parse(row.context)
+                    return {
+                      datetime_utc: row.datetime_utc,
+                      order_perp_implied_term_ir:
+                        context.order_perp_implied_term_ir
+                          ? context.order_perp_implied_term_ir
+                          : null,
+                    }
+                  } else {
+                    return null
+                  }
+                })
+                .filter((d) => d !== null)
+            )
           },
           error: (error: any) => {
             alert(`Error parsing CSV: ${error}`)
@@ -77,6 +97,21 @@ export default function Page() {
               </LoadingButton>
             </Stack>
           </Box>
+        </ModuleFunctionBody>
+
+        <ModuleFunctionBody>
+          <SessionChart
+            layout={
+              {
+                // width: '100%',
+                // marginTop: 48,
+                // marginLeft: 96,
+                // marginRight: 96,
+                // minWidth: 320,
+              }
+            }
+            priceDatapoints={priceDataPoints}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
     </React.Fragment>
