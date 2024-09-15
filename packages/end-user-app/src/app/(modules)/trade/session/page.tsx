@@ -32,18 +32,16 @@ export default function Page() {
         Papa.parse(csvText, {
           header: true,
           complete: (result: ParseResult<any>) => {
-            console.log(result.data)
             setPriceDataPoints(
               result.data
                 .map((row) => {
                   if (row.context) {
                     const context = JSON.parse(row.context)
                     return {
-                      datetime_utc: row.datetime_utc,
-                      order_perp_implied_term_ir:
-                        context.order_perp_implied_term_ir
-                          ? context.order_perp_implied_term_ir
-                          : null,
+                      timeUTC: row.datetime_utc,
+                      value: context.order_perp_implied_term_ir
+                        ? context.order_perp_implied_term_ir
+                        : null,
                     }
                   } else {
                     return null
@@ -101,15 +99,14 @@ export default function Page() {
 
         <ModuleFunctionBody>
           <SessionChart
-            layout={
-              {
-                // width: '100%',
-                // marginTop: 48,
-                // marginLeft: 96,
-                // marginRight: 96,
-                // minWidth: 320,
-              }
-            }
+            layout={{
+              width: '100%',
+              height: 600,
+              marginTop: 48,
+              marginLeft: 48,
+              marginRight: 48,
+              minWidth: 480,
+            }}
             priceDatapoints={priceDataPoints}
           />
         </ModuleFunctionBody>
