@@ -1,5 +1,10 @@
+'use client'
+
+import dynamic from 'next/dynamic'
 import React from 'react'
-import Plot from 'react-plotly.js'
+
+// https://github.com/plotly/react-plotly.js/issues/273
+const Plot = dynamic(() => import('react-plotly.js'), { ssr: false })
 
 export default function SessionChart({ layout, datapoints }) {
   const chartLayout = Object.assign(
@@ -102,12 +107,12 @@ export default function SessionChart({ layout, datapoints }) {
       data={timeSeriesData}
       layout={plotLayout}
       useResizeHandler={true}
+      config={{ responsive: true }}
       style={{
         width: chartLayout.width,
         height: chartLayout.height,
         minWidth: chartLayout.minWidth,
       }}
-      config={{ responsive: true }}
     />
   )
 }

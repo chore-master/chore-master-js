@@ -8,6 +8,7 @@ import SessionChart from '@/components/charts/SessionChart'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 import Papa, { ParseResult } from 'papaparse'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
@@ -72,7 +73,7 @@ export default function Page() {
   return (
     <React.Fragment>
       <ModuleFunction>
-        <ModuleFunctionHeader title="Session" />
+        <ModuleFunctionHeader title="階段" />
         <ModuleFunctionBody>
           <Box p={2}>
             <Stack component="form" spacing={3} autoComplete="off">
@@ -83,7 +84,7 @@ export default function Page() {
                 rules={{ required: '必填' }}
                 render={({ field }) => (
                   <React.Fragment>
-                    <label>選擇 session.csv 檔案：</label>
+                    <Typography>匯入 session.csv 檔案</Typography>
                     <input
                       type="file"
                       name={field.name}
@@ -99,7 +100,7 @@ export default function Page() {
                 )}
                 loading={uploadSessionForm.formState.isSubmitting}
               >
-                處理
+                分析
               </LoadingButton>
             </Stack>
           </Box>
