@@ -5,7 +5,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import { Box } from '@mui/material'
+import Box from '@mui/material/Box'
 import List from '@mui/material/List'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
