@@ -1,7 +1,6 @@
 'use client'
 
-import HighChartsTimeSeries from '@/components/charts/HighChartsTimeSeries'
-import PlotlyTimeSeriesChart from '@/components/charts/PlotlyTimeSeriesChart'
+import HighChartsHighStock from '@/components/charts/HighChartsHighStock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -70,51 +69,78 @@ export default function Page() {
   const [sessionFiles, setSessionFiles] = React.useState<File[]>([])
   const [sessionFile, setSessionFile] = React.useState<File>()
   const [reportFile, setReportFile] = React.useState<File>()
-  // const [datapoints, setDatapoints] = React.useState<any>([])
   const [sessionDatapoints, setSessionDatapoints] = React.useState<any>([])
-  // const [sessionAnnotations, setSessionAnnotations] = React.useState<any>([])
   const [report, setReport] = React.useState<Report>()
   const [settlementReportDatapoints, setSettlementReportDatapoints] =
     React.useState<any>([])
-  // const [sessionValueConfigs, setSessionValueConfigs] = React.useState<any>([
-  //   {
-  //     key: 'grid_ir',
-  //     isVisible: true,
-  //     name: 'Grid IR',
-  //     color: '#17BECF',
-  //     filterDatapoint: (d: any) => d.symbol === 'ETH/USDT:USDT-240927',
-  //     accessValue: (d: any) => parseFloat(d.parsedContext.perp_implied_term_ir),
-  //   },
-  // ])
-  const [settlementReportValueConfigs, setSettlementReportValueConfigs] =
+  const [settlementReportSeriesConfigs, setSettlementReportSeriesConfigs] =
     React.useState<any>([
       {
         key: 'historical_quote_balance_amount_change',
         isVisible: true,
         name: 'Equity Change',
+        type: 'line',
         color: '#17BECF',
-        filterDatapoint: (d: any) => true,
-        accessValue: (d: any) => d.historical_quote_balance_amount_change,
+        accessData: (d: any) => [
+          new Date(`${d.period_end_datetime_utc}Z`).getTime(),
+          d.historical_quote_balance_amount_change,
+        ],
       },
       {
         key: 'period_realized_quote_pnl',
         isVisible: false,
-        type: 'bar',
         name: 'Realized PnL',
+        type: 'column',
         color: 'green',
-        filterDatapoint: (d: any) => true,
-        accessValue: (d: any) => d.period_realized_quote_pnl,
+        stack: 'pnl',
+        accessData: (d: any) => [
+          new Date(`${d.period_end_datetime_utc}Z`).getTime(),
+          d.period_realized_quote_pnl,
+        ],
       },
       {
         key: 'unrealized_quote_pnl',
         isVisible: false,
-        type: 'bar',
         name: 'Unrealized PnL',
+        type: 'column',
         color: 'orange',
-        filterDatapoint: (d: any) => true,
-        accessValue: (d: any) => d.unrealized_quote_pnl,
+        stack: 'pnl',
+        accessData: (d: any) => [
+          new Date(`${d.period_end_datetime_utc}Z`).getTime(),
+          d.unrealized_quote_pnl,
+        ],
       },
     ])
+
+  // const [settlementReportValueConfigs, setSettlementReportValueConfigs] =
+  //   React.useState<any>([
+  //     {
+  //       key: 'historical_quote_balance_amount_change',
+  //       isVisible: true,
+  //       name: 'Equity Change',
+  //       color: '#17BECF',
+  //       filterDatapoint: (d: any) => true,
+  //       accessValue: (d: any) => d.historical_quote_balance_amount_change,
+  //     },
+  //     {
+  //       key: 'period_realized_quote_pnl',
+  //       isVisible: false,
+  //       type: 'bar',
+  //       name: 'Realized PnL',
+  //       color: 'green',
+  //       filterDatapoint: (d: any) => true,
+  //       accessValue: (d: any) => d.period_realized_quote_pnl,
+  //     },
+  //     {
+  //       key: 'unrealized_quote_pnl',
+  //       isVisible: false,
+  //       type: 'bar',
+  //       name: 'Unrealized PnL',
+  //       color: 'orange',
+  //       filterDatapoint: (d: any) => true,
+  //       accessValue: (d: any) => d.unrealized_quote_pnl,
+  //     },
+  //   ])
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -273,18 +299,18 @@ export default function Page() {
     }
   }
 
-  const updateSettlementReportViewConfig = (key: string, update: any) => {
-    const configIndex = settlementReportValueConfigs.findIndex(
+  const updateSettlementReportSeriesConfig = (key: string, update: any) => {
+    const configIndex = settlementReportSeriesConfigs.findIndex(
       (cfg: any) => cfg.key === key
     )
     if (configIndex !== -1) {
-      setSettlementReportValueConfigs([
-        ...settlementReportValueConfigs.slice(0, configIndex),
+      setSettlementReportSeriesConfigs([
+        ...settlementReportSeriesConfigs.slice(0, configIndex),
         {
-          ...settlementReportValueConfigs[configIndex],
+          ...settlementReportSeriesConfigs[configIndex],
           ...update,
         },
-        ...settlementReportValueConfigs.slice(configIndex + 1),
+        ...settlementReportSeriesConfigs.slice(configIndex + 1),
       ])
     }
   }
@@ -387,7 +413,7 @@ export default function Page() {
             ]}
           />
           <ModuleFunctionBody>
-            <HighChartsTimeSeries
+            <HighChartsHighStock
               series={[
                 {
                   type: 'line',
@@ -401,24 +427,7 @@ export default function Page() {
                   tooltip: {
                     valueDecimals: 4,
                   },
-
-                  // data: [
-                  //   [Date.UTC(2023, 0, 1), 100],
-                  //   [Date.UTC(2023, 1, 1), 100],
-                  //   [Date.UTC(2024, 1, 1), 200],
-                  //   [Date.UTC(2024, 2, 1), 300],
-                  // ],
                 },
-                // {
-                //   type: 'line',
-                //   name: 'Series 2',
-                //   data: [
-                //     [Date.UTC(2023, 0, 1), 2],
-                //     [Date.UTC(2023, 1, 1), 3],
-                //     [Date.UTC(2024, 1, 1), 5],
-                //     [Date.UTC(2024, 2, 1), 4],
-                //   ],
-                // },
               ]}
               annotations={[
                 {
@@ -463,75 +472,9 @@ export default function Page() {
                         markerEnd: 'arrow',
                       }
                     }),
-                  // shapes: [
-                  //   {
-                  //     type: 'path',
-                  //     points: [
-                  //       {
-                  //         x: Date.UTC(2024, 5, 6), // Start point (April 1, 2023)
-                  //         y: 0.07,
-                  //         xAxis: 0,
-                  //         yAxis: 0,
-                  //       },
-                  //       {
-                  //         x: Date.UTC(2024, 5, 6), // End point (March 15, 2023)
-                  //         y: 0.1,
-                  //         xAxis: 0,
-                  //         yAxis: 0,
-                  //       },
-                  //     ],
-                  //     // stroke: '#FF0000', // Red color for the arrow
-                  //     fill: '#FF0000', // Red color for the arrow
-                  //     width: 1,
-                  //     // strokeWidth: 1,
-                  //     markerEnd: 'arrow', // Add an arrow at the end
-                  //   },
-                  // ],
                 },
               ]}
             />
-          </ModuleFunctionBody>
-        </ModuleFunction>
-      ) : null}
-      {sessionFile ? (
-        <ModuleFunction>
-          <ModuleFunctionHeader
-            title="交易明細"
-            actions={[
-              <Box key="execute">
-                <IconButton color="success" onClick={executeSession}>
-                  <PlayArrowIcon />
-                </IconButton>
-              </Box>,
-            ]}
-          />
-          <ModuleFunctionBody>
-            {/* <PlotlyTimeSeriesChart
-              layout={{
-                width: '100%',
-                height: 600,
-                marginTop: 48,
-                marginLeft: 48,
-                marginRight: 48,
-                minWidth: 480,
-              }}
-              datapoints={sessionDatapoints}
-              accessTime={(d: any) => d.datetime_utc}
-              valueConfigs={sessionValueConfigs}
-              getAnnotations={() => sessionAnnotations}
-            /> */}
-            {/* <SessionChart
-              layout={{
-                width: '100%',
-                height: 600,
-                marginTop: 48,
-                marginLeft: 48,
-                marginRight: 48,
-                minWidth: 480,
-              }}
-              // datapoints={datapoints}
-              datapoints={[]}
-            /> */}
           </ModuleFunctionBody>
         </ModuleFunction>
       ) : null}
@@ -599,7 +542,7 @@ export default function Page() {
               </Table>
             </TableContainer>
 
-            <PlotlyTimeSeriesChart
+            {/* <PlotlyTimeSeriesChart
               layout={{
                 width: '100%',
                 height: 600,
@@ -612,7 +555,37 @@ export default function Page() {
               accessTime={(d: any) => d.period_end_datetime_utc}
               valueConfigs={settlementReportValueConfigs}
               getAnnotations={() => []}
+            /> */}
+            <HighChartsHighStock
+              series={settlementReportSeriesConfigs
+                .filter((cfg: any) => cfg.isVisible)
+                .map((cfg: any) => ({
+                  name: cfg.name,
+                  type: cfg.type,
+                  color: cfg.color,
+                  stack: cfg.stack,
+                  data: settlementReportDatapoints.map(cfg.accessData),
+                }))}
+              // series={
+
+              //   [
+              //     {
+              //       type: 'line',
+              //       name: 'Grid IR',
+              //       data: sessionDatapoints
+              //         .filter((d: any) => d.symbol === 'ETH/USDT:USDT-240927')
+              //         .map((d: any) => [
+              //           new Date(`${d.datetime_utc}Z`).getTime(),
+              //           parseFloat(d.parsedContext.perp_implied_term_ir),
+              //         ]),
+              //       tooltip: {
+              //         valueDecimals: 4,
+              //       },
+              //     },
+              //   ]
+              // }
             />
+
             <Stack
               direction="row"
               p={2}
@@ -620,7 +593,7 @@ export default function Page() {
                 flexWrap: 'wrap',
               }}
             >
-              {settlementReportValueConfigs.map((cfg: any) => (
+              {settlementReportSeriesConfigs.map((cfg: any) => (
                 <Box key={cfg.key} sx={{ p: 0.5 }}>
                   <Chip
                     key={cfg.key}
@@ -632,7 +605,7 @@ export default function Page() {
                       </svg>
                     }
                     onClick={() => {
-                      updateSettlementReportViewConfig(cfg.key, {
+                      updateSettlementReportSeriesConfig(cfg.key, {
                         isVisible: !cfg.isVisible,
                       })
                     }}

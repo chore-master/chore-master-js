@@ -3,19 +3,21 @@
 // import * as Highcharts from 'highcharts'
 import { HighchartsReact } from 'highcharts-react-official'
 import * as Highcharts from 'highcharts/highstock'
+import AccessibilityModule from 'highcharts/modules/accessibility'
 import AnnotationsModule from 'highcharts/modules/annotations'
 import React from 'react'
 
 if (typeof Highcharts === 'object') {
+  AccessibilityModule(Highcharts)
   AnnotationsModule(Highcharts)
 }
 
-export default function HighChartsTimeSeries({
+export default function HighChartsHighStock({
   series,
   annotations,
 }: {
   series: Highcharts.SeriesOptionsType[]
-  annotations: Highcharts.AnnotationsOptions[]
+  annotations?: Highcharts.AnnotationsOptions[]
 }) {
   const chartComponentRef = React.useRef<HighchartsReact.RefObject>(null)
   const options: Highcharts.Options = {
@@ -45,6 +47,9 @@ export default function HighChartsTimeSeries({
     },
     series: series,
     annotations: annotations,
+    credits: {
+      enabled: false,
+    },
   }
   return (
     <HighchartsReact
