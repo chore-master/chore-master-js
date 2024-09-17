@@ -11,6 +11,7 @@ export default function PlotlyTimeSeriesChart({
   datapoints,
   accessTime,
   valueConfigs,
+  getAnnotations,
 }) {
   const chartLayout = Object.assign(
     {
@@ -29,16 +30,20 @@ export default function PlotlyTimeSeriesChart({
 
   const timeSeriesData = valueConfigs
     .filter((valueConfig) => valueConfig.isVisible)
-    .map((valueConfig) => ({
-      type: valueConfig.type || 'scatter',
-      mode: 'lines',
-      name: valueConfig.name,
-      x: data.map(accessTime),
-      y: data.map(valueConfig.accessValue),
-      line: { color: valueConfig.color || '#17BECF' },
-      marker: { color: valueConfig.color || '#17BECF' },
-      showlegend: false,
-    }))
+    .map((valueConfig) => {
+      const filteredData = data.filter(valueConfig.filterDatapoint)
+      return {
+        type: valueConfig.type || 'scattergl',
+        mode: 'lines',
+        name: valueConfig.name,
+        x: filteredData.map(accessTime),
+        y: filteredData.map(valueConfig.accessValue),
+        line: { color: valueConfig.color || '#17BECF' },
+        marker: { color: valueConfig.color || '#17BECF' },
+        showlegend: false,
+      }
+    })
+  const annotations = getAnnotations(data)
 
   const plotLayout = {
     // autosize: true,
@@ -51,11 +56,21 @@ export default function PlotlyTimeSeriesChart({
     },
     xaxis: {
       // autorange: savedRange ? false : true,
+      autorange: false,
+      type: 'date',
+      // range: ['2024-01-01', '2024-08-01'],
       rangeslider: {
         visible: true,
+        // range: ['2024-06-15', '2024-08-01'],
       },
       rangeselector: {
         buttons: [
+          {
+            count: 1,
+            label: '1d',
+            step: 'day',
+            stepmode: 'backward',
+          },
           {
             count: 1,
             label: '1m',
@@ -90,6 +105,8 @@ export default function PlotlyTimeSeriesChart({
       type: 'linear',
     },
     barmode: 'relative',
+    annotations: annotations,
+    // hovermode: false,
   }
 
   React.useEffect(() => {
@@ -101,6 +118,9 @@ export default function PlotlyTimeSeriesChart({
       data={timeSeriesData}
       layout={plotLayout}
       useResizeHandler={true}
+      onRelayout={(layout) => {
+        console.log('layout', layout)
+      }}
       config={{
         responsive: true,
         displaylogo: false,

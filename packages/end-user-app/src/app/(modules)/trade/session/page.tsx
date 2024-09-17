@@ -1,7 +1,6 @@
 'use client'
 
 import PlotlyTimeSeriesChart from '@/components/charts/PlotlyTimeSeriesChart'
-import SessionChart from '@/components/charts/SessionChart'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -25,7 +24,6 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import * as dfd from 'danfojs'
-import Papa, { ParseResult } from 'papaparse'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
@@ -71,17 +69,30 @@ export default function Page() {
   const [sessionFiles, setSessionFiles] = React.useState<File[]>([])
   const [sessionFile, setSessionFile] = React.useState<File>()
   const [reportFile, setReportFile] = React.useState<File>()
-  const [datapoints, setDatapoints] = React.useState<any>([])
+  // const [datapoints, setDatapoints] = React.useState<any>([])
+  const [sessionDatapoints, setSessionDatapoints] = React.useState<any>([])
+  const [sessionAnnotations, setSessionAnnotations] = React.useState<any>([])
   const [report, setReport] = React.useState<Report>()
   const [settlementReportDatapoints, setSettlementReportDatapoints] =
     React.useState<any>([])
-  const [settlementReportViewConfigs, setSettlementReportViewConfigs] =
+  const [sessionValueConfigs, setSessionValueConfigs] = React.useState<any>([
+    {
+      key: 'grid_ir',
+      isVisible: true,
+      name: 'Grid IR',
+      color: '#17BECF',
+      filterDatapoint: (d: any) => d.symbol === 'ETH/USDT:USDT-240927',
+      accessValue: (d: any) => parseFloat(d.parsedContext.perp_implied_term_ir),
+    },
+  ])
+  const [settlementReportValueConfigs, setSettlementReportValueConfigs] =
     React.useState<any>([
       {
         key: 'historical_quote_balance_amount_change',
         isVisible: true,
         name: 'Equity Change',
         color: '#17BECF',
+        filterDatapoint: (d: any) => true,
         accessValue: (d: any) => d.historical_quote_balance_amount_change,
       },
       {
@@ -90,6 +101,7 @@ export default function Page() {
         type: 'bar',
         name: 'Realized PnL',
         color: 'green',
+        filterDatapoint: (d: any) => true,
         accessValue: (d: any) => d.period_realized_quote_pnl,
       },
       {
@@ -98,6 +110,7 @@ export default function Page() {
         type: 'bar',
         name: 'Unrealized PnL',
         color: 'orange',
+        filterDatapoint: (d: any) => true,
         accessValue: (d: any) => d.unrealized_quote_pnl,
       },
     ])
@@ -122,65 +135,117 @@ export default function Page() {
 
   const executeSession = () => {
     if (sessionFile) {
-      readFileText(sessionFile).then((text: string) => {
-        Papa.parse(text, {
-          header: true,
-          complete: (result: ParseResult<any>) => {
-            const rows = result.data
-            setDatapoints(
-              rows
-                .filter((row: any) => {
-                  if (!row.context) {
-                    return false
-                  }
-                  if (
-                    row.operation === 'take' &&
-                    row.symbol !== 'ETH/USDT:USDT-240927'
-                  ) {
-                    return false
-                  }
-                  return true
-                })
-                .map((row: any) => {
-                  const context = JSON.parse(row.context)
-                  return {
-                    timeUTC: row.datetime_utc,
-                    value: context.order_perp_implied_term_ir
-                      ? context.order_perp_implied_term_ir
-                      : null,
-                    side: row.side,
-                  }
-                })
+      dfd.readCSV(sessionFile).then((sessionDf: dfd.DataFrame) => {
+        // console.log(sessionDf['context'].values[0])
+        // console.log(JSON.parse(sessionDf['context'].values[0]))
+        // let wtf: any[] = []
+        // Array.from(sessionDf['context'].values).forEach((v: any) => {
+        //   let r
+        //   try {
+        //     r = JSON.parse(v)
+        //     wtf.push(r)
+        //   } catch (e) {
+        //     console.log(v)
+        //   }
+        // })
+        // console.log(wtf)
+        // const x = sessionDf['context'].values.apply((v: any) => {
+
+        //     r = JSON.parse(v)
+        //     return r
+        //   } catch (e) {
+        //     console.log(v)
+        //   }
+        // })
+        // console.log(x)
+
+        sessionDf.addColumn(
+          'parsedContext',
+          Array.from(sessionDf['context'].values).map((v: any) =>
+            v ? JSON.parse(v) : null
+          ),
+          { inplace: true }
+        )
+        const datapoints: any = dfd.toJSON(sessionDf)
+        setSessionDatapoints(datapoints)
+        setSessionAnnotations(
+          datapoints
+            .filter(
+              (d: any) =>
+                d.operation === 'take' && d.symbol === 'ETH/USDT:USDT-240927'
             )
-          },
-          error: (error: any) => {
-            alert(`Error parsing CSV: ${error}`)
-          },
-        })
+            .map((d: any) => ({
+              x: d.datetime_utc,
+              y: parseFloat(d.parsedContext.perp_implied_term_ir),
+              xref: 'x',
+              yref: 'y',
+              // text: d.side === 'long' ? '▲' : '▼', // Label "Long" or "Short"
+              showarrow: true,
+              arrowhead: 2,
+              arrowsize: 1,
+              arrowwidth: 2,
+              ax: 0,
+              ay: d.side === 'long' ? 20 : -20,
+              font: {
+                color: d.side === 'long' ? 'green' : 'red',
+              },
+              arrowcolor: d.side === 'long' ? 'green' : 'red',
+            }))
+        )
+        // const allPeriodReportDf = sessionDf.loc({
+        //   rows: sessionDf['all_period_symbol'].eq('USDT'),
+        // })
+        // const settlementReportDf = sessionDf.loc({
+        //   rows: sessionDf['settlement_symbol'].apply((v: any) => v !== null),
+        // })
+        // setSettlementReportDatapoints(dfd.toJSON(settlementReportDf))
+        // Papa.parse(text, {
+        //   header: true,
+        //   complete: (result: ParseResult<any>) => {
+        //     const rows = result.data
+        //     setDatapoints(
+        //       rows
+        //         .filter((row: any) => {
+        //           if (!row.context) {
+        //             return false
+        //           }
+        //           if (
+        //             row.operation === 'take' &&
+        //             row.symbol !== 'ETH/USDT:USDT-240927'
+        //           ) {
+        //             return false
+        //           }
+        //           return true
+        //         })
+        //         .map((row: any) => {
+        //           const context = JSON.parse(row.context)
+        //           return {
+        //             timeUTC: row.datetime_utc,
+        //             value: context.order_perp_implied_term_ir
+        //               ? context.order_perp_implied_term_ir
+        //               : null,
+        //             side: row.side,
+        //           }
+        //         })
+        //     )
+        //   },
+        //   error: (error: any) => {
+        //     alert(`Error parsing CSV: ${error}`)
+        //   },
+        // })
       })
     }
   }
 
   const executeReport = () => {
     if (reportFile) {
-      dfd.readCSV(reportFile).then((reportDf: any) => {
+      dfd.readCSV(reportFile).then((reportDf: dfd.DataFrame) => {
         const allPeriodReportDf = reportDf.loc({
           rows: reportDf['all_period_symbol'].eq('USDT'),
         })
         const settlementReportDf = reportDf.loc({
           rows: reportDf['settlement_symbol'].apply((v: any) => v !== null),
         })
-        // settlementReportDf.print()
-        // const x = settlementReportDf.iloc({
-        //   rows: [settlementReportDf.shape[0] - 1],
-        // })
-        // console.log(x)
-        // console.log(x.data)
-        // const y = new dfd.Series(x.data[0], {
-        //   columns: settlementReportDf.columns,
-        // })
-        // console.log(y)
-        // return
         setSettlementReportDatapoints(dfd.toJSON(settlementReportDf))
         setReport({
           realized_pnl: {
@@ -204,24 +269,21 @@ export default function Page() {
           },
         })
       })
-      // readFileText(reportFile).then((text: string) => {
-
-      // })
     }
   }
 
   const updateSettlementReportViewConfig = (key: string, update: any) => {
-    const configIndex = settlementReportViewConfigs.findIndex(
+    const configIndex = settlementReportValueConfigs.findIndex(
       (cfg: any) => cfg.key === key
     )
     if (configIndex !== -1) {
-      setSettlementReportViewConfigs([
-        ...settlementReportViewConfigs.slice(0, configIndex),
+      setSettlementReportValueConfigs([
+        ...settlementReportValueConfigs.slice(0, configIndex),
         {
-          ...settlementReportViewConfigs[configIndex],
+          ...settlementReportValueConfigs[configIndex],
           ...update,
         },
-        ...settlementReportViewConfigs.slice(configIndex + 1),
+        ...settlementReportValueConfigs.slice(configIndex + 1),
       ])
     }
   }
@@ -324,7 +386,7 @@ export default function Page() {
             ]}
           />
           <ModuleFunctionBody>
-            <SessionChart
+            <PlotlyTimeSeriesChart
               layout={{
                 width: '100%',
                 height: 600,
@@ -333,8 +395,23 @@ export default function Page() {
                 marginRight: 48,
                 minWidth: 480,
               }}
-              datapoints={datapoints}
+              datapoints={sessionDatapoints}
+              accessTime={(d: any) => d.datetime_utc}
+              valueConfigs={sessionValueConfigs}
+              getAnnotations={() => sessionAnnotations}
             />
+            {/* <SessionChart
+              layout={{
+                width: '100%',
+                height: 600,
+                marginTop: 48,
+                marginLeft: 48,
+                marginRight: 48,
+                minWidth: 480,
+              }}
+              // datapoints={datapoints}
+              datapoints={[]}
+            /> */}
           </ModuleFunctionBody>
         </ModuleFunction>
       ) : null}
@@ -412,8 +489,9 @@ export default function Page() {
                 minWidth: 480,
               }}
               datapoints={settlementReportDatapoints}
-              accessTime={(d: any) => d.period_start_datetime_utc}
-              valueConfigs={settlementReportViewConfigs}
+              accessTime={(d: any) => d.period_end_datetime_utc}
+              valueConfigs={settlementReportValueConfigs}
+              getAnnotations={() => []}
             />
             <Stack
               direction="row"
@@ -422,7 +500,7 @@ export default function Page() {
                 flexWrap: 'wrap',
               }}
             >
-              {settlementReportViewConfigs.map((cfg: any) => (
+              {settlementReportValueConfigs.map((cfg: any) => (
                 <Box key={cfg.key} sx={{ p: 0.5 }}>
                   <Chip
                     key={cfg.key}
