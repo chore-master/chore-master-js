@@ -16,7 +16,7 @@ export default function Layout({
           selectedWhenExactlyMatched: true,
         },
         {
-          title: '階段',
+          title: '執行階段',
           href: '/trade/session',
           selectedWhenPartiallyMatched: true,
         },
