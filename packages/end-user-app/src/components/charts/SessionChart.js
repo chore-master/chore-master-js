@@ -19,39 +19,35 @@ export default function SessionChart({ layout, datapoints }) {
     },
     layout
   )
+
+  const [sampleStep, setSampleStep] = React.useState(1)
   const [data, setData] = React.useState(datapoints)
+  const [sampledData, setSampledData] = React.useState([])
+  const [savedRange, setSavedRange] = React.useState(null)
 
   const timeSeriesData = [
     {
       type: 'scatter',
       mode: 'lines',
       name: 'IR', // Replace with appropriate name if needed
-      x: data.map((point) => point.timeUTC), // Assuming datapoints has a `time` field
-      y: data.map((point) => point.value), // Assuming datapoints has a `priceHigh` field
+      x: sampledData.map((point) => point.timeUTC), // Assuming datapoints has a `time` field
+      y: sampledData.map((point) => point.value), // Assuming datapoints has a `priceHigh` field
       line: { color: '#17BECF' },
     },
-    // {
-    //   type: 'scatter',
-    //   mode: 'lines',
-    //   name: 'Price Low', // Replace with appropriate name if needed
-    //   x: data.map((point) => point.time), // Assuming datapoints has a `time` field
-    //   y: data.map((point) => point.priceLow), // Assuming datapoints has a `priceLow` field
-    //   line: { color: '#7F7F7F' },
-    // },
   ]
 
-  const annotationArrows = data
+  const annotationArrows = sampledData
     .filter((d) => d.side)
     .map((point) => ({
-      x: point.timeUTC, // Time of the long/short action
-      y: point.value, // Price level for long/short action
+      x: point.timeUTC,
+      y: point.value,
       xref: 'x',
       yref: 'y',
-      // text: point.side === 'long' ? 'Long' : 'Short', // Label "Long" or "Short"
+      // text: point.side === 'long' ? '▲' : '▼', // Label "Long" or "Short"
       showarrow: true,
-      arrowhead: 1,
+      // arrowhead: 10,
       ax: 0,
-      ay: point.side === 'long' ? 32 : -32, // Adjust arrow position
+      ay: point.side === 'long' ? 20 : -20,
       font: {
         color: point.side === 'long' ? 'green' : 'red',
       },
@@ -59,7 +55,7 @@ export default function SessionChart({ layout, datapoints }) {
     }))
 
   const plotLayout = {
-    autosize: true,
+    // autosize: true,
     height: chartLayout.height,
     margin: {
       t: chartLayout.marginTop,
@@ -68,7 +64,8 @@ export default function SessionChart({ layout, datapoints }) {
       l: chartLayout.marginLeft,
     },
     xaxis: {
-      autorange: true,
+      // autorange: savedRange ? false : true,
+      // range: savedRange ? savedRange : undefined,
       rangeslider: {
         visible: true,
       },
@@ -81,10 +78,22 @@ export default function SessionChart({ layout, datapoints }) {
             stepmode: 'backward',
           },
           {
-            count: 2,
-            label: '2m',
+            count: 3,
+            label: '3m',
             step: 'month',
             stepmode: 'backward',
+          },
+          {
+            step: 'month',
+            stepmode: 'todate',
+            count: 1,
+            label: 'MTD', // This month
+          },
+          {
+            step: 'year',
+            stepmode: 'todate',
+            count: 1,
+            label: 'YTD', // This year
           },
           { step: 'all' },
         ],
@@ -98,16 +107,60 @@ export default function SessionChart({ layout, datapoints }) {
     annotations: annotationArrows,
   }
 
+  const getSampleStep = (viewRangeStart, viewRangeEnd) => {
+    if (data.length === 0) {
+      return 1
+    }
+    const allRangeStart = new Date(data[0].timeUTC)
+    const allRangeEnd = new Date(data[data.length - 1].timeUTC)
+    const allRangeInSeconds = (allRangeEnd - allRangeStart) / 1000
+    let viewRangeInSeconds
+    if (viewRangeStart && viewRangeEnd) {
+      viewRangeInSeconds =
+        (new Date(viewRangeEnd) - new Date(viewRangeStart)) / 1000
+    } else {
+      viewRangeInSeconds = 86400 * 7
+    }
+    return 1
+    return Math.max(1, Math.ceil(allRangeInSeconds / viewRangeInSeconds))
+  }
+
+  const handleRelayout = (event) => {
+    // if (event.autosize) {
+    //   setSavedRange()
+    // } else {
+    //   setSavedRange([event['xaxis.range[0]'], event['xaxis.range[1]']])
+    // }
+    // setSampleStep(
+    //   getSampleStep(event['xaxis.range[0]'], event['xaxis.range[1]'])
+    // )
+  }
+
+  React.useEffect(() => {
+    setSampleStep(getSampleStep())
+  }, [])
+
   React.useEffect(() => {
     setData(datapoints)
   }, [datapoints])
+
+  React.useEffect(() => {
+    // setSampledData(data.filter((_, i) => i % sampleStep === 0))
+    setSampledData(data)
+  }, [data, sampleStep])
 
   return (
     <Plot
       data={timeSeriesData}
       layout={plotLayout}
+      onRelayout={handleRelayout}
       useResizeHandler={true}
-      config={{ responsive: true }}
+      config={{
+        responsive: true,
+        displaylogo: false,
+        scrollZoom: true,
+        locale: 'zh',
+      }}
       style={{
         width: chartLayout.width,
         height: chartLayout.height,
