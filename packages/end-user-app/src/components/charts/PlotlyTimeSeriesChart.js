@@ -27,15 +27,18 @@ export default function PlotlyTimeSeriesChart({
 
   const [data, setData] = React.useState(datapoints)
 
-  const timeSeriesData = valueConfigs.map((valueConfig) => ({
-    type: 'scatter',
-    mode: 'lines',
-    name: valueConfig.name,
-    x: data.map(accessTime),
-    y: data.map(valueConfig.accessValue),
-    line: { color: valueConfig.color || '#17BECF' },
-    showlegend: true,
-  }))
+  const timeSeriesData = valueConfigs
+    .filter((valueConfig) => valueConfig.isVisible)
+    .map((valueConfig) => ({
+      type: valueConfig.type || 'scatter',
+      mode: 'lines',
+      name: valueConfig.name,
+      x: data.map(accessTime),
+      y: data.map(valueConfig.accessValue),
+      line: { color: valueConfig.color || '#17BECF' },
+      marker: { color: valueConfig.color || '#17BECF' },
+      showlegend: false,
+    }))
 
   const plotLayout = {
     // autosize: true,
@@ -86,6 +89,7 @@ export default function PlotlyTimeSeriesChart({
       autorange: true,
       type: 'linear',
     },
+    barmode: 'relative',
   }
 
   React.useEffect(() => {

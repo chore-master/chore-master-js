@@ -14,6 +14,7 @@ import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -74,6 +75,32 @@ export default function Page() {
   const [report, setReport] = React.useState<Report>()
   const [settlementReportDatapoints, setSettlementReportDatapoints] =
     React.useState<any>([])
+  const [settlementReportViewConfigs, setSettlementReportViewConfigs] =
+    React.useState<any>([
+      {
+        key: 'historical_quote_balance_amount_change',
+        isVisible: true,
+        name: 'Equity Change',
+        color: '#17BECF',
+        accessValue: (d: any) => d.historical_quote_balance_amount_change,
+      },
+      {
+        key: 'period_realized_quote_pnl',
+        isVisible: false,
+        type: 'bar',
+        name: 'Realized PnL',
+        color: 'green',
+        accessValue: (d: any) => d.period_realized_quote_pnl,
+      },
+      {
+        key: 'unrealized_quote_pnl',
+        isVisible: false,
+        type: 'bar',
+        name: 'Unrealized PnL',
+        color: 'orange',
+        accessValue: (d: any) => d.unrealized_quote_pnl,
+      },
+    ])
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -180,6 +207,22 @@ export default function Page() {
       // readFileText(reportFile).then((text: string) => {
 
       // })
+    }
+  }
+
+  const updateSettlementReportViewConfig = (key: string, update: any) => {
+    const configIndex = settlementReportViewConfigs.findIndex(
+      (cfg: any) => cfg.key === key
+    )
+    if (configIndex !== -1) {
+      setSettlementReportViewConfigs([
+        ...settlementReportViewConfigs.slice(0, configIndex),
+        {
+          ...settlementReportViewConfigs[configIndex],
+          ...update,
+        },
+        ...settlementReportViewConfigs.slice(configIndex + 1),
+      ])
     }
   }
 
@@ -370,15 +413,36 @@ export default function Page() {
               }}
               datapoints={settlementReportDatapoints}
               accessTime={(d: any) => d.period_start_datetime_utc}
-              valueConfigs={[
-                {
-                  name: 'Equity Change',
-                  color: '#17BECF',
-                  accessValue: (d: any) =>
-                    d.historical_quote_balance_amount_change,
-                },
-              ]}
+              valueConfigs={settlementReportViewConfigs}
             />
+            <Stack
+              direction="row"
+              p={2}
+              sx={{
+                flexWrap: 'wrap',
+              }}
+            >
+              {settlementReportViewConfigs.map((cfg: any) => (
+                <Box key={cfg.key} sx={{ p: 0.5 }}>
+                  <Chip
+                    key={cfg.key}
+                    label={cfg.name}
+                    size="small"
+                    avatar={
+                      <svg>
+                        <circle r="9" cx="9" cy="9" fill={cfg.color} />
+                      </svg>
+                    }
+                    onClick={() => {
+                      updateSettlementReportViewConfig(cfg.key, {
+                        isVisible: !cfg.isVisible,
+                      })
+                    }}
+                    variant={cfg.isVisible ? undefined : 'outlined'}
+                  />
+                </Box>
+              ))}
+            </Stack>
           </ModuleFunctionBody>
         </ModuleFunction>
       ) : null}
