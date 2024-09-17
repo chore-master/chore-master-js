@@ -22,6 +22,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
+import * as dfd from 'danfojs'
 import Papa, { ParseResult } from 'papaparse'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
@@ -30,23 +31,34 @@ type UploadSessionInputs = {
   session_files: FileList
 }
 
-const readCSV = (file: File) => {
-  return new Promise((resolve, reject) => {
-    if (!file || file.type !== 'text/csv') {
-      reject(new Error('File is not a CSV'))
+interface Report {
+  realized_pnl?: number
+  unrealized_pnl?: number
+  max_drawdown?: number
+  sharpe_ratio?: number
+}
+
+const readFileText = (file: File) => {
+  return new Promise<string>((resolve, reject) => {
+    if (!file) {
+      reject(new Error('File is empty'))
     }
+    // if (!file || file.type !== 'text/csv') {
+    //   reject(new Error('File is not a CSV'))
+    // }
     const reader = new FileReader()
     reader.onload = (event) => {
-      const csvText = event.target?.result as string
-      Papa.parse(csvText, {
-        header: true,
-        complete: (result: ParseResult<any>) => {
-          resolve(result.data)
-        },
-        error: (error: any) => {
-          reject(`Error parsing CSV: ${error}`)
-        },
-      })
+      resolve(event.target?.result as string)
+      // const csvText = event.target?.result as string
+      // Papa.parse(csvText, {
+      //   header: true,
+      //   complete: (result: ParseResult<any>) => {
+      //     resolve(result.data)
+      //   },
+      //   error: (error: any) => {
+      //     reject(`Error parsing CSV: ${error}`)
+      //   },
+      // })
     }
     reader.readAsText(file)
   })
@@ -58,6 +70,7 @@ export default function Page() {
   const [sessionFile, setSessionFile] = React.useState<File>()
   const [reportFile, setReportFile] = React.useState<File>()
   const [datapoints, setDatapoints] = React.useState<any>([])
+  const [report, setReport] = React.useState<Report>()
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -79,41 +92,70 @@ export default function Page() {
 
   const executeSession = () => {
     if (sessionFile) {
-      readCSV(sessionFile).then((rows: any) => {
-        setDatapoints(
-          rows
-            .filter((row: any) => {
-              if (!row.context) {
-                return false
-              }
-              if (
-                row.operation === 'take' &&
-                row.symbol !== 'ETH/USDT:USDT-240927'
-              ) {
-                return false
-              }
-              return true
-            })
-            .map((row: any) => {
-              const context = JSON.parse(row.context)
-              return {
-                timeUTC: row.datetime_utc,
-                value: context.order_perp_implied_term_ir
-                  ? context.order_perp_implied_term_ir
-                  : null,
-                side: row.side,
-              }
-            })
-        )
+      readFileText(sessionFile).then((text: string) => {
+        Papa.parse(text, {
+          header: true,
+          complete: (result: ParseResult<any>) => {
+            const rows = result.data
+            setDatapoints(
+              rows
+                .filter((row: any) => {
+                  if (!row.context) {
+                    return false
+                  }
+                  if (
+                    row.operation === 'take' &&
+                    row.symbol !== 'ETH/USDT:USDT-240927'
+                  ) {
+                    return false
+                  }
+                  return true
+                })
+                .map((row: any) => {
+                  const context = JSON.parse(row.context)
+                  return {
+                    timeUTC: row.datetime_utc,
+                    value: context.order_perp_implied_term_ir
+                      ? context.order_perp_implied_term_ir
+                      : null,
+                    side: row.side,
+                  }
+                })
+            )
+          },
+          error: (error: any) => {
+            alert(`Error parsing CSV: ${error}`)
+          },
+        })
       })
     }
   }
 
   const executeReport = () => {
     if (reportFile) {
-      readCSV(reportFile).then((rows: any) => {
-        console.log(rows)
+      dfd.readCSV(reportFile).then((reportDf: any) => {
+        const allPeriodReportDf = reportDf.loc({
+          rows: reportDf['all_period_symbol'].eq('USDT'),
+        })
+        const settlementReportDf = reportDf.loc({
+          rows: reportDf['settlement_symbol'].apply((v: any) => v !== null),
+        })
+        // settlementReportDf.print()
+        setReport({
+          realized_pnl:
+            settlementReportDf['historical_realized_quote_pnl'].values.at(-1),
+          unrealized_pnl:
+            settlementReportDf['unrealized_quote_pnl'].values.at(-1),
+          max_drawdown:
+            settlementReportDf[
+              'historical_max_drawdown_quote_balance_amount_change'
+            ].values.at(-1),
+          sharpe_ratio: allPeriodReportDf['sharpe_ratio'].values.at(-1),
+        })
       })
+      // readFileText(reportFile).then((text: string) => {
+
+      // })
     }
   }
 
@@ -230,7 +272,7 @@ export default function Page() {
 
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="報告"
+          title="表現"
           actions={[
             <Box key="execute">
               <IconButton color="success" onClick={executeReport}>
@@ -239,7 +281,49 @@ export default function Page() {
             </Box>,
           ]}
         />
-        <ModuleFunctionBody>TBD.</ModuleFunctionBody>
+        <ModuleFunctionBody>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="right">統計量</TableCell>
+                  <TableCell align="right">統計值</TableCell>
+                  <TableCell>單位</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell component="th" align="right">
+                    已實現損益
+                  </TableCell>
+                  <TableCell align="right">{report?.realized_pnl}</TableCell>
+                  <TableCell>USDT</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component="th" align="right">
+                    未實現損益
+                  </TableCell>
+                  <TableCell align="right">{report?.unrealized_pnl}</TableCell>
+                  <TableCell>USDT</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component="th" align="right">
+                    最大回撤損失
+                  </TableCell>
+                  <TableCell align="right">{report?.max_drawdown}</TableCell>
+                  <TableCell>USDT</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component="th" align="right">
+                    夏普率
+                  </TableCell>
+                  <TableCell align="right">{report?.sharpe_ratio}</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </ModuleFunctionBody>
       </ModuleFunction>
     </React.Fragment>
   )
