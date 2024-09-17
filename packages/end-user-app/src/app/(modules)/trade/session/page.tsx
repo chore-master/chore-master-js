@@ -1,5 +1,6 @@
 'use client'
 
+import PlotlyTimeSeriesChart from '@/components/charts/PlotlyTimeSeriesChart'
 import SessionChart from '@/components/charts/SessionChart'
 import ModuleFunction, {
   ModuleFunctionBody,
@@ -71,6 +72,8 @@ export default function Page() {
   const [reportFile, setReportFile] = React.useState<File>()
   const [datapoints, setDatapoints] = React.useState<any>([])
   const [report, setReport] = React.useState<Report>()
+  const [settlementReportDatapoints, setSettlementReportDatapoints] =
+    React.useState<any>([])
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -151,6 +154,7 @@ export default function Page() {
         // })
         // console.log(y)
         // return
+        setSettlementReportDatapoints(dfd.toJSON(settlementReportDf))
         setReport({
           realized_pnl: {
             value:
@@ -354,6 +358,27 @@ export default function Page() {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            <PlotlyTimeSeriesChart
+              layout={{
+                width: '100%',
+                height: 600,
+                marginTop: 48,
+                marginLeft: 48,
+                marginRight: 48,
+                minWidth: 480,
+              }}
+              datapoints={settlementReportDatapoints}
+              accessTime={(d: any) => d.period_start_datetime_utc}
+              valueConfigs={[
+                {
+                  name: 'Equity Change',
+                  color: '#17BECF',
+                  accessValue: (d: any) =>
+                    d.historical_quote_balance_amount_change,
+                },
+              ]}
+            />
           </ModuleFunctionBody>
         </ModuleFunction>
       ) : null}
