@@ -33,7 +33,7 @@ export default function PlotlyTimeSeriesChart({
     .map((valueConfig) => {
       const filteredData = data.filter(valueConfig.filterDatapoint)
       return {
-        type: valueConfig.type || 'scattergl',
+        type: valueConfig.type || 'scatter',
         mode: 'lines',
         name: valueConfig.name,
         x: filteredData.map(accessTime),
@@ -55,22 +55,16 @@ export default function PlotlyTimeSeriesChart({
       l: chartLayout.marginLeft,
     },
     xaxis: {
-      // autorange: savedRange ? false : true,
-      autorange: false,
-      type: 'date',
+      autorange: true,
+      // type: 'date',
       // range: ['2024-01-01', '2024-08-01'],
       rangeslider: {
         visible: true,
+
         // range: ['2024-06-15', '2024-08-01'],
       },
       rangeselector: {
         buttons: [
-          {
-            count: 1,
-            label: '1d',
-            step: 'day',
-            stepmode: 'backward',
-          },
           {
             count: 1,
             label: '1m',
@@ -118,9 +112,9 @@ export default function PlotlyTimeSeriesChart({
       data={timeSeriesData}
       layout={plotLayout}
       useResizeHandler={true}
-      onRelayout={(layout) => {
-        console.log('layout', layout)
-      }}
+      // onRelayout={(layout) => {
+      //   console.log('layout', layout)
+      // }}
       config={{
         responsive: true,
         displaylogo: false,
