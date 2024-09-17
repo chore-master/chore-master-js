@@ -32,10 +32,10 @@ type UploadSessionInputs = {
 }
 
 interface Report {
-  realized_pnl?: number
-  unrealized_pnl?: number
-  max_drawdown?: number
-  sharpe_ratio?: number
+  realized_pnl?: { value: number; unit: string }
+  unrealized_pnl?: { value: number; unit: string }
+  max_drawdown?: { value: number; unit: string }
+  sharpe_ratio?: { value: number }
 }
 
 const readFileText = (file: File) => {
@@ -141,16 +141,36 @@ export default function Page() {
           rows: reportDf['settlement_symbol'].apply((v: any) => v !== null),
         })
         // settlementReportDf.print()
+        // const x = settlementReportDf.iloc({
+        //   rows: [settlementReportDf.shape[0] - 1],
+        // })
+        // console.log(x)
+        // console.log(x.data)
+        // const y = new dfd.Series(x.data[0], {
+        //   columns: settlementReportDf.columns,
+        // })
+        // console.log(y)
+        // return
         setReport({
-          realized_pnl:
-            settlementReportDf['historical_realized_quote_pnl'].values.at(-1),
-          unrealized_pnl:
-            settlementReportDf['unrealized_quote_pnl'].values.at(-1),
-          max_drawdown:
-            settlementReportDf[
-              'historical_max_drawdown_quote_balance_amount_change'
-            ].values.at(-1),
-          sharpe_ratio: allPeriodReportDf['sharpe_ratio'].values.at(-1),
+          realized_pnl: {
+            value:
+              settlementReportDf['historical_realized_quote_pnl'].values.at(-1),
+            unit: settlementReportDf['settlement_symbol'].values.at(-1),
+          },
+          unrealized_pnl: {
+            value: settlementReportDf['unrealized_quote_pnl'].values.at(-1),
+            unit: settlementReportDf['settlement_symbol'].values.at(-1),
+          },
+          max_drawdown: {
+            value:
+              settlementReportDf[
+                'historical_max_drawdown_quote_balance_amount_change'
+              ].values.at(-1),
+            unit: settlementReportDf['settlement_symbol'].values.at(-1),
+          },
+          sharpe_ratio: {
+            value: allPeriodReportDf['sharpe_ratio'].values.at(-1),
+          },
         })
       })
       // readFileText(reportFile).then((text: string) => {
@@ -244,87 +264,99 @@ export default function Page() {
         )}
       </ModuleFunction>
 
-      <ModuleFunction>
-        <ModuleFunctionHeader
-          title="交易明細"
-          actions={[
-            <Box key="execute">
-              <IconButton color="success" onClick={executeSession}>
-                <PlayArrowIcon />
-              </IconButton>
-            </Box>,
-          ]}
-        />
-        <ModuleFunctionBody>
-          <SessionChart
-            layout={{
-              width: '100%',
-              height: 600,
-              marginTop: 48,
-              marginLeft: 48,
-              marginRight: 48,
-              minWidth: 480,
-            }}
-            datapoints={datapoints}
+      {sessionFile ? (
+        <ModuleFunction>
+          <ModuleFunctionHeader
+            title="交易明細"
+            actions={[
+              <Box key="execute">
+                <IconButton color="success" onClick={executeSession}>
+                  <PlayArrowIcon />
+                </IconButton>
+              </Box>,
+            ]}
           />
-        </ModuleFunctionBody>
-      </ModuleFunction>
+          <ModuleFunctionBody>
+            <SessionChart
+              layout={{
+                width: '100%',
+                height: 600,
+                marginTop: 48,
+                marginLeft: 48,
+                marginRight: 48,
+                minWidth: 480,
+              }}
+              datapoints={datapoints}
+            />
+          </ModuleFunctionBody>
+        </ModuleFunction>
+      ) : null}
 
-      <ModuleFunction>
-        <ModuleFunctionHeader
-          title="表現"
-          actions={[
-            <Box key="execute">
-              <IconButton color="success" onClick={executeReport}>
-                <PlayArrowIcon />
-              </IconButton>
-            </Box>,
-          ]}
-        />
-        <ModuleFunctionBody>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell align="right">統計量</TableCell>
-                  <TableCell align="right">統計值</TableCell>
-                  <TableCell>單位</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell component="th" align="right">
-                    已實現損益
-                  </TableCell>
-                  <TableCell align="right">{report?.realized_pnl}</TableCell>
-                  <TableCell>USDT</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell component="th" align="right">
-                    未實現損益
-                  </TableCell>
-                  <TableCell align="right">{report?.unrealized_pnl}</TableCell>
-                  <TableCell>USDT</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell component="th" align="right">
-                    最大回撤損失
-                  </TableCell>
-                  <TableCell align="right">{report?.max_drawdown}</TableCell>
-                  <TableCell>USDT</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell component="th" align="right">
-                    夏普率
-                  </TableCell>
-                  <TableCell align="right">{report?.sharpe_ratio}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </ModuleFunctionBody>
-      </ModuleFunction>
+      {reportFile ? (
+        <ModuleFunction>
+          <ModuleFunctionHeader
+            title="表現"
+            actions={[
+              <Box key="execute">
+                <IconButton color="success" onClick={executeReport}>
+                  <PlayArrowIcon />
+                </IconButton>
+              </Box>,
+            ]}
+          />
+          <ModuleFunctionBody>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="right">統計量</TableCell>
+                    <TableCell align="right">統計值</TableCell>
+                    <TableCell>單位</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      已實現損益
+                    </TableCell>
+                    <TableCell align="right">
+                      {report?.realized_pnl?.value}
+                    </TableCell>
+                    <TableCell>{report?.realized_pnl?.unit}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      未實現損益
+                    </TableCell>
+                    <TableCell align="right">
+                      {report?.unrealized_pnl?.value}
+                    </TableCell>
+                    <TableCell>{report?.unrealized_pnl?.unit}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      最大回撤損失
+                    </TableCell>
+                    <TableCell align="right">
+                      {report?.max_drawdown?.value}
+                    </TableCell>
+                    <TableCell>{report?.max_drawdown?.unit}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" align="right">
+                      夏普率
+                    </TableCell>
+                    <TableCell align="right">
+                      {report?.sharpe_ratio?.value}
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </ModuleFunctionBody>
+        </ModuleFunction>
+      ) : null}
     </React.Fragment>
   )
 }
