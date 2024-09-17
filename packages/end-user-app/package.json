@@ -24,6 +24,8 @@
     "d3-sankey": "^0.12.3",
     "d3fc": "^15.2.12",
     "danfojs": "^1.1.2",
+    "highcharts": "^11.4.8",
+    "highcharts-react-official": "^3.2.1",
     "next": "14.2.3",
     "papaparse": "^5.4.1",
     "plotly.js": "^2.35.2",

@@ -1,5 +1,6 @@
 'use client'
 
+import HighChartsTimeSeries from '@/components/charts/HighChartsTimeSeries'
 import PlotlyTimeSeriesChart from '@/components/charts/PlotlyTimeSeriesChart'
 import ModuleFunction, {
   ModuleFunctionBody,
@@ -71,20 +72,20 @@ export default function Page() {
   const [reportFile, setReportFile] = React.useState<File>()
   // const [datapoints, setDatapoints] = React.useState<any>([])
   const [sessionDatapoints, setSessionDatapoints] = React.useState<any>([])
-  const [sessionAnnotations, setSessionAnnotations] = React.useState<any>([])
+  // const [sessionAnnotations, setSessionAnnotations] = React.useState<any>([])
   const [report, setReport] = React.useState<Report>()
   const [settlementReportDatapoints, setSettlementReportDatapoints] =
     React.useState<any>([])
-  const [sessionValueConfigs, setSessionValueConfigs] = React.useState<any>([
-    {
-      key: 'grid_ir',
-      isVisible: true,
-      name: 'Grid IR',
-      color: '#17BECF',
-      filterDatapoint: (d: any) => d.symbol === 'ETH/USDT:USDT-240927',
-      accessValue: (d: any) => parseFloat(d.parsedContext.perp_implied_term_ir),
-    },
-  ])
+  // const [sessionValueConfigs, setSessionValueConfigs] = React.useState<any>([
+  //   {
+  //     key: 'grid_ir',
+  //     isVisible: true,
+  //     name: 'Grid IR',
+  //     color: '#17BECF',
+  //     filterDatapoint: (d: any) => d.symbol === 'ETH/USDT:USDT-240927',
+  //     accessValue: (d: any) => parseFloat(d.parsedContext.perp_implied_term_ir),
+  //   },
+  // ])
   const [settlementReportValueConfigs, setSettlementReportValueConfigs] =
     React.useState<any>([
       {
@@ -168,30 +169,30 @@ export default function Page() {
         )
         const datapoints: any = dfd.toJSON(sessionDf)
         setSessionDatapoints(datapoints)
-        setSessionAnnotations(
-          datapoints
-            .filter(
-              (d: any) =>
-                d.operation === 'take' && d.symbol === 'ETH/USDT:USDT-240927'
-            )
-            .map((d: any) => ({
-              x: d.datetime_utc,
-              y: parseFloat(d.parsedContext.perp_implied_term_ir),
-              xref: 'x',
-              yref: 'y',
-              // text: d.side === 'long' ? '▲' : '▼', // Label "Long" or "Short"
-              showarrow: true,
-              arrowhead: 2,
-              arrowsize: 1,
-              arrowwidth: 2,
-              ax: 0,
-              ay: d.side === 'long' ? 20 : -20,
-              font: {
-                color: d.side === 'long' ? 'green' : 'red',
-              },
-              arrowcolor: d.side === 'long' ? 'green' : 'red',
-            }))
-        )
+        // setSessionAnnotations(
+        //   datapoints
+        //     .filter(
+        //       (d: any) =>
+        //         d.operation === 'take' && d.symbol === 'ETH/USDT:USDT-240927'
+        //     )
+        //     .map((d: any) => ({
+        //       x: d.datetime_utc,
+        //       y: parseFloat(d.parsedContext.perp_implied_term_ir),
+        //       xref: 'x',
+        //       yref: 'y',
+        //       // text: d.side === 'long' ? '▲' : '▼', // Label "Long" or "Short"
+        //       showarrow: true,
+        //       arrowhead: 2,
+        //       arrowsize: 1,
+        //       arrowwidth: 2,
+        //       ax: 0,
+        //       ay: d.side === 'long' ? 20 : -20,
+        //       font: {
+        //         color: d.side === 'long' ? 'green' : 'red',
+        //       },
+        //       arrowcolor: d.side === 'long' ? 'green' : 'red',
+        //     }))
+        // )
         // const allPeriodReportDf = sessionDf.loc({
         //   rows: sessionDf['all_period_symbol'].eq('USDT'),
         // })
@@ -386,7 +387,126 @@ export default function Page() {
             ]}
           />
           <ModuleFunctionBody>
-            <PlotlyTimeSeriesChart
+            <HighChartsTimeSeries
+              series={[
+                {
+                  type: 'line',
+                  name: 'Grid IR',
+                  data: sessionDatapoints
+                    .filter((d: any) => d.symbol === 'ETH/USDT:USDT-240927')
+                    .map((d: any) => [
+                      new Date(`${d.datetime_utc}Z`).getTime(),
+                      parseFloat(d.parsedContext.perp_implied_term_ir),
+                    ]),
+                  tooltip: {
+                    valueDecimals: 4,
+                  },
+
+                  // data: [
+                  //   [Date.UTC(2023, 0, 1), 100],
+                  //   [Date.UTC(2023, 1, 1), 100],
+                  //   [Date.UTC(2024, 1, 1), 200],
+                  //   [Date.UTC(2024, 2, 1), 300],
+                  // ],
+                },
+                // {
+                //   type: 'line',
+                //   name: 'Series 2',
+                //   data: [
+                //     [Date.UTC(2023, 0, 1), 2],
+                //     [Date.UTC(2023, 1, 1), 3],
+                //     [Date.UTC(2024, 1, 1), 5],
+                //     [Date.UTC(2024, 2, 1), 4],
+                //   ],
+                // },
+              ]}
+              annotations={[
+                {
+                  shapes: sessionDatapoints
+                    .filter(
+                      (d: any) =>
+                        d.operation === 'take' &&
+                        d.symbol === 'ETH/USDT:USDT-240927'
+                    )
+                    .map((d: any) => {
+                      const x = new Date(`${d.datetime_utc}Z`).getTime()
+                      const y = parseFloat(d.parsedContext.perp_implied_term_ir)
+                      let yStart, yEnd, color
+                      if (d.side === 'short') {
+                        yEnd = y + 0
+                        yStart = yEnd + 0.000001
+                        color = '#FF0000'
+                      } else if (d.side === 'long') {
+                        yEnd = y - 0
+                        yStart = yEnd - 0.000001
+                        color = '#00FF00'
+                      }
+                      return {
+                        type: 'path',
+                        points: [
+                          {
+                            x,
+                            y: yStart,
+                            xAxis: 0,
+                            yAxis: 0,
+                          },
+                          {
+                            x,
+                            y: yEnd,
+                            xAxis: 0,
+                            yAxis: 0,
+                          },
+                        ],
+                        stroke: color,
+                        fill: color,
+                        width: 1,
+                        markerEnd: 'arrow',
+                      }
+                    }),
+                  // shapes: [
+                  //   {
+                  //     type: 'path',
+                  //     points: [
+                  //       {
+                  //         x: Date.UTC(2024, 5, 6), // Start point (April 1, 2023)
+                  //         y: 0.07,
+                  //         xAxis: 0,
+                  //         yAxis: 0,
+                  //       },
+                  //       {
+                  //         x: Date.UTC(2024, 5, 6), // End point (March 15, 2023)
+                  //         y: 0.1,
+                  //         xAxis: 0,
+                  //         yAxis: 0,
+                  //       },
+                  //     ],
+                  //     // stroke: '#FF0000', // Red color for the arrow
+                  //     fill: '#FF0000', // Red color for the arrow
+                  //     width: 1,
+                  //     // strokeWidth: 1,
+                  //     markerEnd: 'arrow', // Add an arrow at the end
+                  //   },
+                  // ],
+                },
+              ]}
+            />
+          </ModuleFunctionBody>
+        </ModuleFunction>
+      ) : null}
+      {sessionFile ? (
+        <ModuleFunction>
+          <ModuleFunctionHeader
+            title="交易明細"
+            actions={[
+              <Box key="execute">
+                <IconButton color="success" onClick={executeSession}>
+                  <PlayArrowIcon />
+                </IconButton>
+              </Box>,
+            ]}
+          />
+          <ModuleFunctionBody>
+            {/* <PlotlyTimeSeriesChart
               layout={{
                 width: '100%',
                 height: 600,
@@ -399,7 +519,7 @@ export default function Page() {
               accessTime={(d: any) => d.datetime_utc}
               valueConfigs={sessionValueConfigs}
               getAnnotations={() => sessionAnnotations}
-            />
+            /> */}
             {/* <SessionChart
               layout={{
                 width: '100%',
