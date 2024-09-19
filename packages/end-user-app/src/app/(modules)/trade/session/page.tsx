@@ -303,6 +303,7 @@ export default function Page() {
               <HighChartsHighStock
                 series={[
                   {
+                    id: 'perp_implied_term_ir',
                     type: 'line',
                     name: 'Grid IR',
                     data: sessionDatapoints
@@ -315,10 +316,9 @@ export default function Page() {
                       valueDecimals: 4,
                     },
                   },
-                ]}
-                annotations={[
                   {
-                    shapes: sessionDatapoints
+                    type: 'flags',
+                    data: sessionDatapoints
                       .filter(
                         (d: any) =>
                           d.operation === 'take' &&
@@ -332,37 +332,108 @@ export default function Page() {
                         let yStart, yEnd, color
                         if (d.side === 'short') {
                           yEnd = y + 0
-                          yStart = yEnd + 0.000001
+                          yStart = yEnd + 0.0001
                           color = '#FF0000'
                         } else if (d.side === 'long') {
                           yEnd = y - 0
-                          yStart = yEnd - 0.000001
+                          yStart = yEnd - 0.0001
                           color = '#00FF00'
                         }
                         return {
-                          type: 'path',
-                          points: [
-                            {
-                              x,
-                              y: yStart,
-                              xAxis: 0,
-                              yAxis: 0,
-                            },
-                            {
-                              x,
-                              y: yEnd,
-                              xAxis: 0,
-                              yAxis: 0,
-                            },
-                          ],
-                          stroke: color,
-                          fill: color,
-                          width: 1,
-                          markerEnd: 'arrow',
+                          x,
+                          // y: yStart,
+                          // color,
+                          fillColor: color,
+                          title: 'A',
+                          // text: 'Shape: "squarepin"',
                         }
+                        // return {
+                        //   type: 'path',
+                        //   points: [
+                        //     {
+                        //       x,
+                        //       y: yStart,
+                        //       xAxis: 0,
+                        //       yAxis: 0,
+                        //     },
+                        //     {
+                        //       x,
+                        //       y: yEnd,
+                        //       xAxis: 0,
+                        //       yAxis: 0,
+                        //     },
+                        //   ],
+                        //   stroke: color,
+                        //   fill: color,
+                        //   width: 1,
+                        //   markerEnd: 'arrow',
+                        // }
                       }),
+                    // data: [
+                    //   {
+                    //     x: Date.UTC(2024, 5, 7),
+                    //     title: 'A',
+                    //     text: 'Shape: "squarepin"',
+                    //   },
+                    //   {
+                    //     x: Date.UTC(2024, 5, 14),
+                    //     title: 'A',
+                    //     text: 'Shape: "squarepin"',
+                    //   },
+                    // ],
+                    onSeries: 'perp_implied_term_ir',
+                    shape: 'squarepin',
+                    borderRadius: 3,
+                    width: 16,
                   },
                 ]}
+                // annotations={[
+                //   {
+                //     shapes: sessionDatapoints
+                //       .filter(
+                //         (d: any) =>
+                //           d.operation === 'take' &&
+                //           d.symbol === 'ETH/USDT:USDT-240927'
+                //       )
+                //       .map((d: any) => {
+                //         const x = new Date(`${d.datetime_utc}Z`).getTime()
+                //         const y = parseFloat(
+                //           d.parsedContext.perp_implied_term_ir
+                //         )
+                //         let yStart, yEnd, color
+                //         if (d.side === 'short') {
+                //           yEnd = y + 0
+                //           yStart = yEnd + 0.000001
+                //           color = '#FF0000'
+                //         } else if (d.side === 'long') {
+                //           yEnd = y - 0
+                //           yStart = yEnd - 0.000001
+                //           color = '#00FF00'
+                //         }
+                //         return {
+                //           type: 'path',
+                //           points: [
+                //             {
+                //               x,
+                //               y: yStart,
+                //               xAxis: 0,
+                //               yAxis: 0,
+                //             },
+                //             {
+                //               x,
+                //               y: yEnd,
+                //               xAxis: 0,
+                //               yAxis: 0,
+                //             },
+                //           ],
+                //           stroke: color,
+                //           fill: color,
+                //           width: 1,
+                //           markerEnd: 'arrow',
+                //         }
+                //       }),
+                //   },
+                // ]}
               />
             </ModuleFunctionBody>
           )}
