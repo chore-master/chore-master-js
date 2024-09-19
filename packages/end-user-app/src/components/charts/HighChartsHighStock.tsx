@@ -15,14 +15,16 @@ if (typeof Highcharts === 'object') {
 export default function HighChartsHighStock({
   series,
   annotations,
+  plotOptions,
 }: {
   series: Highcharts.SeriesOptionsType[]
   annotations?: Highcharts.AnnotationsOptions[]
+  plotOptions?: Highcharts.PlotOptions
 }) {
   const chartComponentRef = React.useRef<HighchartsReact.RefObject>(null)
   const options: Highcharts.Options = {
     rangeSelector: {
-      selected: 1, // Pre-selects one of the range buttons
+      selected: 3, // Pre-selects one of the range buttons
       buttons: [
         {
           type: 'month',
@@ -44,6 +46,12 @@ export default function HighChartsHighStock({
           text: 'All',
         },
       ],
+    },
+    plotOptions: {
+      column: {
+        stacking: 'normal',
+      },
+      ...plotOptions,
     },
     series: series,
     annotations: annotations,

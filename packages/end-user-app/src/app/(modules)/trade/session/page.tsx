@@ -38,32 +38,6 @@ interface Report {
   sharpe_ratio?: { value: number }
 }
 
-const readFileText = (file: File) => {
-  return new Promise<string>((resolve, reject) => {
-    if (!file) {
-      reject(new Error('File is empty'))
-    }
-    // if (!file || file.type !== 'text/csv') {
-    //   reject(new Error('File is not a CSV'))
-    // }
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      resolve(event.target?.result as string)
-      // const csvText = event.target?.result as string
-      // Papa.parse(csvText, {
-      //   header: true,
-      //   complete: (result: ParseResult<any>) => {
-      //     resolve(result.data)
-      //   },
-      //   error: (error: any) => {
-      //     reject(`Error parsing CSV: ${error}`)
-      //   },
-      // })
-    }
-    reader.readAsText(file)
-  })
-}
-
 export default function Page() {
   const uploadSessionForm = useForm<UploadSessionInputs>()
   const [sessionFiles, setSessionFiles] = React.useState<File[]>([])
@@ -87,60 +61,42 @@ export default function Page() {
         ],
       },
       {
-        key: 'period_realized_quote_pnl',
-        isVisible: false,
-        name: 'Realized PnL',
+        key: 'historical_realized_quote_pnl',
+        isVisible: true,
+        name: 'Historical Realized PnL',
         type: 'column',
-        color: 'green',
-        stack: 'pnl',
+        color: '#CCCCCC',
+        stack: 'historical',
         accessData: (d: any) => [
           new Date(`${d.period_end_datetime_utc}Z`).getTime(),
-          d.period_realized_quote_pnl,
+          d.historical_realized_quote_pnl,
         ],
       },
       {
         key: 'unrealized_quote_pnl',
-        isVisible: false,
+        isVisible: true,
         name: 'Unrealized PnL',
         type: 'column',
         color: 'orange',
-        stack: 'pnl',
+        stack: 'historical',
         accessData: (d: any) => [
           new Date(`${d.period_end_datetime_utc}Z`).getTime(),
           d.unrealized_quote_pnl,
         ],
       },
+      {
+        key: 'period_realized_quote_pnl',
+        isVisible: true,
+        name: 'Realized PnL',
+        type: 'column',
+        color: 'green',
+        stack: 'period',
+        accessData: (d: any) => [
+          new Date(`${d.period_end_datetime_utc}Z`).getTime(),
+          d.period_realized_quote_pnl,
+        ],
+      },
     ])
-
-  // const [settlementReportValueConfigs, setSettlementReportValueConfigs] =
-  //   React.useState<any>([
-  //     {
-  //       key: 'historical_quote_balance_amount_change',
-  //       isVisible: true,
-  //       name: 'Equity Change',
-  //       color: '#17BECF',
-  //       filterDatapoint: (d: any) => true,
-  //       accessValue: (d: any) => d.historical_quote_balance_amount_change,
-  //     },
-  //     {
-  //       key: 'period_realized_quote_pnl',
-  //       isVisible: false,
-  //       type: 'bar',
-  //       name: 'Realized PnL',
-  //       color: 'green',
-  //       filterDatapoint: (d: any) => true,
-  //       accessValue: (d: any) => d.period_realized_quote_pnl,
-  //     },
-  //     {
-  //       key: 'unrealized_quote_pnl',
-  //       isVisible: false,
-  //       type: 'bar',
-  //       name: 'Unrealized PnL',
-  //       color: 'orange',
-  //       filterDatapoint: (d: any) => true,
-  //       accessValue: (d: any) => d.unrealized_quote_pnl,
-  //     },
-  //   ])
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -542,20 +498,6 @@ export default function Page() {
               </Table>
             </TableContainer>
 
-            {/* <PlotlyTimeSeriesChart
-              layout={{
-                width: '100%',
-                height: 600,
-                marginTop: 48,
-                marginLeft: 48,
-                marginRight: 48,
-                minWidth: 480,
-              }}
-              datapoints={settlementReportDatapoints}
-              accessTime={(d: any) => d.period_end_datetime_utc}
-              valueConfigs={settlementReportValueConfigs}
-              getAnnotations={() => []}
-            /> */}
             <HighChartsHighStock
               series={settlementReportSeriesConfigs
                 .filter((cfg: any) => cfg.isVisible)
@@ -563,27 +505,13 @@ export default function Page() {
                   name: cfg.name,
                   type: cfg.type,
                   color: cfg.color,
+                  // stacking: cfg.stacking,
                   stack: cfg.stack,
                   data: settlementReportDatapoints.map(cfg.accessData),
+                  tooltip: {
+                    valueDecimals: 2,
+                  },
                 }))}
-              // series={
-
-              //   [
-              //     {
-              //       type: 'line',
-              //       name: 'Grid IR',
-              //       data: sessionDatapoints
-              //         .filter((d: any) => d.symbol === 'ETH/USDT:USDT-240927')
-              //         .map((d: any) => [
-              //           new Date(`${d.datetime_utc}Z`).getTime(),
-              //           parseFloat(d.parsedContext.perp_implied_term_ir),
-              //         ]),
-              //       tooltip: {
-              //         valueDecimals: 4,
-              //       },
-              //     },
-              //   ]
-              // }
             />
 
             <Stack
