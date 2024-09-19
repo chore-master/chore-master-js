@@ -6,8 +6,9 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import DrawIcon from '@mui/icons-material/Draw'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -22,6 +23,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import * as dfd from 'danfojs'
 import React from 'react'
@@ -116,32 +118,13 @@ export default function Page() {
     uploadSessionForm.reset()
   }
 
-  const executeSession = () => {
+  const cleanSession = () => {
+    setSessionDatapoints([])
+  }
+
+  const drawSession = () => {
     if (sessionFile) {
       dfd.readCSV(sessionFile).then((sessionDf: dfd.DataFrame) => {
-        // console.log(sessionDf['context'].values[0])
-        // console.log(JSON.parse(sessionDf['context'].values[0]))
-        // let wtf: any[] = []
-        // Array.from(sessionDf['context'].values).forEach((v: any) => {
-        //   let r
-        //   try {
-        //     r = JSON.parse(v)
-        //     wtf.push(r)
-        //   } catch (e) {
-        //     console.log(v)
-        //   }
-        // })
-        // console.log(wtf)
-        // const x = sessionDf['context'].values.apply((v: any) => {
-
-        //     r = JSON.parse(v)
-        //     return r
-        //   } catch (e) {
-        //     console.log(v)
-        //   }
-        // })
-        // console.log(x)
-
         sessionDf.addColumn(
           'parsedContext',
           Array.from(sessionDf['context'].values).map((v: any) =>
@@ -151,76 +134,16 @@ export default function Page() {
         )
         const datapoints: any = dfd.toJSON(sessionDf)
         setSessionDatapoints(datapoints)
-        // setSessionAnnotations(
-        //   datapoints
-        //     .filter(
-        //       (d: any) =>
-        //         d.operation === 'take' && d.symbol === 'ETH/USDT:USDT-240927'
-        //     )
-        //     .map((d: any) => ({
-        //       x: d.datetime_utc,
-        //       y: parseFloat(d.parsedContext.perp_implied_term_ir),
-        //       xref: 'x',
-        //       yref: 'y',
-        //       // text: d.side === 'long' ? '▲' : '▼', // Label "Long" or "Short"
-        //       showarrow: true,
-        //       arrowhead: 2,
-        //       arrowsize: 1,
-        //       arrowwidth: 2,
-        //       ax: 0,
-        //       ay: d.side === 'long' ? 20 : -20,
-        //       font: {
-        //         color: d.side === 'long' ? 'green' : 'red',
-        //       },
-        //       arrowcolor: d.side === 'long' ? 'green' : 'red',
-        //     }))
-        // )
-        // const allPeriodReportDf = sessionDf.loc({
-        //   rows: sessionDf['all_period_symbol'].eq('USDT'),
-        // })
-        // const settlementReportDf = sessionDf.loc({
-        //   rows: sessionDf['settlement_symbol'].apply((v: any) => v !== null),
-        // })
-        // setSettlementReportDatapoints(dfd.toJSON(settlementReportDf))
-        // Papa.parse(text, {
-        //   header: true,
-        //   complete: (result: ParseResult<any>) => {
-        //     const rows = result.data
-        //     setDatapoints(
-        //       rows
-        //         .filter((row: any) => {
-        //           if (!row.context) {
-        //             return false
-        //           }
-        //           if (
-        //             row.operation === 'take' &&
-        //             row.symbol !== 'ETH/USDT:USDT-240927'
-        //           ) {
-        //             return false
-        //           }
-        //           return true
-        //         })
-        //         .map((row: any) => {
-        //           const context = JSON.parse(row.context)
-        //           return {
-        //             timeUTC: row.datetime_utc,
-        //             value: context.order_perp_implied_term_ir
-        //               ? context.order_perp_implied_term_ir
-        //               : null,
-        //             side: row.side,
-        //           }
-        //         })
-        //     )
-        //   },
-        //   error: (error: any) => {
-        //     alert(`Error parsing CSV: ${error}`)
-        //   },
-        // })
       })
     }
   }
 
-  const executeReport = () => {
+  const cleanReport = () => {
+    setSettlementReportDatapoints([])
+    setReport(undefined)
+  }
+
+  const drawReport = () => {
     if (reportFile) {
       dfd.readCSV(reportFile).then((reportDf: dfd.DataFrame) => {
         const allPeriodReportDf = reportDf.loc({
@@ -362,76 +285,87 @@ export default function Page() {
             title="交易明細"
             actions={[
               <Box key="execute">
-                <IconButton color="success" onClick={executeSession}>
-                  <PlayArrowIcon />
-                </IconButton>
+                <Tooltip title="清除">
+                  <IconButton onClick={cleanSession}>
+                    <CleaningServicesIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="繪製">
+                  <IconButton color="success" onClick={drawSession}>
+                    <DrawIcon />
+                  </IconButton>
+                </Tooltip>
               </Box>,
             ]}
           />
-          <ModuleFunctionBody>
-            <HighChartsHighStock
-              series={[
-                {
-                  type: 'line',
-                  name: 'Grid IR',
-                  data: sessionDatapoints
-                    .filter((d: any) => d.symbol === 'ETH/USDT:USDT-240927')
-                    .map((d: any) => [
-                      new Date(`${d.datetime_utc}Z`).getTime(),
-                      parseFloat(d.parsedContext.perp_implied_term_ir),
-                    ]),
-                  tooltip: {
-                    valueDecimals: 4,
+          {sessionDatapoints.length > 0 && (
+            <ModuleFunctionBody>
+              <HighChartsHighStock
+                series={[
+                  {
+                    type: 'line',
+                    name: 'Grid IR',
+                    data: sessionDatapoints
+                      .filter((d: any) => d.symbol === 'ETH/USDT:USDT-240927')
+                      .map((d: any) => [
+                        new Date(`${d.datetime_utc}Z`).getTime(),
+                        parseFloat(d.parsedContext.perp_implied_term_ir),
+                      ]),
+                    tooltip: {
+                      valueDecimals: 4,
+                    },
                   },
-                },
-              ]}
-              annotations={[
-                {
-                  shapes: sessionDatapoints
-                    .filter(
-                      (d: any) =>
-                        d.operation === 'take' &&
-                        d.symbol === 'ETH/USDT:USDT-240927'
-                    )
-                    .map((d: any) => {
-                      const x = new Date(`${d.datetime_utc}Z`).getTime()
-                      const y = parseFloat(d.parsedContext.perp_implied_term_ir)
-                      let yStart, yEnd, color
-                      if (d.side === 'short') {
-                        yEnd = y + 0
-                        yStart = yEnd + 0.000001
-                        color = '#FF0000'
-                      } else if (d.side === 'long') {
-                        yEnd = y - 0
-                        yStart = yEnd - 0.000001
-                        color = '#00FF00'
-                      }
-                      return {
-                        type: 'path',
-                        points: [
-                          {
-                            x,
-                            y: yStart,
-                            xAxis: 0,
-                            yAxis: 0,
-                          },
-                          {
-                            x,
-                            y: yEnd,
-                            xAxis: 0,
-                            yAxis: 0,
-                          },
-                        ],
-                        stroke: color,
-                        fill: color,
-                        width: 1,
-                        markerEnd: 'arrow',
-                      }
-                    }),
-                },
-              ]}
-            />
-          </ModuleFunctionBody>
+                ]}
+                annotations={[
+                  {
+                    shapes: sessionDatapoints
+                      .filter(
+                        (d: any) =>
+                          d.operation === 'take' &&
+                          d.symbol === 'ETH/USDT:USDT-240927'
+                      )
+                      .map((d: any) => {
+                        const x = new Date(`${d.datetime_utc}Z`).getTime()
+                        const y = parseFloat(
+                          d.parsedContext.perp_implied_term_ir
+                        )
+                        let yStart, yEnd, color
+                        if (d.side === 'short') {
+                          yEnd = y + 0
+                          yStart = yEnd + 0.000001
+                          color = '#FF0000'
+                        } else if (d.side === 'long') {
+                          yEnd = y - 0
+                          yStart = yEnd - 0.000001
+                          color = '#00FF00'
+                        }
+                        return {
+                          type: 'path',
+                          points: [
+                            {
+                              x,
+                              y: yStart,
+                              xAxis: 0,
+                              yAxis: 0,
+                            },
+                            {
+                              x,
+                              y: yEnd,
+                              xAxis: 0,
+                              yAxis: 0,
+                            },
+                          ],
+                          stroke: color,
+                          fill: color,
+                          width: 1,
+                          markerEnd: 'arrow',
+                        }
+                      }),
+                  },
+                ]}
+              />
+            </ModuleFunctionBody>
+          )}
         </ModuleFunction>
       ) : null}
 
@@ -441,108 +375,117 @@ export default function Page() {
             title="表現"
             actions={[
               <Box key="execute">
-                <IconButton color="success" onClick={executeReport}>
-                  <PlayArrowIcon />
-                </IconButton>
+                <Tooltip title="清除">
+                  <IconButton onClick={cleanReport}>
+                    <CleaningServicesIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="繪製">
+                  <IconButton color="success" onClick={drawReport}>
+                    <DrawIcon />
+                  </IconButton>
+                </Tooltip>
               </Box>,
             ]}
           />
-          <ModuleFunctionBody>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="right">統計量</TableCell>
-                    <TableCell align="right">統計值</TableCell>
-                    <TableCell>單位</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell component="th" align="right">
-                      已實現損益
-                    </TableCell>
-                    <TableCell align="right">
-                      {report?.realized_pnl?.value}
-                    </TableCell>
-                    <TableCell>{report?.realized_pnl?.unit}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" align="right">
-                      未實現損益
-                    </TableCell>
-                    <TableCell align="right">
-                      {report?.unrealized_pnl?.value}
-                    </TableCell>
-                    <TableCell>{report?.unrealized_pnl?.unit}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" align="right">
-                      最大回撤損失
-                    </TableCell>
-                    <TableCell align="right">
-                      {report?.max_drawdown?.value}
-                    </TableCell>
-                    <TableCell>{report?.max_drawdown?.unit}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" align="right">
-                      夏普率
-                    </TableCell>
-                    <TableCell align="right">
-                      {report?.sharpe_ratio?.value}
-                    </TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+          {report && (
+            <ModuleFunctionBody>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="right">統計量</TableCell>
+                      <TableCell align="right">統計值</TableCell>
+                      <TableCell>單位</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell component="th" align="right">
+                        已實現損益
+                      </TableCell>
+                      <TableCell align="right">
+                        {report?.realized_pnl?.value}
+                      </TableCell>
+                      <TableCell>{report?.realized_pnl?.unit}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell component="th" align="right">
+                        未實現損益
+                      </TableCell>
+                      <TableCell align="right">
+                        {report?.unrealized_pnl?.value}
+                      </TableCell>
+                      <TableCell>{report?.unrealized_pnl?.unit}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell component="th" align="right">
+                        最大回撤損失
+                      </TableCell>
+                      <TableCell align="right">
+                        {report?.max_drawdown?.value}
+                      </TableCell>
+                      <TableCell>{report?.max_drawdown?.unit}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell component="th" align="right">
+                        夏普率
+                      </TableCell>
+                      <TableCell align="right">
+                        {report?.sharpe_ratio?.value}
+                      </TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-            <HighChartsHighStock
-              series={settlementReportSeriesConfigs
-                .filter((cfg: any) => cfg.isVisible)
-                .map((cfg: any) => ({
-                  name: cfg.name,
-                  type: cfg.type,
-                  color: cfg.color,
-                  // stacking: cfg.stacking,
-                  stack: cfg.stack,
-                  data: settlementReportDatapoints.map(cfg.accessData),
-                  tooltip: {
-                    valueDecimals: 2,
-                  },
-                }))}
-            />
+              <HighChartsHighStock
+                series={settlementReportSeriesConfigs
+                  .filter((cfg: any) => cfg.isVisible)
+                  .map((cfg: any) => ({
+                    name: cfg.name,
+                    type: cfg.type,
+                    color: cfg.color,
+                    // stacking: cfg.stacking,
+                    stack: cfg.stack,
+                    data: settlementReportDatapoints.map(cfg.accessData),
+                    tooltip: {
+                      valueDecimals: 2,
+                    },
+                  }))}
+              />
 
-            <Stack
-              direction="row"
-              p={2}
-              sx={{
-                flexWrap: 'wrap',
-              }}
-            >
-              {settlementReportSeriesConfigs.map((cfg: any) => (
-                <Box key={cfg.key} sx={{ p: 0.5 }}>
-                  <Chip
-                    key={cfg.key}
-                    label={cfg.name}
-                    size="small"
-                    avatar={
-                      <svg>
-                        <circle r="9" cx="9" cy="9" fill={cfg.color} />
-                      </svg>
-                    }
-                    onClick={() => {
-                      updateSettlementReportSeriesConfig(cfg.key, {
-                        isVisible: !cfg.isVisible,
-                      })
-                    }}
-                    variant={cfg.isVisible ? undefined : 'outlined'}
-                  />
-                </Box>
-              ))}
-            </Stack>
-          </ModuleFunctionBody>
+              <Stack
+                direction="row"
+                p={2}
+                sx={{
+                  flexWrap: 'wrap',
+                }}
+              >
+                {settlementReportSeriesConfigs.map((cfg: any) => (
+                  <Box key={cfg.key} sx={{ p: 0.5 }}>
+                    <Chip
+                      key={cfg.key}
+                      label={cfg.name}
+                      size="small"
+                      avatar={
+                        <svg>
+                          <circle r="9" cx="9" cy="9" fill={cfg.color} />
+                        </svg>
+                      }
+                      onClick={() => {
+                        updateSettlementReportSeriesConfig(cfg.key, {
+                          isVisible: !cfg.isVisible,
+                        })
+                      }}
+                      variant={cfg.isVisible ? undefined : 'outlined'}
+                    />
+                  </Box>
+                ))}
+              </Stack>
+            </ModuleFunctionBody>
+          )}
         </ModuleFunction>
       ) : null}
     </React.Fragment>
