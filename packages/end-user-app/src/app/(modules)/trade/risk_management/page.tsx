@@ -16,6 +16,7 @@ interface ABC {
 
 interface Position {
   account_name: string
+  instrument: string
   contract_amount: number
   current_margin: number
   entry_price: number
@@ -128,6 +129,7 @@ export default function Page() {
               <TableHead>
                 <TableRow>
                   <TableCell>Symbol</TableCell>
+                  <TableCell>Instrument</TableCell>
                   <TableCell>Account Name</TableCell>
                   <TableCell>Side</TableCell>
                   <TableCell>Leverage</TableCell>
@@ -148,6 +150,7 @@ export default function Page() {
                 Object.entries(positions).map(([symbol, position], index) => (
                   <TableRow key={index}>
                     <TableCell>{position.symbol}</TableCell>
+                    <TableCell>{position.instrument}</TableCell>
                     <TableCell>{position.account_name}</TableCell>
                     <TableCell>{position.side}</TableCell>
                     <TableCell>{position.max_leverage}</TableCell>
