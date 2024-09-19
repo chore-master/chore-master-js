@@ -36,6 +36,11 @@ export default function Layout({
           href: '/iam/integrations/sinotrade',
           selectedWhenPartiallyMatched: true,
         },
+        {
+          title: 'OKX',
+          href: '/iam/integrations/okxtrade',
+          selectedWhenPartiallyMatched: true,
+        },
       ]}
     >
       {children}

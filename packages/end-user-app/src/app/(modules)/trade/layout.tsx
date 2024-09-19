@@ -20,6 +20,11 @@ export default function Layout({
           href: '/trade/session',
           selectedWhenPartiallyMatched: true,
         },
+        {
+          title: 'Risk Management',
+          href: '/trade/risk_management',
+          selectedWhenPartiallyMatched: true,
+        },
       ]}
     >
       {children}
