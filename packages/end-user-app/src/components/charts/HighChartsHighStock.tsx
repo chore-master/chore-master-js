@@ -10,6 +10,12 @@ import React from 'react'
 if (typeof Highcharts === 'object') {
   AccessibilityModule(Highcharts)
   AnnotationsModule(Highcharts)
+  Highcharts.setOptions({
+    lang: {
+      rangeSelectorZoom: '範圍',
+      rangeSelectorTo: '至',
+    },
+  })
 }
 
 export default function HighChartsHighStock({
