@@ -100,6 +100,11 @@ export default function Page() {
       },
     ])
 
+  const isSessionDrawable = !!sessionFile
+  const isSessionDrawed = sessionDatapoints.length > 0
+  const isReportDrawable = !!reportFile
+  const isReportDrawed = !!report
+
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
   ) => {
@@ -279,27 +284,31 @@ export default function Page() {
         )}
       </ModuleFunction>
 
-      {sessionFile ? (
+      {isSessionDrawable && (
         <ModuleFunction>
           <ModuleFunctionHeader
             title="交易明細"
             actions={[
               <Box key="execute">
                 <Tooltip title="清除">
-                  <IconButton onClick={cleanSession}>
+                  <IconButton
+                    onClick={cleanSession}
+                    disabled={!isSessionDrawed}
+                  >
                     <CleaningServicesIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="繪製">
-                  <IconButton color="success" onClick={drawSession}>
+                  <IconButton color="primary" onClick={drawSession}>
                     <DrawIcon />
                   </IconButton>
                 </Tooltip>
               </Box>,
             ]}
           />
-          {sessionDatapoints.length > 0 && (
-            <ModuleFunctionBody>
+
+          <ModuleFunctionBody>
+            {isSessionDrawed ? (
               <HighChartsHighStock
                 series={[
                   {
@@ -316,9 +325,48 @@ export default function Page() {
                       valueDecimals: 4,
                     },
                   },
+                  //   {
+                  //     type: 'flags',
+                  //     data: sessionDatapoints
+                  //       .filter(
+                  //         (d: any) =>
+                  //           d.operation === 'take' &&
+                  //           d.symbol === 'ETH/USDT:USDT-240927'
+                  //       )
+                  //       .map((d: any) => {
+                  //         const x = new Date(`${d.datetime_utc}Z`).getTime()
+                  //         const y = parseFloat(
+                  //           d.parsedContext.perp_implied_term_ir
+                  //         )
+                  //         let yStart, yEnd, color, title
+                  //         if (d.side === 'short') {
+                  //           yEnd = y + 0
+                  //           yStart = yEnd + 0.0001
+                  //           color = '#FF0000'
+                  //           title = 'S'
+                  //         } else if (d.side === 'long') {
+                  //           yEnd = y - 0
+                  //           yStart = yEnd - 0.0001
+                  //           color = '#00FF00'
+                  //           title = 'L'
+                  //         }
+                  //         return {
+                  //           x,
+                  //           y: yStart,
+                  //           color,
+                  //           fillColor: color,
+                  //           title,
+                  //         }
+                  //       }),
+                  //     onSeries: 'perp_implied_term_ir',
+                  //     shape: 'squarepin',
+                  //     borderRadius: 3,
+                  //     width: 16,
+                  //   },
+                ]}
+                annotations={[
                   {
-                    type: 'flags',
-                    data: sessionDatapoints
+                    shapes: sessionDatapoints
                       .filter(
                         (d: any) =>
                           d.operation === 'take' &&
@@ -332,233 +380,172 @@ export default function Page() {
                         let yStart, yEnd, color
                         if (d.side === 'short') {
                           yEnd = y + 0
-                          yStart = yEnd + 0.0001
+                          yStart = yEnd + 0.000001
                           color = '#FF0000'
                         } else if (d.side === 'long') {
                           yEnd = y - 0
-                          yStart = yEnd - 0.0001
+                          yStart = yEnd - 0.000001
                           color = '#00FF00'
                         }
                         return {
-                          x,
-                          // y: yStart,
-                          // color,
-                          fillColor: color,
-                          title: 'A',
-                          // text: 'Shape: "squarepin"',
+                          type: 'path',
+                          points: [
+                            {
+                              x,
+                              y: yStart,
+                              xAxis: 0,
+                              yAxis: 0,
+                            },
+                            {
+                              x,
+                              y: yEnd,
+                              xAxis: 0,
+                              yAxis: 0,
+                            },
+                          ],
+                          stroke: color,
+                          fill: color,
+                          width: 1,
+                          markerEnd: 'arrow',
                         }
-                        // return {
-                        //   type: 'path',
-                        //   points: [
-                        //     {
-                        //       x,
-                        //       y: yStart,
-                        //       xAxis: 0,
-                        //       yAxis: 0,
-                        //     },
-                        //     {
-                        //       x,
-                        //       y: yEnd,
-                        //       xAxis: 0,
-                        //       yAxis: 0,
-                        //     },
-                        //   ],
-                        //   stroke: color,
-                        //   fill: color,
-                        //   width: 1,
-                        //   markerEnd: 'arrow',
-                        // }
                       }),
-                    // data: [
-                    //   {
-                    //     x: Date.UTC(2024, 5, 7),
-                    //     title: 'A',
-                    //     text: 'Shape: "squarepin"',
-                    //   },
-                    //   {
-                    //     x: Date.UTC(2024, 5, 14),
-                    //     title: 'A',
-                    //     text: 'Shape: "squarepin"',
-                    //   },
-                    // ],
-                    onSeries: 'perp_implied_term_ir',
-                    shape: 'squarepin',
-                    borderRadius: 3,
-                    width: 16,
                   },
                 ]}
-                // annotations={[
-                //   {
-                //     shapes: sessionDatapoints
-                //       .filter(
-                //         (d: any) =>
-                //           d.operation === 'take' &&
-                //           d.symbol === 'ETH/USDT:USDT-240927'
-                //       )
-                //       .map((d: any) => {
-                //         const x = new Date(`${d.datetime_utc}Z`).getTime()
-                //         const y = parseFloat(
-                //           d.parsedContext.perp_implied_term_ir
-                //         )
-                //         let yStart, yEnd, color
-                //         if (d.side === 'short') {
-                //           yEnd = y + 0
-                //           yStart = yEnd + 0.000001
-                //           color = '#FF0000'
-                //         } else if (d.side === 'long') {
-                //           yEnd = y - 0
-                //           yStart = yEnd - 0.000001
-                //           color = '#00FF00'
-                //         }
-                //         return {
-                //           type: 'path',
-                //           points: [
-                //             {
-                //               x,
-                //               y: yStart,
-                //               xAxis: 0,
-                //               yAxis: 0,
-                //             },
-                //             {
-                //               x,
-                //               y: yEnd,
-                //               xAxis: 0,
-                //               yAxis: 0,
-                //             },
-                //           ],
-                //           stroke: color,
-                //           fill: color,
-                //           width: 1,
-                //           markerEnd: 'arrow',
-                //         }
-                //       }),
-                //   },
-                // ]}
               />
-            </ModuleFunctionBody>
-          )}
+            ) : (
+              <Box p={2}>
+                <Typography>尚未繪製</Typography>
+              </Box>
+            )}
+          </ModuleFunctionBody>
         </ModuleFunction>
-      ) : null}
+      )}
 
-      {reportFile ? (
+      {isReportDrawable && (
         <ModuleFunction>
           <ModuleFunctionHeader
             title="表現"
             actions={[
               <Box key="execute">
                 <Tooltip title="清除">
-                  <IconButton onClick={cleanReport}>
+                  <IconButton onClick={cleanReport} disabled={!isReportDrawed}>
                     <CleaningServicesIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="繪製">
-                  <IconButton color="success" onClick={drawReport}>
+                  <IconButton color="primary" onClick={drawReport}>
                     <DrawIcon />
                   </IconButton>
                 </Tooltip>
               </Box>,
             ]}
           />
-          {report && (
-            <ModuleFunctionBody>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="right">統計量</TableCell>
-                      <TableCell align="right">統計值</TableCell>
-                      <TableCell>單位</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        已實現損益
-                      </TableCell>
-                      <TableCell align="right">
-                        {report?.realized_pnl?.value}
-                      </TableCell>
-                      <TableCell>{report?.realized_pnl?.unit}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        未實現損益
-                      </TableCell>
-                      <TableCell align="right">
-                        {report?.unrealized_pnl?.value}
-                      </TableCell>
-                      <TableCell>{report?.unrealized_pnl?.unit}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        最大回撤損失
-                      </TableCell>
-                      <TableCell align="right">
-                        {report?.max_drawdown?.value}
-                      </TableCell>
-                      <TableCell>{report?.max_drawdown?.unit}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        夏普率
-                      </TableCell>
-                      <TableCell align="right">
-                        {report?.sharpe_ratio?.value}
-                      </TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
+          <ModuleFunctionBody>
+            {isReportDrawed ? (
+              <React.Fragment>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="right">統計量</TableCell>
+                        <TableCell align="right">統計值</TableCell>
+                        <TableCell>單位</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          已實現損益
+                        </TableCell>
+                        <TableCell align="right">
+                          {report?.realized_pnl?.value}
+                        </TableCell>
+                        <TableCell>{report?.realized_pnl?.unit}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          未實現損益
+                        </TableCell>
+                        <TableCell align="right">
+                          {report?.unrealized_pnl?.value}
+                        </TableCell>
+                        <TableCell>{report?.unrealized_pnl?.unit}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          最大回撤損失
+                        </TableCell>
+                        <TableCell align="right">
+                          {report?.max_drawdown?.value}
+                        </TableCell>
+                        <TableCell>{report?.max_drawdown?.unit}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          夏普率
+                        </TableCell>
+                        <TableCell align="right">
+                          {report?.sharpe_ratio?.value}
+                        </TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
 
-              <HighChartsHighStock
-                series={settlementReportSeriesConfigs
-                  .filter((cfg: any) => cfg.isVisible)
-                  .map((cfg: any) => ({
-                    name: cfg.name,
-                    type: cfg.type,
-                    color: cfg.color,
-                    // stacking: cfg.stacking,
-                    stack: cfg.stack,
-                    data: settlementReportDatapoints.map(cfg.accessData),
-                    tooltip: {
-                      valueDecimals: 2,
-                    },
-                  }))}
-              />
+                <HighChartsHighStock
+                  series={settlementReportSeriesConfigs
+                    .filter((cfg: any) => cfg.isVisible)
+                    .map((cfg: any) => ({
+                      name: cfg.name,
+                      type: cfg.type,
+                      color: cfg.color,
+                      // stacking: cfg.stacking,
+                      stack: cfg.stack,
+                      data: settlementReportDatapoints.map(cfg.accessData),
+                      tooltip: {
+                        valueDecimals: 2,
+                      },
+                    }))}
+                />
 
-              <Stack
-                direction="row"
-                p={2}
-                sx={{
-                  flexWrap: 'wrap',
-                }}
-              >
-                {settlementReportSeriesConfigs.map((cfg: any) => (
-                  <Box key={cfg.key} sx={{ p: 0.5 }}>
-                    <Chip
-                      key={cfg.key}
-                      label={cfg.name}
-                      size="small"
-                      avatar={
-                        <svg>
-                          <circle r="9" cx="9" cy="9" fill={cfg.color} />
-                        </svg>
-                      }
-                      onClick={() => {
-                        updateSettlementReportSeriesConfig(cfg.key, {
-                          isVisible: !cfg.isVisible,
-                        })
-                      }}
-                      variant={cfg.isVisible ? undefined : 'outlined'}
-                    />
-                  </Box>
-                ))}
-              </Stack>
-            </ModuleFunctionBody>
-          )}
+                <Stack
+                  direction="row"
+                  p={2}
+                  sx={{
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {settlementReportSeriesConfigs.map((cfg: any) => (
+                    <Box key={cfg.key} sx={{ p: 0.5 }}>
+                      <Chip
+                        key={cfg.key}
+                        label={cfg.name}
+                        size="small"
+                        avatar={
+                          <svg>
+                            <circle r="9" cx="9" cy="9" fill={cfg.color} />
+                          </svg>
+                        }
+                        onClick={() => {
+                          updateSettlementReportSeriesConfig(cfg.key, {
+                            isVisible: !cfg.isVisible,
+                          })
+                        }}
+                        variant={cfg.isVisible ? undefined : 'outlined'}
+                      />
+                    </Box>
+                  ))}
+                </Stack>
+              </React.Fragment>
+            ) : (
+              <Box p={2}>
+                <Typography>尚未繪製</Typography>
+              </Box>
+            )}
+          </ModuleFunctionBody>
         </ModuleFunction>
-      ) : null}
+      )}
     </React.Fragment>
   )
 }
