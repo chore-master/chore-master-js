@@ -118,6 +118,8 @@ export default function Page() {
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
   ) => {
+    setIsSessionVisualized(false)
+    setIsEquityVisualized(false)
     setSessionFiles(Array.from(data.session_files))
 
     const sessionFile = Array.from(data.session_files).find(
@@ -256,7 +258,7 @@ export default function Page() {
                 </TableContainer>
               </Accordion>
 
-              <Accordion elevation={0}>
+              <Accordion elevation={0} defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography variant="h6">基本資訊</Typography>
                 </AccordionSummary>
@@ -284,7 +286,7 @@ export default function Page() {
                 </TableContainer>
               </Accordion>
 
-              <Accordion elevation={0}>
+              <Accordion elevation={0} defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography variant="h6">統計</Typography>
                 </AccordionSummary>
