@@ -243,7 +243,6 @@ export default function Page() {
                   <TableHead>
                     <TableRow>
                       <TableCell>檔案路徑</TableCell>
-                      {/* <TableCell>檔案名稱</TableCell> */}
                       <TableCell align="right">檔案大小</TableCell>
                     </TableRow>
                   </TableHead>
@@ -253,9 +252,6 @@ export default function Page() {
                         <TableCell component="th">
                           {file.webkitRelativePath}
                         </TableCell>
-                        {/* <TableCell component="th" scope="row">
-                      {file.name}
-                    </TableCell> */}
                         <TableCell align="right">
                           {file.size < 1024
                             ? `${file.size} bytes`
@@ -303,9 +299,12 @@ export default function Page() {
                       <TableCell component="th" align="right">
                         每期持續時間
                       </TableCell>
-                      <TableCell colSpan={2}>
-                        {settlementReportDF['period_duration'].values.at(-1)}
+                      <TableCell align="right">
+                        {settlementReportDF[
+                          'period_duration_in_second'
+                        ].values.at(-1)}
                       </TableCell>
+                      <TableCell>秒</TableCell>
                     </TableRow>
 
                     <TableRow>
@@ -319,9 +318,11 @@ export default function Page() {
                         累計已實現損益
                       </TableCell>
                       <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_realized_quote_pnl'
-                        ].values.at(-1)}
+                        <Typography color="primary">
+                          {settlementReportDF[
+                            'historical_realized_quote_pnl'
+                          ].values.at(-1)}
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         {settlementReportDF['settlement_symbol'].values.at(-1)}
@@ -345,9 +346,11 @@ export default function Page() {
                         累計最大回撤損失
                       </TableCell>
                       <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_max_drawdown_quote_balance_amount_change'
-                        ].values.at(-1)}
+                        <Typography color="primary">
+                          {settlementReportDF[
+                            'historical_max_drawdown_quote_balance_amount_change'
+                          ].values.at(-1)}
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         {settlementReportDF['settlement_symbol'].values.at(-1)}
