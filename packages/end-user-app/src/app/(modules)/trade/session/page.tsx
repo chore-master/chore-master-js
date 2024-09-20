@@ -7,7 +7,11 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 import DrawIcon from '@mui/icons-material/Draw'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import LoadingButton from '@mui/lab/LoadingButton'
+import Accordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
@@ -38,9 +42,11 @@ interface Report {
 export default function Page() {
   const uploadSessionForm = useForm<UploadSessionInputs>()
   const [sessionFiles, setSessionFiles] = React.useState<File[]>([])
-  // const [report, setReport] = React.useState<Report>()
 
   const [sessionDF, setSessionDF] = React.useState<dfd.DataFrame>(
+    new dfd.DataFrame()
+  )
+  const [sessionParamDF, setSessionParamDF] = React.useState<dfd.DataFrame>(
     new dfd.DataFrame()
   )
   const [isSessionVisualized, setIsSessionVisualized] = React.useState(false)
@@ -127,6 +133,10 @@ export default function Page() {
           { inplace: true }
         )
         setSessionDF(sessionDF)
+        const sessionParamDF = sessionDF.loc({
+          rows: sessionDF['operation'].eq('param'),
+        })
+        setSessionParamDF(sessionParamDF)
       })
     }
 
@@ -144,27 +154,6 @@ export default function Page() {
           rows: reportDf['settlement_symbol'].apply((v: any) => v !== null),
         })
         setSettlementReportDF(settlementReportDF)
-        // setReport({
-        //   realized_pnl: {
-        //     value:
-        //       settlementReportDF['historical_realized_quote_pnl'].values.at(-1),
-        //     unit: settlementReportDF['settlement_symbol'].values.at(-1),
-        //   },
-        //   unrealized_pnl: {
-        //     value: settlementReportDF['unrealized_quote_pnl'].values.at(-1),
-        //     unit: settlementReportDF['settlement_symbol'].values.at(-1),
-        //   },
-        //   max_drawdown: {
-        //     value:
-        //       settlementReportDF[
-        //         'historical_max_drawdown_quote_balance_amount_change'
-        //       ].values.at(-1),
-        //     unit: settlementReportDF['settlement_symbol'].values.at(-1),
-        //   },
-        //   sharpe_ratio: {
-        //     value: allPeriodReportDf['sharpe_ratio'].values.at(-1),
-        //   },
-        // })
       })
     }
     uploadSessionForm.reset()
@@ -233,240 +222,283 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionHeader title="報告" />
         <ModuleFunctionBody>
-          {settlementReportDF.shape[0] > 0 ? (
+          {sessionParamDF.shape[0] > 0 && settlementReportDF.shape[0] > 0 ? (
             <React.Fragment>
-              <Typography variant="h6" sx={{ p: 2 }}>
-                資料集
-              </Typography>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>檔案路徑</TableCell>
-                      <TableCell align="right">檔案大小</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {sessionFiles.map((file) => (
-                      <TableRow key={file.webkitRelativePath}>
-                        <TableCell component="th">
-                          {file.webkitRelativePath}
-                        </TableCell>
-                        <TableCell align="right">
-                          {file.size < 1024
-                            ? `${file.size} bytes`
-                            : file.size < 1024 * 1024
-                            ? `${Math.round(file.size / 1024)} KB`
-                            : `${Math.round(file.size / 1024 / 1024)} MB`}
+              <Accordion elevation={0}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="h6">資料集</Typography>
+                </AccordionSummary>
+                <TableContainer component={AccordionDetails} sx={{ p: 0 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>檔案路徑</TableCell>
+                        <TableCell align="right">檔案大小</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {sessionFiles.map((file) => (
+                        <TableRow key={file.webkitRelativePath}>
+                          <TableCell component="th">
+                            {file.webkitRelativePath}
+                          </TableCell>
+                          <TableCell align="right">
+                            {file.size < 1024
+                              ? `${file.size} bytes`
+                              : file.size < 1024 * 1024
+                              ? `${Math.round(file.size / 1024)} KB`
+                              : `${Math.round(file.size / 1024 / 1024)} MB`}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Accordion>
+
+              <Accordion elevation={0}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="h6">基本資訊</Typography>
+                </AccordionSummary>
+                <TableContainer component={AccordionDetails} sx={{ p: 0 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="right">欄位</TableCell>
+                        <TableCell>值</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {Object.entries(
+                        JSON.parse(sessionParamDF['context'].values.at(0))
+                      ).map(([key, value]) => (
+                        <TableRow key={key}>
+                          <TableCell component="th" align="right">
+                            {key}
+                          </TableCell>
+                          <TableCell>{value as any}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Accordion>
+
+              <Accordion elevation={0}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="h6">統計</Typography>
+                </AccordionSummary>
+                <TableContainer component={AccordionDetails} sx={{ p: 0 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell />
+                        <TableCell align="right">統計量</TableCell>
+                        <TableCell align="right">統計值</TableCell>
+                        <TableCell>單位</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell component="th" colSpan={4}>
+                          週期
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <Typography variant="h6" sx={{ p: 2, mt: 2 }}>
-                統計
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell />
-                      <TableCell align="right">統計量</TableCell>
-                      <TableCell align="right">統計值</TableCell>
-                      <TableCell>單位</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell component="th" colSpan={4}>
-                        週期
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" rowSpan={2} />
-                      <TableCell component="th" align="right">
-                        累計期數
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_period_count'
-                        ].values.at(-1)}
-                      </TableCell>
-                      <TableCell>期</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        每期持續時間
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF[
-                          'period_duration_in_second'
-                        ].values.at(-1)}
-                      </TableCell>
-                      <TableCell>秒</TableCell>
-                    </TableRow>
-
-                    <TableRow>
-                      <TableCell component="th" colSpan={4}>
-                        截至最末期
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" rowSpan={5} />
-                      <TableCell component="th" align="right">
-                        累計已實現損益
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography color="primary">
+                      <TableRow>
+                        <TableCell component="th" rowSpan={2} />
+                        <TableCell component="th" align="right">
+                          累計期數
+                        </TableCell>
+                        <TableCell align="right">
                           {settlementReportDF[
-                            'historical_realized_quote_pnl'
+                            'historical_period_count'
                           ].values.at(-1)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {settlementReportDF['settlement_symbol'].values.at(-1)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        未實現損益
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF['unrealized_quote_pnl'].values.at(
-                          -1
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {settlementReportDF['settlement_symbol'].values.at(-1)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        累計最大回撤損失
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography color="primary">
+                        </TableCell>
+                        <TableCell>期</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          每期持續時間
+                        </TableCell>
+                        <TableCell align="right">
                           {settlementReportDF[
-                            'historical_max_drawdown_quote_balance_amount_change'
+                            'period_duration_in_second'
                           ].values.at(-1)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {settlementReportDF['settlement_symbol'].values.at(-1)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        累計最大上漲收益
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_max_run_up_quote_balance_amount_change'
-                        ].values.at(-1)}
-                      </TableCell>
-                      <TableCell>
-                        {settlementReportDF['settlement_symbol'].values.at(-1)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        累計交易額度
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_trade_quote_volume'
-                        ].values.at(-1)}
-                      </TableCell>
-                      <TableCell>
-                        {settlementReportDF['settlement_symbol'].values.at(-1)}
-                      </TableCell>
-                    </TableRow>
+                        </TableCell>
+                        <TableCell>秒</TableCell>
+                      </TableRow>
 
-                    <TableRow>
-                      <TableCell component="th" colSpan={4}>
-                        全期總結
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell rowSpan={7} />
-                      <TableCell component="th" align="right">
-                        夏普率
-                      </TableCell>
-                      <TableCell align="right">
-                        {allPeriodReportDF['sharpe_ratio'].values.at(-1)}
-                      </TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        全商品累計多頭交易次數
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_long_trade_count'
-                        ].values.at(-1)}
-                      </TableCell>
-                      <TableCell>次</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        全商品累計空頭交易次數
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_short_trade_count'
-                        ].values.at(-1)}
-                      </TableCell>
-                      <TableCell>次</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        全商品累計交易次數
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF['historical_trade_count'].values.at(
-                          -1
-                        )}
-                      </TableCell>
-                      <TableCell>次</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        全商品累計獲利次數
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF['historical_win_count'].values.at(
-                          -1
-                        )}
-                      </TableCell>
-                      <TableCell>次</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        全商品累計損失次數
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF['historical_loss_count'].values.at(
-                          -1
-                        )}
-                      </TableCell>
-                      <TableCell>次</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell component="th" align="right">
-                        全商品累計勝負比
-                      </TableCell>
-                      <TableCell align="right">
-                        {settlementReportDF[
-                          'historical_win_loss_ratio'
-                        ].values.at(-1)}
-                      </TableCell>
-                      <TableCell />
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                      <TableRow>
+                        <TableCell component="th" colSpan={4}>
+                          截至最末期
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" rowSpan={5} />
+                        <TableCell component="th" align="right">
+                          累計已實現損益
+                        </TableCell>
+                        <TableCell align="right">
+                          <Typography color="primary">
+                            {settlementReportDF[
+                              'historical_realized_quote_pnl'
+                            ].values.at(-1)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {settlementReportDF['settlement_symbol'].values.at(
+                            -1
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          未實現損益
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF['unrealized_quote_pnl'].values.at(
+                            -1
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {settlementReportDF['settlement_symbol'].values.at(
+                            -1
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          累計最大回撤損失
+                        </TableCell>
+                        <TableCell align="right">
+                          <Typography color="primary">
+                            {settlementReportDF[
+                              'historical_max_drawdown_quote_balance_amount_change'
+                            ].values.at(-1)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {settlementReportDF['settlement_symbol'].values.at(
+                            -1
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          累計最大上漲收益
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF[
+                            'historical_max_run_up_quote_balance_amount_change'
+                          ].values.at(-1)}
+                        </TableCell>
+                        <TableCell>
+                          {settlementReportDF['settlement_symbol'].values.at(
+                            -1
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          累計交易額度
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF[
+                            'historical_trade_quote_volume'
+                          ].values.at(-1)}
+                        </TableCell>
+                        <TableCell>
+                          {settlementReportDF['settlement_symbol'].values.at(
+                            -1
+                          )}
+                        </TableCell>
+                      </TableRow>
+
+                      <TableRow>
+                        <TableCell component="th" colSpan={4}>
+                          全期總結
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell rowSpan={7} />
+                        <TableCell component="th" align="right">
+                          夏普率
+                        </TableCell>
+                        <TableCell align="right">
+                          {allPeriodReportDF['sharpe_ratio'].values.at(-1)}
+                        </TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          全商品累計多頭交易次數
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF[
+                            'historical_long_trade_count'
+                          ].values.at(-1)}
+                        </TableCell>
+                        <TableCell>次</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          全商品累計空頭交易次數
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF[
+                            'historical_short_trade_count'
+                          ].values.at(-1)}
+                        </TableCell>
+                        <TableCell>次</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          全商品累計交易次數
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF[
+                            'historical_trade_count'
+                          ].values.at(-1)}
+                        </TableCell>
+                        <TableCell>次</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          全商品累計獲利次數
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF['historical_win_count'].values.at(
+                            -1
+                          )}
+                        </TableCell>
+                        <TableCell>次</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          全商品累計損失次數
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF[
+                            'historical_loss_count'
+                          ].values.at(-1)}
+                        </TableCell>
+                        <TableCell>次</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" align="right">
+                          全商品累計勝負比
+                        </TableCell>
+                        <TableCell align="right">
+                          {settlementReportDF[
+                            'historical_win_loss_ratio'
+                          ].values.at(-1)}
+                        </TableCell>
+                        <TableCell />
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Accordion>
             </React.Fragment>
           ) : (
             <Box p={2}>
