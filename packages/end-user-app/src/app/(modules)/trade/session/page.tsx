@@ -32,24 +32,14 @@ type UploadSessionInputs = {
   session_files: FileList
 }
 
-interface Report {
-  realized_pnl?: { value: number; unit: string }
-  unrealized_pnl?: { value: number; unit: string }
-  max_drawdown?: { value: number; unit: string }
-  sharpe_ratio?: { value: number }
-}
-
 export default function Page() {
   const uploadSessionForm = useForm<UploadSessionInputs>()
   const [sessionFiles, setSessionFiles] = React.useState<File[]>([])
 
-  const [sessionDF, setSessionDF] = React.useState<dfd.DataFrame>(
-    new dfd.DataFrame()
-  )
-  const [sessionParamDF, setSessionParamDF] = React.useState<dfd.DataFrame>(
-    new dfd.DataFrame()
-  )
-  const [isSessionVisualized, setIsSessionVisualized] = React.useState(false)
+  const [logDF, setLogDF] = React.useState<dfd.DataFrame>(new dfd.DataFrame())
+  const [sessionOpenedLogDF, setSessionOpenedLogDF] =
+    React.useState<dfd.DataFrame>(new dfd.DataFrame())
+  const [isLogVisualized, setIsLogVisualized] = React.useState(false)
 
   const [allPeriodReportDF, setAllPeriodReportDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
@@ -108,9 +98,7 @@ export default function Page() {
       },
     ])
 
-  const sessionDatapoints: any = !isSessionVisualized
-    ? []
-    : dfd.toJSON(sessionDF)
+  const logDatapoints: any = !isLogVisualized ? [] : dfd.toJSON(logDF)
   const settlementReportDatapoints: any = !isEquityVisualized
     ? []
     : dfd.toJSON(settlementReportDF)
@@ -118,27 +106,27 @@ export default function Page() {
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
   ) => {
-    setIsSessionVisualized(false)
+    setIsLogVisualized(false)
     setIsEquityVisualized(false)
     setSessionFiles(Array.from(data.session_files))
 
-    const sessionFile = Array.from(data.session_files).find(
-      (file) => file.type === 'text/csv' && file.name === 'session.csv'
+    const logFile = Array.from(data.session_files).find(
+      (file) => file.type === 'text/csv' && file.name === 'log.csv'
     )
-    if (sessionFile) {
-      dfd.readCSV(sessionFile).then((sessionDF: dfd.DataFrame) => {
-        sessionDF.addColumn(
+    if (logFile) {
+      dfd.readCSV(logFile).then((logDF: dfd.DataFrame) => {
+        logDF.addColumn(
           'parsedContext',
-          Array.from(sessionDF['context'].values).map((v: any) =>
+          Array.from(logDF['context'].values).map((v: any) =>
             v ? JSON.parse(v) : null
           ),
           { inplace: true }
         )
-        setSessionDF(sessionDF)
-        const sessionParamDF = sessionDF.loc({
-          rows: sessionDF['operation'].eq('param'),
+        setLogDF(logDF)
+        const sessionOpenedLogDF = logDF.loc({
+          rows: logDF['event'].eq('session_opened'),
         })
-        setSessionParamDF(sessionParamDF)
+        setSessionOpenedLogDF(sessionOpenedLogDF)
       })
     }
 
@@ -224,7 +212,8 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionHeader title="報告" />
         <ModuleFunctionBody>
-          {sessionParamDF.shape[0] > 0 && settlementReportDF.shape[0] > 0 ? (
+          {sessionOpenedLogDF.shape[0] > 0 &&
+          settlementReportDF.shape[0] > 0 ? (
             <React.Fragment>
               <Accordion elevation={0}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -272,7 +261,7 @@ export default function Page() {
                     </TableHead>
                     <TableBody>
                       {Object.entries(
-                        JSON.parse(sessionParamDF['context'].values.at(0))
+                        JSON.parse(sessionOpenedLogDF['context'].values.at(0))
                       ).map(([key, value]) => (
                         <TableRow key={key}>
                           <TableCell component="th" align="right">
@@ -519,15 +508,15 @@ export default function Page() {
                 <Button
                   variant="contained"
                   startIcon={<DrawIcon />}
-                  disabled={sessionDF.shape[0] === 0}
-                  onClick={() => setIsSessionVisualized(true)}
+                  disabled={logDF.shape[0] === 0}
+                  onClick={() => setIsLogVisualized(true)}
                 >
                   繪製
                 </Button>
                 <Button
                   startIcon={<CleaningServicesIcon />}
-                  disabled={!isSessionVisualized}
-                  onClick={() => setIsSessionVisualized(false)}
+                  disabled={!isLogVisualized}
+                  onClick={() => setIsLogVisualized(false)}
                 >
                   清除
                 </Button>
@@ -537,17 +526,19 @@ export default function Page() {
         />
 
         <ModuleFunctionBody>
-          {isSessionVisualized ? (
+          {isLogVisualized ? (
             <HighChartsHighStock
               series={[
                 {
                   id: 'perp_implied_term_ir',
                   type: 'line',
                   name: 'Grid IR',
-                  data: sessionDatapoints
-                    .filter((d: any) => d.symbol === 'ETH/USDT:USDT-240927')
+                  data: logDatapoints
+                    .filter(
+                      (d: any) => d.trade_symbol === 'ETH/USDT:USDT-240927'
+                    )
                     .map((d: any) => [
-                      new Date(`${d.datetime_utc}Z`).getTime(),
+                      new Date(`${d.trade_datetime_utc}Z`).getTime(),
                       parseFloat(d.parsedContext.perp_implied_term_ir),
                     ]),
                   tooltip: {
@@ -556,7 +547,7 @@ export default function Page() {
                 },
                 //   {
                 //     type: 'flags',
-                //     data: sessionDatapoints
+                //     data: logDatapoints
                 //       .filter(
                 //         (d: any) =>
                 //           d.operation === 'take' &&
@@ -595,21 +586,21 @@ export default function Page() {
               ]}
               annotations={[
                 {
-                  shapes: sessionDatapoints
+                  shapes: logDatapoints
                     .filter(
                       (d: any) =>
-                        d.operation === 'take' &&
-                        d.symbol === 'ETH/USDT:USDT-240927'
+                        d.event === 'trade' &&
+                        d.trade_symbol === 'ETH/USDT:USDT-240927'
                     )
                     .map((d: any) => {
-                      const x = new Date(`${d.datetime_utc}Z`).getTime()
+                      const x = new Date(`${d.trade_datetime_utc}Z`).getTime()
                       const y = parseFloat(d.parsedContext.perp_implied_term_ir)
                       let yStart, yEnd, color
-                      if (d.side === 'short') {
+                      if (d.trade_side === 'short') {
                         yEnd = y + 0
                         yStart = yEnd + 0.000001
                         color = '#FF0000'
-                      } else if (d.side === 'long') {
+                      } else if (d.trade_side === 'long') {
                         yEnd = y - 0
                         yStart = yEnd - 0.000001
                         color = '#00FF00'
