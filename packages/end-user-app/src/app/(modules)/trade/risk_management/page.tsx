@@ -51,6 +51,7 @@ interface FxRisk {
 
 interface IrRisk {
   symbol: string
+  instrument: string
   base_currency: string
   quote_currency: string
   account_name: string
@@ -327,6 +328,7 @@ const fetchPositionIrRisk = async () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Symbol</TableCell>
+                    <TableCell>Instrument</TableCell>
                     <TableCell>Base Currency</TableCell>
                     <TableCell>Quote Currency</TableCell>
                     <TableCell>Account Name</TableCell>
@@ -341,6 +343,7 @@ const fetchPositionIrRisk = async () => {
                     irRisk.map((irRisk, index) => (
                       <TableRow key={index}>
                         <TableCell>{irRisk.symbol}</TableCell>
+                        <TableCell>{irRisk.instrument}</TableCell>
                         <TableCell>{irRisk.base_currency}</TableCell>
                         <TableCell>{irRisk.quote_currency}</TableCell>
                         <TableCell>{irRisk.account_name}</TableCell>
