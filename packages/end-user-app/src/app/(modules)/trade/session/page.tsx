@@ -24,6 +24,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
+import * as d3 from 'd3'
 import * as dfd from 'danfojs'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
@@ -46,12 +47,11 @@ export default function Page() {
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
   const [quotationUpdatedEventDF, setQuotationUpdatedEventDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
-  const [
-    quotationUpdatedEventContextKeys,
-    setQuotationUpdatedEventContextKeys,
-  ] = React.useState<string[]>([])
   const [isEventVisualized, setIsEventVisualized] = React.useState(false)
-
+  const [
+    quotationUpdatedEventSeriesConfigs,
+    setQuotationUpdatedEventSeriesConfigs,
+  ] = React.useState<any>([])
   const [allPeriodReportDF, setAllPeriodReportDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
   const [settlementReportDF, setSettlementReportDF] =
@@ -108,10 +108,6 @@ export default function Page() {
         ],
       },
     ])
-  console.log(
-    'quotationUpdatedEventContextKeys',
-    quotationUpdatedEventContextKeys
-  )
   const quotationUpdatedEventDatapoints: any = !isEventVisualized
     ? []
     : dfd.toJSON(quotationUpdatedEventDF)
@@ -142,21 +138,35 @@ export default function Page() {
           rows: eventDF['event_name'].eq('quotation_updated'),
         })
         setQuotationUpdatedEventDF(_quotationUpdatedEventDF)
-        setQuotationUpdatedEventContextKeys(
-          Array.from(
-            _quotationUpdatedEventDF['event_context'].values.reduce(
-              (s: Set<string>, text: any) => {
-                const obj = JSON.parse(text)
-                Object.entries(obj).forEach(([k, v]) => {
-                  if (typeof v !== 'object' && k !== 'updated_datetime_utc') {
-                    s.add(k)
-                  }
-                })
-                return s
-              },
-              new Set<string>()
-            )
+        const _quotationUpdatedEventContextKeys: string[] = Array.from(
+          _quotationUpdatedEventDF['event_context'].values.reduce(
+            (s: Set<string>, text: any) => {
+              const obj = JSON.parse(text)
+              Object.entries(obj).forEach(([k, v]) => {
+                if (typeof v !== 'object' && k !== 'updated_datetime_utc') {
+                  s.add(k)
+                }
+              })
+              return s
+            },
+            new Set<string>()
           )
+        )
+        setQuotationUpdatedEventSeriesConfigs(
+          _quotationUpdatedEventContextKeys.map((k, i) => ({
+            key: k,
+            isVisible: true,
+            name: k,
+            type: 'line',
+            color: d3.schemeCategory10[i % d3.schemeCategory10.length],
+            accessData: (d: any) => {
+              const eventContext = JSON.parse(d.event_context)
+              return [
+                new Date(`${eventContext.updated_datetime_utc}Z`).getTime(),
+                parseFloat(eventContext[k]),
+              ]
+            },
+          }))
         )
       })
     }
@@ -569,110 +579,152 @@ export default function Page() {
 
         <ModuleFunctionBody>
           {isEventVisualized ? (
-            <HighChartsHighStock
-              series={[
-                {
-                  id: 'perp_implied_term_ir',
-                  type: 'line',
-                  name: 'Grid IR',
-                  data: quotationUpdatedEventDatapoints.map((d: any) => {
-                    const eventContext = JSON.parse(d.event_context)
-                    return [
-                      new Date(
-                        `${eventContext.updated_datetime_utc}Z`
-                      ).getTime(),
-                      parseFloat(eventContext.perp_implied_term_ir),
-                    ]
-                  }),
-                  tooltip: {
-                    valueDecimals: 4,
-                  },
-                },
+            <React.Fragment>
+              <HighChartsHighStock
+                series={quotationUpdatedEventSeriesConfigs
+                  .filter((cfg: any) => cfg.isVisible)
+                  .map((cfg: any) => ({
+                    id: cfg.key,
+                    name: cfg.name,
+                    type: cfg.type,
+                    color: cfg.color,
+                    data: quotationUpdatedEventDatapoints.map(cfg.accessData),
+                    tooltip: {
+                      valueDecimals: 4,
+                    },
+                  }))}
+                // series={[
                 //   {
-                //     type: 'flags',
-                //     data: logDatapoints
-                //       .filter(
-                //         (d: any) =>
-                //           d.operation === 'take' &&
-                //           d.symbol === 'binance_ETH_USDT_USDT_241227'
-                //       )
-                //       .map((d: any) => {
-                //         const x = new Date(`${d.datetime_utc}Z`).getTime()
-                //         const y = parseFloat(
-                //           d.parsedContext.perp_implied_term_ir
-                //         )
-                //         let yStart, yEnd, color, title
-                //         if (d.side === 'short') {
-                //           yEnd = y + 0
-                //           yStart = yEnd + 0.0001
-                //           color = '#FF0000'
-                //           title = 'S'
-                //         } else if (d.side === 'long') {
-                //           yEnd = y - 0
-                //           yStart = yEnd - 0.0001
-                //           color = '#00FF00'
-                //           title = 'L'
-                //         }
-                //         return {
-                //           x,
-                //           y: yStart,
-                //           color,
-                //           fillColor: color,
-                //           title,
-                //         }
-                //       }),
-                //     onSeries: 'perp_implied_term_ir',
-                //     shape: 'squarepin',
-                //     borderRadius: 3,
-                //     width: 16,
+                //     id: 'perp_implied_term_ir',
+                //     type: 'line',
+                //     name: 'Grid IR',
+                //     data: quotationUpdatedEventDatapoints.map((d: any) => {
+                //       const eventContext = JSON.parse(d.event_context)
+                //       return [
+                //         new Date(
+                //           `${eventContext.updated_datetime_utc}Z`
+                //         ).getTime(),
+                //         parseFloat(eventContext.perp_implied_term_ir),
+                //       ]
+                //     }),
+                //     tooltip: {
+                //       valueDecimals: 4,
+                //     },
                 //   },
-              ]}
-              annotations={[
-                {
-                  shapes: tradeDatapoints
-                    .filter(
-                      (d: any) =>
-                        d.trade_symbol === 'binance_ETH_USDT_USDT_241227'
-                    )
-                    .map((d: any) => {
-                      const tradeContext = JSON.parse(d.trade_context)
-                      const x = new Date(`${d.trade_datetime_utc}Z`).getTime()
-                      const y = parseFloat(tradeContext.perp_implied_term_ir)
-                      let yStart, yEnd, color
-                      if (d.trade_side === 'short') {
-                        yEnd = y + 0
-                        yStart = yEnd + 0.000001
-                        color = '#FF0000'
-                      } else if (d.trade_side === 'long') {
-                        yEnd = y - 0
-                        yStart = yEnd - 0.000001
-                        color = '#00FF00'
+                //   //   {
+                //   //     type: 'flags',
+                //   //     data: logDatapoints
+                //   //       .filter(
+                //   //         (d: any) =>
+                //   //           d.operation === 'take' &&
+                //   //           d.symbol === 'binance_ETH_USDT_USDT_241227'
+                //   //       )
+                //   //       .map((d: any) => {
+                //   //         const x = new Date(`${d.datetime_utc}Z`).getTime()
+                //   //         const y = parseFloat(
+                //   //           d.parsedContext.perp_implied_term_ir
+                //   //         )
+                //   //         let yStart, yEnd, color, title
+                //   //         if (d.side === 'short') {
+                //   //           yEnd = y + 0
+                //   //           yStart = yEnd + 0.0001
+                //   //           color = '#FF0000'
+                //   //           title = 'S'
+                //   //         } else if (d.side === 'long') {
+                //   //           yEnd = y - 0
+                //   //           yStart = yEnd - 0.0001
+                //   //           color = '#00FF00'
+                //   //           title = 'L'
+                //   //         }
+                //   //         return {
+                //   //           x,
+                //   //           y: yStart,
+                //   //           color,
+                //   //           fillColor: color,
+                //   //           title,
+                //   //         }
+                //   //       }),
+                //   //     onSeries: 'perp_implied_term_ir',
+                //   //     shape: 'squarepin',
+                //   //     borderRadius: 3,
+                //   //     width: 16,
+                //   //   },
+                // ]}
+                annotations={[
+                  {
+                    shapes: tradeDatapoints
+                      .filter(
+                        (d: any) =>
+                          d.trade_symbol === 'binance_ETH_USDT_USDT_241227'
+                      )
+                      .map((d: any) => {
+                        const tradeContext = JSON.parse(d.trade_context)
+                        const x = new Date(`${d.trade_datetime_utc}Z`).getTime()
+                        const y = parseFloat(tradeContext.perp_implied_term_ir)
+                        let yStart, yEnd, color
+                        if (d.trade_side === 'short') {
+                          yEnd = y + 0
+                          yStart = yEnd + 0.000001
+                          color = '#FF0000'
+                        } else if (d.trade_side === 'long') {
+                          yEnd = y - 0
+                          yStart = yEnd - 0.000001
+                          color = '#00FF00'
+                        }
+                        return {
+                          type: 'path',
+                          points: [
+                            {
+                              x,
+                              y: yStart,
+                              xAxis: 0,
+                              yAxis: 0,
+                            },
+                            {
+                              x,
+                              y: yEnd,
+                              xAxis: 0,
+                              yAxis: 0,
+                            },
+                          ],
+                          stroke: color,
+                          fill: color,
+                          width: 1,
+                          markerEnd: 'arrow',
+                        }
+                      }),
+                  },
+                ]}
+              />
+              <Stack
+                direction="row"
+                p={2}
+                sx={{
+                  flexWrap: 'wrap',
+                }}
+              >
+                {quotationUpdatedEventSeriesConfigs.map((cfg: any) => (
+                  <Box key={cfg.key} sx={{ p: 0.5 }}>
+                    <Chip
+                      key={cfg.key}
+                      label={cfg.name}
+                      size="small"
+                      avatar={
+                        <svg>
+                          <circle r="9" cx="9" cy="9" fill={cfg.color} />
+                        </svg>
                       }
-                      return {
-                        type: 'path',
-                        points: [
-                          {
-                            x,
-                            y: yStart,
-                            xAxis: 0,
-                            yAxis: 0,
-                          },
-                          {
-                            x,
-                            y: yEnd,
-                            xAxis: 0,
-                            yAxis: 0,
-                          },
-                        ],
-                        stroke: color,
-                        fill: color,
-                        width: 1,
-                        markerEnd: 'arrow',
-                      }
-                    }),
-                },
-              ]}
-            />
+                      onClick={() => {
+                        updateSettlementReportSeriesConfig(cfg.key, {
+                          isVisible: !cfg.isVisible,
+                        })
+                      }}
+                      variant={cfg.isVisible ? undefined : 'outlined'}
+                    />
+                  </Box>
+                ))}
+              </Stack>
+            </React.Fragment>
           ) : (
             <Box p={2}>
               <Typography>尚未繪製</Typography>
