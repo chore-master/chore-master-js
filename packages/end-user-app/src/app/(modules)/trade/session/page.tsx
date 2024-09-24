@@ -118,6 +118,9 @@ export default function Page() {
     : dfd.toJSON(settlementReportDF)
   const firstVisibleQuotationUpdatedEventSeriesConfig =
     quotationUpdatedEventSeriesConfigs.find((cfg: any) => cfg.isVisible)
+  const firstVisibleTradeSymbolSeriesConfig = tradeSymbolSeriesConfigs.find(
+    (cfg: any) => cfg.isVisible
+  )
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -710,7 +713,8 @@ export default function Page() {
                     shapes: tradeDatapoints
                       .filter(
                         (d: any) =>
-                          d.trade_symbol === 'binance_ETH_USDT_USDT_241227'
+                          d.trade_symbol ===
+                          firstVisibleTradeSymbolSeriesConfig?.key
                       )
                       .map((d: any) => {
                         const tradeContext = JSON.parse(d.trade_context)
