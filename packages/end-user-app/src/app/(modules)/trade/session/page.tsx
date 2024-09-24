@@ -155,7 +155,7 @@ export default function Page() {
         setQuotationUpdatedEventSeriesConfigs(
           _quotationUpdatedEventContextKeys.map((k, i) => ({
             key: k,
-            isVisible: true,
+            isVisible: i === 0,
             name: k,
             type: 'line',
             color: d3.schemeCategory10[i % d3.schemeCategory10.length],
@@ -197,6 +197,25 @@ export default function Page() {
       })
     }
     uploadSessionForm.reset()
+  }
+
+  const updateQuotationUpdatedEventSeriesConfig = (
+    key: string,
+    update: any
+  ) => {
+    const configIndex = quotationUpdatedEventSeriesConfigs.findIndex(
+      (cfg: any) => cfg.key === key
+    )
+    if (configIndex !== -1) {
+      setQuotationUpdatedEventSeriesConfigs([
+        ...quotationUpdatedEventSeriesConfigs.slice(0, configIndex),
+        {
+          ...quotationUpdatedEventSeriesConfigs[configIndex],
+          ...update,
+        },
+        ...quotationUpdatedEventSeriesConfigs.slice(configIndex + 1),
+      ])
+    }
   }
 
   const updateSettlementReportSeriesConfig = (key: string, update: any) => {
@@ -715,7 +734,7 @@ export default function Page() {
                         </svg>
                       }
                       onClick={() => {
-                        updateSettlementReportSeriesConfig(cfg.key, {
+                        updateQuotationUpdatedEventSeriesConfig(cfg.key, {
                           isVisible: !cfg.isVisible,
                         })
                       }}
