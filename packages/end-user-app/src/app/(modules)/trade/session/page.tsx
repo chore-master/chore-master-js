@@ -635,8 +635,9 @@ export default function Page() {
                         d.trade_symbol === 'binance_ETH_USDT_USDT_241227'
                     )
                     .map((d: any) => {
+                      const tradeContext = JSON.parse(d.trade_context)
                       const x = new Date(`${d.trade_datetime_utc}Z`).getTime()
-                      const y = parseFloat(d.tradeContext.perp_implied_term_ir)
+                      const y = parseFloat(tradeContext.perp_implied_term_ir)
                       let yStart, yEnd, color
                       if (d.trade_side === 'short') {
                         yEnd = y + 0
