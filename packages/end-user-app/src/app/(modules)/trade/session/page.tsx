@@ -52,12 +52,13 @@ export default function Page() {
     quotationUpdatedEventSeriesConfigs,
     setQuotationUpdatedEventSeriesConfigs,
   ] = React.useState<any>([])
+  const [tradeSymbolSeriesConfigs, setTradeSymbolSeriesConfigs] =
+    React.useState<any>([])
   const [allPeriodReportDF, setAllPeriodReportDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
   const [settlementReportDF, setSettlementReportDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
   const [isEquityVisualized, setIsEquityVisualized] = React.useState(false)
-
   const [settlementReportSeriesConfigs, setSettlementReportSeriesConfigs] =
     React.useState<any>([
       {
@@ -115,6 +116,8 @@ export default function Page() {
   const settlementReportDatapoints: any = !isEquityVisualized
     ? []
     : dfd.toJSON(settlementReportDF)
+  const firstVisibleQuotationUpdatedEventSeriesConfig =
+    quotationUpdatedEventSeriesConfigs.find((cfg: any) => cfg.isVisible)
 
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
@@ -177,6 +180,15 @@ export default function Page() {
     if (tradeFile) {
       dfd.readCSV(tradeFile).then((tradeDF: dfd.DataFrame) => {
         setTradeDF(tradeDF)
+        setTradeSymbolSeriesConfigs(
+          tradeDF['trade_symbol']
+            .unique()
+            .values.map((symbol: string, i: number) => ({
+              key: symbol,
+              isVisible: i === 0,
+              name: symbol,
+            }))
+        )
       })
     }
 
@@ -214,6 +226,30 @@ export default function Page() {
           ...update,
         },
         ...quotationUpdatedEventSeriesConfigs.slice(configIndex + 1),
+      ])
+    }
+  }
+
+  const updateTradeSymbolSeriesConfig = (
+    key: string,
+    update: any,
+    updateOther: any
+  ) => {
+    const configIndex = tradeSymbolSeriesConfigs.findIndex(
+      (cfg: any) => cfg.key === key
+    )
+    if (configIndex !== -1) {
+      setTradeSymbolSeriesConfigs([
+        ...tradeSymbolSeriesConfigs
+          .slice(0, configIndex)
+          .map((cfg: any) => ({ ...cfg, ...updateOther })),
+        {
+          ...tradeSymbolSeriesConfigs[configIndex],
+          ...update,
+        },
+        ...tradeSymbolSeriesConfigs
+          .slice(configIndex + 1)
+          .map((cfg: any) => ({ ...cfg, ...updateOther })),
       ])
     }
   }
@@ -679,7 +715,11 @@ export default function Page() {
                       .map((d: any) => {
                         const tradeContext = JSON.parse(d.trade_context)
                         const x = new Date(`${d.trade_datetime_utc}Z`).getTime()
-                        const y = parseFloat(tradeContext.perp_implied_term_ir)
+                        const y = parseFloat(
+                          tradeContext[
+                            firstVisibleQuotationUpdatedEventSeriesConfig.key
+                          ]
+                        )
                         let yStart, yEnd, color
                         if (d.trade_side === 'short') {
                           yEnd = y + 0
@@ -715,9 +755,13 @@ export default function Page() {
                   },
                 ]}
               />
+              <Box p={2} pb={0}>
+                <Typography variant="h6">指標</Typography>
+              </Box>
               <Stack
                 direction="row"
                 p={2}
+                pt={1}
                 sx={{
                   flexWrap: 'wrap',
                 }}
@@ -737,6 +781,45 @@ export default function Page() {
                         updateQuotationUpdatedEventSeriesConfig(cfg.key, {
                           isVisible: !cfg.isVisible,
                         })
+                      }}
+                      variant={cfg.isVisible ? undefined : 'outlined'}
+                    />
+                  </Box>
+                ))}
+              </Stack>
+
+              <Box p={2} pb={0}>
+                <Typography variant="h6">交易標記</Typography>
+              </Box>
+              <Stack
+                direction="row"
+                p={2}
+                pt={1}
+                sx={{
+                  flexWrap: 'wrap',
+                }}
+              >
+                {tradeSymbolSeriesConfigs.map((cfg: any) => (
+                  <Box key={cfg.key} sx={{ p: 0.5 }}>
+                    <Chip
+                      key={cfg.key}
+                      label={cfg.name}
+                      size="small"
+                      // avatar={
+                      //   <svg>
+                      //     <circle r="9" cx="9" cy="9" fill={cfg.color} />
+                      //   </svg>
+                      // }
+                      onClick={() => {
+                        updateTradeSymbolSeriesConfig(
+                          cfg.key,
+                          {
+                            isVisible: !cfg.isVisible,
+                          },
+                          {
+                            isVisible: false,
+                          }
+                        )
                       }}
                       variant={cfg.isVisible ? undefined : 'outlined'}
                     />
