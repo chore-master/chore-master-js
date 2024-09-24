@@ -36,10 +36,17 @@ export default function Page() {
   const uploadSessionForm = useForm<UploadSessionInputs>()
   const [sessionFiles, setSessionFiles] = React.useState<File[]>([])
 
-  const [logDF, setLogDF] = React.useState<dfd.DataFrame>(new dfd.DataFrame())
-  const [sessionOpenedLogDF, setSessionOpenedLogDF] =
+  const [eventDF, setEventDF] = React.useState<dfd.DataFrame>(
+    new dfd.DataFrame()
+  )
+  const [tradeDF, setTradeDF] = React.useState<dfd.DataFrame>(
+    new dfd.DataFrame()
+  )
+  const [sessionOpenedEventDF, setSessionOpenedEventDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
-  const [isLogVisualized, setIsLogVisualized] = React.useState(false)
+  const [quotationUpdatedEventDF, setQuotationUpdatedEventDF] =
+    React.useState<dfd.DataFrame>(new dfd.DataFrame())
+  const [isEventVisualized, setIsEventVisualized] = React.useState(false)
 
   const [allPeriodReportDF, setAllPeriodReportDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
@@ -52,7 +59,7 @@ export default function Page() {
       {
         key: 'historical_quote_balance_amount_change',
         isVisible: true,
-        name: 'Equity Change',
+        name: '權益變化曲線',
         type: 'line',
         color: '#17BECF',
         accessData: (d: any) => [
@@ -63,7 +70,7 @@ export default function Page() {
       {
         key: 'historical_realized_quote_pnl',
         isVisible: true,
-        name: 'Historical Realized PnL',
+        name: '累計已實現損益',
         type: 'column',
         color: '#CCCCCC',
         stack: 'historical',
@@ -75,7 +82,7 @@ export default function Page() {
       {
         key: 'unrealized_quote_pnl',
         isVisible: true,
-        name: 'Unrealized PnL',
+        name: '當期未實現損益',
         type: 'column',
         color: 'orange',
         stack: 'historical',
@@ -87,7 +94,7 @@ export default function Page() {
       {
         key: 'period_realized_quote_pnl',
         isVisible: true,
-        name: 'Realized PnL',
+        name: '當期已實現損益',
         type: 'column',
         color: 'green',
         stack: 'period',
@@ -98,7 +105,10 @@ export default function Page() {
       },
     ])
 
-  const logDatapoints: any = !isLogVisualized ? [] : dfd.toJSON(logDF)
+  const quotationUpdatedEventDatapoints: any = !isEventVisualized
+    ? []
+    : dfd.toJSON(quotationUpdatedEventDF)
+  const tradeDatapoints: any = !isEventVisualized ? [] : dfd.toJSON(tradeDF)
   const settlementReportDatapoints: any = !isEquityVisualized
     ? []
     : dfd.toJSON(settlementReportDF)
@@ -106,27 +116,49 @@ export default function Page() {
   const onSubmitUploadSessionForm: SubmitHandler<UploadSessionInputs> = async (
     data
   ) => {
-    setIsLogVisualized(false)
+    setIsEventVisualized(false)
     setIsEquityVisualized(false)
     setSessionFiles(Array.from(data.session_files))
 
-    const logFile = Array.from(data.session_files).find(
-      (file) => file.type === 'text/csv' && file.name === 'log.csv'
+    const eventFile = Array.from(data.session_files).find(
+      (file) => file.type === 'text/csv' && file.name === 'event.csv'
     )
-    if (logFile) {
-      dfd.readCSV(logFile).then((logDF: dfd.DataFrame) => {
-        logDF.addColumn(
-          'parsedContext',
-          Array.from(logDF['context'].values).map((v: any) =>
+    if (eventFile) {
+      dfd.readCSV(eventFile).then((eventDF: dfd.DataFrame) => {
+        eventDF.addColumn(
+          'eventContext',
+          Array.from(eventDF['event_context'].values).map((v: any) =>
             v ? JSON.parse(v) : null
           ),
           { inplace: true }
         )
-        setLogDF(logDF)
-        const sessionOpenedLogDF = logDF.loc({
-          rows: logDF['event'].eq('session_opened'),
-        })
-        setSessionOpenedLogDF(sessionOpenedLogDF)
+        setEventDF(eventDF)
+        setSessionOpenedEventDF(
+          eventDF.loc({
+            rows: eventDF['event_name'].eq('session_opened'),
+          })
+        )
+        setQuotationUpdatedEventDF(
+          eventDF.loc({
+            rows: eventDF['event_name'].eq('quotation_updated'),
+          })
+        )
+      })
+    }
+
+    const tradeFile = Array.from(data.session_files).find(
+      (file) => file.type === 'text/csv' && file.name === 'trade.csv'
+    )
+    if (tradeFile) {
+      dfd.readCSV(tradeFile).then((tradeDF: dfd.DataFrame) => {
+        tradeDF.addColumn(
+          'tradeContext',
+          Array.from(tradeDF['trade_context'].values).map((v: any) =>
+            v ? JSON.parse(v) : null
+          ),
+          { inplace: true }
+        )
+        setTradeDF(tradeDF)
       })
     }
 
@@ -212,7 +244,7 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionHeader title="報告" />
         <ModuleFunctionBody>
-          {sessionOpenedLogDF.shape[0] > 0 &&
+          {sessionOpenedEventDF.shape[0] > 0 &&
           settlementReportDF.shape[0] > 0 ? (
             <React.Fragment>
               <Accordion elevation={0}>
@@ -261,7 +293,9 @@ export default function Page() {
                     </TableHead>
                     <TableBody>
                       {Object.entries(
-                        JSON.parse(sessionOpenedLogDF['context'].values.at(0))
+                        JSON.parse(
+                          sessionOpenedEventDF['eventContext'].values.at(0)
+                        )
                       ).map(([key, value]) => (
                         <TableRow key={key}>
                           <TableCell component="th" align="right">
@@ -508,15 +542,15 @@ export default function Page() {
                 <Button
                   variant="contained"
                   startIcon={<DrawIcon />}
-                  disabled={logDF.shape[0] === 0}
-                  onClick={() => setIsLogVisualized(true)}
+                  disabled={eventDF.shape[0] === 0}
+                  onClick={() => setIsEventVisualized(true)}
                 >
                   繪製
                 </Button>
                 <Button
                   startIcon={<CleaningServicesIcon />}
-                  disabled={!isLogVisualized}
-                  onClick={() => setIsLogVisualized(false)}
+                  disabled={!isEventVisualized}
+                  onClick={() => setIsEventVisualized(false)}
                 >
                   清除
                 </Button>
@@ -526,21 +560,19 @@ export default function Page() {
         />
 
         <ModuleFunctionBody>
-          {isLogVisualized ? (
+          {isEventVisualized ? (
             <HighChartsHighStock
               series={[
                 {
                   id: 'perp_implied_term_ir',
                   type: 'line',
                   name: 'Grid IR',
-                  data: logDatapoints
-                    .filter(
-                      (d: any) => d.trade_symbol === 'ETH/USDT:USDT-240927'
-                    )
-                    .map((d: any) => [
-                      new Date(`${d.trade_datetime_utc}Z`).getTime(),
-                      parseFloat(d.parsedContext.perp_implied_term_ir),
-                    ]),
+                  data: quotationUpdatedEventDatapoints.map((d: any) => [
+                    new Date(
+                      `${d.eventContext.updated_datetime_utc}Z`
+                    ).getTime(),
+                    parseFloat(d.eventContext.perp_implied_term_ir),
+                  ]),
                   tooltip: {
                     valueDecimals: 4,
                   },
@@ -551,7 +583,7 @@ export default function Page() {
                 //       .filter(
                 //         (d: any) =>
                 //           d.operation === 'take' &&
-                //           d.symbol === 'ETH/USDT:USDT-240927'
+                //           d.symbol === 'binance_ETH_USDT_USDT_241227'
                 //       )
                 //       .map((d: any) => {
                 //         const x = new Date(`${d.datetime_utc}Z`).getTime()
@@ -586,15 +618,14 @@ export default function Page() {
               ]}
               annotations={[
                 {
-                  shapes: logDatapoints
+                  shapes: tradeDatapoints
                     .filter(
                       (d: any) =>
-                        d.event === 'trade' &&
-                        d.trade_symbol === 'ETH/USDT:USDT-240927'
+                        d.trade_symbol === 'binance_ETH_USDT_USDT_241227'
                     )
                     .map((d: any) => {
                       const x = new Date(`${d.trade_datetime_utc}Z`).getTime()
-                      const y = parseFloat(d.parsedContext.perp_implied_term_ir)
+                      const y = parseFloat(d.tradeContext.perp_implied_term_ir)
                       let yStart, yEnd, color
                       if (d.trade_side === 'short') {
                         yEnd = y + 0
