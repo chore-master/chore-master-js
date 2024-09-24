@@ -46,6 +46,10 @@ export default function Page() {
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
   const [quotationUpdatedEventDF, setQuotationUpdatedEventDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
+  const [
+    quotationUpdatedEventContextKeys,
+    setQuotationUpdatedEventContextKeys,
+  ] = React.useState<string[]>([])
   const [isEventVisualized, setIsEventVisualized] = React.useState(false)
 
   const [allPeriodReportDF, setAllPeriodReportDF] =
@@ -104,7 +108,10 @@ export default function Page() {
         ],
       },
     ])
-
+  console.log(
+    'quotationUpdatedEventContextKeys',
+    quotationUpdatedEventContextKeys
+  )
   const quotationUpdatedEventDatapoints: any = !isEventVisualized
     ? []
     : dfd.toJSON(quotationUpdatedEventDF)
@@ -125,23 +132,31 @@ export default function Page() {
     )
     if (eventFile) {
       dfd.readCSV(eventFile).then((eventDF: dfd.DataFrame) => {
-        eventDF.addColumn(
-          'eventContext',
-          Array.from(eventDF['event_context'].values).map((v: any) =>
-            v ? JSON.parse(v) : null
-          ),
-          { inplace: true }
-        )
         setEventDF(eventDF)
         setSessionOpenedEventDF(
           eventDF.loc({
             rows: eventDF['event_name'].eq('session_opened'),
           })
         )
-        setQuotationUpdatedEventDF(
-          eventDF.loc({
-            rows: eventDF['event_name'].eq('quotation_updated'),
-          })
+        const _quotationUpdatedEventDF = eventDF.loc({
+          rows: eventDF['event_name'].eq('quotation_updated'),
+        })
+        setQuotationUpdatedEventDF(_quotationUpdatedEventDF)
+        setQuotationUpdatedEventContextKeys(
+          Array.from(
+            _quotationUpdatedEventDF['event_context'].values.reduce(
+              (s: Set<string>, text: any) => {
+                const obj = JSON.parse(text)
+                Object.entries(obj).forEach(([k, v]) => {
+                  if (typeof v !== 'object' && k !== 'updated_datetime_utc') {
+                    s.add(k)
+                  }
+                })
+                return s
+              },
+              new Set<string>()
+            )
+          )
         )
       })
     }
@@ -151,13 +166,6 @@ export default function Page() {
     )
     if (tradeFile) {
       dfd.readCSV(tradeFile).then((tradeDF: dfd.DataFrame) => {
-        tradeDF.addColumn(
-          'tradeContext',
-          Array.from(tradeDF['trade_context'].values).map((v: any) =>
-            v ? JSON.parse(v) : null
-          ),
-          { inplace: true }
-        )
         setTradeDF(tradeDF)
       })
     }
@@ -294,7 +302,7 @@ export default function Page() {
                     <TableBody>
                       {Object.entries(
                         JSON.parse(
-                          sessionOpenedEventDF['eventContext'].values.at(0)
+                          sessionOpenedEventDF['event_context'].values.at(0)
                         )
                       ).map(([key, value]) => (
                         <TableRow key={key}>
@@ -567,12 +575,15 @@ export default function Page() {
                   id: 'perp_implied_term_ir',
                   type: 'line',
                   name: 'Grid IR',
-                  data: quotationUpdatedEventDatapoints.map((d: any) => [
-                    new Date(
-                      `${d.eventContext.updated_datetime_utc}Z`
-                    ).getTime(),
-                    parseFloat(d.eventContext.perp_implied_term_ir),
-                  ]),
+                  data: quotationUpdatedEventDatapoints.map((d: any) => {
+                    const eventContext = JSON.parse(d.event_context)
+                    return [
+                      new Date(
+                        `${eventContext.updated_datetime_utc}Z`
+                      ).getTime(),
+                      parseFloat(eventContext.perp_implied_term_ir),
+                    ]
+                  }),
                   tooltip: {
                     valueDecimals: 4,
                   },
