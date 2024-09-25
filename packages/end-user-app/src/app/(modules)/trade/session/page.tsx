@@ -149,9 +149,9 @@ export default function Page() {
   ) => {
     setIsEventVisualized(false)
     setIsEquityVisualized(false)
-    setSessionFiles(Array.from(data.session_files))
+    setSessionFiles(Array.from(data.session_files || []))
 
-    const eventFile = Array.from(data.session_files).find(
+    const eventFile = Array.from(data.session_files || []).find(
       (file) => file.type === 'text/csv' && file.name === 'event.csv'
     )
     if (eventFile) {
@@ -197,9 +197,14 @@ export default function Page() {
           }))
         )
       })
+    } else {
+      setEventDF(new dfd.DataFrame())
+      setSessionOpenedEventDF(new dfd.DataFrame())
+      setQuotationUpdatedEventDF(new dfd.DataFrame())
+      setQuotationUpdatedEventLegends([])
     }
 
-    const tradeFile = Array.from(data.session_files).find(
+    const tradeFile = Array.from(data.session_files || []).find(
       (file) => file.type === 'text/csv' && file.name === 'trade.csv'
     )
     if (tradeFile) {
@@ -215,9 +220,12 @@ export default function Page() {
             }))
         )
       })
+    } else {
+      setTradeDF(new dfd.DataFrame())
+      setTradeSymbolLegends([])
     }
 
-    const reportFile = Array.from(data.session_files).find(
+    const reportFile = Array.from(data.session_files || []).find(
       (file) =>
         file.type === 'text/csv' && file.name === 'incremental_report.csv'
     )
@@ -232,6 +240,9 @@ export default function Page() {
         })
         setSettlementReportDF(settlementReportDF)
       })
+    } else {
+      setAllPeriodReportDF(new dfd.DataFrame())
+      setSettlementReportDF(new dfd.DataFrame())
     }
     uploadSessionForm.reset()
   }
@@ -298,7 +309,12 @@ export default function Page() {
         <ModuleFunctionHeader title="資料集" />
         <ModuleFunctionBody>
           <Box p={2}>
-            <Stack component="form" spacing={3} autoComplete="off">
+            <Stack
+              component="form"
+              spacing={3}
+              autoComplete="off"
+              direction="row"
+            >
               <Controller
                 control={uploadSessionForm.control}
                 name="session_files"
@@ -354,6 +370,16 @@ export default function Page() {
                 //   </React.Fragment>
                 // )}
               />
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  uploadSessionForm.reset()
+                  uploadSessionForm.handleSubmit(onSubmitUploadSessionForm)()
+                }}
+                disabled={!uploadSessionForm.formState.isDirty}
+              >
+                清除
+              </Button>
               {/* <LoadingButton
                 variant="contained"
                 onClick={uploadSessionForm.handleSubmit(
