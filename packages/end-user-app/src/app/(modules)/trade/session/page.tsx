@@ -61,23 +61,32 @@ export default function Page() {
   const [isEquityVisualized, setIsEquityVisualized] = React.useState(false)
 
   // Legends
-  const [
-    quotationUpdatedEventSeriesConfigs,
-    setQuotationUpdatedEventSeriesConfigs,
-  ] = React.useState<any>([])
-  const [tradeSymbolSeriesConfigs, setTradeSymbolSeriesConfigs] =
+  const [quotationUpdatedEventLegends, setQuotationUpdatedEventLegends] =
     React.useState<any>([])
-  const [settlementReportSeriesConfigs, setSettlementReportSeriesConfigs] =
+  const [tradeSymbolLegends, setTradeSymbolLegends] = React.useState<any>([])
+  const [settlementReportLegends, setSettlementReportLegends] =
     React.useState<any>([
       {
         key: 'historical_quote_balance_amount_change',
         isVisible: true,
         name: '權益變化曲線',
         type: 'line',
-        color: '#17BECF',
+        // color: '#17BECF',
+        color: d3.schemeCategory10[0],
         accessData: (d: any) => [
           new Date(`${d.period_end_datetime_utc}Z`).getTime(),
           d.historical_quote_balance_amount_change,
+        ],
+      },
+      {
+        key: 'historical_max_drawdown_quote_balance_amount_change',
+        isVisible: true,
+        name: '最大回撤損失變化曲線',
+        type: 'line',
+        color: 'red',
+        accessData: (d: any) => [
+          new Date(`${d.period_end_datetime_utc}Z`).getTime(),
+          d.historical_max_drawdown_quote_balance_amount_change,
         ],
       },
       {
@@ -118,8 +127,8 @@ export default function Page() {
       },
     ])
   const [
-    boundQuotationUpdatedEventSeriesConfig,
-    setBoundQuotationUpdatedEventSeriesConfig,
+    boundQuotationUpdatedEventLegend,
+    setBoundQuotationUpdatedEventLegend,
   ] = React.useState<any>()
 
   // Datapoints
@@ -131,7 +140,7 @@ export default function Page() {
     ? []
     : dfd.toJSON(settlementReportDF)
 
-  const boundTradeSymbolSeriesConfig = tradeSymbolSeriesConfigs.find(
+  const boundTradeSymbolLegend = tradeSymbolLegends.find(
     (cfg: any) => cfg.isVisible
   )
 
@@ -171,7 +180,7 @@ export default function Page() {
             new Set<string>()
           )
         )
-        setQuotationUpdatedEventSeriesConfigs(
+        setQuotationUpdatedEventLegends(
           _quotationUpdatedEventContextKeys.map((k, i) => ({
             key: k,
             isVisible: i === 0,
@@ -196,7 +205,7 @@ export default function Page() {
     if (tradeFile) {
       dfd.readCSV(tradeFile).then((tradeDF: dfd.DataFrame) => {
         setTradeDF(tradeDF)
-        setTradeSymbolSeriesConfigs(
+        setTradeSymbolLegends(
           tradeDF['trade_symbol']
             .unique()
             .values.map((symbol: string, i: number) => ({
@@ -227,61 +236,58 @@ export default function Page() {
     uploadSessionForm.reset()
   }
 
-  const updateQuotationUpdatedEventSeriesConfig = (
-    key: string,
-    update: any
-  ) => {
-    const configIndex = quotationUpdatedEventSeriesConfigs.findIndex(
+  const updateQuotationUpdatedEventLegend = (key: string, update: any) => {
+    const configIndex = quotationUpdatedEventLegends.findIndex(
       (cfg: any) => cfg.key === key
     )
     if (configIndex !== -1) {
-      setQuotationUpdatedEventSeriesConfigs([
-        ...quotationUpdatedEventSeriesConfigs.slice(0, configIndex),
+      setQuotationUpdatedEventLegends([
+        ...quotationUpdatedEventLegends.slice(0, configIndex),
         {
-          ...quotationUpdatedEventSeriesConfigs[configIndex],
+          ...quotationUpdatedEventLegends[configIndex],
           ...update,
         },
-        ...quotationUpdatedEventSeriesConfigs.slice(configIndex + 1),
+        ...quotationUpdatedEventLegends.slice(configIndex + 1),
       ])
     }
   }
 
-  const updateTradeSymbolSeriesConfig = (
+  const updateTradeSymbolLegend = (
     key: string,
     update: any,
     updateOther: any
   ) => {
-    const configIndex = tradeSymbolSeriesConfigs.findIndex(
+    const configIndex = tradeSymbolLegends.findIndex(
       (cfg: any) => cfg.key === key
     )
     if (configIndex !== -1) {
-      setTradeSymbolSeriesConfigs([
-        ...tradeSymbolSeriesConfigs
+      setTradeSymbolLegends([
+        ...tradeSymbolLegends
           .slice(0, configIndex)
           .map((cfg: any) => ({ ...cfg, ...updateOther })),
         {
-          ...tradeSymbolSeriesConfigs[configIndex],
+          ...tradeSymbolLegends[configIndex],
           ...update,
         },
-        ...tradeSymbolSeriesConfigs
+        ...tradeSymbolLegends
           .slice(configIndex + 1)
           .map((cfg: any) => ({ ...cfg, ...updateOther })),
       ])
     }
   }
 
-  const updateSettlementReportSeriesConfig = (key: string, update: any) => {
-    const configIndex = settlementReportSeriesConfigs.findIndex(
+  const updateSettlementReportLegend = (key: string, update: any) => {
+    const configIndex = settlementReportLegends.findIndex(
       (cfg: any) => cfg.key === key
     )
     if (configIndex !== -1) {
-      setSettlementReportSeriesConfigs([
-        ...settlementReportSeriesConfigs.slice(0, configIndex),
+      setSettlementReportLegends([
+        ...settlementReportLegends.slice(0, configIndex),
         {
-          ...settlementReportSeriesConfigs[configIndex],
+          ...settlementReportLegends[configIndex],
           ...update,
         },
-        ...settlementReportSeriesConfigs.slice(configIndex + 1),
+        ...settlementReportLegends.slice(configIndex + 1),
       ])
     }
   }
@@ -652,7 +658,7 @@ export default function Page() {
           {isEventVisualized ? (
             <React.Fragment>
               <HighChartsHighStock
-                series={quotationUpdatedEventSeriesConfigs
+                series={quotationUpdatedEventLegends
                   .filter((cfg: any) => cfg.isVisible)
                   .map((cfg: any) => ({
                     id: cfg.key,
@@ -664,73 +670,14 @@ export default function Page() {
                       valueDecimals: 4,
                     },
                   }))}
-                // series={[
-                //   {
-                //     id: 'perp_implied_term_ir',
-                //     type: 'line',
-                //     name: 'Grid IR',
-                //     data: quotationUpdatedEventDatapoints.map((d: any) => {
-                //       const eventContext = JSON.parse(d.event_context)
-                //       return [
-                //         new Date(
-                //           `${eventContext.updated_datetime_utc}Z`
-                //         ).getTime(),
-                //         parseFloat(eventContext.perp_implied_term_ir),
-                //       ]
-                //     }),
-                //     tooltip: {
-                //       valueDecimals: 4,
-                //     },
-                //   },
-                //   //   {
-                //   //     type: 'flags',
-                //   //     data: logDatapoints
-                //   //       .filter(
-                //   //         (d: any) =>
-                //   //           d.operation === 'take' &&
-                //   //           d.symbol === 'binance_ETH_USDT_USDT_241227'
-                //   //       )
-                //   //       .map((d: any) => {
-                //   //         const x = new Date(`${d.datetime_utc}Z`).getTime()
-                //   //         const y = parseFloat(
-                //   //           d.parsedContext.perp_implied_term_ir
-                //   //         )
-                //   //         let yStart, yEnd, color, title
-                //   //         if (d.side === 'short') {
-                //   //           yEnd = y + 0
-                //   //           yStart = yEnd + 0.0001
-                //   //           color = '#FF0000'
-                //   //           title = 'S'
-                //   //         } else if (d.side === 'long') {
-                //   //           yEnd = y - 0
-                //   //           yStart = yEnd - 0.0001
-                //   //           color = '#00FF00'
-                //   //           title = 'L'
-                //   //         }
-                //   //         return {
-                //   //           x,
-                //   //           y: yStart,
-                //   //           color,
-                //   //           fillColor: color,
-                //   //           title,
-                //   //         }
-                //   //       }),
-                //   //     onSeries: 'perp_implied_term_ir',
-                //   //     shape: 'squarepin',
-                //   //     borderRadius: 3,
-                //   //     width: 16,
-                //   //   },
-                // ]}
                 annotations={
-                  boundQuotationUpdatedEventSeriesConfig &&
-                  boundTradeSymbolSeriesConfig
+                  boundQuotationUpdatedEventLegend && boundTradeSymbolLegend
                     ? [
                         {
                           shapes: tradeDatapoints
                             .filter(
                               (d: any) =>
-                                d.trade_symbol ===
-                                boundTradeSymbolSeriesConfig.key
+                                d.trade_symbol === boundTradeSymbolLegend.key
                             )
                             .map((d: any) => {
                               const tradeContext = JSON.parse(d.trade_context)
@@ -739,7 +686,7 @@ export default function Page() {
                               ).getTime()
                               const y = parseFloat(
                                 tradeContext[
-                                  boundQuotationUpdatedEventSeriesConfig.key
+                                  boundQuotationUpdatedEventLegend.key
                                 ]
                               )
                               let yStart, yEnd, color
@@ -799,9 +746,9 @@ export default function Page() {
                   flexWrap: 'wrap',
                 }}
               >
-                {quotationUpdatedEventSeriesConfigs.map((cfg: any) => {
+                {quotationUpdatedEventLegends.map((cfg: any) => {
                   const isBound =
-                    boundQuotationUpdatedEventSeriesConfig?.key === cfg.key
+                    boundQuotationUpdatedEventLegend?.key === cfg.key
                   return (
                     <Box key={cfg.key} sx={{ p: 0.5 }}>
                       <Chip
@@ -814,28 +761,28 @@ export default function Page() {
                           </svg>
                         }
                         onClick={() => {
-                          updateQuotationUpdatedEventSeriesConfig(cfg.key, {
+                          updateQuotationUpdatedEventLegend(cfg.key, {
                             isVisible: !cfg.isVisible,
                           })
                           if (cfg.isVisible) {
-                            setBoundQuotationUpdatedEventSeriesConfig(undefined)
+                            setBoundQuotationUpdatedEventLegend(undefined)
                           }
                         }}
                         onDelete={
                           cfg.isVisible
                             ? () => {
-                                setBoundQuotationUpdatedEventSeriesConfig(
+                                setBoundQuotationUpdatedEventLegend(
                                   isBound ? undefined : cfg
                                 )
 
-                                if (!isBound && !boundTradeSymbolSeriesConfig) {
-                                  const defaultVisibleTradeSymbolSeriesConfig =
-                                    tradeSymbolSeriesConfigs?.[0]
-                                  updateTradeSymbolSeriesConfig(
-                                    defaultVisibleTradeSymbolSeriesConfig?.key,
+                                if (!isBound && !boundTradeSymbolLegend) {
+                                  const defaultVisibleTradeSymbolLegend =
+                                    tradeSymbolLegends?.[0]
+                                  updateTradeSymbolLegend(
+                                    defaultVisibleTradeSymbolLegend?.key,
                                     {
                                       isVisible:
-                                        !defaultVisibleTradeSymbolSeriesConfig?.isVisible,
+                                        !defaultVisibleTradeSymbolLegend?.isVisible,
                                     },
                                     {
                                       isVisible: false,
@@ -881,17 +828,17 @@ export default function Page() {
                   flexWrap: 'wrap',
                 }}
               >
-                {tradeSymbolSeriesConfigs.map((cfg: any) => (
+                {tradeSymbolLegends.map((cfg: any) => (
                   <Box key={cfg.key} sx={{ p: 0.5 }}>
                     <Chip
                       label={cfg.name}
                       disabled={
-                        !boundQuotationUpdatedEventSeriesConfig ||
-                        !boundTradeSymbolSeriesConfig
+                        !boundQuotationUpdatedEventLegend ||
+                        !boundTradeSymbolLegend
                       }
                       size="small"
                       onClick={() => {
-                        updateTradeSymbolSeriesConfig(
+                        updateTradeSymbolLegend(
                           cfg.key,
                           {
                             isVisible: !cfg.isVisible,
@@ -944,7 +891,7 @@ export default function Page() {
           {isEquityVisualized ? (
             <React.Fragment>
               <HighChartsHighStock
-                series={settlementReportSeriesConfigs
+                series={settlementReportLegends
                   .filter((cfg: any) => cfg.isVisible)
                   .map((cfg: any) => ({
                     name: cfg.name,
@@ -966,7 +913,7 @@ export default function Page() {
                   flexWrap: 'wrap',
                 }}
               >
-                {settlementReportSeriesConfigs.map((cfg: any) => (
+                {settlementReportLegends.map((cfg: any) => (
                   <Box key={cfg.key} sx={{ p: 0.5 }}>
                     <Chip
                       key={cfg.key}
@@ -978,7 +925,7 @@ export default function Page() {
                         </svg>
                       }
                       onClick={() => {
-                        updateSettlementReportSeriesConfig(cfg.key, {
+                        updateSettlementReportLegend(cfg.key, {
                           isVisible: !cfg.isVisible,
                         })
                       }}
