@@ -5,12 +5,12 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 import DrawIcon from '@mui/icons-material/Draw'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined'
+import TimelineIcon from '@mui/icons-material/Timeline'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -788,7 +788,7 @@ export default function Page() {
                   alignItems: 'center',
                 }}
               >
-                <CandlestickChartIcon fontSize="small" />
+                <TimelineIcon fontSize="small" />
                 <Typography variant="h6">指標</Typography>
               </Stack>
               <Stack
@@ -871,7 +871,7 @@ export default function Page() {
                 }}
               >
                 <MonetizationOnIcon fontSize="small" />
-                <Typography variant="h6">交易標記</Typography>
+                <Typography variant="h6">進出場標記</Typography>
               </Stack>
               <Stack
                 direction="row"
