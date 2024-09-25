@@ -5,9 +5,12 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 import DrawIcon from '@mui/icons-material/Draw'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
+import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -37,6 +40,7 @@ export default function Page() {
   const uploadSessionForm = useForm<UploadSessionInputs>()
   const [sessionFiles, setSessionFiles] = React.useState<File[]>([])
 
+  // DataFrames
   const [eventDF, setEventDF] = React.useState<dfd.DataFrame>(
     new dfd.DataFrame()
   )
@@ -47,18 +51,22 @@ export default function Page() {
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
   const [quotationUpdatedEventDF, setQuotationUpdatedEventDF] =
     React.useState<dfd.DataFrame>(new dfd.DataFrame())
+  const [allPeriodReportDF, setAllPeriodReportDF] =
+    React.useState<dfd.DataFrame>(new dfd.DataFrame())
+  const [settlementReportDF, setSettlementReportDF] =
+    React.useState<dfd.DataFrame>(new dfd.DataFrame())
+
+  // Visualization Toggles
   const [isEventVisualized, setIsEventVisualized] = React.useState(false)
+  const [isEquityVisualized, setIsEquityVisualized] = React.useState(false)
+
+  // Legends
   const [
     quotationUpdatedEventSeriesConfigs,
     setQuotationUpdatedEventSeriesConfigs,
   ] = React.useState<any>([])
   const [tradeSymbolSeriesConfigs, setTradeSymbolSeriesConfigs] =
     React.useState<any>([])
-  const [allPeriodReportDF, setAllPeriodReportDF] =
-    React.useState<dfd.DataFrame>(new dfd.DataFrame())
-  const [settlementReportDF, setSettlementReportDF] =
-    React.useState<dfd.DataFrame>(new dfd.DataFrame())
-  const [isEquityVisualized, setIsEquityVisualized] = React.useState(false)
   const [settlementReportSeriesConfigs, setSettlementReportSeriesConfigs] =
     React.useState<any>([
       {
@@ -109,6 +117,12 @@ export default function Page() {
         ],
       },
     ])
+  const [
+    boundQuotationUpdatedEventSeriesConfig,
+    setBoundQuotationUpdatedEventSeriesConfig,
+  ] = React.useState<any>()
+
+  // Datapoints
   const quotationUpdatedEventDatapoints: any = !isEventVisualized
     ? []
     : dfd.toJSON(quotationUpdatedEventDF)
@@ -116,9 +130,8 @@ export default function Page() {
   const settlementReportDatapoints: any = !isEquityVisualized
     ? []
     : dfd.toJSON(settlementReportDF)
-  const firstVisibleQuotationUpdatedEventSeriesConfig =
-    quotationUpdatedEventSeriesConfigs.find((cfg: any) => cfg.isVisible)
-  const firstVisibleTradeSymbolSeriesConfig = tradeSymbolSeriesConfigs.find(
+
+  const boundTradeSymbolSeriesConfig = tradeSymbolSeriesConfigs.find(
     (cfg: any) => cfg.isVisible
   )
 
@@ -188,7 +201,7 @@ export default function Page() {
             .unique()
             .values.map((symbol: string, i: number) => ({
               key: symbol,
-              isVisible: i === 0,
+              isVisible: false,
               name: symbol,
             }))
         )
@@ -708,60 +721,76 @@ export default function Page() {
                 //   //     width: 16,
                 //   //   },
                 // ]}
-                annotations={[
-                  {
-                    shapes: tradeDatapoints
-                      .filter(
-                        (d: any) =>
-                          d.trade_symbol ===
-                          firstVisibleTradeSymbolSeriesConfig?.key
-                      )
-                      .map((d: any) => {
-                        const tradeContext = JSON.parse(d.trade_context)
-                        const x = new Date(`${d.trade_datetime_utc}Z`).getTime()
-                        const y = parseFloat(
-                          tradeContext[
-                            firstVisibleQuotationUpdatedEventSeriesConfig.key
-                          ]
-                        )
-                        let yStart, yEnd, color
-                        if (d.trade_side === 'short') {
-                          yEnd = y + 0
-                          yStart = yEnd + 0.000001
-                          color = '#FF0000'
-                        } else if (d.trade_side === 'long') {
-                          yEnd = y - 0
-                          yStart = yEnd - 0.000001
-                          color = '#00FF00'
-                        }
-                        return {
-                          type: 'path',
-                          points: [
-                            {
-                              x,
-                              y: yStart,
-                              xAxis: 0,
-                              yAxis: 0,
-                            },
-                            {
-                              x,
-                              y: yEnd,
-                              xAxis: 0,
-                              yAxis: 0,
-                            },
-                          ],
-                          stroke: color,
-                          fill: color,
-                          width: 1,
-                          markerEnd: 'arrow',
-                        }
-                      }),
-                  },
-                ]}
+                annotations={
+                  boundQuotationUpdatedEventSeriesConfig &&
+                  boundTradeSymbolSeriesConfig
+                    ? [
+                        {
+                          shapes: tradeDatapoints
+                            .filter(
+                              (d: any) =>
+                                d.trade_symbol ===
+                                boundTradeSymbolSeriesConfig.key
+                            )
+                            .map((d: any) => {
+                              const tradeContext = JSON.parse(d.trade_context)
+                              const x = new Date(
+                                `${d.trade_datetime_utc}Z`
+                              ).getTime()
+                              const y = parseFloat(
+                                tradeContext[
+                                  boundQuotationUpdatedEventSeriesConfig.key
+                                ]
+                              )
+                              let yStart, yEnd, color
+                              if (d.trade_side === 'short') {
+                                yEnd = y + 0
+                                yStart = yEnd + 0.000001
+                                color = '#FF0000'
+                              } else if (d.trade_side === 'long') {
+                                yEnd = y - 0
+                                yStart = yEnd - 0.000001
+                                color = '#00FF00'
+                              }
+                              return {
+                                type: 'path',
+                                points: [
+                                  {
+                                    x,
+                                    y: yStart,
+                                    xAxis: 0,
+                                    yAxis: 0,
+                                  },
+                                  {
+                                    x,
+                                    y: yEnd,
+                                    xAxis: 0,
+                                    yAxis: 0,
+                                  },
+                                ],
+                                stroke: color,
+                                fill: color,
+                                width: 1,
+                                markerEnd: 'arrow',
+                              }
+                            }),
+                        },
+                      ]
+                    : []
+                }
               />
-              <Box p={2} pb={0}>
+              <Stack
+                p={2}
+                pb={0}
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: 'center',
+                }}
+              >
+                <CandlestickChartIcon fontSize="small" />
                 <Typography variant="h6">指標</Typography>
-              </Box>
+              </Stack>
               <Stack
                 direction="row"
                 p={2}
@@ -770,31 +799,80 @@ export default function Page() {
                   flexWrap: 'wrap',
                 }}
               >
-                {quotationUpdatedEventSeriesConfigs.map((cfg: any) => (
-                  <Box key={cfg.key} sx={{ p: 0.5 }}>
-                    <Chip
-                      key={cfg.key}
-                      label={cfg.name}
-                      size="small"
-                      avatar={
-                        <svg>
-                          <circle r="9" cx="9" cy="9" fill={cfg.color} />
-                        </svg>
-                      }
-                      onClick={() => {
-                        updateQuotationUpdatedEventSeriesConfig(cfg.key, {
-                          isVisible: !cfg.isVisible,
-                        })
-                      }}
-                      variant={cfg.isVisible ? undefined : 'outlined'}
-                    />
-                  </Box>
-                ))}
+                {quotationUpdatedEventSeriesConfigs.map((cfg: any) => {
+                  const isBound =
+                    boundQuotationUpdatedEventSeriesConfig?.key === cfg.key
+                  return (
+                    <Box key={cfg.key} sx={{ p: 0.5 }}>
+                      <Chip
+                        key={cfg.key}
+                        label={cfg.name}
+                        size="small"
+                        avatar={
+                          <svg>
+                            <circle r="9" cx="9" cy="9" fill={cfg.color} />
+                          </svg>
+                        }
+                        onClick={() => {
+                          updateQuotationUpdatedEventSeriesConfig(cfg.key, {
+                            isVisible: !cfg.isVisible,
+                          })
+                          if (cfg.isVisible) {
+                            setBoundQuotationUpdatedEventSeriesConfig(undefined)
+                          }
+                        }}
+                        onDelete={
+                          cfg.isVisible
+                            ? () => {
+                                setBoundQuotationUpdatedEventSeriesConfig(
+                                  isBound ? undefined : cfg
+                                )
+
+                                if (!isBound && !boundTradeSymbolSeriesConfig) {
+                                  const defaultVisibleTradeSymbolSeriesConfig =
+                                    tradeSymbolSeriesConfigs?.[0]
+                                  updateTradeSymbolSeriesConfig(
+                                    defaultVisibleTradeSymbolSeriesConfig?.key,
+                                    {
+                                      isVisible:
+                                        !defaultVisibleTradeSymbolSeriesConfig?.isVisible,
+                                    },
+                                    {
+                                      isVisible: false,
+                                    }
+                                  )
+                                }
+                              }
+                            : undefined
+                        }
+                        deleteIcon={
+                          cfg.isVisible ? (
+                            isBound ? (
+                              <MonetizationOnIcon />
+                            ) : (
+                              <MonetizationOnOutlinedIcon />
+                            )
+                          ) : undefined
+                        }
+                        variant={cfg.isVisible ? undefined : 'outlined'}
+                      />
+                    </Box>
+                  )
+                })}
               </Stack>
 
-              <Box p={2} pb={0}>
+              <Stack
+                p={2}
+                pb={0}
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: 'center',
+                }}
+              >
+                <MonetizationOnIcon fontSize="small" />
                 <Typography variant="h6">交易標記</Typography>
-              </Box>
+              </Stack>
               <Stack
                 direction="row"
                 p={2}
@@ -806,14 +884,12 @@ export default function Page() {
                 {tradeSymbolSeriesConfigs.map((cfg: any) => (
                   <Box key={cfg.key} sx={{ p: 0.5 }}>
                     <Chip
-                      key={cfg.key}
                       label={cfg.name}
+                      disabled={
+                        !boundQuotationUpdatedEventSeriesConfig ||
+                        !boundTradeSymbolSeriesConfig
+                      }
                       size="small"
-                      // avatar={
-                      //   <svg>
-                      //     <circle r="9" cx="9" cy="9" fill={cfg.color} />
-                      //   </svg>
-                      // }
                       onClick={() => {
                         updateTradeSymbolSeriesConfig(
                           cfg.key,
