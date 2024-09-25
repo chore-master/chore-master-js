@@ -8,10 +8,10 @@ import ModuleFunction, {
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 import DrawIcon from '@mui/icons-material/Draw'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import FolderIcon from '@mui/icons-material/Folder'
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined'
 import TimelineIcon from '@mui/icons-material/Timeline'
-import LoadingButton from '@mui/lab/LoadingButton'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -304,8 +304,14 @@ export default function Page() {
                 name="session_files"
                 rules={{ required: '必填' }}
                 render={({ field }) => (
-                  <React.Fragment>
-                    <Typography>匯入資料集</Typography>
+                  <Button
+                    component="label"
+                    role={undefined}
+                    variant="contained"
+                    tabIndex={-1}
+                    startIcon={<FolderIcon />}
+                  >
+                    選擇資料夾
                     <input
                       multiple
                       type="file"
@@ -313,12 +319,42 @@ export default function Page() {
                       ref={field.ref}
                       onBlur={field.onBlur}
                       name={field.name}
-                      onChange={(e) => field.onChange(e.target.files)}
+                      onChange={(e) => {
+                        field.onChange(e.target.files)
+                        uploadSessionForm.handleSubmit(
+                          onSubmitUploadSessionForm
+                        )()
+                      }}
+                      style={{
+                        clip: 'rect(0 0 0 0)',
+                        clipPath: 'inset(50%)',
+                        height: 1,
+                        overflow: 'hidden',
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        whiteSpace: 'nowrap',
+                        width: 1,
+                      }}
                     />
-                  </React.Fragment>
+                  </Button>
                 )}
+                // render={({ field }) => (
+                //   <React.Fragment>
+                //     <Typography>匯入資料集</Typography>
+                //     <input
+                //       multiple
+                //       type="file"
+                //       {...{ webkitdirectory: '' }}
+                //       ref={field.ref}
+                //       onBlur={field.onBlur}
+                //       name={field.name}
+                //       onChange={(e) => field.onChange(e.target.files)}
+                //     />
+                //   </React.Fragment>
+                // )}
               />
-              <LoadingButton
+              {/* <LoadingButton
                 variant="contained"
                 onClick={uploadSessionForm.handleSubmit(
                   onSubmitUploadSessionForm
@@ -330,7 +366,7 @@ export default function Page() {
                 }
               >
                 匯入
-              </LoadingButton>
+              </LoadingButton> */}
             </Stack>
           </Box>
         </ModuleFunctionBody>
