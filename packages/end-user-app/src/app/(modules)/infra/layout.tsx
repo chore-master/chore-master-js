@@ -8,12 +8,22 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
-      moduleName="小工具"
+      moduleName="基礎設施"
       navigations={[
         {
           title: '儀表板',
-          href: '/widget',
+          href: '/infra',
           selectedWhenExactlyMatched: true,
+        },
+        {
+          title: '節點',
+          href: '/infra/nodes',
+          selectedWhenPartiallyMatched: true,
+        },
+        {
+          title: '資料卷',
+          href: '/infra/volumes',
+          selectedWhenPartiallyMatched: true,
         },
       ]}
     >

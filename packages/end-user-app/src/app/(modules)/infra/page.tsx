@@ -13,7 +13,7 @@ export default function Page() {
         <ModuleFunctionHeader title="關於" />
         <ModuleFunctionBody>
           <Box p={2}>
-            <Typography>此模組提供了交易員視角的主要功能。</Typography>
+            <Typography>此模組提供了對於基礎設施的可操作性。</Typography>
           </Box>
         </ModuleFunctionBody>
       </ModuleFunction>

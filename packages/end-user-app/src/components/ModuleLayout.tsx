@@ -3,6 +3,7 @@
 import { useEndUser } from '@/utils/auth'
 import { Logout } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
+import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic'
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
 import HelpIcon from '@mui/icons-material/Help'
 import LocalAtmIcon from '@mui/icons-material/LocalAtm'
@@ -102,6 +103,16 @@ export default function ModuleLayout({
     <React.Fragment>
       <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
         <List disablePadding sx={{ flexGrow: 1 }}>
+          <ListItem disablePadding>
+            <Link href="/infra" passHref legacyBehavior>
+              <ListItemButton component="a">
+                <ListItemIcon>
+                  <AutoAwesomeMosaicIcon />
+                </ListItemIcon>
+                <ListItemText primary="基礎設施" />
+              </ListItemButton>
+            </Link>
+          </ListItem>
           <ListItem disablePadding>
             <Link href="/financial-management" passHref legacyBehavior>
               <ListItemButton component="a">
