@@ -382,6 +382,7 @@ export default function Page() {
         onClose={() => setFocusedRevisionScriptContent(null)}
         open={Boolean(focusedRevisionScriptContent)}
         fullWidth
+        maxWidth="xl"
       >
         <DialogTitle sx={{ m: 0, p: 2 }}>遷移程式碼</DialogTitle>
         <DialogContent dividers>
