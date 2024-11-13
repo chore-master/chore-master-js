@@ -5,7 +5,9 @@ import { Logout } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
 import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic'
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
+import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
+import LightModeIcon from '@mui/icons-material/LightMode'
 import LocalAtmIcon from '@mui/icons-material/LocalAtm'
 import MenuIcon from '@mui/icons-material/Menu'
 import WidgetsIcon from '@mui/icons-material/Widgets'
@@ -27,6 +29,7 @@ import ListSubheader from '@mui/material/ListSubheader'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
+import { useColorScheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
@@ -46,6 +49,7 @@ export default function ModuleLayout({
   const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false)
   const [isSideNavOpen, setIsSideNavOpen] = React.useState<boolean>(true)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const { mode, setMode } = useColorScheme()
   const router = useRouter()
   const pathname = usePathname()
   const {
@@ -183,16 +187,22 @@ export default function ModuleLayout({
               height: '100%',
             }}
           >
-            <AppBar position="sticky" elevation={0}>
+            <AppBar
+              position="sticky"
+              elevation={0}
+              sx={(theme) => ({
+                backgroundColor: theme.palette.background.default,
+              })}
+            >
               <Toolbar disableGutters>
                 <IconButton
                   size="large"
-                  color="inherit"
+                  color="default"
                   onClick={toggleDrawer(true)}
                 >
                   <AppsIcon />
                 </IconButton>
-                <Typography variant="h6" component="div">
+                <Typography variant="h6" component="div" color="textPrimary">
                   {moduleName}
                 </Typography>
               </Toolbar>
@@ -238,15 +248,21 @@ export default function ModuleLayout({
         <Stack
           sx={{
             flex: '1 0 0px',
-            background: 'hsla(215, 15%, 97%, 0.5)',
+            background: mode === 'dark' ? 'black' : 'hsla(215, 15%, 97%, 0.5)',
             minWidth: 320,
           }}
         >
-          <AppBar position="sticky" elevation={0}>
+          <AppBar
+            position="sticky"
+            elevation={0}
+            sx={(theme) => ({
+              backgroundColor: theme.palette.background.default,
+            })}
+          >
             <Toolbar disableGutters>
               <IconButton
                 size="large"
-                color="inherit"
+                color="default"
                 onClick={() => setIsSideNavOpen((open) => !open)}
               >
                 <MenuIcon />
@@ -255,6 +271,15 @@ export default function ModuleLayout({
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
               </IconButton> */}
+              {mode === 'dark' ? (
+                <IconButton onClick={() => setMode('light')}>
+                  <LightModeIcon />
+                </IconButton>
+              ) : (
+                <IconButton onClick={() => setMode('dark')}>
+                  <DarkModeIcon />
+                </IconButton>
+              )}
               <Tooltip title={endUser.email}>
                 <IconButton
                   onClick={handleAvatarClick}
