@@ -1,4 +1,4 @@
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import ThemeProvider from '../components/ThemeProvider'
