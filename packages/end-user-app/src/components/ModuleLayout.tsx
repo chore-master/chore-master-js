@@ -1,5 +1,8 @@
 'use client'
 
+import SideNavigationList, {
+  SideNavigation,
+} from '@/components/SideNavigationList'
 import { useEndUser } from '@/utils/auth'
 import { Logout } from '@mui/icons-material'
 import AppsIcon from '@mui/icons-material/Apps'
@@ -25,7 +28,6 @@ import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-import ListSubheader from '@mui/material/ListSubheader'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
@@ -37,15 +39,17 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 
+export interface ModuleLayoutProps {
+  readonly moduleName: string
+  readonly navigations: SideNavigation[]
+  readonly children: React.ReactNode
+}
+
 export default function ModuleLayout({
   moduleName,
   navigations,
   children,
-}: Readonly<{
-  moduleName: string
-  navigations: any[]
-  children: React.ReactNode
-}>) {
+}: ModuleLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false)
   const [isSideNavOpen, setIsSideNavOpen] = React.useState<boolean>(true)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -208,40 +212,7 @@ export default function ModuleLayout({
               </Toolbar>
               <Divider />
             </AppBar>
-            <List
-              disablePadding
-              sx={{
-                flexGrow: 1,
-                overflowY: 'hidden',
-                '&:hover': { overflowY: 'auto' },
-              }}
-            >
-              {navigations.map((nav) => {
-                if (nav.header) {
-                  return (
-                    <ListSubheader key={nav.header}>{nav.header}</ListSubheader>
-                  )
-                } else {
-                  return (
-                    <ListItem key={nav.title} disablePadding>
-                      <Link href={nav.href} passHref legacyBehavior>
-                        <ListItemButton
-                          component="a"
-                          selected={
-                            (nav.selectedWhenExactlyMatched &&
-                              pathname === nav.href) ||
-                            (nav.selectedWhenPartiallyMatched &&
-                              pathname.startsWith(nav.href))
-                          }
-                        >
-                          <ListItemText primary={nav.title} />
-                        </ListItemButton>
-                      </Link>
-                    </ListItem>
-                  )
-                }
-              })}
-            </List>
+            <SideNavigationList pathname={pathname} navigations={navigations} />
           </Stack>
         </Collapse>
 

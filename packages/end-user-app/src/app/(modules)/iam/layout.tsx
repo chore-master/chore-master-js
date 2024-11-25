@@ -11,35 +11,46 @@ export default function Layout({
       moduleName="帳戶中心"
       navigations={[
         {
+          type: 'link',
           title: '儀表板',
           href: '/iam',
           selectedWhenExactlyMatched: true,
         },
         {
-          header: '基礎設施',
+          type: 'header',
+          title: '基礎設施',
+          navigations: [
+            {
+              type: 'link',
+              title: '資料庫',
+              href: '/iam/core/database',
+              selectedWhenPartiallyMatched: true,
+            },
+          ],
         },
         {
-          title: '資料庫',
-          href: '/iam/core/database',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          header: '服務整合',
-        },
-        {
-          title: 'Google',
-          href: '/iam/integrations/google',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          title: '永豐',
-          href: '/iam/integrations/sinotrade',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          title: 'OKX',
-          href: '/iam/integrations/okxtrade',
-          selectedWhenPartiallyMatched: true,
+          type: 'header',
+          title: '服務整合',
+          navigations: [
+            {
+              type: 'link',
+              title: 'Google',
+              href: '/iam/integrations/google',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: '永豐',
+              href: '/iam/integrations/sinotrade',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: 'OKX',
+              href: '/iam/integrations/okxtrade',
+              selectedWhenPartiallyMatched: true,
+            },
+          ],
         },
       ]}
     >

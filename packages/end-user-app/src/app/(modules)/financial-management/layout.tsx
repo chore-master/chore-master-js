@@ -11,26 +11,31 @@ export default function Layout({
       moduleName="財務管理"
       navigations={[
         {
+          type: 'link',
           title: '儀表板',
           href: '/financial-management',
           selectedWhenExactlyMatched: true,
         },
         {
+          type: 'link',
           title: '帳戶',
           href: '/financial-management/account',
           selectedWhenPartiallyMatched: true,
         },
         {
+          type: 'link',
           title: '資產',
           href: '/financial-management/asset',
           selectedWhenPartiallyMatched: true,
         },
         {
+          type: 'link',
           title: '淨值',
           href: '/financial-management/net-value',
           selectedWhenPartiallyMatched: true,
         },
         {
+          type: 'link',
           title: '帳單',
           href: '/financial-management/bill',
           selectedWhenPartiallyMatched: true,

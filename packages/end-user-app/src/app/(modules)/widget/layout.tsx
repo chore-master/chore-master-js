@@ -11,6 +11,7 @@ export default function Layout({
       moduleName="小工具"
       navigations={[
         {
+          type: 'link',
           title: '儀表板',
           href: '/widget',
           selectedWhenExactlyMatched: true,
