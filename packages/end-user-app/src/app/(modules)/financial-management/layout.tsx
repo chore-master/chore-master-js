@@ -13,7 +13,7 @@ export default function Layout({
         {
           type: 'link',
           title: '儀表板',
-          href: '/financial-management',
+          href: '/financial-management/dashboard',
           selectedWhenExactlyMatched: true,
         },
         {
@@ -36,8 +36,8 @@ export default function Layout({
         },
         {
           type: 'link',
-          title: '帳單',
-          href: '/financial-management/bill',
+          title: '投資組合',
+          href: '/financial-management/portfolio',
           selectedWhenPartiallyMatched: true,
         },
       ]}
