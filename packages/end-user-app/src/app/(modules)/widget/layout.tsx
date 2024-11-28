@@ -12,8 +12,8 @@ export default function Layout({
       navigations={[
         {
           type: 'link',
-          title: '儀表板',
-          href: '/widget',
+          title: 'Sankey Demo',
+          href: '/widget/sankey-demo',
           selectedWhenExactlyMatched: true,
         },
       ]}

@@ -29,6 +29,7 @@ export default function Layout({
           selectedWhenPartiallyMatched: true,
         },
       ]}
+      loginRequired
     >
       {children}
     </ModuleLayout>

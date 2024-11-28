@@ -17,6 +17,7 @@ import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
@@ -42,12 +43,14 @@ import React from 'react'
 export interface ModuleLayoutProps {
   readonly moduleName: string
   readonly navigations: SideNavigation[]
+  readonly loginRequired?: boolean
   readonly children: React.ReactNode
 }
 
 export default function ModuleLayout({
   moduleName,
   navigations,
+  loginRequired = false,
   children,
 }: ModuleLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false)
@@ -76,10 +79,10 @@ export default function ModuleLayout({
   }
 
   React.useEffect(() => {
-    if (endUserRes?.status === 401) {
+    if (loginRequired && endUserRes?.status === 401) {
       router.push('/login')
     }
-  }, [endUserRes, router])
+  }, [loginRequired, endUserRes, router])
 
   React.useEffect(() => {
     if (endUserRes?.status === 403) {
@@ -93,7 +96,7 @@ export default function ModuleLayout({
     // }
   }, [endUser, router])
 
-  if (!endUser || endUserSuccessLoadedCount === 0) {
+  if (loginRequired && (!endUser || endUserSuccessLoadedCount === 0)) {
     return (
       <Box
         sx={{
@@ -111,36 +114,42 @@ export default function ModuleLayout({
     <React.Fragment>
       <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
         <List disablePadding sx={{ flexGrow: 1 }}>
-          <ListItem disablePadding>
-            <Link href="/infra" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemIcon>
-                  <AutoAwesomeMosaicIcon />
-                </ListItemIcon>
-                <ListItemText primary="基礎設施" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
-          <ListItem disablePadding>
-            <Link href="/financial-management" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemIcon>
-                  <LocalAtmIcon />
-                </ListItemIcon>
-                <ListItemText primary="財務管理" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
-          <ListItem disablePadding>
-            <Link href="/trade" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemIcon>
-                  <CandlestickChartIcon />
-                </ListItemIcon>
-                <ListItemText primary="交易" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
+          {endUser && (
+            <ListItem disablePadding>
+              <Link href="/infra" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <AutoAwesomeMosaicIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="基礎設施" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
+          {endUser && (
+            <ListItem disablePadding>
+              <Link href="/financial-management" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <LocalAtmIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="財務管理" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
+          {endUser && (
+            <ListItem disablePadding>
+              <Link href="/trade" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <CandlestickChartIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="交易" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
           <ListItem disablePadding>
             <Link href="/widget" passHref legacyBehavior>
               <ListItemButton component="a">
@@ -251,20 +260,27 @@ export default function ModuleLayout({
                   <DarkModeIcon />
                 </IconButton>
               )}
-              <Tooltip title={endUser.email}>
-                <IconButton
-                  onClick={handleAvatarClick}
-                  size="small"
-                  sx={{ ml: 2 }}
-                  aria-controls={isMenuOpen ? 'account-menu' : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={isMenuOpen ? 'true' : undefined}
-                >
-                  <Avatar sx={{ width: 32, height: 32 }}>
-                    {(endUser as any).email.substring(0, 1).toUpperCase()}
-                  </Avatar>
-                </IconButton>
-              </Tooltip>
+              {endUser ? (
+                <Tooltip title={endUser.email}>
+                  <IconButton
+                    onClick={handleAvatarClick}
+                    size="small"
+                    sx={{ ml: 2 }}
+                    aria-controls={isMenuOpen ? 'account-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={isMenuOpen ? 'true' : undefined}
+                  >
+                    <Avatar sx={{ width: 32, height: 32 }}>
+                      {(endUser as any).email.substring(0, 1).toUpperCase()}
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Button onClick={() => router.push('/login')} sx={{ mx: 1 }}>
+                  登入
+                </Button>
+              )}
+
               <Menu
                 anchorEl={anchorEl}
                 id="account-menu"
@@ -305,22 +321,7 @@ export default function ModuleLayout({
                     <Avatar /> 帳戶中心
                   </MenuItem>
                 </Link>
-                {/* <MenuItem onClick={handleCloseMenu}>
-                  <Avatar /> My account
-                </MenuItem> */}
                 <Divider />
-                {/* <MenuItem onClick={handleCloseMenu}>
-                  <ListItemIcon>
-                    <PersonAdd fontSize="small" />
-                  </ListItemIcon>
-                  Add another account
-                </MenuItem>
-                <MenuItem onClick={handleCloseMenu}>
-                  <ListItemIcon>
-                    <Settings fontSize="small" />
-                  </ListItemIcon>
-                  Settings
-                </MenuItem> */}
                 <Link href="/logout" passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseMenu}>
                     <ListItemIcon>
@@ -330,24 +331,6 @@ export default function ModuleLayout({
                   </MenuItem>
                 </Link>
               </Menu>
-              {/* <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
-              >
-                <MenuItem onClick={handleCloseMenu}>Profile</MenuItem>
-                <MenuItem onClick={handleCloseMenu}>My account</MenuItem>
-              </Menu> */}
             </Toolbar>
             <Divider />
           </AppBar>

@@ -198,7 +198,7 @@ export default function Page() {
     fetchNetValues()
     fetchAccounts()
     fetchAssets()
-  }, [])
+  }, [fetchAccounts, fetchAssets, fetchNetValues])
 
   return (
     <React.Fragment>
