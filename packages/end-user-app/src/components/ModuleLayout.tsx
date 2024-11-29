@@ -12,7 +12,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import LocalAtmIcon from '@mui/icons-material/LocalAtm'
-import MenuIcon from '@mui/icons-material/Menu'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
@@ -245,7 +245,7 @@ export default function ModuleLayout({
                 color="default"
                 onClick={() => setIsSideNavOpen((open) => !open)}
               >
-                <MenuIcon />
+                <MenuOpenIcon />
               </IconButton>
               <Box sx={{ flexGrow: 1 }} />
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
@@ -271,12 +271,17 @@ export default function ModuleLayout({
                     aria-expanded={isMenuOpen ? 'true' : undefined}
                   >
                     <Avatar sx={{ width: 32, height: 32 }}>
-                      {(endUser as any).email.substring(0, 1).toUpperCase()}
+                      {endUser.email.substring(0, 1).toUpperCase()}
                     </Avatar>
                   </IconButton>
                 </Tooltip>
               ) : (
-                <Button onClick={() => router.push('/login')} sx={{ mx: 1 }}>
+                <Button
+                  onClick={() => {
+                    router.push('/login')
+                  }}
+                  sx={{ mx: 1 }}
+                >
                   登入
                 </Button>
               )}
