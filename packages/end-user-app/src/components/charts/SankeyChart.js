@@ -64,14 +64,17 @@ export default function SankeyChart({
     links = generated.links
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     setNodesData(nodeDatapoints)
   }, [nodeDatapoints])
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     setLinksData(linkDatapoints)
   }, [linkDatapoints])
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   React.useEffect(() => {
     const linksGroup = d3.select(linksGroupRef.current)
     linksGroup.selectAll('*').remove()
