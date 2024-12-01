@@ -34,13 +34,13 @@ export default function Layout({
           navigations: [
             {
               type: 'link',
-              title: '總覽',
+              title: '快照總覽',
               href: '/financial-management/net-value/overview',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '明細',
+              title: '快照明細',
               href: '/financial-management/net-value/statement',
               selectedWhenPartiallyMatched: true,
             },
