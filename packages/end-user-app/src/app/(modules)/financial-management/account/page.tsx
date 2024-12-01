@@ -10,6 +10,7 @@ import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -25,6 +26,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
+import Tooltip from '@mui/material/Tooltip'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
@@ -133,6 +135,16 @@ export default function Page() {
         <ModuleFunctionHeader
           title="帳戶明細"
           actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton
+                  onClick={fetchAccounts}
+                  disabled={isFetchingAccounts}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
             <Button
               key="create"
               variant="contained"

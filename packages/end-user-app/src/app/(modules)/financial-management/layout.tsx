@@ -12,27 +12,39 @@ export default function Layout({
       navigations={[
         {
           type: 'link',
-          title: '儀表板',
-          href: '/financial-management/dashboard',
-          selectedWhenExactlyMatched: true,
-        },
-        {
-          type: 'link',
           title: '帳戶',
           href: '/financial-management/account',
           selectedWhenPartiallyMatched: true,
         },
         {
-          type: 'link',
+          type: 'header',
           title: '資產',
-          href: '/financial-management/asset',
-          selectedWhenPartiallyMatched: true,
+          navigations: [
+            {
+              type: 'link',
+              title: '類別',
+              href: '/financial-management/asset/category',
+              selectedWhenPartiallyMatched: true,
+            },
+          ],
         },
         {
-          type: 'link',
-          title: '淨值',
-          href: '/financial-management/net-value',
-          selectedWhenPartiallyMatched: true,
+          type: 'header',
+          title: '權益',
+          navigations: [
+            {
+              type: 'link',
+              title: '總覽',
+              href: '/financial-management/net-value/overview',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: '明細',
+              href: '/financial-management/net-value/statement',
+              selectedWhenPartiallyMatched: true,
+            },
+          ],
         },
         {
           type: 'link',
