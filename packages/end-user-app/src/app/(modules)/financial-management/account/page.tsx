@@ -49,10 +49,9 @@ export default function Page() {
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
+  const createAccountForm = useForm<CreateAccountFormInputs>()
   const [editingAccountReference, setEditingAccountReference] =
     React.useState<string>()
-  const createAccountForm = useForm<CreateAccountFormInputs>()
-
   const updateAccountForm = useForm<UpdateAccountFormInputs>()
 
   const fetchAccounts = React.useCallback(async () => {
@@ -132,7 +131,7 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="帳戶列表"
+          title="帳戶明細"
           actions={[
             <Button
               key="create"
@@ -150,7 +149,7 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell>識別碼</NoWrapTableCell>
+                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
@@ -205,7 +204,7 @@ export default function Page() {
                     {...field}
                     required
                     label="名字"
-                    variant="standard"
+                    variant="filled"
                   />
                 )}
                 rules={{ required: '必填' }}
@@ -242,7 +241,7 @@ export default function Page() {
                     {...field}
                     required
                     label="名字"
-                    variant="standard"
+                    variant="filled"
                   />
                 )}
                 rules={{ required: '必填' }}

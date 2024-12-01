@@ -1,215 +1,263 @@
 'use client'
 
-import { ModuleDataGrid } from '@/components/ModuleDataGrid'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import getConfig from '@/utils/config'
-import { useEntity } from '@/utils/entity'
-import CancelIcon from '@mui/icons-material/Close'
+import NoWrapTableCell from '@/components/NoWrapTableCell'
+import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
+import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import SaveIcon from '@mui/icons-material/Save'
+import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import CardHeader from '@mui/material/CardHeader'
+import Chip from '@mui/material/Chip'
+import Drawer from '@mui/material/Drawer'
+import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import {
-  GridActionsCellItem,
-  GridColDef,
-  GridRowId,
-  GridRowModel,
-  GridRowModes,
-  GridRowModesModel,
-  GridRowsProp,
-} from '@mui/x-data-grid'
-import Link from 'next/link'
+import Stack from '@mui/material/Stack'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TextField from '@mui/material/TextField'
 import React from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
-const { CHORE_MASTER_API_HOST } = getConfig()
+interface Asset {
+  reference: string
+  symbol: string
+}
+
+type CreateAssetFormInputs = {
+  symbol: string
+}
+
+type UpdateAssetFormInputs = {
+  symbol: string
+}
 
 export default function Page() {
-  const [assetAnchorEl, setAssetAnchorEl] = React.useState<null | HTMLElement>(
-    null
-  )
-  const asset = useEntity<GridRowsProp>({
-    endpoint: '/v1/financial_management/assets',
-    defaultList: [],
-  })
-  const [assetRowModesModel, setAssetRowModesModel] =
-    React.useState<GridRowModesModel>({})
+  const { enqueueNotification } = useNotification()
 
-  const handleOpenAssetMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAssetAnchorEl(event.currentTarget)
-  }
+  // Asset
+  const [assets, setAssets] = React.useState<Asset[]>([])
+  const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
+  const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
+    React.useState(false)
+  const createAssetForm = useForm<CreateAssetFormInputs>()
+  const [editingAssetReference, setEditingAssetReference] =
+    React.useState<string>()
+  const updateAssetForm = useForm<UpdateAssetFormInputs>()
 
-  const handleCloseAssetMenu = () => {
-    setAssetAnchorEl(null)
-  }
-
-  const getNewAssetRow = () => {
-    return {
-      isNew: true,
-      reference: uuidv4(),
-      symbol: '',
-    }
-  }
-
-  const handleEditAssetClick = (reference: GridRowId) => () => {
-    setAssetRowModesModel({
-      ...assetRowModesModel,
-      [reference]: { mode: GridRowModes.Edit },
-    })
-  }
-
-  const handleSaveAssetClick = (reference: GridRowId) => () => {
-    setAssetRowModesModel({
-      ...assetRowModesModel,
-      [reference]: { mode: GridRowModes.View },
-    })
-  }
-
-  const handleDeleteAssetClick = (reference: GridRowId) => async () => {
-    await asset.deleteByReference(reference)
-  }
-
-  const handleCancelEditAssetClick = (reference: GridRowId) => () => {
-    setAssetRowModesModel({
-      ...assetRowModesModel,
-      [reference]: { mode: GridRowModes.View, ignoreModifications: true },
-    })
-    const editedRow = asset.list.find((row) => row.reference === reference)
-    if (editedRow!.isNew) {
-      asset.setList(asset.list.filter((row) => row.reference !== reference))
-    }
-  }
-
-  const handleUpsertAssetRow = async ({
-    isNew,
-    ...upsertedRow
-  }: GridRowModel) => {
-    return await asset.upsertByReference({ isNew, upsertedEntity: upsertedRow })
-  }
-
-  const accountColumns: GridColDef[] = [
-    {
-      field: 'reference',
-      headerName: '識別碼',
-      hideSortIcons: true,
-      sortable: false,
-    },
-    {
-      field: 'symbol',
-      type: 'string',
-      headerName: '識別符號',
-      editable: true,
-      flex: 1,
-    },
-    {
-      field: '互動',
-      type: 'actions',
-      cellClassName: 'actions',
-      getActions: ({ id }) => {
-        const isInEditMode = assetRowModesModel[id]?.mode === GridRowModes.Edit
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              key="save"
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: 'primary.main',
-              }}
-              onClick={handleSaveAssetClick(id)}
-            />,
-            <GridActionsCellItem
-              key="cancel"
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelEditAssetClick(id)}
-              color="inherit"
-            />,
-          ]
-        }
-        return [
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditIcon />}
-            label="Edit"
-            onClick={handleEditAssetClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            key="delete"
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteAssetClick(id)}
-            color="inherit"
-          />,
-        ]
+  const fetchAssets = React.useCallback(async () => {
+    setIsFetchingAssets(true)
+    await choreMasterAPIAgent.get('/v1/financial_management/assets', {
+      params: {},
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
       },
+      onSuccess: async ({ data }: any) => {
+        setAssets(data)
+      },
+    })
+    setIsFetchingAssets(false)
+  }, [enqueueNotification])
+
+  const handleSubmitCreateAssetForm: SubmitHandler<
+    CreateAssetFormInputs
+  > = async (data) => {
+    await choreMasterAPIAgent.post('/v1/financial_management/assets', data, {
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: () => {
+        createAssetForm.reset()
+        setIsCreateAssetDrawerOpen(false)
+        fetchAssets()
+      },
+    })
+  }
+
+  const handleSubmitUpdateAssetForm: SubmitHandler<
+    UpdateAssetFormInputs
+  > = async (data) => {
+    await choreMasterAPIAgent.patch(
+      `/v1/financial_management/assets/${editingAssetReference}`,
+      data,
+      {
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          updateAssetForm.reset()
+          setEditingAssetReference(undefined)
+          fetchAssets()
+        },
+      }
+    )
+  }
+
+  const deleteAsset = React.useCallback(
+    async (assetReference: string) => {
+      const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
+      if (!isConfirmed) {
+        return
+      }
+      await choreMasterAPIAgent.delete(
+        `/v1/financial_management/assets/${assetReference}`,
+        {
+          onFail: ({ message }: any) => {
+            enqueueNotification(message, 'error')
+          },
+          onSuccess: () => {
+            fetchAssets()
+          },
+        }
+      )
     },
-  ]
+    [enqueueNotification, fetchAssets]
+  )
+
+  React.useEffect(() => {
+    fetchAssets()
+  }, [fetchAssets])
 
   return (
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="資產列表"
+          title="資產明細"
           actions={[
-            <Box key="more">
-              <IconButton onClick={handleOpenAssetMenu}>
-                <MoreVertIcon />
-              </IconButton>
-              <Menu
-                anchorEl={assetAnchorEl}
-                open={Boolean(assetAnchorEl)}
-                onClose={handleCloseAssetMenu}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              >
-                <Link
-                  href={`${CHORE_MASTER_API_HOST}/v1/account_center/integrations/google/spreadsheets/financial_management/spreadsheet_url?sheet_title=asset`}
-                  passHref
-                  legacyBehavior
-                >
-                  <MenuItem
-                    component="a"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleCloseAssetMenu}
-                  >
-                    <ListItemIcon>
-                      <OpenInNewIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>在試算表顯示</ListItemText>
-                  </MenuItem>
-                </Link>
-              </Menu>
-            </Box>,
+            <Button
+              key="create"
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setIsCreateAssetDrawerOpen(true)}
+            >
+              新增
+            </Button>,
           ]}
         />
-        <ModuleFunctionBody>
-          <ModuleDataGrid
-            rows={asset.list}
-            columns={accountColumns}
-            rowModesModel={assetRowModesModel}
-            onRowModesModelChange={setAssetRowModesModel}
-            getNewRow={getNewAssetRow}
-            setRows={asset.setList}
-            processRowUpdate={handleUpsertAssetRow}
-            loading={asset.isLoading}
-            getRowId={(row) => row.reference}
-          />
+        <ModuleFunctionBody loading={isFetchingAssets}>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
+                  <NoWrapTableCell>代號</NoWrapTableCell>
+                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {assets.map((asset) => (
+                  <TableRow key={asset.reference}>
+                    <NoWrapTableCell>
+                      <Chip size="small" label={asset.reference} />
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          updateAssetForm.setValue('symbol', asset.symbol)
+                          setEditingAssetReference(asset.reference)
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => deleteAsset(asset.reference)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </NoWrapTableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </ModuleFunctionBody>
       </ModuleFunction>
+
+      <Drawer
+        anchor="right"
+        open={isCreateAssetDrawerOpen}
+        onClose={() => setIsCreateAssetDrawerOpen(false)}
+      >
+        <Box sx={{ minWidth: 320 }}>
+          <CardHeader title="新增資產" />
+          <Stack component="form" spacing={3} p={2} autoComplete="off">
+            <FormControl>
+              <Controller
+                name="symbol"
+                control={createAssetForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="代號"
+                    variant="filled"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <LoadingButton
+              variant="contained"
+              onClick={createAssetForm.handleSubmit(
+                handleSubmitCreateAssetForm
+              )}
+              loading={createAssetForm.formState.isSubmitting}
+            >
+              新增
+            </LoadingButton>
+          </Stack>
+        </Box>
+      </Drawer>
+
+      <Drawer
+        anchor="right"
+        open={editingAssetReference !== undefined}
+        onClose={() => setEditingAssetReference(undefined)}
+      >
+        <Box sx={{ minWidth: 320 }}>
+          <CardHeader title="編輯資產" />
+          <Stack component="form" spacing={3} p={2} autoComplete="off">
+            <FormControl>
+              <Controller
+                name="symbol"
+                control={updateAssetForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="代號"
+                    variant="filled"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <LoadingButton
+              variant="contained"
+              onClick={updateAssetForm.handleSubmit(
+                handleSubmitUpdateAssetForm
+              )}
+              loading={updateAssetForm.formState.isSubmitting}
+            >
+              儲存
+            </LoadingButton>
+          </Stack>
+        </Box>
+      </Drawer>
     </React.Fragment>
   )
 }
