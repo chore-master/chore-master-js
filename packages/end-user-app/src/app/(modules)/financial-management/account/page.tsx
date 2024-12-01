@@ -1,87 +1,73 @@
 'use client'
-import { ModuleDataGrid } from '@/components/ModuleDataGrid'
+
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import NoWrapTableCell from '@/components/NoWrapTableCell'
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import getConfig from '@/utils/config'
-import { useEntity } from '@/utils/entity'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
-import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import SaveIcon from '@mui/icons-material/Save'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import CardActions from '@mui/material/CardActions'
 import CardHeader from '@mui/material/CardHeader'
+import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
-import {
-  GridActionsCellItem,
-  GridColDef,
-  GridRowId,
-  GridRowModel,
-  GridRowModes,
-  GridRowModesModel,
-  GridRowsProp,
-} from '@mui/x-data-grid'
-import Link from 'next/link'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-import { v4 as uuidv4 } from 'uuid'
+
+interface Account {
+  reference: string
+  name: string
+}
 
 type CreateAccountFormInputs = {
   name: string
 }
 
-const { CHORE_MASTER_API_HOST } = getConfig()
+type UpdateAccountFormInputs = {
+  name: string
+}
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
-  const [accountAnchorEl, setAccountAnchorEl] =
-    React.useState<null | HTMLElement>(null)
-  const account = useEntity<GridRowsProp>({
-    endpoint: '/v1/financial_management/accounts',
-    defaultList: [],
-  })
-  const [accountRowModesModel, setAccountRowModesModel] =
-    React.useState<GridRowModesModel>({})
+
+  // Account
+  const [accounts, setAccounts] = React.useState<Account[]>([])
+  const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
-  const [isViewAccountDrawerOpen, setIsViewAccountDrawerOpen] =
-    React.useState(false)
+  const [editingAccountReference, setEditingAccountReference] =
+    React.useState<string>()
   const createAccountForm = useForm<CreateAccountFormInputs>()
 
-  const handleOpenAccountMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAccountAnchorEl(event.currentTarget)
-  }
+  const updateAccountForm = useForm<UpdateAccountFormInputs>()
 
-  const handleCloseAccountMenu = () => {
-    setAccountAnchorEl(null)
-  }
-
-  const toggleCreateAccountDrawer = (isOpen: boolean) => () => {
-    setIsCreateAccountDrawerOpen(isOpen)
-  }
-
-  const toggleViewAccountDrawer = (isOpen: boolean) => () => {
-    setIsViewAccountDrawerOpen(isOpen)
-  }
+  const fetchAccounts = React.useCallback(async () => {
+    setIsFetchingAccounts(true)
+    await choreMasterAPIAgent.get('/v1/financial_management/accounts', {
+      params: {},
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setAccounts(data)
+      },
+    })
+    setIsFetchingAccounts(false)
+  }, [enqueueNotification])
 
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
@@ -93,131 +79,54 @@ export default function Page() {
       onSuccess: () => {
         createAccountForm.reset()
         setIsCreateAccountDrawerOpen(false)
-        account.fetchAll()
+        fetchAccounts()
       },
     })
   }
 
-  const getNewAccountRow = () => {
-    return {
-      isNew: true,
-      reference: uuidv4(),
-      name: '',
-    }
+  const handleSubmitUpdateAccountForm: SubmitHandler<
+    UpdateAccountFormInputs
+  > = async (data) => {
+    await choreMasterAPIAgent.patch(
+      `/v1/financial_management/accounts/${editingAccountReference}`,
+      data,
+      {
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          updateAccountForm.reset()
+          setEditingAccountReference(undefined)
+          fetchAccounts()
+        },
+      }
+    )
   }
 
-  const handleViewAccountClick = (reference: GridRowId) => () => {
-    console.log('View account', reference)
-    setIsViewAccountDrawerOpen(true)
-  }
-
-  const handleEditAccountClick = (reference: GridRowId) => () => {
-    setAccountRowModesModel({
-      ...accountRowModesModel,
-      [reference]: { mode: GridRowModes.Edit },
-    })
-  }
-
-  const handleSaveAccountClick = (reference: GridRowId) => () => {
-    setAccountRowModesModel({
-      ...accountRowModesModel,
-      [reference]: { mode: GridRowModes.View },
-    })
-  }
-
-  const handleDeleteAccountClick = (reference: GridRowId) => async () => {
-    await account.deleteByReference(reference)
-  }
-
-  const handleCancelEditAccountClick = (reference: GridRowId) => () => {
-    setAccountRowModesModel({
-      ...accountRowModesModel,
-      [reference]: { mode: GridRowModes.View, ignoreModifications: true },
-    })
-    const editedRow = account.list.find((row) => row.reference === reference)
-    if (editedRow!.isNew) {
-      account.setList(account.list.filter((row) => row.reference !== reference))
-    }
-  }
-
-  const handleUpsertAccountRow = async ({
-    isNew,
-    ...upsertedRow
-  }: GridRowModel) => {
-    return await account.upsertByReference({
-      isNew,
-      upsertedEntity: upsertedRow,
-    })
-  }
-
-  const accountColumns: GridColDef[] = [
-    {
-      field: 'reference',
-      headerName: '識別碼',
-      hideSortIcons: true,
-      sortable: false,
-    },
-    {
-      field: 'name',
-      type: 'string',
-      headerName: '名字',
-      editable: true,
-      flex: 1,
-    },
-    {
-      field: '互動',
-      type: 'actions',
-      cellClassName: 'actions',
-      getActions: ({ id }) => {
-        const isInEditMode =
-          accountRowModesModel[id]?.mode === GridRowModes.Edit
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              key="save"
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: 'primary.main',
-              }}
-              onClick={handleSaveAccountClick(id)}
-            />,
-            <GridActionsCellItem
-              key="cancel"
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelEditAccountClick(id)}
-              color="inherit"
-            />,
-          ]
+  const deleteAccount = React.useCallback(
+    async (accountReference: string) => {
+      const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
+      if (!isConfirmed) {
+        return
+      }
+      await choreMasterAPIAgent.delete(
+        `/v1/financial_management/accounts/${accountReference}`,
+        {
+          onFail: ({ message }: any) => {
+            enqueueNotification(message, 'error')
+          },
+          onSuccess: () => {
+            fetchAccounts()
+          },
         }
-        return [
-          <GridActionsCellItem
-            key="view"
-            icon={<VisibilityIcon />}
-            label="View"
-            onClick={handleViewAccountClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditIcon />}
-            label="Edit"
-            onClick={handleEditAccountClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            key="delete"
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteAccountClick(id)}
-            color="inherit"
-          />,
-        ]
-      },
+      )
     },
-  ]
+    [enqueueNotification, fetchAccounts]
+  )
+
+  React.useEffect(() => {
+    fetchAccounts()
+  }, [fetchAccounts])
 
   return (
     <React.Fragment>
@@ -229,69 +138,59 @@ export default function Page() {
               key="create"
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={toggleCreateAccountDrawer(true)}
+              onClick={() => setIsCreateAccountDrawerOpen(true)}
             >
-              引導式新增
+              新增
             </Button>,
-            <Box key="more">
-              <IconButton onClick={handleOpenAccountMenu}>
-                <MoreVertIcon />
-              </IconButton>
-              <Menu
-                anchorEl={accountAnchorEl}
-                open={Boolean(accountAnchorEl)}
-                onClose={handleCloseAccountMenu}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              >
-                <Link
-                  href={`${CHORE_MASTER_API_HOST}/v1/account_center/integrations/google/spreadsheets/financial_management/spreadsheet_url?sheet_title=account`}
-                  passHref
-                  legacyBehavior
-                >
-                  <MenuItem
-                    component="a"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={handleCloseAccountMenu}
-                  >
-                    <ListItemIcon>
-                      <OpenInNewIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>在試算表顯示</ListItemText>
-                  </MenuItem>
-                </Link>
-              </Menu>
-            </Box>,
           ]}
         />
-        <ModuleFunctionBody>
-          <ModuleDataGrid
-            rows={account.list}
-            columns={accountColumns}
-            rowModesModel={accountRowModesModel}
-            onRowModesModelChange={setAccountRowModesModel}
-            getNewRow={getNewAccountRow}
-            setRows={account.setList}
-            processRowUpdate={handleUpsertAccountRow}
-            loading={account.isLoading}
-            getRowId={(row) => row.reference}
-          />
+
+        <ModuleFunctionBody loading={isFetchingAccounts}>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <NoWrapTableCell>識別碼</NoWrapTableCell>
+                  <NoWrapTableCell>名字</NoWrapTableCell>
+                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {accounts.map((account) => (
+                  <TableRow key={account.reference}>
+                    <NoWrapTableCell>
+                      <Chip size="small" label={account.reference} />
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>{account.name}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          updateAccountForm.setValue('name', account.name)
+                          setEditingAccountReference(account.reference)
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => deleteAccount(account.reference)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </NoWrapTableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </ModuleFunctionBody>
       </ModuleFunction>
 
       <Drawer
         anchor="right"
-        open={isViewAccountDrawerOpen}
-        onClose={toggleViewAccountDrawer(false)}
-      >
-        <Box sx={{ minWidth: 320 }}>Coming soon...</Box>
-      </Drawer>
-
-      <Drawer
-        anchor="right"
         open={isCreateAccountDrawerOpen}
-        onClose={toggleCreateAccountDrawer(false)}
+        onClose={() => setIsCreateAccountDrawerOpen(false)}
       >
         <Box sx={{ minWidth: 320 }}>
           <CardHeader title="新增帳戶" />
@@ -312,24 +211,53 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
+            <LoadingButton
+              variant="contained"
+              onClick={createAccountForm.handleSubmit(
+                handleSubmitCreateAccountForm
+              )}
+              loading={createAccountForm.formState.isSubmitting}
+            >
+              新增
+            </LoadingButton>
           </Stack>
-          <Paper elevation={0} sx={{ position: 'sticky', bottom: 0 }}>
-            <CardHeader
-              action={
-                <CardActions>
-                  <LoadingButton
-                    variant="contained"
-                    onClick={createAccountForm.handleSubmit(
-                      handleSubmitCreateAccountForm
-                    )}
-                    loading={createAccountForm.formState.isSubmitting}
-                  >
-                    新增
-                  </LoadingButton>
-                </CardActions>
-              }
-            />
-          </Paper>
+        </Box>
+      </Drawer>
+
+      <Drawer
+        anchor="right"
+        open={editingAccountReference !== undefined}
+        onClose={() => setEditingAccountReference(undefined)}
+      >
+        <Box sx={{ minWidth: 320 }}>
+          <CardHeader title="編輯帳戶" />
+          <Stack component="form" spacing={3} p={2} autoComplete="off">
+            <FormControl>
+              <Controller
+                name="name"
+                control={updateAccountForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="名字"
+                    variant="standard"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <LoadingButton
+              variant="contained"
+              onClick={updateAccountForm.handleSubmit(
+                handleSubmitUpdateAccountForm
+              )}
+              loading={updateAccountForm.formState.isSubmitting}
+            >
+              儲存
+            </LoadingButton>
+          </Stack>
         </Box>
       </Drawer>
     </React.Fragment>
