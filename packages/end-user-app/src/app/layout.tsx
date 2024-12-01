@@ -1,3 +1,4 @@
+import { NotificationProvider } from '@/utils/notification'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -19,7 +20,9 @@ export default function Layout({
     <html lang="en">
       <body className={inter.className}>
         <AppRouterCacheProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <NotificationProvider>{children}</NotificationProvider>
+          </ThemeProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

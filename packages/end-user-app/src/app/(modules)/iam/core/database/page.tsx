@@ -6,6 +6,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import LoadingButton from '@mui/lab/LoadingButton'
@@ -48,6 +49,7 @@ const rootRevision = {
 }
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const [allRevisions, setAllRevisions] = React.useState<Revision[]>([])
   const [appliedRevision, setAppliedRevision] = React.useState<Revision>()
   const [focusedRevisionScriptContent, setFocusedRevisionScriptContent] =
@@ -64,7 +66,7 @@ export default function Page() {
     await choreMasterAPIAgent.get('/v1/account_center/integrations/core', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         coreIntegrationForm.reset({
@@ -91,7 +93,7 @@ export default function Page() {
       data,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: async () => {
           await fetchCoreIntegration()
@@ -106,7 +108,7 @@ export default function Page() {
       null,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: async () => {
           await fetchCoreIntegration()
@@ -125,7 +127,7 @@ export default function Page() {
       null,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: async () => {
           await fetchCoreIntegration()
@@ -140,7 +142,7 @@ export default function Page() {
       null,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: async () => {
           await fetchCoreIntegration()
@@ -154,7 +156,7 @@ export default function Page() {
       `/v1/account_center/integrations/core/relational_database/migrations/${revision}`,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: async () => {
           await fetchCoreIntegration()
@@ -169,7 +171,7 @@ export default function Page() {
       {
         params: {},
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: async ({ data }: any) => {
           await setFocusedRevisionScriptContent(data.script_content)
@@ -188,11 +190,11 @@ export default function Page() {
       null,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: async ({ data }: any) => {
           await fetchCoreIntegration()
-          alert('格式化完成。')
+          enqueueNotification('格式化完成。', 'success')
         },
       }
     )

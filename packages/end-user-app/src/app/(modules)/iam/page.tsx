@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
 import Box from '@mui/material/Box'
 import List from '@mui/material/List'
 import ListItemText from '@mui/material/ListItemText'
@@ -20,8 +21,8 @@ interface CoreData {
 }
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const [coreData, setCoreData] = React.useState<CoreData>({})
-
   React.useEffect(() => {
     fetchCoreIntegration()
   }, [])
@@ -30,7 +31,7 @@ export default function Page() {
     choreMasterAPIAgent.get('/v1/account_center/integrations/core', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         setCoreData((d) => ({

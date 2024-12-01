@@ -2,6 +2,7 @@
 
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import getConfig from '@/utils/config'
+import { useNotification } from '@/utils/notification'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Container from '@mui/material/Container'
 import Divider from '@mui/material/Divider'
@@ -24,11 +25,18 @@ export default function Page() {
   const successRedirectURI = encodeURI(`${HOST}/financial-management`)
   const router = useRouter()
   const loginForm = useForm<LoginForm>()
+  const { enqueueNotification } = useNotification()
 
   const handleSubmitLoginForm: SubmitHandler<LoginForm> = async (data) => {
     await choreMasterAPIAgent.post('/v1/auth/login', data, {
+      onError: () => {
+        enqueueNotification(
+          'Something wrong happened. Service may be unavailable now.',
+          'error'
+        )
+      },
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message)
       },
       onSuccess: () => {
         loginForm.reset()

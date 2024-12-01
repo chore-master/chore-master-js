@@ -8,6 +8,7 @@ import ModuleFunction, {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useEndUser } from '@/utils/auth'
 import getConfig from '@/utils/config'
+import { useNotification } from '@/utils/notification'
 import ManageSearchIcon from '@mui/icons-material/ManageSearch'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
@@ -36,6 +37,7 @@ type GoogleInputs = {
 const { CHORE_MASTER_API_HOST } = getConfig()
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const [driveFolderIdInputAnchorEl, setDriveFolderIdInputAnchorEl] =
     React.useState<null | HTMLElement>(null)
   const { sync: syncEndUser } = useEndUser()
@@ -64,7 +66,7 @@ export default function Page() {
     choreMasterAPIAgent.get('/v1/account_center/integrations/google', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         if (data?.drive?.root_folder_id) {
@@ -84,12 +86,12 @@ export default function Page() {
       data,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: () => {
           fetchGoogleIntegration()
           syncEndUser()
-          alert('掛載完成。')
+          enqueueNotification('掛載完成。', 'success')
         },
       }
     )

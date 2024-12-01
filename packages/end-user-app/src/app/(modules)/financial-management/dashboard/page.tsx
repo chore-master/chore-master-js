@@ -21,6 +21,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 // import Stack from '@mui/material/Stack'
 // import { GridRowsProp } from '@mui/x-data-grid'
+import { useNotification } from '@/utils/notification'
 import React from 'react'
 
 type Asset = {
@@ -109,6 +110,7 @@ export default function Page() {
   //     setFilteredAssetReference(asset.list[0].reference)
   //   }
   // }, [asset.list])
+  const { enqueueNotification } = useNotification()
 
   // Accounts
   const [accounts, setAccounts] = React.useState<Account[]>([])
@@ -157,42 +159,42 @@ export default function Page() {
     await choreMasterAPIAgent.get('/v1/financial_management/accounts', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         setAccounts(data)
       },
     })
     setIsLoadingAccounts(false)
-  }, [])
+  }, [enqueueNotification])
 
   const fetchAssets = React.useCallback(async () => {
     setIsLoadingAssets(true)
     await choreMasterAPIAgent.get('/v1/financial_management/assets', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         setAssets(data)
       },
     })
     setIsLoadingAssets(false)
-  }, [])
+  }, [enqueueNotification])
 
   const fetchNetValues = React.useCallback(async () => {
     setIsLoadingNetValues(true)
     await choreMasterAPIAgent.get('/v1/financial_management/net_values', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         setNetValues(data)
       },
     })
     setIsLoadingNetValues(false)
-  }, [])
+  }, [enqueueNotification])
 
   React.useEffect(() => {
     fetchNetValues()

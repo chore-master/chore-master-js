@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Accordion from '@mui/material/Accordion'
@@ -32,6 +33,7 @@ type SinoTradeInputs = {
 }
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const sinoTradeIntegrationForm = useForm<SinoTradeInputs>()
   const sinoTradeIntegrationFormAccountFieldArray = useFieldArray({
     control: sinoTradeIntegrationForm.control,
@@ -46,7 +48,7 @@ export default function Page() {
     choreMasterAPIAgent.get('/v1/account_center/integrations/sino_trade', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         sinoTradeIntegrationForm.reset({
@@ -64,11 +66,11 @@ export default function Page() {
       data,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: () => {
           fetchSinoTradeIntegration()
-          alert('儲存成功。')
+          enqueueNotification('儲存成功。', 'success')
         },
       }
     )

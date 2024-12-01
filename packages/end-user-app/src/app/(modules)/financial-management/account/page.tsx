@@ -7,6 +7,7 @@ import ModuleFunction, {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import getConfig from '@/utils/config'
 import { useEntity } from '@/utils/entity'
+import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import CancelIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
@@ -51,6 +52,7 @@ type CreateAccountFormInputs = {
 const { CHORE_MASTER_API_HOST } = getConfig()
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const [accountAnchorEl, setAccountAnchorEl] =
     React.useState<null | HTMLElement>(null)
   const account = useEntity<GridRowsProp>({
@@ -86,7 +88,7 @@ export default function Page() {
   > = async (data) => {
     await choreMasterAPIAgent.post('/v1/financial_management/accounts', data, {
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: () => {
         createAccountForm.reset()

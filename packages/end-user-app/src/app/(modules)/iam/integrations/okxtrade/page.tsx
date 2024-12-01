@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { Button } from '@mui/material'
@@ -34,6 +35,7 @@ type OKXTradeInputs = {
 }
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const okxTradeIntegrationForm = useForm<OKXTradeInputs>()
   const okxTradeIntegrationFormAccountFieldArray = useFieldArray({
     control: okxTradeIntegrationForm.control,
@@ -48,7 +50,7 @@ export default function Page() {
     choreMasterAPIAgent.get('/v1/account_center/integrations/okx_trade', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         okxTradeIntegrationForm.reset({
@@ -58,19 +60,19 @@ export default function Page() {
     })
   }
 
-  const onSubmitOkxTradeIntegrationForm: SubmitHandler<
-  OKXTradeInputs
-  > = async (data) => {
+  const onSubmitOkxTradeIntegrationForm: SubmitHandler<OKXTradeInputs> = async (
+    data
+  ) => {
     await choreMasterAPIAgent.patch(
       '/v1/account_center/integrations/okx_trade',
       data,
       {
         onFail: ({ message }: any) => {
-          alert(message)
+          enqueueNotification(message, 'error')
         },
         onSuccess: () => {
           fetchOKXTradeIntegration()
-          alert('儲存成功。')
+          enqueueNotification('儲存成功。', 'success')
         },
       }
     )
@@ -94,7 +96,7 @@ export default function Page() {
                     </AccordionSummary>
                     <AccordionDetails>
                       <Stack spacing={1}>
-                      <Controller
+                        <Controller
                           control={okxTradeIntegrationForm.control}
                           name={`accounts.${index}.env`}
                           rules={{ required: '必填' }}
