@@ -9,6 +9,7 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
@@ -167,6 +168,13 @@ export default function Page() {
 
   return (
     <React.Fragment>
+      <Box sx={{ p: 2 }}>
+        <Breadcrumbs>
+          <Typography color="text.secondary">權益</Typography>
+          <Typography color="text.primary">總覽</Typography>
+        </Breadcrumbs>
+      </Box>
+
       <ModuleFunction>
         <ModuleFunctionHeader
           title="權益總覽"
@@ -205,7 +213,7 @@ export default function Page() {
         />
         <ModuleFunctionBody loading={isFetchingNetValues || isFetchingAssets}>
           <Stack spacing={3} p={2}>
-            <Typography variant="h6">權益歷史</Typography>
+            <Typography variant="h6">權益曲線</Typography>
             <HighChartsCore
               callback={(chart) => setEquityChart(chart)}
               options={
@@ -283,7 +291,7 @@ export default function Page() {
           </Stack>
 
           <Stack spacing={3} p={2}>
-            <Typography variant="h6">資產負債歷史</Typography>
+            <Typography variant="h6">資產負債曲線</Typography>
             <HighChartsCore
               callback={(chart) => setFlowChart(chart)}
               options={

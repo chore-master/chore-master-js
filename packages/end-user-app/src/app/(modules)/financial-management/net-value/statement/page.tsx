@@ -21,6 +21,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
 import Checkbox from '@mui/material/Checkbox'
@@ -37,6 +38,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
@@ -227,6 +229,13 @@ export default function Page() {
 
   return (
     <React.Fragment>
+      <Box sx={{ p: 2 }}>
+        <Breadcrumbs>
+          <Typography color="text.secondary">權益</Typography>
+          <Typography color="text.primary">明細</Typography>
+        </Breadcrumbs>
+      </Box>
+
       <ModuleFunction>
         <ModuleFunctionHeader
           title="權益明細"
