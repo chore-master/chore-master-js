@@ -15,8 +15,10 @@ if (typeof Highcharts === 'object') {
 
 export default function HighChartsCore({
   options,
+  callback,
 }: {
   options: Highcharts.Options
+  callback?: (chart: Highcharts.Chart) => void
 }) {
   const chartComponentRef = React.useRef<HighchartsReact.RefObject>(null)
   const { mode } = useColorScheme()
@@ -49,7 +51,7 @@ export default function HighChartsCore({
       }
       window.location.reload()
     }
-  }, [mode])
+  }, [mode, previousMode])
 
   React.useEffect(() => {
     if (mode === 'light') {
@@ -57,13 +59,14 @@ export default function HighChartsCore({
     } else if (mode === 'dark') {
       HighContrastDark(Highcharts)
     }
-  }, [])
+  }, [mode])
 
   return (
     <HighchartsReact
+      ref={chartComponentRef}
       highcharts={Highcharts}
       options={mergedOptions}
-      ref={chartComponentRef}
+      callback={callback}
     />
   )
 }

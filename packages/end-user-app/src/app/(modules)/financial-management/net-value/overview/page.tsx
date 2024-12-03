@@ -1,138 +1,60 @@
 'use client'
 
+import HighChartsCore from '@/components/charts/HighChartsCore'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import HighChartsCore from '@/components/charts/HighChartsCore'
-// import StackedAreaChart from '@/components/charts/StackedAreaChart'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
-// import { colors, useLegend } from '@/utils/chart'
-// import { useEntity } from '@/utils/entity'
-// import Box from '@mui/material/Box'
-// import Button from '@mui/material/Button'
-// import Chip from '@mui/material/Chip'
-// import CircularProgress from '@mui/material/CircularProgress'
-// import FormControl from '@mui/material/FormControl'
-// import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-// import Stack from '@mui/material/Stack'
-// import { GridRowsProp } from '@mui/x-data-grid'
-import { useNotification } from '@/utils/notification'
+import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
 import React from 'react'
 
-type Asset = {
-  reference: string
-  symbol: string
-}
-
-type Account = {
+interface Account {
   reference: string
   name: string
 }
 
-type NetValue = {
+interface Asset {
+  reference: string
+  symbol: string
+}
+
+interface NetValue {
   reference: string
   account_reference: string
   settlement_asset_reference: string
-  settled_time: string
   amount: string
+  settled_time: string
+  account: Account
+  settlement_asset: Asset
 }
 
 export default function Page() {
-  // const account = useEntity<GridRowsProp>({
-  //   endpoint: '/v1/financial_management/accounts',
-  //   defaultList: [],
-  // })
-  // const asset = useEntity<GridRowsProp>({
-  //   endpoint: '/v1/financial_management/assets',
-  //   defaultList: [],
-  // })
-  // const netValue = useEntity<GridRowsProp>({
-  //   endpoint: '/v1/financial_management/net_values',
-  //   defaultList: [],
-  // })
-  // const [filteredAssetReference, setFilteredAssetReference] =
-  //   React.useState<string>()
-  // const [filterableAccounts, setFilterableAccounts] = React.useState<any>([])
-  // const [filteredAccounts, setFilteredAccounts] = React.useState<any>([])
-  // const [filteredNetValues, setFilteredNetValues] = React.useState<any>([])
-  // const accountLegend = useLegend({
-  //   labels: account.list.map((a) => a.reference),
-  //   colors,
-  // })
-
-  // React.useEffect(() => {
-  //   if (
-  //     filteredAssetReference &&
-  //     account.list.length > 0 &&
-  //     netValue.list.length > 0
-  //   ) {
-  //     const filterableAccountReferenceSet = new Set(
-  //       netValue.list
-  //         .filter(
-  //           (d) => d.settlement_asset_reference === filteredAssetReference
-  //         )
-  //         .map((d) => d.account_reference)
-  //     )
-  //     setFilterableAccounts(
-  //       account.list.filter((a) =>
-  //         filterableAccountReferenceSet.has(a.reference)
-  //       )
-  //     )
-  //   }
-  // }, [account.list, filteredAssetReference, netValue.list])
-
-  // React.useEffect(() => {
-  //   setFilteredAccounts(filterableAccounts)
-  // }, [filterableAccounts])
-
-  // React.useEffect(() => {
-  //   if (filteredAssetReference) {
-  //     const filteredAccountReferenceSet = new Set(
-  //       filteredAccounts.map((a: any) => a.reference)
-  //     )
-  //     setFilteredNetValues(
-  //       netValue.list.filter(
-  //         (d) =>
-  //           d.settlement_asset_reference === filteredAssetReference &&
-  //           filteredAccountReferenceSet.has(d.account_reference)
-  //       )
-  //     )
-  //   }
-  // }, [filteredAssetReference, filteredAccounts, netValue.list])
-
-  // React.useEffect(() => {
-  //   if (!filteredAssetReference && asset.list.length > 0) {
-  //     setFilteredAssetReference(asset.list[0].reference)
-  //   }
-  // }, [asset.list])
   const { enqueueNotification } = useNotification()
+  const [chart, setChart] = React.useState<Highcharts.Chart | null>(null)
+  const [forceUpdate, setForceUpdate] = React.useState(0)
 
-  // Accounts
-  const [accounts, setAccounts] = React.useState<Account[]>([])
-  const [isLoadingAccounts, setIsLoadingAccounts] = React.useState(false)
-
-  // Assets
+  // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
-  const [isLoadingAssets, setIsLoadingAssets] = React.useState(false)
+  const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
 
   // Net Values
   const [netValues, setNetValues] = React.useState<NetValue[]>([])
-  const [isLoadingNetValues, setIsLoadingNetValues] = React.useState(false)
+  const [isFetchingNetValues, setIsFetchingNetValues] = React.useState(false)
 
   const [selectedSettlementAssetSymbol, setSelectedSettlementAssetSymbol] =
     React.useState<string>('TWD')
-
-  const assetReferenceToAssetMap = React.useMemo(() => {
-    return assets.reduce<Record<string, Asset>>((acc, asset) => {
-      acc[asset.reference] = asset
-      return acc
-    }, {})
-  }, [assets])
 
   const exchangeRateMap: any = React.useMemo(
     () => ({
@@ -154,36 +76,8 @@ export default function Page() {
     []
   )
 
-  const fetchAccounts = React.useCallback(async () => {
-    setIsLoadingAccounts(true)
-    await choreMasterAPIAgent.get('/v1/financial_management/accounts', {
-      params: {},
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data }: any) => {
-        setAccounts(data)
-      },
-    })
-    setIsLoadingAccounts(false)
-  }, [enqueueNotification])
-
-  const fetchAssets = React.useCallback(async () => {
-    setIsLoadingAssets(true)
-    await choreMasterAPIAgent.get('/v1/financial_management/assets', {
-      params: {},
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data }: any) => {
-        setAssets(data)
-      },
-    })
-    setIsLoadingAssets(false)
-  }, [enqueueNotification])
-
   const fetchNetValues = React.useCallback(async () => {
-    setIsLoadingNetValues(true)
+    setIsFetchingNetValues(true)
     await choreMasterAPIAgent.get('/v1/financial_management/net_values', {
       params: {},
       onFail: ({ message }: any) => {
@@ -193,27 +87,54 @@ export default function Page() {
         setNetValues(data)
       },
     })
-    setIsLoadingNetValues(false)
+    setIsFetchingNetValues(false)
   }, [enqueueNotification])
 
-  React.useEffect(() => {
+  const fetchAssets = React.useCallback(async () => {
+    setIsFetchingAssets(true)
+    await choreMasterAPIAgent.get('/v1/financial_management/assets', {
+      params: {},
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setAssets(data)
+      },
+    })
+    setIsFetchingAssets(false)
+  }, [enqueueNotification])
+
+  const refresh = React.useCallback(() => {
     fetchNetValues()
-    fetchAccounts()
     fetchAssets()
-  }, [fetchAccounts, fetchAssets, fetchNetValues])
+  }, [fetchNetValues, fetchAssets])
+
+  React.useEffect(() => {
+    refresh()
+  }, [refresh])
 
   return (
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="淨值組成"
+          title="權益快照總覽"
           actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton
+                  onClick={refresh}
+                  disabled={isFetchingNetValues || isFetchingAssets}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
             <FormControl
               key="settlementAsset"
               variant="standard"
               sx={{ minWidth: 120 }}
             >
-              <InputLabel>結算資產</InputLabel>
+              <InputLabel>名義價值資產代號</InputLabel>
               <Select
                 value={selectedSettlementAssetSymbol}
                 onChange={(event: SelectChangeEvent) => {
@@ -230,10 +151,9 @@ export default function Page() {
             </FormControl>,
           ]}
         />
-        <ModuleFunctionBody
-          loading={isLoadingNetValues || isLoadingAccounts || isLoadingAssets}
-        >
+        <ModuleFunctionBody loading={isFetchingNetValues || isFetchingAssets}>
           <HighChartsCore
+            callback={(chart) => setChart(chart)}
             options={{
               chart: {
                 type: 'area',
@@ -249,12 +169,17 @@ export default function Page() {
                 labels: {
                   format: '{value:,.0f}',
                 },
+                stackLabels: {
+                  enabled: true,
+                  format: '{total:,.2f}',
+                },
               },
               plotOptions: {
                 area: {
                   stacking: 'normal',
                   marker: {
                     enabled: false,
+                    symbol: 'circle',
                   },
                 },
                 series: {
@@ -264,48 +189,55 @@ export default function Page() {
               tooltip: {
                 shared: true,
                 valueDecimals: 2,
+                useHTML: true, // Enable HTML in tooltip
+                headerFormat:
+                  '<div style="display:flex; justify-content:space-between; margin-bottom:5px;">' +
+                  '<span>{point.key}</span>' +
+                  '</div>',
+                pointFormat:
+                  '<div style="display:flex; justify-content:space-between; width:100%;">' +
+                  '<span style="margin-right:10px;">' +
+                  '<span style="color:{series.color}">\u25CF</span> {series.name}' +
+                  '</span>' +
+                  '<span style="text-align:right;">{point.y:,.2f}</span>' +
+                  '</div>',
               },
-              legend: {
-                enabled: true,
-              },
-              series:
-                assets.length === 0
-                  ? []
-                  : accounts.map((account) => {
-                      const accountNetValues = netValues.filter(
-                        (netValue) =>
-                          netValue.account_reference === account.reference
-                      )
-                      const datapoints = accountNetValues.map(
-                        (accountNetValue) => {
-                          const settlementAsset =
-                            assetReferenceToAssetMap[
-                              accountNetValue.settlement_asset_reference
-                            ]
-                          let price = 1
-                          if (
-                            settlementAsset.symbol !==
-                            selectedSettlementAssetSymbol
-                          ) {
-                            price =
-                              exchangeRateMap[selectedSettlementAssetSymbol][
-                                settlementAsset.symbol
-                              ].price
-                          }
-                          return [
-                            new Date(accountNetValue.settled_time).getTime(),
-                            parseFloat(accountNetValue.amount) * price,
-                          ]
-                        }
-                      )
-                      return {
-                        type: 'area',
-                        name: account.name,
-                        data: datapoints,
-                      }
-                    }),
+              series: Object.entries(
+                netValues.reduce(
+                  (acc: Record<string, NetValue[]>, netValue) => {
+                    acc[netValue.account.name] =
+                      acc[netValue.account.name] || []
+                    acc[netValue.account.name].push(netValue)
+                    return acc
+                  },
+                  {}
+                )
+              ).map(([accountName, netValues]) => {
+                const datapoints = netValues.map((netValue) => {
+                  let price = 1
+                  if (
+                    netValue.settlement_asset.symbol !==
+                    selectedSettlementAssetSymbol
+                  ) {
+                    price =
+                      exchangeRateMap[selectedSettlementAssetSymbol][
+                        netValue.settlement_asset.symbol
+                      ].price
+                  }
+                  return [
+                    new Date(netValue.settled_time).getTime(),
+                    parseFloat(netValue.amount) * price,
+                  ]
+                })
+                return {
+                  type: 'area',
+                  name: accountName,
+                  data: datapoints,
+                }
+              }),
               // series: [
               //   {
+              //     type: 'area',
               //     name: 'A',
               //     data: [
               //       [Date.UTC(2024, 10, 1), 5],
@@ -316,6 +248,7 @@ export default function Page() {
               //   },
               //   {
               //     name: 'B',
+              //     type: 'area',
               //     data: [
               //       [Date.UTC(2024, 10, 1), 2],
               //       [Date.UTC(2024, 10, 2), -30], // Negative value
@@ -325,6 +258,7 @@ export default function Page() {
               //   },
               //   {
               //     name: 'C',
+              //     type: 'area',
               //     data: [
               //       [Date.UTC(2024, 10, 1), 1],
               //       [Date.UTC(2024, 10, 2), -4],
@@ -336,56 +270,6 @@ export default function Page() {
               // ],
             }}
           />
-        </ModuleFunctionBody>
-      </ModuleFunction>
-      {/* <ModuleFunction>
-        <ModuleFunctionHeader
-          title="淨值組成"
-          actions={
-            asset.isLoading ? (
-              <CircularProgress color="inherit" size={20} />
-            ) : (
-              <FormControl variant="standard" sx={{ minWidth: 120 }}>
-                <InputLabel>結算資產分類</InputLabel>
-
-                <Select
-                  value={filteredAssetReference || ''}
-                  onChange={(event: SelectChangeEvent) => {
-                    setFilteredAssetReference(event.target.value)
-                  }}
-                  autoWidth
-                >
-                  {asset.list.map((a) => (
-                    <MenuItem key={a.reference} value={a.reference}>
-                      {a.symbol}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )
-          }
-        />
-        <ModuleFunctionBody
-          loading={netValue.isLoading || asset.isLoading || account.isLoading}
-        >
-          <StackedAreaChart
-            layout={{
-              width: '100%',
-              marginTop: 48,
-              marginLeft: 96,
-              marginRight: 96,
-              minWidth: 320,
-            }}
-            datapoints={filteredNetValues}
-            accessDate={(d: any) => new Date(d.settled_time)}
-            accessValue={(d: any) => parseFloat(d.amount)}
-            accessGroup={(d: any) => d.account_reference}
-            // mapGroupToLegendText={(group: string) =>
-            //   (accountReferenceToAccountMap as any)?.[group]?.name
-            // }
-            // colors={colors}
-            colorScale={accountLegend.colorScale}
-          />
           <Stack
             direction="row"
             p={2}
@@ -395,55 +279,53 @@ export default function Page() {
           >
             <Button
               variant="text"
-              onClick={() => setFilteredAccounts(filterableAccounts)}
+              onClick={() => {
+                chart?.series.forEach((s: any) => {
+                  s.show()
+                })
+                setForceUpdate(forceUpdate + 1)
+              }}
             >
               選取全部
             </Button>
-            <Button variant="text" onClick={() => setFilteredAccounts([])}>
+            <Button
+              variant="text"
+              onClick={() => {
+                chart?.series.forEach((s: any) => {
+                  s.hide()
+                })
+                setForceUpdate(forceUpdate + 1)
+              }}
+            >
               反選全部
             </Button>
-            {filterableAccounts.map((a: any) => (
-              <Box key={a.reference} sx={{ p: 0.5 }}>
+            {chart?.series.map((s: any) => (
+              <Box key={s.name} sx={{ p: 0.5 }}>
                 <Chip
-                  label={a.name}
+                  label={s.name}
                   size="small"
                   onClick={() => {
-                    const isActive = filteredAccounts.find(
-                      (fa: any) => fa.reference === a.reference
-                    )
-                      ? true
-                      : false
-                    if (isActive) {
-                      setFilteredAccounts((as: any) =>
-                        as.filter((fa: any) => fa.reference !== a.reference)
-                      )
+                    if (s.visible) {
+                      s.hide()
                     } else {
-                      setFilteredAccounts((as: any) => [...as, a])
+                      s.show()
                     }
+                    setForceUpdate(forceUpdate + 1)
                   }}
-                  variant={
-                    filteredAccounts.find(
-                      (fa: any) => fa.reference === a.reference
-                    )
-                      ? undefined
-                      : 'outlined'
-                  }
+                  variant={s.visible ? undefined : 'outlined'}
                   avatar={
-                    <svg>
-                      <circle
-                        r="9"
-                        cx="9"
-                        cy="9"
-                        fill={accountLegend.colorScale(a.reference)}
-                      />
-                    </svg>
+                    s.visible ? (
+                      <svg>
+                        <circle r="9" cx="9" cy="9" fill={s.color} />
+                      </svg>
+                    ) : undefined
                   }
                 />
               </Box>
             ))}
           </Stack>
         </ModuleFunctionBody>
-      </ModuleFunction> */}
+      </ModuleFunction>
 
       {/* <ModuleFunction>
         <ModuleFunctionHeader title="範例折線圖" />

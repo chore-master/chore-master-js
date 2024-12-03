@@ -84,6 +84,7 @@ export default function Page() {
                   required
                   label="Password"
                   variant="standard"
+                  type="password"
                 />
               )}
               rules={{ required: 'Required' }}

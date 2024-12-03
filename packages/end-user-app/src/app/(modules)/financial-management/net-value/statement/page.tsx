@@ -54,7 +54,7 @@ interface NetValue {
   reference: string
   account_reference: string
   settlement_asset_reference: string
-  amount: number
+  amount: string
   settled_time: string
   account: Account
   settlement_asset: Asset
@@ -78,7 +78,7 @@ type UpdateNetValueFormInputs = {
 export default function Page() {
   const { enqueueNotification } = useNotification()
 
-  // Asset
+  // Net Value
   const [netValues, setNetValues] = React.useState<NetValue[]>([])
   const [isFetchingNetValues, setIsFetchingNetValues] = React.useState(false)
   const [isCreateNetValueDrawerOpen, setIsCreateNetValueDrawerOpen] =
@@ -281,14 +281,18 @@ export default function Page() {
                           size="small"
                           label={netValue.account.name}
                           color="info"
+                          variant="outlined"
                         />
                       </NoWrapTableCell>
-                      <NoWrapTableCell>{netValue.amount}</NoWrapTableCell>
+                      <NoWrapTableCell>
+                        {parseFloat(netValue.amount)}
+                      </NoWrapTableCell>
                       <NoWrapTableCell>
                         <Chip
                           size="small"
                           label={netValue.settlement_asset.symbol}
                           color="info"
+                          variant="outlined"
                         />
                       </NoWrapTableCell>
                       <NoWrapTableCell>
@@ -312,7 +316,7 @@ export default function Page() {
                             )
                             updateNetValueForm.setValue(
                               'amount',
-                              netValue.amount
+                              parseFloat(netValue.amount)
                             )
                             updateNetValueForm.setValue(
                               'settled_time',
