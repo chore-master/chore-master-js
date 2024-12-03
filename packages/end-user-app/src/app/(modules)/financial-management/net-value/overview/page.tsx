@@ -18,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import React from 'react'
 
 interface Account {
@@ -42,7 +43,12 @@ interface NetValue {
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
-  const [chart, setChart] = React.useState<Highcharts.Chart | null>(null)
+  const [equityChart, setEquityChart] = React.useState<Highcharts.Chart | null>(
+    null
+  )
+  const [flowChart, setFlowChart] = React.useState<Highcharts.Chart | null>(
+    null
+  )
   const [forceUpdate, setForceUpdate] = React.useState(0)
 
   // Asset
@@ -113,11 +119,57 @@ export default function Page() {
     refresh()
   }, [refresh])
 
+  const commonOptions = {
+    chart: {
+      type: 'area',
+    },
+    xAxis: {
+      type: 'datetime',
+    },
+    yAxis: {
+      title: {
+        text: '',
+      },
+      allowDecimals: false,
+      labels: {
+        format: '{value:,.0f}',
+      },
+      stackLabels: {
+        enabled: true,
+        format: '{total:,.2f}',
+      },
+    },
+    plotOptions: {
+      area: {
+        stacking: 'normal',
+        marker: {
+          enabled: false,
+          symbol: 'circle',
+        },
+      },
+      series: {
+        connectNulls: true,
+      },
+    },
+    tooltip: {
+      shared: true,
+      valueDecimals: 2,
+      useHTML: true,
+      pointFormat:
+        '<div style="display:flex; justify-content:space-between; width:100%;">' +
+        '<span style="margin-right:10px;">' +
+        '<span style="color:{series.color}">\u25CF</span> {series.name}' +
+        '</span>' +
+        '<span style="text-align:right;">{point.y:,.2f}</span>' +
+        '</div>',
+    },
+  }
+
   return (
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="權益快照總覽"
+          title="權益總覽"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
@@ -152,177 +204,216 @@ export default function Page() {
           ]}
         />
         <ModuleFunctionBody loading={isFetchingNetValues || isFetchingAssets}>
-          <HighChartsCore
-            callback={(chart) => setChart(chart)}
-            options={{
-              chart: {
-                type: 'area',
-              },
-              xAxis: {
-                type: 'datetime',
-              },
-              yAxis: {
-                title: {
-                  text: '',
-                },
-                allowDecimals: false,
-                labels: {
-                  format: '{value:,.0f}',
-                },
-                stackLabels: {
-                  enabled: true,
-                  format: '{total:,.2f}',
-                },
-              },
-              plotOptions: {
-                area: {
-                  stacking: 'normal',
-                  marker: {
-                    enabled: false,
-                    symbol: 'circle',
-                  },
-                },
-                series: {
-                  connectNulls: true,
-                },
-              },
-              tooltip: {
-                shared: true,
-                valueDecimals: 2,
-                useHTML: true, // Enable HTML in tooltip
-                headerFormat:
-                  '<div style="display:flex; justify-content:space-between; margin-bottom:5px;">' +
-                  '<span>{point.key}</span>' +
-                  '</div>',
-                pointFormat:
-                  '<div style="display:flex; justify-content:space-between; width:100%;">' +
-                  '<span style="margin-right:10px;">' +
-                  '<span style="color:{series.color}">\u25CF</span> {series.name}' +
-                  '</span>' +
-                  '<span style="text-align:right;">{point.y:,.2f}</span>' +
-                  '</div>',
-              },
-              series: Object.entries(
-                netValues.reduce(
-                  (acc: Record<string, NetValue[]>, netValue) => {
-                    acc[netValue.account.name] =
-                      acc[netValue.account.name] || []
-                    acc[netValue.account.name].push(netValue)
-                    return acc
-                  },
-                  {}
-                )
-              ).map(([accountName, netValues]) => {
-                const datapoints = netValues.map((netValue) => {
-                  let price = 1
-                  if (
-                    netValue.settlement_asset.symbol !==
-                    selectedSettlementAssetSymbol
-                  ) {
-                    price =
-                      exchangeRateMap[selectedSettlementAssetSymbol][
-                        netValue.settlement_asset.symbol
-                      ].price
-                  }
-                  return [
-                    new Date(netValue.settled_time).getTime(),
-                    parseFloat(netValue.amount) * price,
-                  ]
-                })
-                return {
-                  type: 'area',
-                  name: accountName,
-                  data: datapoints,
-                }
-              }),
-              // series: [
-              //   {
-              //     type: 'area',
-              //     name: 'A',
-              //     data: [
-              //       [Date.UTC(2024, 10, 1), 5],
-              //       [Date.UTC(2024, 10, 2), 3],
-              //       [Date.UTC(2024, 10, 4), 4],
-              //       [Date.UTC(2024, 10, 5), 7],
-              //     ],
-              //   },
-              //   {
-              //     name: 'B',
-              //     type: 'area',
-              //     data: [
-              //       [Date.UTC(2024, 10, 1), 2],
-              //       [Date.UTC(2024, 10, 2), -30], // Negative value
-              //       [Date.UTC(2024, 10, 3), 3],
-              //       [Date.UTC(2024, 10, 5), 2],
-              //     ],
-              //   },
-              //   {
-              //     name: 'C',
-              //     type: 'area',
-              //     data: [
-              //       [Date.UTC(2024, 10, 1), 1],
-              //       [Date.UTC(2024, 10, 2), -4],
-              //       [Date.UTC(2024, 10, 3), 2],
-              //       [Date.UTC(2024, 10, 4), 5],
-              //       [Date.UTC(2024, 10, 5), 3],
-              //     ],
-              //   },
-              // ],
-            }}
-          />
-          <Stack
-            direction="row"
-            p={2}
-            sx={{
-              flexWrap: 'wrap',
-            }}
-          >
-            <Button
-              variant="text"
-              onClick={() => {
-                chart?.series.forEach((s: any) => {
-                  s.show()
-                })
-                setForceUpdate(forceUpdate + 1)
-              }}
-            >
-              選取全部
-            </Button>
-            <Button
-              variant="text"
-              onClick={() => {
-                chart?.series.forEach((s: any) => {
-                  s.hide()
-                })
-                setForceUpdate(forceUpdate + 1)
-              }}
-            >
-              反選全部
-            </Button>
-            {chart?.series.map((s: any) => (
-              <Box key={s.name} sx={{ p: 0.5 }}>
-                <Chip
-                  label={s.name}
-                  size="small"
-                  onClick={() => {
-                    if (s.visible) {
-                      s.hide()
-                    } else {
-                      s.show()
+          <Stack spacing={3} p={2}>
+            <Typography variant="h6">權益歷史</Typography>
+            <HighChartsCore
+              callback={(chart) => setEquityChart(chart)}
+              options={
+                Object.assign({}, commonOptions, {
+                  series: Object.entries(
+                    netValues.reduce(
+                      (acc: Record<string, NetValue[]>, netValue) => {
+                        acc[netValue.account.name] =
+                          acc[netValue.account.name] || []
+                        acc[netValue.account.name].push(netValue)
+                        return acc
+                      },
+                      {}
+                    )
+                  ).map(([accountName, netValues]) => {
+                    const datapoints = netValues.map((netValue) => {
+                      let price = 1
+                      if (
+                        netValue.settlement_asset.symbol !==
+                        selectedSettlementAssetSymbol
+                      ) {
+                        price =
+                          exchangeRateMap[selectedSettlementAssetSymbol][
+                            netValue.settlement_asset.symbol
+                          ].price
+                      }
+                      return [
+                        new Date(netValue.settled_time).getTime(),
+                        parseFloat(netValue.amount) * price,
+                      ]
+                    })
+                    return {
+                      type: 'area',
+                      stack: 'equity',
+                      name: accountName,
+                      data: datapoints,
                     }
-                    setForceUpdate(forceUpdate + 1)
-                  }}
-                  variant={s.visible ? undefined : 'outlined'}
-                  avatar={
-                    s.visible ? (
-                      <svg>
-                        <circle r="9" cx="9" cy="9" fill={s.color} />
-                      </svg>
-                    ) : undefined
-                  }
-                />
-              </Box>
-            ))}
+                  }),
+                }) as Highcharts.Options
+                // series: [
+                //   {
+                //     type: 'area',
+                //     name: 'A',
+                //     data: [
+                //       [Date.UTC(2024, 10, 1), 5],
+                //       [Date.UTC(2024, 10, 2), 3],
+                //       [Date.UTC(2024, 10, 4), 4],
+                //       [Date.UTC(2024, 10, 5), 7],
+                //     ],
+                //   },
+                //   {
+                //     name: 'B',
+                //     type: 'area',
+                //     data: [
+                //       [Date.UTC(2024, 10, 1), 2],
+                //       [Date.UTC(2024, 10, 2), -30], // Negative value
+                //       [Date.UTC(2024, 10, 3), 3],
+                //       [Date.UTC(2024, 10, 5), 2],
+                //     ],
+                //   },
+                //   {
+                //     name: 'C',
+                //     type: 'area',
+                //     data: [
+                //       [Date.UTC(2024, 10, 1), 1],
+                //       [Date.UTC(2024, 10, 2), -4],
+                //       [Date.UTC(2024, 10, 3), 2],
+                //       [Date.UTC(2024, 10, 4), 5],
+                //       [Date.UTC(2024, 10, 5), 3],
+                //     ],
+                //   },
+                // ],
+              }
+            />
+          </Stack>
+
+          <Stack spacing={3} p={2}>
+            <Typography variant="h6">資產負債歷史</Typography>
+            <HighChartsCore
+              callback={(chart) => setFlowChart(chart)}
+              options={
+                Object.assign({}, commonOptions, {
+                  series: Object.entries(
+                    netValues.reduce(
+                      (acc: Record<string, NetValue[]>, netValue) => {
+                        acc[netValue.account.name] =
+                          acc[netValue.account.name] || []
+                        acc[netValue.account.name].push(netValue)
+                        return acc
+                      },
+                      {}
+                    )
+                  )
+                    .map(([accountName, netValues]) => {
+                      const datapoints = netValues.map((netValue) => {
+                        let price = 1
+                        if (
+                          netValue.settlement_asset.symbol !==
+                          selectedSettlementAssetSymbol
+                        ) {
+                          price =
+                            exchangeRateMap[selectedSettlementAssetSymbol][
+                              netValue.settlement_asset.symbol
+                            ].price
+                        }
+                        return [
+                          new Date(netValue.settled_time).getTime(),
+                          parseFloat(netValue.amount) * price,
+                        ]
+                      })
+                      const color = equityChart?.series.find(
+                        (s: any) => s.name === accountName
+                      )?.color
+                      return [
+                        {
+                          type: 'area',
+                          stack: 'asset',
+                          name: accountName,
+                          data: datapoints.filter((d) => d[1] >= 0),
+                          color: color,
+                        },
+                        {
+                          type: 'area',
+                          stack: 'debt',
+                          name: accountName,
+                          data: datapoints.filter((d) => d[1] < 0),
+                          color: color,
+                        },
+                      ]
+                    })
+                    .flat(),
+                }) as Highcharts.Options
+              }
+            />
+          </Stack>
+
+          <Stack spacing={3} p={2}>
+            <Typography variant="h6">往來帳戶</Typography>
+            <Stack
+              direction="row"
+              p={2}
+              sx={{
+                flexWrap: 'wrap',
+              }}
+            >
+              <Button
+                variant="text"
+                onClick={() => {
+                  equityChart?.series.forEach((s: any) => {
+                    s.show()
+                  })
+                  flowChart?.series.forEach((s: any) => {
+                    s.show()
+                  })
+                  setForceUpdate(forceUpdate + 1)
+                }}
+              >
+                選取全部
+              </Button>
+              <Button
+                variant="text"
+                onClick={() => {
+                  equityChart?.series.forEach((s: any) => {
+                    s.hide()
+                  })
+                  flowChart?.series.forEach((s: any) => {
+                    s.hide()
+                  })
+                  setForceUpdate(forceUpdate + 1)
+                }}
+              >
+                反選全部
+              </Button>
+              {equityChart?.series.map((s: any) => (
+                <Box key={s.name} sx={{ p: 0.5 }}>
+                  <Chip
+                    label={s.name}
+                    size="small"
+                    onClick={() => {
+                      if (s.visible) {
+                        s.hide()
+                        flowChart?.series
+                          .filter((ss: any) => ss.name === s.name)
+                          .forEach((ss: any) => {
+                            ss.hide()
+                          })
+                      } else {
+                        s.show()
+                        flowChart?.series
+                          .filter((ss: any) => ss.name === s.name)
+                          .forEach((ss: any) => {
+                            ss.show()
+                          })
+                      }
+                      setForceUpdate(forceUpdate + 1)
+                    }}
+                    variant={s.visible ? undefined : 'outlined'}
+                    avatar={
+                      s.visible ? (
+                        <svg>
+                          <circle r="9" cx="9" cy="9" fill={s.color} />
+                        </svg>
+                      ) : undefined
+                    }
+                  />
+                </Box>
+              ))}
+            </Stack>
           </Stack>
         </ModuleFunctionBody>
       </ModuleFunction>

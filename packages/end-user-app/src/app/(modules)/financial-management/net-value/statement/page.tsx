@@ -229,7 +229,7 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="權益快照明細"
+          title="權益明細"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>

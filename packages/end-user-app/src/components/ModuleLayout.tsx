@@ -208,13 +208,15 @@ export default function ModuleLayout({
               })}
             >
               <Toolbar disableGutters>
-                <IconButton
-                  size="large"
-                  color="default"
-                  onClick={toggleDrawer(true)}
-                >
-                  <AppsIcon />
-                </IconButton>
+                <Tooltip title="切換模組">
+                  <IconButton
+                    size="large"
+                    color="default"
+                    onClick={toggleDrawer(true)}
+                  >
+                    <AppsIcon />
+                  </IconButton>
+                </Tooltip>
                 <Typography variant="h6" component="div" color="textPrimary">
                   {moduleName}
                 </Typography>
@@ -240,32 +242,38 @@ export default function ModuleLayout({
             })}
           >
             <Toolbar disableGutters>
-              <IconButton
-                size="large"
-                color="default"
-                onClick={() => setIsSideNavOpen((open) => !open)}
-              >
-                <MenuOpenIcon />
-              </IconButton>
+              <Tooltip title="切換側邊欄">
+                <IconButton
+                  size="large"
+                  color="default"
+                  onClick={() => setIsSideNavOpen((open) => !open)}
+                >
+                  <MenuOpenIcon />
+                </IconButton>
+              </Tooltip>
               <Box sx={{ flexGrow: 1 }} />
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
               </IconButton> */}
               {mode === 'dark' ? (
-                <IconButton onClick={() => setMode('light')}>
-                  <LightModeIcon />
-                </IconButton>
+                <Tooltip title="切換至淺色模式">
+                  <IconButton onClick={() => setMode('light')}>
+                    <LightModeIcon />
+                  </IconButton>
+                </Tooltip>
               ) : (
-                <IconButton onClick={() => setMode('dark')}>
-                  <DarkModeIcon />
-                </IconButton>
+                <Tooltip title="切換至深色模式">
+                  <IconButton onClick={() => setMode('dark')}>
+                    <DarkModeIcon />
+                  </IconButton>
+                </Tooltip>
               )}
               {endUser ? (
                 <Tooltip title={endUser.email}>
                   <IconButton
                     onClick={handleAvatarClick}
                     size="small"
-                    sx={{ ml: 2 }}
+                    sx={{ mx: 1 }}
                     aria-controls={isMenuOpen ? 'account-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={isMenuOpen ? 'true' : undefined}
