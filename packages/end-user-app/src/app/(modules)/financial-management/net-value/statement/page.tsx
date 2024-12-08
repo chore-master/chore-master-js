@@ -281,7 +281,7 @@ export default function Page() {
                 {netValues.map((netValue) => {
                   const baseDateTime = new Date()
                   return (
-                    <TableRow key={netValue.reference}>
+                    <TableRow key={netValue.reference} hover>
                       <NoWrapTableCell>
                         <Chip size="small" label={netValue.reference} />
                       </NoWrapTableCell>
@@ -361,7 +361,16 @@ export default function Page() {
       >
         <Box sx={{ minWidth: 320 }}>
           <CardHeader title="新增權益快照" />
-          <Stack component="form" spacing={3} p={2} autoComplete="off">
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+              createNetValueForm.handleSubmit(handleSubmitCreateNetValueForm)()
+            }}
+          >
             <FormControl>
               <Controller
                 name="account_reference"
@@ -394,7 +403,12 @@ export default function Page() {
                       const { key, ...optionProps } = props
                       return (
                         <Box key={key} component="li" {...optionProps}>
-                          <Chip size="small" label={option.name} color="info" />
+                          <Chip
+                            size="small"
+                            label={option.name}
+                            color="info"
+                            variant="outlined"
+                          />
                         </Box>
                       )
                     }}
@@ -464,6 +478,7 @@ export default function Page() {
                             size="small"
                             label={option.symbol}
                             color="info"
+                            variant="outlined"
                           />
                         </Box>
                       )
@@ -519,9 +534,7 @@ export default function Page() {
             </FormControl>
             <LoadingButton
               variant="contained"
-              onClick={createNetValueForm.handleSubmit(
-                handleSubmitCreateNetValueForm
-              )}
+              type="submit"
               loading={createNetValueForm.formState.isSubmitting}
             >
               新增
@@ -537,7 +550,16 @@ export default function Page() {
       >
         <Box sx={{ minWidth: 320 }}>
           <CardHeader title="編輯權益快照" />
-          <Stack component="form" spacing={3} p={2} autoComplete="off">
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+              updateNetValueForm.handleSubmit(handleSubmitUpdateNetValueForm)()
+            }}
+          >
             <FormControl>
               <Controller
                 name="account_reference"
@@ -681,9 +703,7 @@ export default function Page() {
             </FormControl>
             <LoadingButton
               variant="contained"
-              onClick={updateNetValueForm.handleSubmit(
-                handleSubmitUpdateNetValueForm
-              )}
+              type="submit"
               loading={updateNetValueForm.formState.isSubmitting}
             >
               儲存

@@ -164,7 +164,7 @@ export default function Page() {
               </TableHead>
               <TableBody>
                 {assets.map((asset) => (
-                  <TableRow key={asset.reference}>
+                  <TableRow key={asset.reference} hover>
                     <NoWrapTableCell>
                       <Chip size="small" label={asset.reference} />
                     </NoWrapTableCell>
@@ -201,7 +201,16 @@ export default function Page() {
       >
         <Box sx={{ minWidth: 320 }}>
           <CardHeader title="新增資產" />
-          <Stack component="form" spacing={3} p={2} autoComplete="off">
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+              createAssetForm.handleSubmit(handleSubmitCreateAssetForm)()
+            }}
+          >
             <FormControl>
               <Controller
                 name="symbol"
@@ -220,9 +229,7 @@ export default function Page() {
             </FormControl>
             <LoadingButton
               variant="contained"
-              onClick={createAssetForm.handleSubmit(
-                handleSubmitCreateAssetForm
-              )}
+              type="submit"
               loading={createAssetForm.formState.isSubmitting}
             >
               新增
@@ -238,7 +245,16 @@ export default function Page() {
       >
         <Box sx={{ minWidth: 320 }}>
           <CardHeader title="編輯資產" />
-          <Stack component="form" spacing={3} p={2} autoComplete="off">
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+              updateAssetForm.handleSubmit(handleSubmitUpdateAssetForm)()
+            }}
+          >
             <FormControl>
               <Controller
                 name="symbol"
@@ -257,9 +273,7 @@ export default function Page() {
             </FormControl>
             <LoadingButton
               variant="contained"
-              onClick={updateAssetForm.handleSubmit(
-                handleSubmitUpdateAssetForm
-              )}
+              type="submit"
               loading={updateAssetForm.formState.isSubmitting}
             >
               儲存

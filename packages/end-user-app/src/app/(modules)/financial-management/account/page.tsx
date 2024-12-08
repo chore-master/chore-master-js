@@ -168,7 +168,7 @@ export default function Page() {
               </TableHead>
               <TableBody>
                 {accounts.map((account) => (
-                  <TableRow key={account.reference}>
+                  <TableRow key={account.reference} hover>
                     <NoWrapTableCell>
                       <Chip size="small" label={account.reference} />
                     </NoWrapTableCell>
@@ -205,7 +205,16 @@ export default function Page() {
       >
         <Box sx={{ minWidth: 320 }}>
           <CardHeader title="新增帳戶" />
-          <Stack component="form" spacing={3} p={2} autoComplete="off">
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+              createAccountForm.handleSubmit(handleSubmitCreateAccountForm)()
+            }}
+          >
             <FormControl>
               <Controller
                 name="name"
@@ -224,9 +233,7 @@ export default function Page() {
             </FormControl>
             <LoadingButton
               variant="contained"
-              onClick={createAccountForm.handleSubmit(
-                handleSubmitCreateAccountForm
-              )}
+              type="submit"
               loading={createAccountForm.formState.isSubmitting}
             >
               新增
@@ -242,7 +249,16 @@ export default function Page() {
       >
         <Box sx={{ minWidth: 320 }}>
           <CardHeader title="編輯帳戶" />
-          <Stack component="form" spacing={3} p={2} autoComplete="off">
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+              updateAccountForm.handleSubmit(handleSubmitUpdateAccountForm)()
+            }}
+          >
             <FormControl>
               <Controller
                 name="name"
@@ -261,9 +277,7 @@ export default function Page() {
             </FormControl>
             <LoadingButton
               variant="contained"
-              onClick={updateAccountForm.handleSubmit(
-                handleSubmitUpdateAccountForm
-              )}
+              type="submit"
               loading={updateAccountForm.formState.isSubmitting}
             >
               儲存
