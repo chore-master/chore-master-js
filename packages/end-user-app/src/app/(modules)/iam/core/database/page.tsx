@@ -1,6 +1,7 @@
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
+import CodeBlock from '@/components/CodeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -387,8 +388,13 @@ export default function Page() {
         maxWidth="xl"
       >
         <DialogTitle sx={{ m: 0, p: 2 }}>遷移程式碼</DialogTitle>
-        <DialogContent dividers>
-          <Box component="pre">{focusedRevisionScriptContent}</Box>
+        <DialogContent dividers sx={{ p: 0 }}>
+          <CodeBlock
+            language="python"
+            showLineNumbers
+            code={focusedRevisionScriptContent}
+            customStyle={{ margin: 0 }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setFocusedRevisionScriptContent(null)}>
