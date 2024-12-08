@@ -269,7 +269,15 @@ export default function ModuleLayout({
                 </Tooltip>
               )}
               {endUser ? (
-                <Tooltip title={endUser.email}>
+                <Tooltip
+                  title={
+                    <React.Fragment>
+                      <span>管理員帳戶</span>
+                      <br />
+                      <span>{endUser.email}</span>
+                    </React.Fragment>
+                  }
+                >
                   <IconButton
                     onClick={handleAvatarClick}
                     size="small"
