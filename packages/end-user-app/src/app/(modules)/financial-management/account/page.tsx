@@ -60,6 +60,9 @@ export default function Page() {
     setIsFetchingAccounts(true)
     await choreMasterAPIAgent.get('/v1/financial_management/accounts', {
       params: {},
+      onError: () => {
+        enqueueNotification(`Unable to fetch accounts now.`, 'error')
+      },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },

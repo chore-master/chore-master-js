@@ -87,6 +87,9 @@ export default function Page() {
     setIsFetchingNetValues(true)
     await choreMasterAPIAgent.get('/v1/financial_management/net_values', {
       params: {},
+      onError: () => {
+        enqueueNotification(`Unable to fetch net values now.`, 'error')
+      },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
@@ -101,6 +104,9 @@ export default function Page() {
     setIsFetchingAssets(true)
     await choreMasterAPIAgent.get('/v1/financial_management/assets', {
       params: {},
+      onError: () => {
+        enqueueNotification(`Unable to fetch assets now.`, 'error')
+      },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },

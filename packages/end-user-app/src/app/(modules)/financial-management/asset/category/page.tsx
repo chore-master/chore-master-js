@@ -60,6 +60,9 @@ export default function Page() {
     setIsFetchingAssets(true)
     await choreMasterAPIAgent.get('/v1/financial_management/assets', {
       params: {},
+      onError: () => {
+        enqueueNotification(`Unable to fetch assets now.`, 'error')
+      },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
