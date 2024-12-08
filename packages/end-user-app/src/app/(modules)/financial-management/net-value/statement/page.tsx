@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import NoWrapTableCell from '@/components/NoWrapTableCell'
+import TablePaginationActions from '@/components/TablePaginationActions'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import {
   dateToLocalString,
@@ -35,6 +36,7 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
+import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
@@ -82,7 +84,10 @@ export default function Page() {
 
   // Net Value
   const [netValues, setNetValues] = React.useState<NetValue[]>([])
+  const [netValuesCount, setNetValuesCount] = React.useState(0)
   const [isFetchingNetValues, setIsFetchingNetValues] = React.useState(false)
+  const [netValuesPage, setNetValuesPage] = React.useState(0)
+  const [netValuesRowsPerPage, setNetValuesRowsPerPage] = React.useState(50)
   const [isCreateNetValueDrawerOpen, setIsCreateNetValueDrawerOpen] =
     React.useState(false)
   const createNetValueForm = useForm<CreateNetValueFormInputs>()
@@ -113,16 +118,20 @@ export default function Page() {
   const fetchNetValues = React.useCallback(async () => {
     setIsFetchingNetValues(true)
     await choreMasterAPIAgent.get('/v1/financial_management/net_values', {
-      params: {},
+      params: {
+        offset: netValuesPage * netValuesRowsPerPage,
+        limit: netValuesRowsPerPage,
+      },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: any) => {
+      onSuccess: async ({ data, metadata }: any) => {
         setNetValues(data)
+        setNetValuesCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingNetValues(false)
-  }, [enqueueNotification])
+  }, [netValuesPage, netValuesRowsPerPage, enqueueNotification])
 
   const handleSubmitCreateNetValueForm: SubmitHandler<
     CreateNetValueFormInputs
@@ -351,6 +360,32 @@ export default function Page() {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            component="div"
+            labelRowsPerPage="每頁數量："
+            labelDisplayedRows={({ from, to, count }: any) =>
+              `第 ${from} 筆至第 ${to} 筆／共 ${
+                count !== -1 ? count : `超過 ${to}`
+              } 筆`
+            }
+            rowsPerPageOptions={[10, 50, 100]}
+            count={netValuesCount}
+            rowsPerPage={netValuesRowsPerPage}
+            page={netValuesPage}
+            onPageChange={(
+              event: React.MouseEvent<HTMLButtonElement> | null,
+              newPage: number
+            ) => {
+              setNetValuesPage(newPage)
+            }}
+            onRowsPerPageChange={(
+              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
+              setNetValuesRowsPerPage(parseInt(event.target.value, 10))
+              setNetValuesPage(0)
+            }}
+            ActionsComponent={TablePaginationActions}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
 
