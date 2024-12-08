@@ -87,7 +87,7 @@ export default function Page() {
   const [netValuesCount, setNetValuesCount] = React.useState(0)
   const [isFetchingNetValues, setIsFetchingNetValues] = React.useState(false)
   const [netValuesPage, setNetValuesPage] = React.useState(0)
-  const [netValuesRowsPerPage, setNetValuesRowsPerPage] = React.useState(50)
+  const [netValueRowsPerPage, setNetValueRowsPerPage] = React.useState(50)
   const [isCreateNetValueDrawerOpen, setIsCreateNetValueDrawerOpen] =
     React.useState(false)
   const createNetValueForm = useForm<CreateNetValueFormInputs>()
@@ -119,8 +119,8 @@ export default function Page() {
     setIsFetchingNetValues(true)
     await choreMasterAPIAgent.get('/v1/financial_management/net_values', {
       params: {
-        offset: netValuesPage * netValuesRowsPerPage,
-        limit: netValuesRowsPerPage,
+        offset: netValuesPage * netValueRowsPerPage,
+        limit: netValueRowsPerPage,
       },
       onError: () => {
         enqueueNotification(`Unable to fetch net values now.`, 'error')
@@ -134,7 +134,7 @@ export default function Page() {
       },
     })
     setIsFetchingNetValues(false)
-  }, [netValuesPage, netValuesRowsPerPage, enqueueNotification])
+  }, [netValuesPage, netValueRowsPerPage, enqueueNotification])
 
   const handleSubmitCreateNetValueForm: SubmitHandler<
     CreateNetValueFormInputs
@@ -379,7 +379,7 @@ export default function Page() {
             }
             rowsPerPageOptions={[10, 50, 100]}
             count={netValuesCount}
-            rowsPerPage={netValuesRowsPerPage}
+            rowsPerPage={netValueRowsPerPage}
             page={netValuesPage}
             onPageChange={(
               event: React.MouseEvent<HTMLButtonElement> | null,
@@ -390,7 +390,7 @@ export default function Page() {
             onRowsPerPageChange={(
               event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
             ) => {
-              setNetValuesRowsPerPage(parseInt(event.target.value, 10))
+              setNetValueRowsPerPage(parseInt(event.target.value, 10))
               setNetValuesPage(0)
             }}
             ActionsComponent={TablePaginationActions}

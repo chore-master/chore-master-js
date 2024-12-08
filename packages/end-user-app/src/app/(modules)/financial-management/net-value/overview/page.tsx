@@ -7,7 +7,9 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
-import RefreshIcon from '@mui/icons-material/Refresh'
+// import RefreshIcon from '@mui/icons-material/Refresh'
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Button from '@mui/material/Button'
@@ -20,6 +22,9 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import React from 'react'
 
 interface Account {
@@ -59,6 +64,10 @@ export default function Page() {
   // Net Values
   const [netValues, setNetValues] = React.useState<NetValue[]>([])
   const [isFetchingNetValues, setIsFetchingNetValues] = React.useState(false)
+  const [netValueRowsPerPage, setNetValueRowsPerPage] = React.useState(100)
+  const [netValuePageEndTimes, setNetValuePageEndTimes] = React.useState<
+    string[]
+  >([new Date().toISOString()])
 
   const [selectedSettlementAssetSymbol, setSelectedSettlementAssetSymbol] =
     React.useState<string>('TWD')
@@ -86,7 +95,10 @@ export default function Page() {
   const fetchNetValues = React.useCallback(async () => {
     setIsFetchingNetValues(true)
     await choreMasterAPIAgent.get('/v1/financial_management/net_values', {
-      params: {},
+      params: {
+        end_time: netValuePageEndTimes.at(-1),
+        limit: String(netValueRowsPerPage),
+      },
       onError: () => {
         enqueueNotification(`Unable to fetch net values now.`, 'error')
       },
@@ -98,7 +110,7 @@ export default function Page() {
       },
     })
     setIsFetchingNetValues(false)
-  }, [enqueueNotification])
+  }, [netValuePageEndTimes, netValueRowsPerPage, enqueueNotification])
 
   const fetchAssets = React.useCallback(async () => {
     setIsFetchingAssets(true)
@@ -185,16 +197,82 @@ export default function Page() {
         <ModuleFunctionHeader
           title="權益總覽"
           actions={[
-            <Tooltip key="refresh" title="立即重整">
-              <span>
-                <IconButton
-                  onClick={refresh}
-                  disabled={isFetchingNetValues || isFetchingAssets}
-                >
-                  <RefreshIcon />
-                </IconButton>
-              </span>
-            </Tooltip>,
+            <Stack
+              key="pagination"
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
+              <Tooltip title="較新">
+                <span>
+                  <IconButton
+                    disabled={isFetchingNetValues || isFetchingAssets}
+                    onClick={() => {
+                      let newNetValuePageEndTimes = netValuePageEndTimes.slice(
+                        0,
+                        -1
+                      )
+                      if (newNetValuePageEndTimes.length === 0) {
+                        newNetValuePageEndTimes = [new Date().toISOString()]
+                      }
+                      setNetValuePageEndTimes(newNetValuePageEndTimes)
+                    }}
+                  >
+                    <NavigateBeforeIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DateTimePicker
+                  label="截至時間"
+                  value={
+                    new Date(
+                      netValuePageEndTimes[netValuePageEndTimes.length - 1]
+                    )
+                  }
+                  format="yyyy/MM/dd HH:mm"
+                  onAccept={(v) => {
+                    if (v) {
+                      setNetValuePageEndTimes([v.toISOString()])
+                    } else {
+                      setNetValuePageEndTimes([new Date().toISOString()])
+                    }
+                  }}
+                />
+              </LocalizationProvider>
+              <Tooltip key="next" title="較舊">
+                <span>
+                  <IconButton
+                    disabled={
+                      isFetchingNetValues ||
+                      isFetchingAssets ||
+                      netValues.length < netValueRowsPerPage
+                    }
+                    onClick={() => {
+                      const lastSnapshot = netValues.at(-1)
+                      if (lastSnapshot) {
+                        setNetValuePageEndTimes([
+                          ...netValuePageEndTimes,
+                          lastSnapshot.settled_time,
+                        ])
+                      }
+                    }}
+                  >
+                    <NavigateNextIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Stack>,
+            // <Tooltip key="refresh" title="立即重整">
+            //   <span>
+            //     <IconButton
+            //       onClick={refresh}
+            //       disabled={isFetchingNetValues || isFetchingAssets}
+            //     >
+            //       <RefreshIcon />
+            //     </IconButton>
+            //   </span>
+            // </Tooltip>,
             <FormControl
               key="settlementAsset"
               variant="standard"
