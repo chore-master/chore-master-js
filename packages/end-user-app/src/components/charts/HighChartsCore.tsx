@@ -4,6 +4,7 @@ import { useColorScheme } from '@mui/material/styles'
 import { HighchartsReact } from 'highcharts-react-official'
 import * as Highcharts from 'highcharts/highcharts'
 import AccessibilityModule from 'highcharts/modules/accessibility'
+import NetworkGraphModule from 'highcharts/modules/networkgraph'
 import HighContrastDark from 'highcharts/themes/high-contrast-dark'
 import HighContrastLight from 'highcharts/themes/high-contrast-light'
 import React from 'react'
@@ -11,6 +12,7 @@ import usePrevious from 'react-use/lib/usePrevious'
 
 if (typeof Highcharts === 'object') {
   AccessibilityModule(Highcharts)
+  NetworkGraphModule(Highcharts)
 }
 
 const modeToThemeMap = {

@@ -7,6 +7,6 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    router.push('/widget/sankey-demo')
+    router.push('/widget/web3-ecosystem')
   }, [router])
 }
