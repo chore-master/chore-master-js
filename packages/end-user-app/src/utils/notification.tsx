@@ -4,13 +4,13 @@ import Alert, { AlertColor } from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 import React from 'react'
 
-type Notification = {
-  id: number
+interface Notification {
+  id: string
   message: string
   severity: AlertColor
 }
 
-type NotificationContextType = {
+interface NotificationContextType {
   enqueueNotification: (message: string, severity?: AlertColor) => void
 }
 
@@ -21,7 +21,7 @@ const NotificationContext = React.createContext<
 export function NotificationProvider({
   children,
 }: {
-  children: React.ReactNode
+  readonly children: React.ReactNode
 }) {
   const [notifications, setNotifications] = React.useState<Notification[]>([])
 
@@ -29,13 +29,13 @@ export function NotificationProvider({
     (message: string, severity: AlertColor = 'info') => {
       setNotifications((prev) => [
         ...prev,
-        { id: Date.now(), message, severity },
+        { id: String(prev.length), message, severity },
       ])
     },
     []
   )
 
-  const handleClose = (id: number) => () => {
+  const handleClose = (id: string) => () => {
     setNotifications((prev) =>
       prev.filter((notification) => notification.id !== id)
     )
