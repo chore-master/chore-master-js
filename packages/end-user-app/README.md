@@ -4,7 +4,7 @@
 
 ```sh
 yarn workspace @app/end-user-app add <package-name>
-yarn workspace @app/end-user-app dev
+PORT=2000 yarn workspace @app/end-user-app dev
 ```
 
 ## Deployment
