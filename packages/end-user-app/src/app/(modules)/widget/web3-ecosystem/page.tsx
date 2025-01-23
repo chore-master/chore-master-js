@@ -8,6 +8,8 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import { IconButton, Tooltip } from '@mui/material'
 import React from 'react'
 import optionsTemplate from './optionsTemplate'
 
@@ -51,7 +53,18 @@ export default function Page() {
   return (
     <React.Fragment>
       <ModuleFunction>
-        <ModuleFunctionHeader title="Web3 生態關係" />
+        <ModuleFunctionHeader
+          title="Web3 生態關係"
+          actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton onClick={fetchWeb3Ecosystem}>
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
+          ]}
+        />
         <ModuleFunctionBody>
           <HighChartsCore options={options} />
         </ModuleFunctionBody>

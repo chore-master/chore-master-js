@@ -9,7 +9,7 @@ export default {
       layoutAlgorithm: {
         enableSimulation: true,
         integration: 'verlet',
-        linkLength: 100,
+        linkLength: 80,
       },
     },
   },
