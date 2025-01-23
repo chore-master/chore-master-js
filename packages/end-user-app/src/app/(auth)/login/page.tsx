@@ -40,7 +40,7 @@ export default function Page() {
       },
       onSuccess: () => {
         loginForm.reset()
-        router.push('/financial-management')
+        router.push('/finance')
       },
     })
   }
