@@ -8,6 +8,7 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
+      loginRequired
       moduleName="整合"
       navigations={[
         {

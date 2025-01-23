@@ -8,6 +8,7 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
+      loginRequired
       moduleName="管理控制台"
       navigations={[
         {

@@ -8,6 +8,7 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
+      loginRequired={false}
       moduleName="小工具"
       navigations={[
         {
