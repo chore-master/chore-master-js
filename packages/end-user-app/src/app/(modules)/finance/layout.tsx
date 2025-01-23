@@ -8,12 +8,12 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
-      moduleName="財務管理"
+      moduleName="金融"
       navigations={[
         {
           type: 'link',
           title: '帳戶',
-          href: '/financial-management/account',
+          href: '/finance/account',
           selectedWhenPartiallyMatched: true,
         },
         {
@@ -26,7 +26,7 @@ export default function Layout({
             {
               type: 'link',
               title: '類別',
-              href: '/financial-management/asset/category',
+              href: '/finance/asset/category',
               selectedWhenPartiallyMatched: true,
             },
           ],
@@ -41,13 +41,13 @@ export default function Layout({
             {
               type: 'link',
               title: '總覽',
-              href: '/financial-management/net-value/overview',
+              href: '/finance/net-value/overview',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
               title: '明細',
-              href: '/financial-management/net-value/statement',
+              href: '/finance/net-value/statement',
               selectedWhenPartiallyMatched: true,
             },
           ],
@@ -58,7 +58,7 @@ export default function Layout({
         {
           type: 'link',
           title: '投資組合',
-          href: '/financial-management/portfolio',
+          href: '/finance/portfolio',
           selectedWhenPartiallyMatched: true,
         },
       ]}

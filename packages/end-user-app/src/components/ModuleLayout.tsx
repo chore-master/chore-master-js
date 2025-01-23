@@ -5,13 +5,13 @@ import SideNavigationList, {
 } from '@/components/SideNavigationList'
 import { useEndUser } from '@/utils/auth'
 import { Logout } from '@mui/icons-material'
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AppsIcon from '@mui/icons-material/Apps'
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
 import LightModeIcon from '@mui/icons-material/LightMode'
-import LocalAtmIcon from '@mui/icons-material/LocalAtm'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
@@ -128,12 +128,12 @@ export default function ModuleLayout({
           )}
           {endUser && (
             <ListItem disablePadding>
-              <Link href="/financial-management" passHref legacyBehavior>
+              <Link href="/finance" passHref legacyBehavior>
                 <ListItemButton component="a">
                   <ListItemIcon>
-                    <LocalAtmIcon />
+                    <AccountBalanceIcon />
                   </ListItemIcon>
-                  <ListItemText primary="財務管理" />
+                  <ListItemText primary="金融" />
                 </ListItemButton>
               </Link>
             </ListItem>

@@ -7,6 +7,6 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    router.push('/financial-management/account')
+    router.push('/finance/account')
   }, [router])
 }

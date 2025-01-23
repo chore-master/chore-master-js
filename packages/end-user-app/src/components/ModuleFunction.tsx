@@ -1,3 +1,5 @@
+'use client'
+
 import { SxProps } from '@mui/material'
 import Box from '@mui/material/Box'
 import CardActions from '@mui/material/CardActions'
