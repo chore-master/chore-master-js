@@ -1855,10 +1855,10 @@ const initialOptions = {
   },
 }
 
-function extractColorValues(obj) {
-  const colors = {}
+function extractColorValues(obj: Record<string, any>): Record<string, any> {
+  const colors: Record<string, any> = {}
 
-  function traverse(currentObj, path = '') {
+  function traverse(currentObj: Record<string, any>, path = '') {
     for (const [key, value] of Object.entries(currentObj)) {
       const fullPath = path ? `${path}.${key}` : key
 
@@ -1879,19 +1879,23 @@ function extractColorValues(obj) {
   return colors
 }
 
-function unflattenObject(flatObj) {
-  const result = {}
+interface NestedObject {
+  [key: string]: string | number | NestedObject | Array<any>
+}
+
+function unflattenObject(flatObj: Record<string, any>): NestedObject {
+  const result: NestedObject = {}
 
   for (const [key, value] of Object.entries(flatObj)) {
     const keys = key.split('.')
-    let current = result
+    let current: NestedObject = result
 
     for (let i = 0; i < keys.length - 1; i++) {
       const k = keys[i]
       if (!(k in current)) {
         current[k] = {}
       }
-      current = current[k]
+      current = current[k] as NestedObject
     }
 
     current[keys[keys.length - 1]] = value
@@ -1899,6 +1903,7 @@ function unflattenObject(flatObj) {
 
   return result
 }
+
 export const colorOptions = unflattenObject(extractColorValues(initialOptions))
 
 // import HighContrastLight from 'highcharts/themes/high-contrast-light'
