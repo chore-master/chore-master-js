@@ -12,12 +12,6 @@ export default function Layout({
       navigations={[
         {
           type: 'link',
-          title: 'Web3 Ecosystem',
-          href: '/widget/web3-ecosystem',
-          selectedWhenExactlyMatched: true,
-        },
-        {
-          type: 'link',
           title: 'Sankey Demo',
           href: '/widget/sankey-demo',
           selectedWhenExactlyMatched: true,

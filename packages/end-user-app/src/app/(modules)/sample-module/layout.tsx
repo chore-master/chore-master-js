@@ -8,6 +8,7 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
+      loginRequired={false}
       moduleName="範例模組"
       navigations={[
         {
@@ -15,6 +16,9 @@ export default function Layout({
           title: '儀表板',
           href: '/sample-module',
           selectedWhenExactlyMatched: true,
+        },
+        {
+          type: 'divider',
         },
         {
           type: 'header',
@@ -38,6 +42,9 @@ export default function Layout({
           type: 'link',
           title: '名字很長長長長長長長長長長長長長長長長長長長長長長的功能三',
           href: '/sample-module/function3',
+        },
+        {
+          type: 'divider',
         },
         {
           type: 'header',

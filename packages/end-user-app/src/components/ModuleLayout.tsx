@@ -8,7 +8,6 @@ import { Logout } from '@mui/icons-material'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AppsIcon from '@mui/icons-material/Apps'
-import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
 import LightModeIcon from '@mui/icons-material/LightMode'
@@ -134,18 +133,6 @@ export default function ModuleLayout({
                     <AccountBalanceIcon />
                   </ListItemIcon>
                   <ListItemText primary="金融" />
-                </ListItemButton>
-              </Link>
-            </ListItem>
-          )}
-          {endUser && (
-            <ListItem disablePadding>
-              <Link href="/trade" passHref legacyBehavior>
-                <ListItemButton component="a">
-                  <ListItemIcon>
-                    <CandlestickChartIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="交易" />
                 </ListItemButton>
               </Link>
             </ListItem>
