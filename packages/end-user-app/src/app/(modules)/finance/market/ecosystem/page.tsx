@@ -65,7 +65,7 @@ export default function Page() {
             </Tooltip>,
           ]}
         />
-        <ModuleFunctionBody>
+        <ModuleFunctionBody loading={isLoadingWeb3Ecosystem}>
           <HighChartsCore options={options} />
         </ModuleFunctionBody>
       </ModuleFunction>

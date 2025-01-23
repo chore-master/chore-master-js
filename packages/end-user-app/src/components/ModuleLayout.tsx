@@ -10,7 +10,9 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AppsIcon from '@mui/icons-material/Apps'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
+import LanIcon from '@mui/icons-material/Lan'
 import LightModeIcon from '@mui/icons-material/LightMode'
+import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
@@ -137,6 +139,18 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
+          {endUser && (
+            <ListItem disablePadding>
+              <Link href="/integration" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <LanIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="整合" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
           <ListItem disablePadding>
             <Link href="/widget" passHref legacyBehavior>
               <ListItemButton component="a">
@@ -235,7 +249,7 @@ export default function ModuleLayout({
                   color="default"
                   onClick={() => setIsSideNavOpen((open) => !open)}
                 >
-                  <MenuOpenIcon />
+                  {isSideNavOpen ? <MenuOpenIcon /> : <MenuIcon />}
                 </IconButton>
               </Tooltip>
               <Box sx={{ flexGrow: 1 }} />
