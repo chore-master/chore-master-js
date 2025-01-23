@@ -17,6 +17,9 @@ export default function Layout({
           selectedWhenPartiallyMatched: true,
         },
         {
+          type: 'divider',
+        },
+        {
           type: 'header',
           title: '資產',
           navigations: [
@@ -27,6 +30,9 @@ export default function Layout({
               selectedWhenPartiallyMatched: true,
             },
           ],
+        },
+        {
+          type: 'divider',
         },
         {
           type: 'header',
@@ -45,6 +51,9 @@ export default function Layout({
               selectedWhenPartiallyMatched: true,
             },
           ],
+        },
+        {
+          type: 'divider',
         },
         {
           type: 'link',

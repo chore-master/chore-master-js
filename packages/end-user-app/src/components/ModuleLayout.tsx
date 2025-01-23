@@ -5,8 +5,8 @@ import SideNavigationList, {
 } from '@/components/SideNavigationList'
 import { useEndUser } from '@/utils/auth'
 import { Logout } from '@mui/icons-material'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AppsIcon from '@mui/icons-material/Apps'
-import AutoAwesomeMosaicIcon from '@mui/icons-material/AutoAwesomeMosaic'
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
@@ -102,7 +102,7 @@ export default function ModuleLayout({
         sx={{
           width: '100vw',
           height: '100vh',
-          background: 'hsla(215, 15%, 97%, 0.5)',
+          background: 'hsl(0, 0%, 99%)',
         }}
       >
         <LinearProgress />
@@ -116,12 +116,12 @@ export default function ModuleLayout({
         <List disablePadding sx={{ flexGrow: 1 }}>
           {endUser && (
             <ListItem disablePadding>
-              <Link href="/infra" passHref legacyBehavior>
+              <Link href="/admin" passHref legacyBehavior>
                 <ListItemButton component="a">
                   <ListItemIcon>
-                    <AutoAwesomeMosaicIcon />
+                    <AdminPanelSettingsIcon />
                   </ListItemIcon>
-                  <ListItemText primary="基礎設施" />
+                  <ListItemText primary="管理控制台" />
                 </ListItemButton>
               </Link>
             </ListItem>
@@ -230,7 +230,7 @@ export default function ModuleLayout({
         <Stack
           sx={{
             flex: '1 0 0px',
-            background: mode === 'dark' ? 'black' : 'hsla(215, 15%, 97%, 0.5)',
+            background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
             minWidth: 320,
           }}
         >
@@ -337,12 +337,12 @@ export default function ModuleLayout({
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
-                <Link href="/iam" passHref legacyBehavior>
+                {/* <Link href="/iam" passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseMenu}>
                     <Avatar /> 帳戶中心
                   </MenuItem>
                 </Link>
-                <Divider />
+                <Divider /> */}
                 <Link href="/logout" passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseMenu}>
                     <ListItemIcon>

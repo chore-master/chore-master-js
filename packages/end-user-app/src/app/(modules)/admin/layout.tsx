@@ -8,14 +8,8 @@ export default function Layout({
 }>) {
   return (
     <ModuleLayout
-      moduleName="帳戶中心"
+      moduleName="管理控制台"
       navigations={[
-        {
-          type: 'link',
-          title: '儀表板',
-          href: '/iam',
-          selectedWhenExactlyMatched: true,
-        },
         {
           type: 'header',
           title: '基礎設施',
@@ -27,6 +21,9 @@ export default function Layout({
               selectedWhenPartiallyMatched: true,
             },
           ],
+        },
+        {
+          type: 'divider',
         },
         {
           type: 'header',

@@ -181,7 +181,7 @@ export default function Page() {
     )
   }
 
-  const onResetClick = async (revision: string) => {
+  const onResetClick = async () => {
     const isConfirmed = confirm('即將重設此資料庫至原始狀態，確定要繼續嗎？')
     if (!isConfirmed) {
       return
