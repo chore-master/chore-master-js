@@ -4,6 +4,9 @@ import { Options } from 'highcharts/highcharts'
 // https://www.highcharts.com/blog/tutorials/which-charts-are-best-at-showing-data-relationships/?search=network
 
 export default {
+  chart: {
+    height: 720,
+  },
   plotOptions: {
     networkgraph: {
       layoutAlgorithm: {
