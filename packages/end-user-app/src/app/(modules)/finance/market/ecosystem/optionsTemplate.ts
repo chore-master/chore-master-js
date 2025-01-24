@@ -18,6 +18,10 @@ export default {
   },
   tooltip: {
     useHTML: true,
+    outside: true,
+    style: {
+      pointerEvents: 'auto',
+    },
     formatter: function (this: {
       point: { full_name?: string; name: string; avatar_url?: string }
     }): string {
@@ -28,7 +32,7 @@ export default {
         result += `<div><b>${this.point.name}</b></div>`
       }
       if (this.point.avatar_url) {
-        result += `<div><img src="${this.point.avatar_url}" style="display: block; max-height: 64px;" /></div>`
+        result += `<div><img src="${this.point.avatar_url}" style="display: block; height: 64px;" /></div>`
       }
       result = `<div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">${result}</div>`
       return result
