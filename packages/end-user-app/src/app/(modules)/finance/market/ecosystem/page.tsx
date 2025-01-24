@@ -24,8 +24,14 @@ export default function Page() {
     if (!isLoadingWeb3Ecosystem) {
       setIsLoadingWeb3Ecosystem(true)
     }
-    await choreMasterAPIAgent.get('/widget/web3-ecosystem', {
+    await choreMasterAPIAgent.get('/v1/finance/market/ecosystem', {
       params: {},
+      onError: () => {
+        enqueueNotification(
+          'Something wrong happened. Service may be unavailable now.',
+          'error'
+        )
+      },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
