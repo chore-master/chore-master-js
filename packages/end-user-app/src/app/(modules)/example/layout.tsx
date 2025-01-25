@@ -33,6 +33,24 @@ export default function Layout({
               href: '/example/splitter',
               selectedWhenPartiallyMatched: true,
             },
+            {
+              type: 'header',
+              title: '載入狀態',
+              navigations: [
+                {
+                  type: 'link',
+                  title: '頁面層級',
+                  href: '/example/loading/page_level',
+                  selectedWhenPartiallyMatched: true,
+                },
+                {
+                  type: 'link',
+                  title: '內容層級',
+                  href: '/example/loading/content_level',
+                  selectedWhenPartiallyMatched: true,
+                },
+              ],
+            },
           ],
         },
         {
