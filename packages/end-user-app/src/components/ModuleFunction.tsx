@@ -9,7 +9,9 @@ import Container from '@mui/material/Container'
 import LinearProgress from '@mui/material/LinearProgress'
 import Paper from '@mui/material/Paper'
 import { useColorScheme } from '@mui/material/styles'
-import { ReactNode } from 'react'
+import { Splitter, SplitterPanel } from 'primereact/splitter'
+import React, { ReactNode } from 'react'
+import './splitter.css'
 
 export default function ModuleFunction({
   children,
@@ -23,6 +25,53 @@ export default function ModuleFunction({
       <Container>{children}</Container>
     </Box>
   )
+}
+
+export const ModuleSplitter = ({
+  layout,
+  style,
+  children,
+  ...props
+}: Readonly<{
+  layout: 'vertical' | 'horizontal'
+  style?: React.CSSProperties
+  children?: ReactNode
+}>) => {
+  const filteredChildren = React.Children.toArray(children).filter(Boolean)
+  const childrenCount = filteredChildren.length
+
+  if (childrenCount <= 1) {
+    return children
+  } else {
+    return (
+      <Splitter layout={layout} style={style} {...props}>
+        {children}
+      </Splitter>
+    )
+  }
+}
+
+export const ModuleSplitterPanel = ({
+  transparent,
+  size,
+  style,
+  children,
+  ...props
+}: Readonly<{
+  transparent?: boolean
+  size: number
+  style?: React.CSSProperties
+  children?: ReactNode
+}>) => {
+  if (transparent) {
+    return children
+  } else {
+    return (
+      <SplitterPanel size={size} style={style} {...props}>
+        <Box sx={{ height: '100%' }}>{children}</Box>
+      </SplitterPanel>
+    )
+  }
 }
 
 export const ModuleFunctionHeader = ({

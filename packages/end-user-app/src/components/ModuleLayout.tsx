@@ -162,7 +162,7 @@ export default function ModuleLayout({
             </Link>
           </ListItem>
           <ListItem disablePadding>
-            <Link href="/sample-module" passHref legacyBehavior>
+            <Link href="/example" passHref legacyBehavior>
               <ListItemButton component="a">
                 <ListItemIcon>
                   <HelpIcon />
