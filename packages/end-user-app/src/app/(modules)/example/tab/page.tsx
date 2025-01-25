@@ -49,7 +49,10 @@ export default function Page() {
       <TabPanel value="tab2" sx={{ p: 0 }}>
         <ModuleFunction>
           <ModuleFunctionHeader
-            title={<Typography variant="h6">Tab 2 標題一</Typography>}
+            sticky
+            title={
+              <Typography variant="h6">Tab 2 標題一（Sticky 效果）</Typography>
+            }
           />
           <ModuleFunctionBody>
             <Box sx={{ p: 2 }}>
@@ -59,11 +62,16 @@ export default function Page() {
         </ModuleFunction>
         <ModuleFunction>
           <ModuleFunctionHeader
-            title={<Typography variant="h6">Tab 2 標題二</Typography>}
+            sticky
+            title={
+              <Typography variant="h6">Tab 2 標題二（Sticky 效果）</Typography>
+            }
           />
           <ModuleFunctionBody>
             <Box sx={{ p: 2 }}>
-              <Typography variant="body1">Tab 2 內容二</Typography>
+              <Typography variant="body1" sx={{ height: '100dvh' }}>
+                Tab 2 內容二
+              </Typography>
             </Box>
           </ModuleFunctionBody>
         </ModuleFunction>
