@@ -7,6 +7,6 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    router.push('/admin/core')
+    router.push('/admin/database/connection')
   }, [router])
 }

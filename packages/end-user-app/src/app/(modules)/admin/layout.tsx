@@ -13,12 +13,24 @@ export default function Layout({
       navigations={[
         {
           type: 'header',
-          title: '基礎設施',
+          title: '資料庫',
           navigations: [
             {
               type: 'link',
-              title: '資料庫',
-              href: '/admin/core/database',
+              title: '連線',
+              href: '/admin/database/connection',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: '遷徙管理',
+              href: '/admin/database/migrations',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: '資料表',
+              href: '/admin/database/tables',
               selectedWhenPartiallyMatched: true,
             },
           ],
