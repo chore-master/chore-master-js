@@ -74,6 +74,31 @@ export const ModuleSplitterPanel = ({
   }
 }
 
+export const ModuleContainer = ({
+  sticky,
+  sx,
+  children,
+}: Readonly<{ sticky?: boolean; sx?: SxProps; children?: ReactNode }>) => {
+  const { mode, setMode } = useColorScheme()
+  if (sticky) {
+    return (
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 64,
+          zIndex: 999,
+          background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+          ...sx,
+        }}
+      >
+        {children}
+      </Box>
+    )
+  } else {
+    return <Box sx={sx}>{children}</Box>
+  }
+}
+
 export const ModuleFunctionHeader = ({
   children,
   title,

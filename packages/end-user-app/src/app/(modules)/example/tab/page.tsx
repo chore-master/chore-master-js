@@ -1,6 +1,7 @@
 'use client'
 
 import ModuleFunction, {
+  ModuleContainer,
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
@@ -18,20 +19,25 @@ export default function Page() {
     <TabContext value={tabValue}>
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader title="頁籤" />
-        <Box sx={{ mx: 2, mt: 2, borderBottom: 1, borderColor: 'divider' }}>
-          <TabList
-            variant="scrollable"
-            scrollButtons={false}
-            onChange={(event: React.SyntheticEvent, newValue: string) => {
-              setTabValue(newValue)
-            }}
-          >
-            <Tab label="Tab 1" value="tab1" />
-            <Tab label="Tab 2" value="tab2" />
-            <Tab label="Tab 3" value="tab3" />
-          </TabList>
-        </Box>
       </ModuleFunction>
+
+      <ModuleContainer sticky>
+        <ModuleFunction sx={{ py: 0 }}>
+          <Box sx={{ mx: 2, mt: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <TabList
+              variant="scrollable"
+              scrollButtons={false}
+              onChange={(event: React.SyntheticEvent, newValue: string) => {
+                setTabValue(newValue)
+              }}
+            >
+              <Tab label="Tab 1" value="tab1" />
+              <Tab label="Tab 2" value="tab2" />
+              <Tab label="Tab 3" value="tab3" />
+            </TabList>
+          </Box>
+        </ModuleFunction>
+      </ModuleContainer>
 
       <TabPanel value="tab1" sx={{ p: 0 }}>
         <ModuleFunction>
@@ -49,7 +55,6 @@ export default function Page() {
       <TabPanel value="tab2" sx={{ p: 0 }}>
         <ModuleFunction>
           <ModuleFunctionHeader
-            sticky
             title={
               <Typography variant="h6">Tab 2 標題一（Sticky 效果）</Typography>
             }
@@ -62,7 +67,6 @@ export default function Page() {
         </ModuleFunction>
         <ModuleFunction>
           <ModuleFunctionHeader
-            sticky
             title={
               <Typography variant="h6">Tab 2 標題二（Sticky 效果）</Typography>
             }
