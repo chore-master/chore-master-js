@@ -17,7 +17,7 @@ export const getOptions = (series: any) => {
   ]
   return {
     chart: {
-      height: 720,
+      height: 800,
     },
     legend: {
       enabled: true,
