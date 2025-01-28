@@ -21,6 +21,12 @@ export default function Layout({
               href: '/finance/market/ecosystem',
               selectedWhenPartiallyMatched: true,
             },
+            {
+              type: 'link',
+              title: '流量',
+              href: '/finance/market/flow',
+              selectedWhenPartiallyMatched: true,
+            },
           ],
         },
         {

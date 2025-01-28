@@ -5,6 +5,7 @@ import { HighchartsReact } from 'highcharts-react-official'
 import * as Highcharts from 'highcharts/highcharts'
 import AccessibilityModule from 'highcharts/modules/accessibility'
 import NetworkGraphModule from 'highcharts/modules/networkgraph'
+import SankeyModule from 'highcharts/modules/sankey'
 // import HighContrastDark from 'highcharts/themes/high-contrast-dark'
 // import HighContrastLight from 'highcharts/themes/high-contrast-light'
 import { merge } from 'lodash'
@@ -15,6 +16,7 @@ import { darkThemeOptions, lightThemeOptions } from './highchartsOptions'
 if (typeof Highcharts === 'object') {
   AccessibilityModule(Highcharts)
   NetworkGraphModule(Highcharts)
+  SankeyModule(Highcharts)
 }
 
 export default function HighChartsCore({
