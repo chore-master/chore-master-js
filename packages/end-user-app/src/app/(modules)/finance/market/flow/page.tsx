@@ -22,9 +22,7 @@ export default function Page() {
   )
 
   const fetchMarketATokenTransactions = React.useCallback(async () => {
-    if (!isLoadingMarketFlow) {
-      setIsLoadingMarketATokenTransactions(true)
-    }
+    setIsLoadingMarketATokenTransactions(true)
     await choreMasterAPIAgent.get('/v1/finance/market/a_token_transactions', {
       params: {},
       onError: () => {
@@ -41,11 +39,11 @@ export default function Page() {
       },
     })
     setIsLoadingMarketATokenTransactions(false)
-  }, [])
+  }, [enqueueNotification])
 
   React.useEffect(() => {
     fetchMarketATokenTransactions()
-  }, [])
+  }, [fetchMarketATokenTransactions])
 
   return (
     <React.Fragment>
