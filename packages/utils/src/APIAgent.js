@@ -118,13 +118,19 @@ class APIAgent {
   }
 
   async patch(path, body, callbacks) {
+    const isFormData = body instanceof FormData
+    let headers = {}
+    if (!isFormData) {
+      body = JSON.stringify(body)
+      headers['Content-Type'] = 'application/json'
+    }
     const res = await this.request(
       path,
       {
         method: 'PATCH',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        headers,
+        body,
       },
       {
         onError: (err) => {

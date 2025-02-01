@@ -6,7 +6,9 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import NoWrapTableCell from '@/components/NoWrapTableCell'
+import choreMasterAPIAgent from '@/utils/apiAgent'
 import * as datetimeUtils from '@/utils/datetime'
+import { useNotification } from '@/utils/notification'
 import { humanReadableFileSize } from '@/utils/size'
 import FolderIcon from '@mui/icons-material/Folder'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
@@ -31,6 +33,7 @@ interface UploadTablesInputs {
 }
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const uploadTablesForm = useForm<UploadTablesInputs>()
   const [isDirectorySelected, setIsDirectorySelected] =
     React.useState<boolean>(false)
@@ -57,7 +60,29 @@ export default function Page() {
     const tableFiles = selectedTableFileIndices.map(
       (index) => allTableFiles[index]
     )
-    console.log(tableFiles)
+    const formData = new FormData()
+    tableFiles.forEach((file) => {
+      formData.append('upload_files', file)
+    })
+    await choreMasterAPIAgent.patch(
+      '/v1/admin/database/tables/data/import_files',
+      formData,
+      {
+        onError: () => {
+          enqueueNotification(
+            'Something wrong happened. Service may be unavailable now.',
+            'error'
+          )
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: async () => {
+          enqueueNotification('匯入成功', 'success')
+          setSelectedTableFileIndices([])
+        },
+      }
+    )
   }
 
   const baseDateTime = new Date()
