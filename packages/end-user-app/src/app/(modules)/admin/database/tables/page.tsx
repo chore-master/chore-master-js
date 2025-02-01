@@ -5,6 +5,8 @@ import CodeBlock from '@/components/CodeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
+  ModuleSplitter,
+  ModuleSplitterPanel,
 } from '@/components/ModuleFunction'
 import NoWrapTableCell from '@/components/NoWrapTableCell'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -15,6 +17,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import FolderIcon from '@mui/icons-material/Folder'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -23,6 +26,13 @@ import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import ListSubheader from '@mui/material/ListSubheader'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -40,6 +50,18 @@ interface UploadTablesInputs {
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
+
+  // Database schema
+  const [isLoadingDatabaseSchema, setIsLoadingDatabaseSchema] =
+    React.useState<boolean>(true)
+  const [databaseSchema, setDatabaseSchema] = React.useState<any>([])
+  const [viewingTableIndex, setViewingTableIndex] = React.useState<
+    number | undefined
+  >()
+  const [tableNameToSelectedColumnNames, setTableNameToSelectedColumnNames] =
+    React.useState<Record<string, string[]>>({})
+
+  // Import table files
   const uploadTablesForm = useForm<UploadTablesInputs>()
   const [isDirectorySelected, setIsDirectorySelected] =
     React.useState<boolean>(false)
@@ -47,6 +69,26 @@ export default function Page() {
   const [allTableFiles, setAllTableFiles] = React.useState<File[]>([])
   const [selectedTableFileIndices, setSelectedTableFileIndices] =
     React.useState<number[]>([])
+
+  const fetchDatabaseSchema = React.useCallback(async () => {
+    setIsLoadingDatabaseSchema(true)
+    await choreMasterAPIAgent.get('/v1/admin/database/schema', {
+      params: {},
+      onError: () => {
+        enqueueNotification(
+          'Something wrong happened. Service may be unavailable now.',
+          'error'
+        )
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setDatabaseSchema(data)
+      },
+    })
+    setIsLoadingDatabaseSchema(false)
+  }, [enqueueNotification])
 
   const onSubmitUploadTablesForm: SubmitHandler<UploadTablesInputs> = async (
     data
@@ -91,12 +133,238 @@ export default function Page() {
     )
   }
 
+  const selectAllColumns = React.useCallback(() => {
+    setTableNameToSelectedColumnNames(
+      databaseSchema?.tables?.reduce(
+        (acc: Record<string, string[]>, table: any) => {
+          acc[table.name] = table.columns.map((column: any) => column.name)
+          return acc
+        },
+        {}
+      ) ?? {}
+    )
+  }, [databaseSchema])
+
+  React.useEffect(() => {
+    fetchDatabaseSchema()
+  }, [fetchDatabaseSchema])
+
+  React.useEffect(() => {
+    selectAllColumns()
+  }, [databaseSchema, selectAllColumns])
+
   const baseDateTime = new Date()
 
   return (
     <React.Fragment>
       <ModuleFunction>
-        <ModuleFunctionHeader title="匯入資料表" />
+        <ModuleFunctionHeader
+          title="匯出"
+          actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton onClick={fetchDatabaseSchema}>
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
+          ]}
+        />
+
+        <ModuleFunctionBody loading={isLoadingDatabaseSchema}>
+          <ModuleSplitter layout="horizontal">
+            <ModuleSplitterPanel size={25} style={{ overflow: 'auto' }}>
+              <Box sx={{ display: 'flex', flexGrow: 1 }}>
+                <List sx={{ flexGrow: 1 }}>
+                  <ListSubheader>
+                    <Checkbox
+                      edge="start"
+                      tabIndex={-1}
+                      checked={Object.entries(
+                        tableNameToSelectedColumnNames
+                      ).every(
+                        ([tableName, selectedColumnNames]) =>
+                          selectedColumnNames.length ===
+                          databaseSchema?.tables?.find(
+                            (table: any) => table.name === tableName
+                          )?.columns.length
+                      )}
+                      indeterminate={
+                        Object.values(tableNameToSelectedColumnNames).some(
+                          (selectedColumnNames) =>
+                            selectedColumnNames.length > 0
+                        ) &&
+                        !Object.entries(tableNameToSelectedColumnNames).every(
+                          ([tableName, selectedColumnNames]) =>
+                            selectedColumnNames.length ===
+                            databaseSchema?.tables?.find(
+                              (table: any) => table.name === tableName
+                            )?.columns.length
+                        )
+                      }
+                      onChange={(event) => {
+                        if (event.target.checked) {
+                          selectAllColumns()
+                        } else {
+                          setTableNameToSelectedColumnNames(
+                            databaseSchema?.tables?.reduce(
+                              (acc: Record<string, string[]>, table: any) => {
+                                acc[table.name] = []
+                                return acc
+                              },
+                              {}
+                            )
+                          )
+                        }
+                      }}
+                    />
+                    {databaseSchema?.name}
+                  </ListSubheader>
+                  {databaseSchema?.tables?.map((table: any, index: number) => {
+                    const selectedColumnNames =
+                      tableNameToSelectedColumnNames[table.name]
+                    return (
+                      <ListItem key={table.name} disablePadding>
+                        <ListItemButton
+                          dense
+                          onClick={() => setViewingTableIndex(index)}
+                          selected={viewingTableIndex === index}
+                        >
+                          <ListItemIcon>
+                            <Checkbox
+                              edge="end"
+                              tabIndex={-1}
+                              disableRipple
+                              checked={
+                                selectedColumnNames?.length ===
+                                table.columns.length
+                              }
+                              indeterminate={
+                                selectedColumnNames?.length > 0 &&
+                                selectedColumnNames?.length <
+                                  table.columns.length
+                              }
+                              onChange={(event) => {
+                                if (event.target.checked) {
+                                  setTableNameToSelectedColumnNames({
+                                    ...tableNameToSelectedColumnNames,
+                                    [table.name]: table.columns.map(
+                                      (column: any) => column.name
+                                    ),
+                                  })
+                                } else {
+                                  setTableNameToSelectedColumnNames({
+                                    ...tableNameToSelectedColumnNames,
+                                    [table.name]: [],
+                                  })
+                                }
+                              }}
+                            />
+                          </ListItemIcon>
+                          <ListItemText primary={table.name} />
+                        </ListItemButton>
+                      </ListItem>
+                    )
+                  })}
+                </List>
+              </Box>
+            </ModuleSplitterPanel>
+            <ModuleSplitterPanel size={75} style={{ overflow: 'auto' }}>
+              {viewingTableIndex !== undefined && (
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <NoWrapTableCell />
+                        <NoWrapTableCell>
+                          {/* <Checkbox
+                            size="small"
+                            checked={
+                              selectedTableFileIndices.length ===
+                              allTableFiles.length
+                            }
+                            indeterminate={
+                              selectedTableFileIndices.length > 0 &&
+                              selectedTableFileIndices.length <
+                                allTableFiles.length
+                            }
+                            onChange={(event) => {
+                              if (event.target.checked) {
+                                setSelectedTableFileIndices(
+                                  allTableFiles.map((file, index) => index)
+                                )
+                              } else {
+                                setSelectedTableFileIndices([])
+                              }
+                            }}
+                          /> */}
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>欄位名稱</NoWrapTableCell>
+                        <NoWrapTableCell>欄位型別</NoWrapTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {databaseSchema?.tables[viewingTableIndex]?.columns.map(
+                        (column: any, index: number) => {
+                          const viewingTable =
+                            databaseSchema?.tables[viewingTableIndex]
+                          const isSelected =
+                            tableNameToSelectedColumnNames[
+                              viewingTable.name
+                            ]?.includes(column.name) ?? false
+                          return (
+                            <TableRow
+                              key={`${viewingTable.name}.${column.name}`}
+                              hover
+                              selected={isSelected}
+                            >
+                              <NoWrapTableCell>#{index + 1}</NoWrapTableCell>
+                              <NoWrapTableCell>
+                                <Checkbox
+                                  size="small"
+                                  checked={isSelected}
+                                  onChange={(event) => {
+                                    if (event.target.checked) {
+                                      setTableNameToSelectedColumnNames({
+                                        ...tableNameToSelectedColumnNames,
+                                        [viewingTable.name]: [
+                                          ...tableNameToSelectedColumnNames[
+                                            viewingTable.name
+                                          ],
+                                          column.name,
+                                        ],
+                                      })
+                                    } else {
+                                      setTableNameToSelectedColumnNames({
+                                        ...tableNameToSelectedColumnNames,
+                                        [viewingTable.name]:
+                                          tableNameToSelectedColumnNames[
+                                            viewingTable.name
+                                          ].filter(
+                                            (name) => name !== column.name
+                                          ),
+                                      })
+                                    }
+                                  }}
+                                />
+                              </NoWrapTableCell>
+                              <NoWrapTableCell>{column.name}</NoWrapTableCell>
+                              <NoWrapTableCell>{column.type}</NoWrapTableCell>
+                            </TableRow>
+                          )
+                        }
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </ModuleSplitterPanel>
+          </ModuleSplitter>
+        </ModuleFunctionBody>
+      </ModuleFunction>
+
+      <ModuleFunction>
+        <ModuleFunctionHeader title="匯入" />
         <ModuleFunctionBody>
           <Box p={2}>
             <Stack
