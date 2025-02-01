@@ -1,6 +1,7 @@
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
+import CodeBlock from '@/components/CodeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -10,8 +11,13 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import * as datetimeUtils from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import { humanReadableFileSize } from '@/utils/size'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import FolderIcon from '@mui/icons-material/Folder'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import Accordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -288,6 +294,59 @@ export default function Page() {
             )}
           </ModuleFunctionBody>
         )}
+
+        <ModuleFunctionBody>
+          <Accordion>
+            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+              <Stack spacing={1} direction="row" alignItems="center">
+                <InfoOutlinedIcon fontSize="small" />
+                <Typography>範本</Typography>
+              </Stack>
+            </AccordionSummary>
+            <TableContainer component={AccordionDetails}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <NoWrapTableCell>檔案路徑</NoWrapTableCell>
+                    <NoWrapTableCell>CSV 內容</NoWrapTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <NoWrapTableCell>insert/table_1.csv</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <CodeBlock
+                        language="csv"
+                        code={`OP,reference,column_1,column_2,column_3,column_4,column_5,column_6
+INSERT,dkb3t,False,123,0.3,456.78,hello,2025-01-01T00:00:00.000Z`}
+                      />
+                    </NoWrapTableCell>
+                  </TableRow>
+                  <TableRow>
+                    <NoWrapTableCell>update/table_1.csv</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <CodeBlock
+                        language="csv"
+                        code={`OP,reference,column_1,column_6
+UPDATE,dkb3t,True,2025-12-31T23:59:59.999Z`}
+                      />
+                    </NoWrapTableCell>
+                  </TableRow>
+                  <TableRow>
+                    <NoWrapTableCell>delete/table_1.csv</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <CodeBlock
+                        language="csv"
+                        code={`OP,reference
+DELETE,dkb3t`}
+                      />
+                    </NoWrapTableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Accordion>
+        </ModuleFunctionBody>
       </ModuleFunction>
     </React.Fragment>
   )
