@@ -133,6 +133,10 @@ export default function Page() {
     )
   }
 
+  const handleExport = async () => {
+    console.log(tableNameToSelectedColumnNames)
+  }
+
   const selectAllColumns = React.useCallback(() => {
     setTableNameToSelectedColumnNames(
       databaseSchema?.tables?.reduce(
@@ -172,6 +176,28 @@ export default function Page() {
         />
 
         <ModuleFunctionBody loading={isLoadingDatabaseSchema}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
+            sx={{ p: 2 }}
+          >
+            <AutoLoadingButton
+              variant="contained"
+              onClick={() => handleExport()}
+              disabled={Object.values(tableNameToSelectedColumnNames).every(
+                (selectedColumnNames) => selectedColumnNames.length === 0
+              )}
+            >
+              匯出{' '}
+              {Object.values(tableNameToSelectedColumnNames).reduce(
+                (acc, selectedColumnNames) => acc + selectedColumnNames.length,
+                0
+              )}{' '}
+              個欄位
+            </AutoLoadingButton>
+          </Stack>
+          <Divider />
           <ModuleSplitter layout="horizontal">
             <ModuleSplitterPanel size={25} style={{ overflow: 'auto' }}>
               <Box sx={{ display: 'flex', flexGrow: 1 }}>
@@ -276,29 +302,7 @@ export default function Page() {
                     <TableHead>
                       <TableRow>
                         <NoWrapTableCell />
-                        <NoWrapTableCell>
-                          {/* <Checkbox
-                            size="small"
-                            checked={
-                              selectedTableFileIndices.length ===
-                              allTableFiles.length
-                            }
-                            indeterminate={
-                              selectedTableFileIndices.length > 0 &&
-                              selectedTableFileIndices.length <
-                                allTableFiles.length
-                            }
-                            onChange={(event) => {
-                              if (event.target.checked) {
-                                setSelectedTableFileIndices(
-                                  allTableFiles.map((file, index) => index)
-                                )
-                              } else {
-                                setSelectedTableFileIndices([])
-                              }
-                            }}
-                          /> */}
-                        </NoWrapTableCell>
+                        <NoWrapTableCell />
                         <NoWrapTableCell>欄位名稱</NoWrapTableCell>
                         <NoWrapTableCell>欄位型別</NoWrapTableCell>
                       </TableRow>
@@ -435,7 +439,6 @@ export default function Page() {
               direction="row"
               justifyContent="space-between"
               alignItems="center"
-              justifyItems="space-between"
               sx={{ p: 2 }}
             >
               {allTableFiles.length === 0 ? (
