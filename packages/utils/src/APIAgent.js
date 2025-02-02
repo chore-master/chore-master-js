@@ -21,13 +21,24 @@ class APIAgent {
       })
       return
     }
-    const { status, data, metadata } = await res.json()
-    if (status !== StatusEnum.SUCCESS) {
-      callbacks.onFail &&
-        callbacks.onFail({ res, status, message: data.message, data, metadata })
+    if (res.headers.get('Content-Type')?.includes('application/json')) {
+      const { status, data, metadata } = await res.json()
+      if (status !== StatusEnum.SUCCESS) {
+        callbacks.onFail &&
+          callbacks.onFail({
+            res,
+            status,
+            message: data.message,
+            data,
+            metadata,
+          })
+      } else {
+        callbacks.onSuccess &&
+          (await callbacks.onSuccess({ res, data, metadata }))
+      }
     } else {
-      callbacks.onSuccess &&
-        (await callbacks.onSuccess({ res, data, metadata }))
+      const blob = await res.blob()
+      callbacks.onSuccess && (await callbacks.onSuccess({ res, blob }))
     }
     return res
   }

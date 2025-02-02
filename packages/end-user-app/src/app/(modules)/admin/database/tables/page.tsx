@@ -10,6 +10,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import NoWrapTableCell from '@/components/NoWrapTableCell'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import * as blobUtils from '@/utils/blob'
 import * as datetimeUtils from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import { humanReadableFileSize } from '@/utils/size'
@@ -104,7 +105,7 @@ export default function Page() {
     setIsDirectorySelected(true)
   }
 
-  const handleUploadTableFiles = async () => {
+  const handleImportTableFiles = async () => {
     const tableFiles = selectedTableFileIndices.map(
       (index) => allTableFiles[index]
     )
@@ -133,8 +134,25 @@ export default function Page() {
     )
   }
 
-  const handleExport = async () => {
-    console.log(tableNameToSelectedColumnNames)
+  const handleExportTableFiles = async () => {
+    await choreMasterAPIAgent.post(
+      '/v1/admin/database/tables/data/export_files',
+      {
+        table_name_to_selected_column_names: tableNameToSelectedColumnNames,
+      },
+      {
+        onError: () => {
+          enqueueNotification(
+            'Something wrong happened. Service may be unavailable now.',
+            'error'
+          )
+        },
+        onSuccess: async ({ blob }: { blob: Blob }) => {
+          setTableNameToSelectedColumnNames({})
+          blobUtils.downloadBlobAsFile(blob, 'download.zip')
+        },
+      }
+    )
   }
 
   const selectAllColumns = React.useCallback(() => {
@@ -184,7 +202,7 @@ export default function Page() {
           >
             <AutoLoadingButton
               variant="contained"
-              onClick={() => handleExport()}
+              onClick={() => handleExportTableFiles()}
               disabled={Object.values(tableNameToSelectedColumnNames).every(
                 (selectedColumnNames) => selectedColumnNames.length === 0
               )}
@@ -449,7 +467,7 @@ export default function Page() {
 
               <AutoLoadingButton
                 variant="contained"
-                onClick={() => handleUploadTableFiles()}
+                onClick={() => handleImportTableFiles()}
                 disabled={selectedTableFileIndices.length === 0}
               >
                 匯入 {selectedTableFileIndices.length} 個檔案
