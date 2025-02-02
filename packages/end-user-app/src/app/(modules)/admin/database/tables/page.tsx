@@ -148,7 +148,6 @@ export default function Page() {
           )
         },
         onSuccess: async ({ blob }: { blob: Blob }) => {
-          setTableNameToSelectedColumnNames({})
           blobUtils.downloadBlobAsFile(blob, 'download.zip')
         },
       }
