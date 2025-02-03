@@ -13,7 +13,7 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import * as blobUtils from '@/utils/blob'
 import * as datetimeUtils from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
-import { humanReadableFileSize } from '@/utils/size'
+import * as sizeUtils from '@/utils/size'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import FolderIcon from '@mui/icons-material/Folder'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
@@ -45,6 +45,21 @@ import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
+interface AdminDatabaseTable {
+  name: string
+  columns: AdminDatabaseColumn[]
+}
+
+interface AdminDatabaseColumn {
+  name: string
+  type: string
+}
+
+interface AdminDatabaseSchema {
+  name: string | null
+  tables: AdminDatabaseTable[]
+}
+
 interface UploadTablesInputs {
   table_files: FileList
 }
@@ -55,7 +70,11 @@ export default function Page() {
   // Database schema
   const [isLoadingDatabaseSchema, setIsLoadingDatabaseSchema] =
     React.useState<boolean>(true)
-  const [databaseSchema, setDatabaseSchema] = React.useState<any>([])
+  const [databaseSchema, setDatabaseSchema] =
+    React.useState<AdminDatabaseSchema>({
+      name: null,
+      tables: [],
+    })
   const [viewingTableIndex, setViewingTableIndex] = React.useState<
     number | undefined
   >()
@@ -184,7 +203,7 @@ export default function Page() {
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
-                <IconButton onClick={fetchDatabaseSchema}>
+                <IconButton onClick={() => void fetchDatabaseSchema()}>
                   <RefreshIcon />
                 </IconButton>
               </span>
@@ -228,8 +247,8 @@ export default function Page() {
                       ).every(
                         ([tableName, selectedColumnNames]) =>
                           selectedColumnNames.length ===
-                          databaseSchema?.tables?.find(
-                            (table: any) => table.name === tableName
+                          databaseSchema.tables.find(
+                            (table) => table.name === tableName
                           )?.columns.length
                       )}
                       indeterminate={
@@ -240,8 +259,8 @@ export default function Page() {
                         !Object.entries(tableNameToSelectedColumnNames).every(
                           ([tableName, selectedColumnNames]) =>
                             selectedColumnNames.length ===
-                            databaseSchema?.tables?.find(
-                              (table: any) => table.name === tableName
+                            databaseSchema.tables.find(
+                              (table) => table.name === tableName
                             )?.columns.length
                         )
                       }
@@ -250,8 +269,8 @@ export default function Page() {
                           selectAllColumns()
                         } else {
                           setTableNameToSelectedColumnNames(
-                            databaseSchema?.tables?.reduce(
-                              (acc: Record<string, string[]>, table: any) => {
+                            databaseSchema.tables.reduce(
+                              (acc: Record<string, string[]>, table) => {
                                 acc[table.name] = []
                                 return acc
                               },
@@ -261,16 +280,18 @@ export default function Page() {
                         }
                       }}
                     />
-                    {databaseSchema?.name}
+                    {databaseSchema.name ?? '（綱要）'}
                   </ListSubheader>
-                  {databaseSchema?.tables?.map((table: any, index: number) => {
+                  {databaseSchema.tables.map((table, index) => {
                     const selectedColumnNames =
-                      tableNameToSelectedColumnNames[table.name]
+                      tableNameToSelectedColumnNames[table.name] ?? []
                     return (
                       <ListItem key={table.name} disablePadding>
                         <ListItemButton
                           dense
-                          onClick={() => setViewingTableIndex(index)}
+                          onClick={() => {
+                            setViewingTableIndex(index)
+                          }}
                           selected={viewingTableIndex === index}
                         >
                           <ListItemIcon>
@@ -279,12 +300,12 @@ export default function Page() {
                               tabIndex={-1}
                               disableRipple
                               checked={
-                                selectedColumnNames?.length ===
+                                selectedColumnNames.length ===
                                 table.columns.length
                               }
                               indeterminate={
-                                selectedColumnNames?.length > 0 &&
-                                selectedColumnNames?.length <
+                                selectedColumnNames.length > 0 &&
+                                selectedColumnNames.length <
                                   table.columns.length
                               }
                               onChange={(event) => {
@@ -292,7 +313,7 @@ export default function Page() {
                                   setTableNameToSelectedColumnNames({
                                     ...tableNameToSelectedColumnNames,
                                     [table.name]: table.columns.map(
-                                      (column: any) => column.name
+                                      (column) => column.name
                                     ),
                                   })
                                 } else {
@@ -325,14 +346,13 @@ export default function Page() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {databaseSchema?.tables[viewingTableIndex]?.columns.map(
-                        (column: any, index: number) => {
+                      {databaseSchema.tables[viewingTableIndex].columns.map(
+                        (column, index) => {
                           const viewingTable =
-                            databaseSchema?.tables[viewingTableIndex]
-                          const isSelected =
-                            tableNameToSelectedColumnNames[
-                              viewingTable.name
-                            ]?.includes(column.name) ?? false
+                            databaseSchema.tables[viewingTableIndex]
+                          const isSelected = tableNameToSelectedColumnNames[
+                            viewingTable.name
+                          ].includes(column.name)
                           return (
                             <TableRow
                               key={`${viewingTable.name}.${column.name}`}
@@ -557,7 +577,7 @@ export default function Page() {
                               />
                             </NoWrapTableCell>
                             <NoWrapTableCell>
-                              {humanReadableFileSize(file.size)}
+                              {sizeUtils.humanReadableFileSize(file.size)}
                             </NoWrapTableCell>
                             <NoWrapTableCell>
                               {datetimeUtils.dateToLocalString(
