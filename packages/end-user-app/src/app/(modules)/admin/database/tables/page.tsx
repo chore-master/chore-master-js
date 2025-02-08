@@ -635,8 +635,8 @@ INSERT,dkb3t,False,123,0.3,456.78,hello,2025-01-01T00:00:00.000Z`}
                     <NoWrapTableCell>
                       <CodeBlock
                         language="csv"
-                        code={`OP,reference,column_1,column_6
-UPDATE,dkb3t,True,2025-12-31T23:59:59.999Z`}
+                        code={`OP,OP_REFERENCE,reference,column_1,column_6
+UPDATE,dkb3t,d8g47,True,2025-12-31T23:59:59.999Z`}
                       />
                     </NoWrapTableCell>
                   </TableRow>
@@ -645,8 +645,8 @@ UPDATE,dkb3t,True,2025-12-31T23:59:59.999Z`}
                     <NoWrapTableCell>
                       <CodeBlock
                         language="csv"
-                        code={`OP,reference
-DELETE,dkb3t`}
+                        code={`OP,OP_REFERENCE
+DELETE,d8g47`}
                       />
                     </NoWrapTableCell>
                   </TableRow>
