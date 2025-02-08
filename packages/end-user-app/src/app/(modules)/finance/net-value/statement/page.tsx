@@ -18,7 +18,6 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import LoadingButton from '@mui/lab/LoadingButton'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
@@ -570,13 +569,13 @@ export default function Page() {
                 )}
               />
             </FormControl>
-            <LoadingButton
+            <Button
               variant="contained"
               type="submit"
               loading={createNetValueForm.formState.isSubmitting}
             >
               新增
-            </LoadingButton>
+            </Button>
           </Stack>
         </Box>
       </Drawer>
@@ -739,13 +738,13 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <LoadingButton
+            <Button
               variant="contained"
               type="submit"
               loading={updateNetValueForm.formState.isSubmitting}
             >
               儲存
-            </LoadingButton>
+            </Button>
           </Stack>
         </Box>
       </Drawer>

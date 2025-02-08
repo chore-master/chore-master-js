@@ -7,7 +7,6 @@ import ModuleFunction, {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import LoadingButton from '@mui/lab/LoadingButton'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -162,7 +161,7 @@ export default function Page() {
               >
                 新增一筆
               </Button>
-              <LoadingButton
+              <Button
                 variant="contained"
                 onClick={sinoTradeIntegrationForm.handleSubmit(
                   onSubmitSinoTradeIntegrationForm
@@ -174,7 +173,7 @@ export default function Page() {
                 }
               >
                 儲存
-              </LoadingButton>
+              </Button>
             </Stack>
           </Box>
         </ModuleFunctionBody>

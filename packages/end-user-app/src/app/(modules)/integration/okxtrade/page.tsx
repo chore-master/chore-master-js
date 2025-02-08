@@ -7,12 +7,11 @@ import ModuleFunction, {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import LoadingButton from '@mui/lab/LoadingButton'
-import { Button } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -192,7 +191,7 @@ export default function Page() {
               >
                 新增一筆
               </Button>
-              <LoadingButton
+              <Button
                 variant="contained"
                 onClick={okxTradeIntegrationForm.handleSubmit(
                   onSubmitOkxTradeIntegrationForm
@@ -204,7 +203,7 @@ export default function Page() {
                 }
               >
                 儲存
-              </LoadingButton>
+              </Button>
             </Stack>
           </Box>
         </ModuleFunctionBody>

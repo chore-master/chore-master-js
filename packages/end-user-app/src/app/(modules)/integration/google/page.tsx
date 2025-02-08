@@ -12,8 +12,8 @@ import { useNotification } from '@/utils/notification'
 import ManageSearchIcon from '@mui/icons-material/ManageSearch'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import LoadingButton from '@mui/lab/LoadingButton'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
@@ -174,7 +174,7 @@ export default function Page() {
                   </FormControl>
                 )}
               />
-              <LoadingButton
+              <Button
                 variant="contained"
                 onClick={googleIntegrationForm.handleSubmit(
                   onSubmitGoogleIntegrationForm
@@ -182,7 +182,7 @@ export default function Page() {
                 loading={googleIntegrationForm.formState.isSubmitting}
               >
                 掛載
-              </LoadingButton>
+              </Button>
             </Stack>
           </Box>
         </ModuleFunctionBody>

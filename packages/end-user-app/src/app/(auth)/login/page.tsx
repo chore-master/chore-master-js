@@ -3,7 +3,7 @@
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import getConfig from '@/utils/config'
 import { useNotification } from '@/utils/notification'
-import LoadingButton from '@mui/lab/LoadingButton'
+import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Divider from '@mui/material/Divider'
 import FormControl from '@mui/material/FormControl'
@@ -90,13 +90,13 @@ export default function Page() {
               rules={{ required: 'Required' }}
             />
           </FormControl>
-          <LoadingButton
+          <Button
             variant="contained"
             type="submit"
             loading={loginForm.formState.isSubmitting}
           >
             Login with Credentials
-          </LoadingButton>
+          </Button>
         </Stack>
         <Link
           href={`${IAM_API_HOST}/v1/auth/google/authorize?success_redirect_uri=${successRedirectURI}&error_redirect_uri=${errorRedirectURI}`}
