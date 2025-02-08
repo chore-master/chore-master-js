@@ -2,6 +2,7 @@
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
 import CodeBlock from '@/components/CodeBlock'
+import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -11,7 +12,6 @@ import ModuleFunction, {
 import NoWrapTableCell from '@/components/NoWrapTableCell'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import * as blobUtils from '@/utils/blob'
-import * as datetimeUtils from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import * as sizeUtils from '@/utils/size'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -192,8 +192,6 @@ export default function Page() {
   React.useEffect(() => {
     selectAllColumns()
   }, [databaseSchema, selectAllColumns])
-
-  const baseDateTime = new Date()
 
   return (
     <React.Fragment>
@@ -525,9 +523,7 @@ export default function Page() {
                         </NoWrapTableCell>
                         <NoWrapTableCell>檔案路徑</NoWrapTableCell>
                         <NoWrapTableCell>大小</NoWrapTableCell>
-                        <NoWrapTableCell>
-                          最後修改時間（瀏覽器時區）
-                        </NoWrapTableCell>
+                        <NoWrapTableCell>最後修改時間</NoWrapTableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -580,17 +576,7 @@ export default function Page() {
                               {sizeUtils.humanReadableFileSize(file.size)}
                             </NoWrapTableCell>
                             <NoWrapTableCell>
-                              {datetimeUtils.dateToLocalString(
-                                lastModifiedDate
-                              )}
-                              {` (${datetimeUtils.humanReadableRelativeDateTime(
-                                datetimeUtils.localStringToUTCString(
-                                  datetimeUtils.dateToLocalString(
-                                    lastModifiedDate
-                                  )
-                                ),
-                                baseDateTime
-                              )})`}
+                              <DatetimeBlock date={lastModifiedDate} />
                             </NoWrapTableCell>
                           </TableRow>
                         )

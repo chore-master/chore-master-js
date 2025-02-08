@@ -1,5 +1,6 @@
 'use client'
 
+import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -9,8 +10,6 @@ import TablePaginationActions from '@/components/TablePaginationActions'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import {
   dateToLocalString,
-  humanReadableLocalDateTime,
-  humanReadableRelativeDateTime,
   localStringToUTCString,
   UTCStringToDate,
 } from '@/utils/datetime'
@@ -291,13 +290,12 @@ export default function Page() {
                   <NoWrapTableCell>帳戶名稱</NoWrapTableCell>
                   <NoWrapTableCell>快照名義價值</NoWrapTableCell>
                   <NoWrapTableCell>快照資產代號</NoWrapTableCell>
-                  <NoWrapTableCell>快照時間（瀏覽器時區）</NoWrapTableCell>
+                  <NoWrapTableCell>快照時間</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {netValues.map((netValue) => {
-                  const baseDateTime = new Date()
                   return (
                     <TableRow key={netValue.reference} hover>
                       <NoWrapTableCell>
@@ -323,11 +321,7 @@ export default function Page() {
                         />
                       </NoWrapTableCell>
                       <NoWrapTableCell>
-                        {humanReadableLocalDateTime(netValue.settled_time)}
-                        {` (${humanReadableRelativeDateTime(
-                          netValue.settled_time,
-                          baseDateTime
-                        )})`}
+                        <DatetimeBlock isoText={netValue.settled_time} />
                       </NoWrapTableCell>
                       <NoWrapTableCell align="right">
                         <IconButton

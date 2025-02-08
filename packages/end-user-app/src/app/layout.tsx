@@ -1,8 +1,9 @@
+import ThemeProvider from '@/components/ThemeProvider'
+import { TimezoneProvider } from '@/components/timezone'
 import { NotificationProvider } from '@/utils/notification'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import ThemeProvider from '../components/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,7 +22,9 @@ export default function Layout({
       <body className={inter.className}>
         <AppRouterCacheProvider>
           <ThemeProvider>
-            <NotificationProvider>{children}</NotificationProvider>
+            <NotificationProvider>
+              <TimezoneProvider>{children}</TimezoneProvider>
+            </NotificationProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

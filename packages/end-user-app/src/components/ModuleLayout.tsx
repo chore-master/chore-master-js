@@ -3,6 +3,7 @@
 import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
+import { useTimezone } from '@/components/timezone'
 import { useEndUser } from '@/utils/auth'
 import { Logout } from '@mui/icons-material'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
@@ -16,13 +17,20 @@ import LightModeIcon from '@mui/icons-material/LightMode'
 import LoginIcon from '@mui/icons-material/Login'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import SettingsIcon from '@mui/icons-material/Settings'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
+import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import LinearProgress from '@mui/material/LinearProgress'
 import MuiLink from '@mui/material/Link'
@@ -33,6 +41,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
+import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
 import { useColorScheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
@@ -66,6 +75,8 @@ export default function ModuleLayout({
     React.useState<boolean>(true)
   const [isMobileSideNavDrawerOpen, setIsMobileSideNavDrawerOpen] =
     React.useState<boolean>(false)
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] =
+    React.useState<boolean>(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const { mode, setMode } = useColorScheme()
   const isSideNavInMobileMode = useMediaQuery(
@@ -79,6 +90,7 @@ export default function ModuleLayout({
     successLoadedCount: endUserSuccessLoadedCount,
     res: endUserRes,
   } = useEndUser()
+  const timezone = useTimezone()
   const isMenuOpen = Boolean(anchorEl)
 
   const toggleModulesDrawer = (newOpen: boolean) => () => {
@@ -301,6 +313,15 @@ export default function ModuleLayout({
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
               </IconButton> */}
+              <Tooltip title="設定">
+                <IconButton
+                  onClick={() => {
+                    setIsSettingsDialogOpen(true)
+                  }}
+                >
+                  <SettingsIcon />
+                </IconButton>
+              </Tooltip>
               {mode === 'dark' ? (
                 <Tooltip title="切換至淺色模式">
                   <IconButton onClick={() => setMode('light')}>
@@ -411,6 +432,61 @@ export default function ModuleLayout({
           {children}
         </Stack>
       </Stack>
+
+      <Dialog
+        fullWidth
+        open={isSettingsDialogOpen}
+        onClose={() => {
+          setIsSettingsDialogOpen(false)
+        }}
+      >
+        <DialogTitle>設定</DialogTitle>
+        <DialogContent>
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+            }}
+          >
+            <FormControl>
+              <Typography gutterBottom>時區：{timezone.offsetText}</Typography>
+              <Slider
+                size="small"
+                valueLabelDisplay="auto"
+                step={30}
+                min={-600}
+                max={540}
+                marks={[
+                  {
+                    value: 0,
+                    label: 'UTC+00:00',
+                  },
+                  {
+                    value: 480,
+                    label: 'UTC+08:00',
+                  },
+                ]}
+                value={timezone.offsetInMinutes}
+                onChange={(event: Event, newValue: number | number[]) => {
+                  timezone.setOffsetInMinutes(newValue as number)
+                }}
+              />
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setIsSettingsDialogOpen(false)
+            }}
+          >
+            關閉
+          </Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   )
 }
