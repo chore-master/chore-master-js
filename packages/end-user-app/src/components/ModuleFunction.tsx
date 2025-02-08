@@ -85,7 +85,10 @@ export const ModuleContainer = ({
       <Box
         sx={{
           position: 'sticky',
-          top: 64,
+          top: {
+            xs: 56,
+            sm: 64,
+          },
           zIndex: 999,
           background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
           ...sx,

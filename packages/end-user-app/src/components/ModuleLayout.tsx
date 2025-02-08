@@ -237,16 +237,8 @@ export default function ModuleLayout({
         </Stack>
       </Drawer>
 
-      <Stack
-        direction="row"
-        divider={
-          !isSideNavInMobileMode && <Divider orientation="vertical" flexItem />
-        }
-        sx={{
-          height: '100%',
-        }}
-      >
-        {isSideNavInMobileMode ? (
+      <Stack direction="row">
+        {isSideNavInMobileMode && (
           <Drawer
             open={isMobileSideNavDrawerOpen}
             onClose={() => {
@@ -255,20 +247,22 @@ export default function ModuleLayout({
           >
             {sideNav}
           </Drawer>
-        ) : (
-          <Collapse
-            orientation="horizontal"
-            in={isNonMobileSideNavOpen}
-            sx={{
-              overflowX: 'hidden',
-              position: 'sticky',
-              top: 0,
-              height: '100vh',
-            }}
-          >
-            {sideNav}
-          </Collapse>
         )}
+
+        <Collapse
+          orientation="horizontal"
+          in={isSideNavInMobileMode ? false : isNonMobileSideNavOpen}
+          sx={{
+            overflowX: 'hidden',
+            position: 'sticky',
+            top: 0,
+            height: '100vh',
+          }}
+        >
+          {sideNav}
+        </Collapse>
+
+        {!isSideNavInMobileMode && <Divider orientation="vertical" flexItem />}
 
         <Stack
           sx={{
