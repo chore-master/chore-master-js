@@ -8,6 +8,7 @@ import { Logout } from '@mui/icons-material'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AppsIcon from '@mui/icons-material/Apps'
+import CloseIcon from '@mui/icons-material/Close'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
 import LanIcon from '@mui/icons-material/Lan'
@@ -37,6 +38,7 @@ import { useColorScheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
@@ -48,16 +50,26 @@ export interface ModuleLayoutProps {
   readonly children: React.ReactNode
 }
 
+const sideNavWidth = 240
+const mobileBreakpoint = 320
+
 export default function ModuleLayout({
   moduleName,
   navigations,
   loginRequired = false,
   children,
 }: ModuleLayoutProps) {
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState<boolean>(false)
-  const [isSideNavOpen, setIsSideNavOpen] = React.useState<boolean>(true)
+  const [isModulesDrawerOpen, setIsModulesDrawerOpen] =
+    React.useState<boolean>(false)
+  const [isNonMobileSideNavOpen, setIsNonMobileSideNavOpen] =
+    React.useState<boolean>(true)
+  const [isMobileSideNavDrawerOpen, setIsMobileSideNavDrawerOpen] =
+    React.useState<boolean>(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const { mode, setMode } = useColorScheme()
+  const isSideNavInMobileMode = useMediaQuery(
+    `(max-width: ${String(sideNavWidth + mobileBreakpoint)}px)`
+  )
   const router = useRouter()
   const pathname = usePathname()
   const {
@@ -67,8 +79,8 @@ export default function ModuleLayout({
   } = useEndUser()
   const isMenuOpen = Boolean(anchorEl)
 
-  const toggleDrawer = (newOpen: boolean) => () => {
-    setIsDrawerOpen(newOpen)
+  const toggleModulesDrawer = (newOpen: boolean) => () => {
+    setIsModulesDrawerOpen(newOpen)
   }
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -91,12 +103,6 @@ export default function ModuleLayout({
     }
   }, [endUserRes, router])
 
-  React.useEffect(() => {
-    // if (endUser?.is_mounted === false) {
-    //   router.push('/iam')
-    // }
-  }, [endUser, router])
-
   if (loginRequired && (!endUser || endUserSuccessLoadedCount === 0)) {
     return (
       <Box
@@ -111,9 +117,57 @@ export default function ModuleLayout({
     )
   }
 
+  const sideNav = (
+    <Stack
+      sx={{
+        width: sideNavWidth,
+        height: '100%',
+      }}
+    >
+      <AppBar
+        position="sticky"
+        elevation={0}
+        sx={(theme) => ({
+          backgroundColor: theme.palette.background.default,
+        })}
+      >
+        <Toolbar disableGutters>
+          <Tooltip title="切換模組">
+            <IconButton
+              size="large"
+              color="default"
+              onClick={toggleModulesDrawer(true)}
+            >
+              <AppsIcon />
+            </IconButton>
+          </Tooltip>
+          <Typography variant="h6" component="div" color="textPrimary">
+            {moduleName}
+          </Typography>
+          {isSideNavInMobileMode && (
+            <React.Fragment>
+              <Box sx={{ flexGrow: 1 }} />
+              <IconButton
+                size="small"
+                sx={{ mx: 1 }}
+                onClick={() => {
+                  setIsMobileSideNavDrawerOpen(false)
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </React.Fragment>
+          )}
+        </Toolbar>
+        <Divider />
+      </AppBar>
+      <SideNavigationList pathname={pathname} navigations={navigations} />
+    </Stack>
+  )
+
   return (
     <React.Fragment>
-      <Drawer open={isDrawerOpen} onClose={toggleDrawer(false)}>
+      <Drawer open={isModulesDrawerOpen} onClose={toggleModulesDrawer(false)}>
         <List disablePadding sx={{ flexGrow: 1 }}>
           {endUser && (
             <ListItem disablePadding>
@@ -181,52 +235,39 @@ export default function ModuleLayout({
           </MuiLink>
         </Stack>
       </Drawer>
+
       <Stack
         direction="row"
-        divider={<Divider orientation="vertical" flexItem />}
+        divider={
+          !isSideNavInMobileMode && <Divider orientation="vertical" flexItem />
+        }
+        sx={{
+          height: '100%',
+        }}
       >
-        <Collapse
-          orientation="horizontal"
-          in={isSideNavOpen}
-          sx={{
-            overflowX: 'hidden',
-            position: 'sticky',
-            top: 0,
-            height: '100vh',
-          }}
-        >
-          <Stack
-            sx={{
-              width: 240,
-              height: '100%',
+        {isSideNavInMobileMode ? (
+          <Drawer
+            open={isMobileSideNavDrawerOpen}
+            onClose={() => {
+              setIsMobileSideNavDrawerOpen(false)
             }}
           >
-            <AppBar
-              position="sticky"
-              elevation={0}
-              sx={(theme) => ({
-                backgroundColor: theme.palette.background.default,
-              })}
-            >
-              <Toolbar disableGutters>
-                <Tooltip title="切換模組">
-                  <IconButton
-                    size="large"
-                    color="default"
-                    onClick={toggleDrawer(true)}
-                  >
-                    <AppsIcon />
-                  </IconButton>
-                </Tooltip>
-                <Typography variant="h6" component="div" color="textPrimary">
-                  {moduleName}
-                </Typography>
-              </Toolbar>
-              <Divider />
-            </AppBar>
-            <SideNavigationList pathname={pathname} navigations={navigations} />
-          </Stack>
-        </Collapse>
+            {sideNav}
+          </Drawer>
+        ) : (
+          <Collapse
+            orientation="horizontal"
+            in={isNonMobileSideNavOpen}
+            sx={{
+              overflowX: 'hidden',
+              position: 'sticky',
+              top: 0,
+              height: '100vh',
+            }}
+          >
+            {sideNav}
+          </Collapse>
+        )}
 
         <Stack
           sx={{
@@ -247,9 +288,17 @@ export default function ModuleLayout({
                 <IconButton
                   size="large"
                   color="default"
-                  onClick={() => setIsSideNavOpen((open) => !open)}
+                  onClick={() => {
+                    if (isSideNavInMobileMode) {
+                      setIsMobileSideNavDrawerOpen((open) => !open)
+                    } else {
+                      setIsNonMobileSideNavOpen((open) => !open)
+                    }
+                  }}
                 >
-                  {isSideNavOpen ? <MenuOpenIcon /> : <MenuIcon />}
+                  {isSideNavInMobileMode && <MenuIcon />}
+                  {!isSideNavInMobileMode &&
+                    (isNonMobileSideNavOpen ? <MenuOpenIcon /> : <MenuIcon />)}
                 </IconButton>
               </Tooltip>
               <Box sx={{ flexGrow: 1 }} />
