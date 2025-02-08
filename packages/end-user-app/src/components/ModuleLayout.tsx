@@ -13,13 +13,13 @@ import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
 import LanIcon from '@mui/icons-material/Lan'
 import LightModeIcon from '@mui/icons-material/LightMode'
+import LoginIcon from '@mui/icons-material/Login'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
@@ -74,6 +74,7 @@ export default function ModuleLayout({
   const router = useRouter()
   const pathname = usePathname()
   const {
+    isLoading: isLoadingEndUser,
     endUser,
     successLoadedCount: endUserSuccessLoadedCount,
     res: endUserRes,
@@ -313,7 +314,7 @@ export default function ModuleLayout({
                   </IconButton>
                 </Tooltip>
               )}
-              {endUser ? (
+              {endUser && (
                 <Tooltip
                   title={
                     <React.Fragment>
@@ -323,28 +324,35 @@ export default function ModuleLayout({
                     </React.Fragment>
                   }
                 >
-                  <IconButton
-                    onClick={handleAvatarClick}
-                    size="small"
-                    sx={{ mx: 1 }}
-                    aria-controls={isMenuOpen ? 'account-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={isMenuOpen ? 'true' : undefined}
-                  >
-                    <Avatar sx={{ width: 32, height: 32 }}>
-                      {endUser.email.substring(0, 1).toUpperCase()}
-                    </Avatar>
-                  </IconButton>
+                  <span>
+                    <IconButton
+                      size="small"
+                      sx={{ mx: 1 }}
+                      disabled={isLoadingEndUser}
+                      onClick={handleAvatarClick}
+                    >
+                      <Avatar sx={{ width: 32, height: 32 }}>
+                        {endUser.email.substring(0, 1).toUpperCase()}
+                      </Avatar>
+                    </IconButton>
+                  </span>
                 </Tooltip>
-              ) : (
-                <Button
-                  onClick={() => {
-                    router.push('/login')
-                  }}
-                  sx={{ mx: 1 }}
-                >
-                  登入
-                </Button>
+              )}
+              {!loginRequired && !endUser && (
+                <Tooltip title="登入">
+                  <span>
+                    <IconButton
+                      size="small"
+                      sx={{ mx: 1 }}
+                      disabled={isLoadingEndUser}
+                      onClick={() => {
+                        router.push('/login')
+                      }}
+                    >
+                      <LoginIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
               )}
 
               <Menu
