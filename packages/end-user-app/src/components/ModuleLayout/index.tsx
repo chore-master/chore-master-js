@@ -1,15 +1,18 @@
 'use client'
 
+import DatetimeBlock from '@/components/DatetimeBlock'
 import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
 import { useEndUser } from '@/utils/auth'
 import { Logout } from '@mui/icons-material'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AppsIcon from '@mui/icons-material/Apps'
 import CloseIcon from '@mui/icons-material/Close'
+import ContrastIcon from '@mui/icons-material/Contrast'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpIcon from '@mui/icons-material/Help'
 import LanIcon from '@mui/icons-material/Lan'
@@ -30,7 +33,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import LinearProgress from '@mui/material/LinearProgress'
 import MuiLink from '@mui/material/Link'
@@ -44,6 +46,8 @@ import MenuItem from '@mui/material/MenuItem'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
 import { useColorScheme } from '@mui/material/styles'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
@@ -322,19 +326,6 @@ export default function ModuleLayout({
                   <SettingsIcon />
                 </IconButton>
               </Tooltip>
-              {mode === 'dark' ? (
-                <Tooltip title="切換至淺色模式">
-                  <IconButton onClick={() => setMode('light')}>
-                    <LightModeIcon />
-                  </IconButton>
-                </Tooltip>
-              ) : (
-                <Tooltip title="切換至深色模式">
-                  <IconButton onClick={() => setMode('dark')}>
-                    <DarkModeIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
               {endUser && (
                 <Tooltip
                   title={
@@ -442,40 +433,97 @@ export default function ModuleLayout({
       >
         <DialogTitle>設定</DialogTitle>
         <DialogContent>
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Typography gutterBottom>時區：{timezone.offsetText}</Typography>
-              <Slider
-                size="small"
-                valueLabelDisplay="auto"
-                step={30}
-                min={-600}
-                max={540}
-                marks={[
-                  {
-                    value: 0,
-                    label: 'UTC+00:00',
-                  },
-                  {
-                    value: 480,
-                    label: 'UTC+08:00',
-                  },
-                ]}
-                value={timezone.offsetInMinutes}
-                onChange={(event: Event, newValue: number | number[]) => {
-                  timezone.setOffsetInMinutes(newValue as number)
-                }}
+          <List>
+            <ListItem disablePadding>
+              <ListItemIcon>
+                <ContrastIcon />
+              </ListItemIcon>
+              <ListItemText primary="對比" />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <React.Fragment>
+                    <ToggleButtonGroup
+                      color="primary"
+                      value={mode}
+                      exclusive
+                      onChange={(
+                        event: React.MouseEvent<HTMLElement>,
+                        newMode: string
+                      ) => {
+                        setMode(newMode as 'light' | 'dark')
+                      }}
+                    >
+                      <ToggleButton value="light">
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <LightModeIcon fontSize="small" />
+                          <span>淺色</span>
+                        </Stack>
+                      </ToggleButton>
+                      <ToggleButton value="dark">
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <DarkModeIcon fontSize="small" />
+                          <span>深色</span>
+                        </Stack>
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </React.Fragment>
+                }
               />
-            </FormControl>
-          </Stack>
+            </ListItem>
+            <ListItem disablePadding sx={{ mt: 2 }}>
+              <ListItemIcon>
+                <AccessTimeIcon />
+              </ListItemIcon>
+              <ListItemText primary="時區" />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <React.Fragment>
+                    套用時區：UTC{timezone.offsetText}
+                  </React.Fragment>
+                }
+                secondary={
+                  <React.Fragment>
+                    預覽目前時間：
+                    <DatetimeBlock date={new Date()} />
+                  </React.Fragment>
+                }
+              />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <Slider
+                    size="small"
+                    valueLabelDisplay="auto"
+                    step={30}
+                    min={-600}
+                    max={540}
+                    marks={[
+                      {
+                        value: 0,
+                        label: 'UTC+00:00',
+                      },
+                      {
+                        value: 480,
+                        label: 'UTC+08:00',
+                      },
+                    ]}
+                    value={timezone.offsetInMinutes}
+                    onChange={(event: Event, newValue: number | number[]) => {
+                      timezone.setOffsetInMinutes(newValue as number)
+                    }}
+                  />
+                }
+              />
+            </ListItem>
+          </List>
         </DialogContent>
         <DialogActions>
           <Button
