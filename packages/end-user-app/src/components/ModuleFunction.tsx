@@ -21,8 +21,16 @@ export default function ModuleFunction({
   sx?: SxProps
 }>) {
   return (
-    <Box sx={{ p: 3, ...sx }}>
-      <Container>{children}</Container>
+    <Box
+      sx={{
+        p: {
+          xs: 0,
+          sm: 3,
+        },
+        ...sx,
+      }}
+    >
+      <Container sx={{ px: { xs: 0, sm: 3 } }}>{children}</Container>
     </Box>
   )
 }

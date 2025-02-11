@@ -51,7 +51,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
-import './ModuleLayout.css'
+import './style.css'
 
 export interface ModuleLayoutProps {
   readonly moduleName: string
