@@ -17,6 +17,12 @@ export default function Layout({
           href: '/widget/sankey-demo',
           selectedWhenExactlyMatched: true,
         },
+        {
+          type: 'link',
+          title: 'Transaction Visualizer',
+          href: '/widget/tx-viz',
+          selectedWhenExactlyMatched: true,
+        },
       ]}
     >
       {children}
