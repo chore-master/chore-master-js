@@ -1,20 +1,9 @@
-// import type { Edge, Node } from '@xyflow/react'
-// import { Background, Controls, MarkerType, ReactFlow } from '@xyflow/react'
-// import '@xyflow/react/dist/style.css'
-import {
-  SmartBezierEdge,
-  SmartStepEdge,
-  SmartStraightEdge,
-} from '@tisoap/react-flow-smart-edge'
-import {
-  forceLink,
-  forceManyBody,
-  forceSimulation,
-  forceX,
-  forceY,
-} from 'd3-force'
-import React from 'react'
-import type { Edge, Node } from 'reactflow'
+// import {
+//   SmartBezierEdge,
+//   SmartStepEdge,
+//   SmartStraightEdge,
+// } from '@tisoap/react-flow-smart-edge'
+import type { Edge, Node } from '@xyflow/react'
 import {
   Background,
   Controls,
@@ -25,8 +14,29 @@ import {
   useNodesInitialized,
   useNodesState,
   useReactFlow,
-} from 'reactflow'
-import 'reactflow/dist/style.css'
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
+import {
+  forceLink,
+  forceManyBody,
+  forceSimulation,
+  forceX,
+  forceY,
+} from 'd3-force'
+import React from 'react'
+// import type { Edge, Node } from 'reactflow'
+// import {
+//   Background,
+//   Controls,
+//   MarkerType,
+//   ReactFlow,
+//   ReactFlowProvider,
+//   useEdgesState,
+//   useNodesInitialized,
+//   useNodesState,
+//   useReactFlow,
+// } from 'reactflow'
+// import 'reactflow/dist/style.css'
 import { collide } from './collide.js'
 
 const simulation = forceSimulation()
@@ -136,9 +146,9 @@ function LayoutFlow({ transaction }: { transaction: any }) {
 
   const edgeTypes = React.useMemo(
     () => ({
-      smartBezier: SmartBezierEdge,
-      smartStep: SmartStepEdge,
-      smartStraight: SmartStraightEdge,
+      // smartBezier: SmartBezierEdge,
+      // smartStep: SmartStepEdge,
+      // smartStraight: SmartStraightEdge,
     }),
     []
   )
@@ -221,9 +231,18 @@ function LayoutFlow({ transaction }: { transaction: any }) {
         if (!acc[address]) {
           acc[address] = {
             id: address,
-            position: { x: 0, y: Object.keys(acc).length * 100 },
+            // position: { x: 0, y: Object.keys(acc).length * 100 },
+            position: { x: 0, y: 0 },
             data: {
               label,
+            },
+            style: {
+              borderColor: [
+                transaction.from,
+                transaction.interacted_with.address,
+              ].includes(address)
+                ? 'blue'
+                : undefined,
             },
           }
         }
@@ -233,9 +252,18 @@ function LayoutFlow({ transaction }: { transaction: any }) {
         if (!acc[address]) {
           acc[address] = {
             id: address,
-            position: { x: 0, y: Object.keys(acc).length * 100 },
+            // position: { x: 0, y: Object.keys(acc).length * 100 },
+            position: { x: 0, y: 0 },
             data: {
               label,
+            },
+            style: {
+              borderColor: [
+                transaction.from,
+                transaction.interacted_with.address,
+              ].includes(address)
+                ? 'blue'
+                : undefined,
             },
           }
         }
@@ -251,7 +279,7 @@ function LayoutFlow({ transaction }: { transaction: any }) {
     return (transaction.transfers || []).map((transfer: any, i: number) => {
       return {
         id: `${transfer.from}->${transfer.to}-${i}`,
-        type: 'smartBezier',
+        // type: 'smartBezier',
         // type: 'smartStep',
         // type: 'smartStraight',
         // animated: true,
@@ -261,12 +289,12 @@ function LayoutFlow({ transaction }: { transaction: any }) {
         target: transfer.to,
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          width: 8,
-          height: 8,
+          // width: 8,
+          // height: 8,
           //   color: '#FF0072',
         },
         style: {
-          strokeWidth: 4,
+          strokeWidth: 2,
           //   stroke: '#FF0072',
         },
         label: `${parseFloat(transfer.amount).toFixed(0)} ${transfer.token}`,
@@ -278,11 +306,11 @@ function LayoutFlow({ transaction }: { transaction: any }) {
   const [edges, , onEdgesChange] = useEdgesState(initialEdges)
   const [initialized, { toggle, isRunning }, dragEvents] = useLayoutedElements()
 
-  // React.useEffect(() => {
-  //   if (initialized) {
-  //     toggle()
-  //   }
-  // }, [initialized, toggle])
+  React.useEffect(() => {
+    if (initialized) {
+      toggle()
+    }
+  }, [initialized, toggle])
 
   return (
     <div style={{ width: '100%', height: 640, backgroundColor: '#F7F9FB' }}>
