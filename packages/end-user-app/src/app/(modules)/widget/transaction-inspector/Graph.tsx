@@ -82,8 +82,8 @@ const useLayoutedElements = () => {
       'link',
       forceLink(edges)
         .id((d) => d.id)
-        .strength(0.05)
-        .distance(100)
+        .strength(0.01)
+        .distance(300)
     )
 
     // The tick function is called every animation frame while the simulation is
@@ -229,10 +229,11 @@ function LayoutFlow({ transaction }: { transaction: any }) {
         address = transfer.from
         label = transfer.from_label
         if (!acc[address]) {
+          const sz = Object.keys(acc).length
           acc[address] = {
             id: address,
             // position: { x: 0, y: Object.keys(acc).length * 100 },
-            position: { x: 0, y: 0 },
+            position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
             data: {
               label,
             },
@@ -250,10 +251,11 @@ function LayoutFlow({ transaction }: { transaction: any }) {
         address = transfer.to
         label = transfer.to_label
         if (!acc[address]) {
+          const sz = Object.keys(acc).length
           acc[address] = {
             id: address,
             // position: { x: 0, y: Object.keys(acc).length * 100 },
-            position: { x: 0, y: 0 },
+            position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
             data: {
               label,
             },
@@ -270,7 +272,18 @@ function LayoutFlow({ transaction }: { transaction: any }) {
 
         return acc
       },
-      {}
+      {
+        // [transaction.from]: {
+        //   id: transaction.from,
+        //   position: { x: 0, y: 0 },
+        //   data: {
+        //     label: transaction.from,
+        //   },
+        //   style: {
+        //     borderColor: 'blue',
+        //   },
+        // },
+      }
     )
     return Object.values(nodeIdMap)
   }, [transaction])
