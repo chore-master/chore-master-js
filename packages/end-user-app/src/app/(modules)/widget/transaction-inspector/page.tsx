@@ -88,7 +88,7 @@ export default function Page() {
         </Box>
       </ModuleFunctionBody>
       <ModuleFunctionBody>
-        {transaction && <Graph transaction={transaction} />}
+        <Graph transaction={transaction} />
       </ModuleFunctionBody>
     </ModuleFunction>
   )

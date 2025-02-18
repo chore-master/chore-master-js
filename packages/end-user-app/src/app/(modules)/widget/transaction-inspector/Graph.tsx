@@ -3,7 +3,6 @@
 //   SmartStepEdge,
 //   SmartStraightEdge,
 // } from '@tisoap/react-flow-smart-edge'
-import type { Edge, Node } from '@xyflow/react'
 import {
   Background,
   Controls,
@@ -38,6 +37,106 @@ import React from 'react'
 // } from 'reactflow'
 // import 'reactflow/dist/style.css'
 import { collide } from './collide.js'
+
+function getNodesAndEdges(transaction: any) {
+  const nodeIdMap = (transaction?.transfers || []).reduce(
+    (acc: any, transfer: any) => {
+      let address
+      let label
+
+      address = transfer.from
+      label = transfer.from_label
+      if (!acc[address]) {
+        const sz = Object.keys(acc).length
+        acc[address] = {
+          id: address,
+          // position: { x: 0, y: Object.keys(acc).length * 100 },
+          position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
+          data: {
+            label,
+          },
+          style: {
+            borderColor: [
+              transaction.from,
+              transaction.interacted_with.address,
+            ].includes(address)
+              ? 'blue'
+              : undefined,
+          },
+        }
+      }
+
+      address = transfer.to
+      label = transfer.to_label
+      if (!acc[address]) {
+        const sz = Object.keys(acc).length
+        acc[address] = {
+          id: address,
+          // position: { x: 0, y: Object.keys(acc).length * 100 },
+          position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
+          data: {
+            label,
+          },
+          style: {
+            borderColor: [
+              transaction.from,
+              transaction.interacted_with.address,
+            ].includes(address)
+              ? 'blue'
+              : undefined,
+          },
+        }
+      }
+
+      return acc
+    },
+    {
+      // [transaction.from]: {
+      //   id: transaction.from,
+      //   position: { x: 0, y: 0 },
+      //   data: {
+      //     label: transaction.from,
+      //   },
+      //   style: {
+      //     borderColor: 'blue',
+      //   },
+      // },
+    }
+  )
+  const nodes = Object.values(nodeIdMap)
+
+  const edges = (transaction?.transfers || []).map(
+    (transfer: any, i: number) => {
+      return {
+        id: `${transfer.from}->${transfer.to}-${i}`,
+        // type: 'smartBezier',
+        // type: 'smartStep',
+        // type: 'smartStraight',
+        // animated: true,
+        // sourcePosition: 'left',
+        // targetPosition: 'right',
+        source: transfer.from,
+        target: transfer.to,
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          // width: 8,
+          // height: 8,
+          //   color: '#FF0072',
+        },
+        style: {
+          strokeWidth: 2,
+          //   stroke: '#FF0072',
+        },
+        label: `${parseFloat(transfer.amount).toFixed(0)} ${transfer.token}`,
+      }
+    }
+  )
+
+  return {
+    nodes,
+    edges,
+  }
+}
 
 const simulation = forceSimulation()
   .force('charge', forceManyBody().strength(-1000))
@@ -153,10 +252,7 @@ function LayoutFlow({ transaction }: { transaction: any }) {
     []
   )
 
-  // const [initialNodes, setInitialNodes] = React.useState<Node[]>([])
-  // const [initialEdges, setInitialEdges] = React.useState<Edge[]>([])
-
-  // React.useEffect(() => {
+  // const initialNodes = React.useMemo<Node[]>(() => {
   //   const nodeIdMap = (transaction.transfers || []).reduce(
   //     (acc: any, transfer: any) => {
   //       let address
@@ -165,11 +261,21 @@ function LayoutFlow({ transaction }: { transaction: any }) {
   //       address = transfer.from
   //       label = transfer.from_label
   //       if (!acc[address]) {
+  //         const sz = Object.keys(acc).length
   //         acc[address] = {
   //           id: address,
-  //           position: { x: 0, y: Object.keys(acc).length * 100 },
+  //           // position: { x: 0, y: Object.keys(acc).length * 100 },
+  //           position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
   //           data: {
   //             label,
+  //           },
+  //           style: {
+  //             borderColor: [
+  //               transaction.from,
+  //               transaction.interacted_with.address,
+  //             ].includes(address)
+  //               ? 'blue'
+  //               : undefined,
   //           },
   //         }
   //       }
@@ -177,153 +283,95 @@ function LayoutFlow({ transaction }: { transaction: any }) {
   //       address = transfer.to
   //       label = transfer.to_label
   //       if (!acc[address]) {
+  //         const sz = Object.keys(acc).length
   //         acc[address] = {
   //           id: address,
-  //           position: { x: 0, y: Object.keys(acc).length * 100 },
+  //           // position: { x: 0, y: Object.keys(acc).length * 100 },
+  //           position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
   //           data: {
   //             label,
+  //           },
+  //           style: {
+  //             borderColor: [
+  //               transaction.from,
+  //               transaction.interacted_with.address,
+  //             ].includes(address)
+  //               ? 'blue'
+  //               : undefined,
   //           },
   //         }
   //       }
 
   //       return acc
   //     },
-  //     {}
+  //     {
+  //       // [transaction.from]: {
+  //       //   id: transaction.from,
+  //       //   position: { x: 0, y: 0 },
+  //       //   data: {
+  //       //     label: transaction.from,
+  //       //   },
+  //       //   style: {
+  //       //     borderColor: 'blue',
+  //       //   },
+  //       // },
+  //     }
   //   )
-  //   setInitialNodes(Object.values(nodeIdMap))
-
-  //   setInitialEdges(
-  //     (transaction.transfers || []).map((transfer: any, i: number) => {
-  //       return {
-  //         id: `${transfer.from}->${transfer.to}-${i}`,
-  //         // type: 'smartBezier',
-  //         // type: 'smartStep',
-  //         type: 'smartStraight',
-  //         // animated: true,
-  //         sourcePosition: 'left',
-  //         targetPosition: 'right',
-  //         source: transfer.from,
-  //         target: transfer.to,
-  //         markerEnd: {
-  //           type: MarkerType.ArrowClosed,
-  //           width: 8,
-  //           height: 8,
-  //           //   color: '#FF0072',
-  //         },
-  //         style: {
-  //           strokeWidth: 4,
-  //           //   stroke: '#FF0072',
-  //         },
-  //         label: `${parseFloat(transfer.amount).toFixed(0)} ${transfer.token}`,
-  //       }
-  //     })
-  //   )
+  //   return Object.values(nodeIdMap)
   // }, [transaction])
 
-  const initialNodes = React.useMemo<Node[]>(() => {
-    const nodeIdMap = (transaction.transfers || []).reduce(
-      (acc: any, transfer: any) => {
-        let address
-        let label
+  // const initialEdges = React.useMemo<Edge[]>(() => {
+  //   return (transaction.transfers || []).map((transfer: any, i: number) => {
+  //     return {
+  //       id: `${transfer.from}->${transfer.to}-${i}`,
+  //       // type: 'smartBezier',
+  //       // type: 'smartStep',
+  //       // type: 'smartStraight',
+  //       // animated: true,
+  //       // sourcePosition: 'left',
+  //       // targetPosition: 'right',
+  //       source: transfer.from,
+  //       target: transfer.to,
+  //       markerEnd: {
+  //         type: MarkerType.ArrowClosed,
+  //         // width: 8,
+  //         // height: 8,
+  //         //   color: '#FF0072',
+  //       },
+  //       style: {
+  //         strokeWidth: 2,
+  //         //   stroke: '#FF0072',
+  //       },
+  //       label: `${parseFloat(transfer.amount).toFixed(0)} ${transfer.token}`,
+  //     }
+  //   })
+  // }, [transaction])
 
-        address = transfer.from
-        label = transfer.from_label
-        if (!acc[address]) {
-          const sz = Object.keys(acc).length
-          acc[address] = {
-            id: address,
-            // position: { x: 0, y: Object.keys(acc).length * 100 },
-            position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
-            data: {
-              label,
-            },
-            style: {
-              borderColor: [
-                transaction.from,
-                transaction.interacted_with.address,
-              ].includes(address)
-                ? 'blue'
-                : undefined,
-            },
-          }
-        }
-
-        address = transfer.to
-        label = transfer.to_label
-        if (!acc[address]) {
-          const sz = Object.keys(acc).length
-          acc[address] = {
-            id: address,
-            // position: { x: 0, y: Object.keys(acc).length * 100 },
-            position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
-            data: {
-              label,
-            },
-            style: {
-              borderColor: [
-                transaction.from,
-                transaction.interacted_with.address,
-              ].includes(address)
-                ? 'blue'
-                : undefined,
-            },
-          }
-        }
-
-        return acc
-      },
-      {
-        // [transaction.from]: {
-        //   id: transaction.from,
-        //   position: { x: 0, y: 0 },
-        //   data: {
-        //     label: transaction.from,
-        //   },
-        //   style: {
-        //     borderColor: 'blue',
-        //   },
-        // },
-      }
-    )
-    return Object.values(nodeIdMap)
-  }, [transaction])
-
-  const initialEdges = React.useMemo<Edge[]>(() => {
-    return (transaction.transfers || []).map((transfer: any, i: number) => {
-      return {
-        id: `${transfer.from}->${transfer.to}-${i}`,
-        // type: 'smartBezier',
-        // type: 'smartStep',
-        // type: 'smartStraight',
-        // animated: true,
-        // sourcePosition: 'left',
-        // targetPosition: 'right',
-        source: transfer.from,
-        target: transfer.to,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          // width: 8,
-          // height: 8,
-          //   color: '#FF0072',
-        },
-        style: {
-          strokeWidth: 2,
-          //   stroke: '#FF0072',
-        },
-        label: `${parseFloat(transfer.amount).toFixed(0)} ${transfer.token}`,
-      }
-    })
-  }, [transaction])
-
-  const [nodes, , onNodesChange] = useNodesState(initialNodes)
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges)
+  const [nodes, setNodes, onNodesChange] = useNodesState([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [initialized, { toggle, isRunning }, dragEvents] = useLayoutedElements()
 
   React.useEffect(() => {
-    if (initialized) {
-      toggle()
+    if (isRunning) {
+      if (initialized) {
+        toggle()
+      }
     }
-  }, [initialized, toggle])
+    const { nodes, edges } = getNodesAndEdges(transaction)
+    setNodes(nodes)
+    setEdges(edges)
+    if (!isRunning) {
+      if (initialized) {
+        toggle()
+      }
+    }
+  }, [transaction])
+
+  // React.useEffect(() => {
+  //   if (initialized) {
+  //     toggle()
+  //   }
+  // }, [initialized, toggle])
 
   return (
     <div style={{ width: '100%', height: 640, backgroundColor: '#F7F9FB' }}>
