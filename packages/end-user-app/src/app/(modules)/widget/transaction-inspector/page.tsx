@@ -12,7 +12,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-import Flow from './Flow'
+import Graph from './Graph'
 
 type InspectTransactionInputs = {
   tx_hash: string
@@ -22,7 +22,7 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const [isFetchingTransaction, setIsFetchingTransaction] =
     React.useState(false)
-  const [transaction, setTransaction] = React.useState<any>({})
+  const [transaction, setTransaction] = React.useState<any>()
   const inspectTransactionForm = useForm<InspectTransactionInputs>({
     defaultValues: {
       tx_hash:
@@ -88,7 +88,7 @@ export default function Page() {
         </Box>
       </ModuleFunctionBody>
       <ModuleFunctionBody>
-        <Flow transaction={transaction} />
+        {transaction && <Graph transaction={transaction} />}
       </ModuleFunctionBody>
     </ModuleFunction>
   )
