@@ -19,6 +19,12 @@ export default function Layout({
         },
         {
           type: 'link',
+          title: 'Transaction Inspector',
+          href: '/widget/transaction-inspector',
+          selectedWhenExactlyMatched: true,
+        },
+        {
+          type: 'link',
           title: 'Transaction Visualizer',
           href: '/widget/tx-viz',
           selectedWhenExactlyMatched: true,
