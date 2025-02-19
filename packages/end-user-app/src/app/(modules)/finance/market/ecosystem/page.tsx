@@ -35,7 +35,7 @@ export default function Page() {
       },
       onSuccess: async ({ data }: any) => {
         setOptions(
-          Object.assign(optionsTemplate, {
+          Object.assign({}, optionsTemplate, {
             series: [
               {
                 ...(optionsTemplate.series?.[0] || {}),

@@ -6,9 +6,27 @@ import { Options } from 'highcharts/highcharts'
 export default {
   legend: {
     enabled: true,
+    layout: 'vertical',
+    align: 'right',
+    verticalAlign: 'middle',
+  },
+  responsive: {
+    rules: [
+      {
+        condition: {
+          maxWidth: 840,
+        },
+        chartOptions: {
+          legend: {
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom',
+          },
+        },
+      },
+    ],
   },
   chart: {
-    type: 'area',
     marginTop: 48,
   },
   xAxis: {
