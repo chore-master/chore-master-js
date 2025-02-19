@@ -21,9 +21,7 @@ export default function Page() {
     React.useState<Highcharts.Options>(optionsTemplate)
 
   const fetchWeb3Ecosystem = React.useCallback(async () => {
-    if (!isLoadingWeb3Ecosystem) {
-      setIsLoadingWeb3Ecosystem(true)
-    }
+    setIsLoadingWeb3Ecosystem(true)
     await choreMasterAPIAgent.get('/v1/finance/market/ecosystem', {
       params: {},
       onError: () => {

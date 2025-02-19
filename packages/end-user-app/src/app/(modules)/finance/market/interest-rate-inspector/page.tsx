@@ -21,9 +21,7 @@ export default function Page() {
     React.useState<Highcharts.Options>(optionsTemplate)
 
   const fetchInterestRateInspect = React.useCallback(async () => {
-    if (!isLoadingInterestRateInspect) {
-      setIsLoadingInterestRateInspect(true)
-    }
+    setIsLoadingInterestRateInspect(true)
     await choreMasterAPIAgent.get('/v1/finance/market/interest-rate-inspect', {
       params: {},
       onError: () => {
