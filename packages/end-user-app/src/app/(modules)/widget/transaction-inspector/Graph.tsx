@@ -252,101 +252,6 @@ function LayoutFlow({ transaction }: { transaction: any }) {
     []
   )
 
-  // const initialNodes = React.useMemo<Node[]>(() => {
-  //   const nodeIdMap = (transaction.transfers || []).reduce(
-  //     (acc: any, transfer: any) => {
-  //       let address
-  //       let label
-
-  //       address = transfer.from
-  //       label = transfer.from_label
-  //       if (!acc[address]) {
-  //         const sz = Object.keys(acc).length
-  //         acc[address] = {
-  //           id: address,
-  //           // position: { x: 0, y: Object.keys(acc).length * 100 },
-  //           position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
-  //           data: {
-  //             label,
-  //           },
-  //           style: {
-  //             borderColor: [
-  //               transaction.from,
-  //               transaction.interacted_with.address,
-  //             ].includes(address)
-  //               ? 'blue'
-  //               : undefined,
-  //           },
-  //         }
-  //       }
-
-  //       address = transfer.to
-  //       label = transfer.to_label
-  //       if (!acc[address]) {
-  //         const sz = Object.keys(acc).length
-  //         acc[address] = {
-  //           id: address,
-  //           // position: { x: 0, y: Object.keys(acc).length * 100 },
-  //           position: { x: (sz % 4) * 250, y: Math.floor(sz / 4) * 250 },
-  //           data: {
-  //             label,
-  //           },
-  //           style: {
-  //             borderColor: [
-  //               transaction.from,
-  //               transaction.interacted_with.address,
-  //             ].includes(address)
-  //               ? 'blue'
-  //               : undefined,
-  //           },
-  //         }
-  //       }
-
-  //       return acc
-  //     },
-  //     {
-  //       // [transaction.from]: {
-  //       //   id: transaction.from,
-  //       //   position: { x: 0, y: 0 },
-  //       //   data: {
-  //       //     label: transaction.from,
-  //       //   },
-  //       //   style: {
-  //       //     borderColor: 'blue',
-  //       //   },
-  //       // },
-  //     }
-  //   )
-  //   return Object.values(nodeIdMap)
-  // }, [transaction])
-
-  // const initialEdges = React.useMemo<Edge[]>(() => {
-  //   return (transaction.transfers || []).map((transfer: any, i: number) => {
-  //     return {
-  //       id: `${transfer.from}->${transfer.to}-${i}`,
-  //       // type: 'smartBezier',
-  //       // type: 'smartStep',
-  //       // type: 'smartStraight',
-  //       // animated: true,
-  //       // sourcePosition: 'left',
-  //       // targetPosition: 'right',
-  //       source: transfer.from,
-  //       target: transfer.to,
-  //       markerEnd: {
-  //         type: MarkerType.ArrowClosed,
-  //         // width: 8,
-  //         // height: 8,
-  //         //   color: '#FF0072',
-  //       },
-  //       style: {
-  //         strokeWidth: 2,
-  //         //   stroke: '#FF0072',
-  //       },
-  //       label: `${parseFloat(transfer.amount).toFixed(0)} ${transfer.token}`,
-  //     }
-  //   })
-  // }, [transaction])
-
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [initialized, { toggle, isRunning }, dragEvents] = useLayoutedElements()
@@ -358,11 +263,13 @@ function LayoutFlow({ transaction }: { transaction: any }) {
       }
     }
     const { nodes, edges } = getNodesAndEdges(transaction)
-    setNodes(nodes)
     setEdges(edges)
+    setNodes(nodes)
     if (!isRunning) {
       if (initialized) {
-        toggle()
+        if (edges.length > 0) {
+          toggle()
+        }
       }
     }
   }, [transaction])
