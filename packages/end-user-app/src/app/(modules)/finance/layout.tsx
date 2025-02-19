@@ -23,6 +23,12 @@ export default function Layout({
             },
             {
               type: 'link',
+              title: '利率檢視器',
+              href: '/finance/market/interest-rate-inspector',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
               title: '流量',
               href: '/finance/market/flow',
               selectedWhenPartiallyMatched: true,
