@@ -4,12 +4,19 @@ import { Options } from 'highcharts/highcharts'
 // https://www.highcharts.com/blog/tutorials/which-charts-are-best-at-showing-data-relationships/?search=network
 
 export default {
+  legend: {
+    enabled: true,
+  },
   chart: {
     type: 'area',
   },
   xAxis: {
     title: {
       text: '額度',
+    },
+    allowDecimals: false,
+    labels: {
+      format: '{value:,.0f}',
     },
   },
   yAxis: {
@@ -20,10 +27,10 @@ export default {
     labels: {
       format: '{value:.1f}%',
     },
-    // stackLabels: {
-    //   enabled: true,
-    //   format: '{total:.2f}%',
-    // },
+    stackLabels: {
+      enabled: true,
+      format: '{total:.2f}%',
+    },
   },
   plotOptions: {
     area: {
@@ -42,11 +49,11 @@ export default {
     valueDecimals: 2,
     useHTML: true,
     pointFormat:
-      '<div style="display:flex; justify-content:space-between; width:100%;">' +
+      '<div style="display:flex; align-items:center; justify-content:space-between; width:100%;">' +
       '<span style="margin-right:10px;">' +
       '<span style="color:{series.color}">\u25CF</span> {series.name}' +
       '</span>' +
-      '<span style="text-align:right;">{point.y:.2f}%</span>' +
+      '<span style="text-align:right;">{point.y:.3f}%</span>' +
       '</div>',
   },
 } as unknown as Options

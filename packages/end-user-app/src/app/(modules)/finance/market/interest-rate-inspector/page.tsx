@@ -40,20 +40,25 @@ export default function Page() {
         data.policies.forEach((policy: any) => {
           policy.entries.forEach((entry: any) => {
             xSet.add(entry.min_amount)
-            xSet.add(entry.max_amount - 1)
+            xSet.add(entry.max_amount)
           })
         })
         const xSeries = Array.from(xSet).sort((a: number, b: number) => a - b)
+        const sortedPolicies = data.policies.sort((a: any, b: any) => {
+          return new Date(a.end_time).getTime() - new Date(b.end_time).getTime()
+        })
 
         setOptions(
           Object.assign(optionsTemplate, {
-            series: data.policies.map((policy: any) => ({
+            series: sortedPolicies.map((policy: any) => ({
               type: 'area',
               stack: 'equity',
-              name: policy.platform_name,
+              name: `${policy.platform_name} (${
+                policy.end_time.split('T')[0]
+              })`,
               data: xSeries.map((x: number) => {
                 const entry = policy.entries.find(
-                  (entry: any) => x >= entry.min_amount && x < entry.max_amount
+                  (entry: any) => x >= entry.min_amount && x <= entry.max_amount
                 )
                 return [x, entry ? entry.rate * 100 : null]
               }),
