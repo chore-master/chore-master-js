@@ -58,7 +58,7 @@ export default function Page() {
   return (
     <ModuleFunction>
       <ModuleFunctionHeader title="Transaction Inspector" />
-      <ModuleFunctionBody loading={isFetchingTransaction}>
+      <ModuleFunctionBody>
         <Box p={2}>
           <Stack component="form" spacing={3} autoComplete="off">
             <Controller
@@ -87,7 +87,7 @@ export default function Page() {
           </Stack>
         </Box>
       </ModuleFunctionBody>
-      <ModuleFunctionBody>
+      <ModuleFunctionBody loading={isFetchingTransaction}>
         <Graph transaction={transaction} />
       </ModuleFunctionBody>
     </ModuleFunction>
