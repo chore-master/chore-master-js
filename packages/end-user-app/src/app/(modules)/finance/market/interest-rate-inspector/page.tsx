@@ -9,7 +9,8 @@ import ModuleFunction, {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { IconButton, Tooltip } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import React from 'react'
 import optionsTemplate from './optionsTemplate'
 

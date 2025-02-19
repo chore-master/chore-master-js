@@ -9,6 +9,7 @@ export default {
   },
   chart: {
     type: 'area',
+    marginTop: 48,
   },
   xAxis: {
     title: {
