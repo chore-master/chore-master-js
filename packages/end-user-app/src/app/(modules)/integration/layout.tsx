@@ -13,6 +13,12 @@ export default function Layout({
       navigations={[
         {
           type: 'link',
+          title: '資源',
+          href: '/integration/resources',
+          selectedWhenPartiallyMatched: true,
+        },
+        {
+          type: 'link',
           title: 'Google',
           href: '/integration/google',
           selectedWhenPartiallyMatched: true,
