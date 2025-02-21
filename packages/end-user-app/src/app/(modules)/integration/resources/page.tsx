@@ -347,6 +347,7 @@ export default function Page() {
               />
             </FormControl>
             <AutoLoadingButton
+              type="submit"
               variant="contained"
               onClick={createResourceForm.handleSubmit(
                 handleSubmitCreateResourceForm
@@ -357,6 +358,7 @@ export default function Page() {
           </Stack>
         </Box>
       </Drawer>
+
       <Drawer
         anchor="right"
         open={!!editingResourceReference}
@@ -431,6 +433,7 @@ export default function Page() {
               />
             </FormControl>
             <AutoLoadingButton
+              type="submit"
               variant="contained"
               onClick={updateResourceForm.handleSubmit(
                 handleSubmitUpdateResourceForm
