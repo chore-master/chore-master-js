@@ -38,3 +38,22 @@ export interface UpdateAccountFormInputs {
   closed_time: string
   ecosystem_type: string
 }
+
+export interface Asset {
+  reference: string
+  name: string
+  symbol: string
+  is_settleable: boolean
+}
+
+export interface CreateAssetFormInputs {
+  name: string
+  symbol: string
+  is_settleable: boolean
+}
+
+export interface UpdateAssetFormInputs {
+  name: string
+  symbol: string
+  is_settleable: boolean
+}

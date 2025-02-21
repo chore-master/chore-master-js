@@ -1,26 +1,31 @@
 'use client'
 
+import AutoLoadingButton from '@/components/AutoLoadingButton'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import { NoWrapTableCell } from '@/components/Table'
+import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import { Asset, CreateAssetFormInputs, UpdateAssetFormInputs } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
+import CheckBoxIcon from '@mui/icons-material/CheckBox'
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
+import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
@@ -28,19 +33,6 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-
-interface Asset {
-  reference: string
-  symbol: string
-}
-
-type CreateAssetFormInputs = {
-  symbol: string
-}
-
-type UpdateAssetFormInputs = {
-  symbol: string
-}
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
@@ -57,7 +49,7 @@ export default function Page() {
 
   const fetchAssets = React.useCallback(async () => {
     setIsFetchingAssets(true)
-    await choreMasterAPIAgent.get('/v1/financial_management/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/assets', {
       params: {},
       onError: () => {
         enqueueNotification(`Unable to fetch assets now.`, 'error')
@@ -75,7 +67,10 @@ export default function Page() {
   const handleSubmitCreateAssetForm: SubmitHandler<
     CreateAssetFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/financial_management/assets', data, {
+    await choreMasterAPIAgent.post('/v1/finance/assets', data, {
+      onError: () => {
+        enqueueNotification(`Unable to create asset now.`, 'error')
+      },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
@@ -91,9 +86,12 @@ export default function Page() {
     UpdateAssetFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/financial_management/assets/${editingAssetReference}`,
+      `/v1/finance/assets/${editingAssetReference}`,
       data,
       {
+        onError: () => {
+          enqueueNotification(`Unable to update asset now.`, 'error')
+        },
         onFail: ({ message }: any) => {
           enqueueNotification(message, 'error')
         },
@@ -112,17 +110,17 @@ export default function Page() {
       if (!isConfirmed) {
         return
       }
-      await choreMasterAPIAgent.delete(
-        `/v1/financial_management/assets/${assetReference}`,
-        {
-          onFail: ({ message }: any) => {
-            enqueueNotification(message, 'error')
-          },
-          onSuccess: () => {
-            fetchAssets()
-          },
-        }
-      )
+      await choreMasterAPIAgent.delete(`/v1/finance/assets/${assetReference}`, {
+        onError: () => {
+          enqueueNotification(`Unable to delete asset now.`, 'error')
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          fetchAssets()
+        },
+      })
     },
     [enqueueNotification, fetchAssets]
   )
@@ -135,7 +133,7 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="資產類別明細"
+          title="資產"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
@@ -148,7 +146,10 @@ export default function Page() {
               key="create"
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setIsCreateAssetDrawerOpen(true)}
+              onClick={() => {
+                createAssetForm.reset()
+                setIsCreateAssetDrawerOpen(true)
+              }}
             >
               新增
             </Button>,
@@ -159,23 +160,41 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
+                  <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>代號</NoWrapTableCell>
+                  <NoWrapTableCell>可結算</NoWrapTableCell>
+                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
+              <StatefulTableBody
+                isLoading={isFetchingAssets}
+                isEmpty={assets.length === 0}
+              >
                 {assets.map((asset) => (
                   <TableRow key={asset.reference} hover>
+                    <NoWrapTableCell>{asset.name}</NoWrapTableCell>
+                    <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      {asset.is_settleable ? (
+                        <CheckBoxIcon color="disabled" />
+                      ) : (
+                        <CheckBoxOutlineBlankIcon color="disabled" />
+                      )}
+                    </NoWrapTableCell>
                     <NoWrapTableCell>
                       <Chip size="small" label={asset.reference} />
                     </NoWrapTableCell>
-                    <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
                         size="small"
                         onClick={() => {
+                          updateAssetForm.setValue('name', asset.name)
                           updateAssetForm.setValue('symbol', asset.symbol)
+                          updateAssetForm.setValue(
+                            'is_settleable',
+                            asset.is_settleable
+                          )
                           setEditingAssetReference(asset.reference)
                         }}
                       >
@@ -190,7 +209,7 @@ export default function Page() {
                     </NoWrapTableCell>
                   </TableRow>
                 ))}
-              </TableBody>
+              </StatefulTableBody>
             </Table>
           </TableContainer>
         </ModuleFunctionBody>
@@ -210,9 +229,24 @@ export default function Page() {
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault()
-              createAssetForm.handleSubmit(handleSubmitCreateAssetForm)()
             }}
           >
+            <FormControl>
+              <Controller
+                name="name"
+                control={createAssetForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="名稱"
+                    variant="filled"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
             <FormControl>
               <Controller
                 name="symbol"
@@ -229,13 +263,28 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Button
-              variant="contained"
+            <FormControl>
+              <Controller
+                name="is_settleable"
+                control={createAssetForm.control}
+                defaultValue={false}
+                render={({ field }) => (
+                  <FormControlLabel
+                    label="可結算"
+                    control={<Checkbox {...field} checked={field.value} />}
+                  />
+                )}
+              />
+            </FormControl>
+            <AutoLoadingButton
               type="submit"
-              loading={createAssetForm.formState.isSubmitting}
+              variant="contained"
+              onClick={createAssetForm.handleSubmit(
+                handleSubmitCreateAssetForm
+              )}
             >
               新增
-            </Button>
+            </AutoLoadingButton>
           </Stack>
         </Box>
       </Drawer>
@@ -254,9 +303,24 @@ export default function Page() {
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault()
-              updateAssetForm.handleSubmit(handleSubmitUpdateAssetForm)()
             }}
           >
+            <FormControl>
+              <Controller
+                name="name"
+                control={updateAssetForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="名稱"
+                    variant="filled"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
             <FormControl>
               <Controller
                 name="symbol"
@@ -273,13 +337,28 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Button
-              variant="contained"
+            <FormControl>
+              <Controller
+                name="is_settleable"
+                control={updateAssetForm.control}
+                defaultValue={false}
+                render={({ field }) => (
+                  <FormControlLabel
+                    label="可結算"
+                    control={<Checkbox {...field} checked={field.value} />}
+                  />
+                )}
+              />
+            </FormControl>
+            <AutoLoadingButton
               type="submit"
-              loading={updateAssetForm.formState.isSubmitting}
+              variant="contained"
+              onClick={updateAssetForm.handleSubmit(
+                handleSubmitUpdateAssetForm
+              )}
             >
               儲存
-            </Button>
+            </AutoLoadingButton>
           </Stack>
         </Box>
       </Drawer>

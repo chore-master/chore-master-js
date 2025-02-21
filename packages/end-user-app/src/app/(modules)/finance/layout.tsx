@@ -45,19 +45,10 @@ export default function Layout({
           selectedWhenPartiallyMatched: true,
         },
         {
-          type: 'divider',
-        },
-        {
-          type: 'header',
+          type: 'link',
           title: '資產',
-          navigations: [
-            {
-              type: 'link',
-              title: '類別',
-              href: '/finance/asset/category',
-              selectedWhenPartiallyMatched: true,
-            },
-          ],
+          href: '/finance/asset',
+          selectedWhenPartiallyMatched: true,
         },
         {
           type: 'divider',

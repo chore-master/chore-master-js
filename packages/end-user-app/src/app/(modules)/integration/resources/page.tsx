@@ -81,6 +81,9 @@ export default function Page() {
       '/v1/integration/end_users/me/resources',
       data,
       {
+        onError: () => {
+          enqueueNotification(`Unable to create resource now.`, 'error')
+        },
         onFail: ({ message }: any) => {
           enqueueNotification(message, 'error')
         },
@@ -100,6 +103,9 @@ export default function Page() {
       `/v1/integration/end_users/me/resources/${editingResourceReference}`,
       data,
       {
+        onError: () => {
+          enqueueNotification(`Unable to update resource now.`, 'error')
+        },
         onFail: ({ message }: any) => {
           enqueueNotification(message, 'error')
         },
@@ -121,6 +127,9 @@ export default function Page() {
       await choreMasterAPIAgent.delete(
         `/v1/integration/end_users/me/resources/${resourceReference}`,
         {
+          onError: () => {
+            enqueueNotification(`Unable to delete resource now.`, 'error')
+          },
           onFail: ({ message }: any) => {
             enqueueNotification(message, 'error')
           },

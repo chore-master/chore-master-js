@@ -140,6 +140,9 @@ export default function Page() {
       await choreMasterAPIAgent.delete(
         `/v1/finance/accounts/${accountReference}`,
         {
+          onError: () => {
+            enqueueNotification(`Unable to delete account now.`, 'error')
+          },
           onFail: ({ message }: { message: string }) => {
             enqueueNotification(message, 'error')
           },
@@ -176,7 +179,10 @@ export default function Page() {
               key="create"
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setIsCreateAccountDrawerOpen(true)}
+              onClick={() => {
+                createAccountForm.reset()
+                setIsCreateAccountDrawerOpen(true)
+              }}
             >
               新增
             </Button>,
