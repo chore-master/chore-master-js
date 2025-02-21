@@ -9,7 +9,7 @@ import ModuleFunction, {
   ModuleSplitter,
   ModuleSplitterPanel,
 } from '@/components/ModuleFunction'
-import NoWrapTableCell from '@/components/NoWrapTableCell'
+import { NoWrapTableCell } from '@/components/Table'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import * as blobUtils from '@/utils/blob'
 import { useNotification } from '@/utils/notification'

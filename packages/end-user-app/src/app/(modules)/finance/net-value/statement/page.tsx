@@ -5,7 +5,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import NoWrapTableCell from '@/components/NoWrapTableCell'
+import { NoWrapTableCell } from '@/components/Table'
 import TablePaginationActions from '@/components/TablePaginationActions'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import {

@@ -6,7 +6,13 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import NoWrapTableCell from '@/components/NoWrapTableCell'
+import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import { integrationResourceDiscriminators } from '@/enums'
+import type {
+  CreateResourceFormInputs,
+  Resource,
+  UpdateResourceFormInputs,
+} from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
@@ -14,6 +20,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -34,27 +41,14 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
-const integrationDiscriminators = ['coingecko_feed']
-
-type CreateResourceFormInputs = {
-  name: string
-  discriminator: string
-  value: string
-}
-
-type UpdateResourceFormInputs = {
-  name: string
-  discriminator: string
-  value: string
-}
-
 export default function Page() {
   const { enqueueNotification } = useNotification()
-  const [resources, setResources] = React.useState<any[]>([])
+  const [resources, setResources] = React.useState<Resource[]>([])
   const [isFetchingResources, setIsFetchingResources] = React.useState(false)
   const [isCreateResourceDrawerOpen, setIsCreateResourceDrawerOpen] =
     React.useState(false)
@@ -149,6 +143,16 @@ export default function Page() {
         <ModuleFunctionHeader
           title="資源"
           actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton
+                  onClick={fetchResources}
+                  disabled={isFetchingResources}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
             <Button
               key="create"
               variant="contained"
@@ -179,7 +183,10 @@ export default function Page() {
                     <NoWrapTableCell align="right">操作</NoWrapTableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                <StatefulTableBody
+                  isLoading={isFetchingResources}
+                  isEmpty={resources.length === 0}
+                >
                   {resources.map((integration) => (
                     <TableRow key={integration.reference} hover>
                       <NoWrapTableCell>
@@ -227,7 +234,7 @@ export default function Page() {
                       </NoWrapTableCell>
                     </TableRow>
                   ))}
-                </TableBody>
+                </StatefulTableBody>
               </Table>
             </TableContainer>
           )}
@@ -309,7 +316,7 @@ export default function Page() {
                 <FormControl required fullWidth size="small" variant="filled">
                   <InputLabel>鑑別器</InputLabel>
                   <Select {...field}>
-                    {integrationDiscriminators.map((discriminator) => (
+                    {integrationResourceDiscriminators.map((discriminator) => (
                       <MenuItem key={discriminator} value={discriminator}>
                         {discriminator}
                       </MenuItem>
@@ -393,7 +400,7 @@ export default function Page() {
                 <FormControl required fullWidth size="small" variant="filled">
                   <InputLabel>鑑別器</InputLabel>
                   <Select {...field}>
-                    {integrationDiscriminators.map((discriminator) => (
+                    {integrationResourceDiscriminators.map((discriminator) => (
                       <MenuItem key={discriminator} value={discriminator}>
                         {discriminator}
                       </MenuItem>

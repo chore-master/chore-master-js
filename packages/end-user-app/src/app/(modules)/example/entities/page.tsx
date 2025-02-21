@@ -4,7 +4,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import NoWrapTableCell from '@/components/NoWrapTableCell'
+import { NoWrapTableCell } from '@/components/Table'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'

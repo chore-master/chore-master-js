@@ -4,7 +4,12 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
-import NoWrapTableCell from '@/components/NoWrapTableCell'
+import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import type {
+  Account,
+  CreateAccountFormInputs,
+  UpdateAccountFormInputs,
+} from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
@@ -20,7 +25,6 @@ import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
@@ -28,19 +32,6 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-
-interface Account {
-  reference: string
-  name: string
-}
-
-type CreateAccountFormInputs = {
-  name: string
-}
-
-type UpdateAccountFormInputs = {
-  name: string
-}
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
@@ -57,7 +48,7 @@ export default function Page() {
 
   const fetchAccounts = React.useCallback(async () => {
     setIsFetchingAccounts(true)
-    await choreMasterAPIAgent.get('/v1/financial_management/accounts', {
+    await choreMasterAPIAgent.get('/v1/finance/accounts', {
       params: {},
       onError: () => {
         enqueueNotification(`Unable to fetch accounts now.`, 'error')
@@ -65,7 +56,7 @@ export default function Page() {
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: any) => {
+      onSuccess: async ({ data }: { data: Account[] }) => {
         setAccounts(data)
       },
     })
@@ -75,8 +66,8 @@ export default function Page() {
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/financial_management/accounts', data, {
-      onFail: ({ message }: any) => {
+    await choreMasterAPIAgent.post('/v1/finance/accounts', data, {
+      onFail: ({ message }: { message: string }) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
@@ -91,10 +82,10 @@ export default function Page() {
     UpdateAccountFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/financial_management/accounts/${editingAccountReference}`,
+      `/v1/finance/accounts/${editingAccountReference}`,
       data,
       {
-        onFail: ({ message }: any) => {
+        onFail: ({ message }: { message: string }) => {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
@@ -113,9 +104,9 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/financial_management/accounts/${accountReference}`,
+        `/v1/finance/accounts/${accountReference}`,
         {
-          onFail: ({ message }: any) => {
+          onFail: ({ message }: { message: string }) => {
             enqueueNotification(message, 'error')
           },
           onSuccess: () => {
@@ -168,7 +159,10 @@ export default function Page() {
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
+              <StatefulTableBody
+                isLoading={isFetchingAccounts}
+                isEmpty={accounts.length === 0}
+              >
                 {accounts.map((account) => (
                   <TableRow key={account.reference} hover>
                     <NoWrapTableCell>
@@ -194,7 +188,7 @@ export default function Page() {
                     </NoWrapTableCell>
                   </TableRow>
                 ))}
-              </TableBody>
+              </StatefulTableBody>
             </Table>
           </TableContainer>
         </ModuleFunctionBody>
