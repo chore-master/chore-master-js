@@ -18,7 +18,7 @@ export function StatefulTableBody({
 }) {
   return (
     <TableBody {...props}>
-      {isLoading && (
+      {isLoading && isEmpty && (
         <TableRow>
           <NoWrapTableCell colSpan={999}>
             <Typography variant="body2" color="text.secondary">
@@ -36,6 +36,7 @@ export function StatefulTableBody({
           </NoWrapTableCell>
         </TableRow>
       )}
+      {children}
     </TableBody>
   )
 }

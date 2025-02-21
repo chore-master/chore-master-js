@@ -1,10 +1,14 @@
 'use client'
 
+import AutoLoadingButton from '@/components/AutoLoadingButton'
+import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import { useTimezone } from '@/components/timezone'
+import { financeAccountEcosystemTypes } from '@/enums'
 import type {
   Account,
   CreateAccountFormInputs,
@@ -23,6 +27,9 @@ import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableContainer from '@mui/material/TableContainer'
@@ -35,6 +42,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
+  const timezone = useTimezone()
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
@@ -65,26 +73,52 @@ export default function Page() {
 
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
-  > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/finance/accounts', data, {
-      onFail: ({ message }: { message: string }) => {
-        enqueueNotification(message, 'error')
+  > = async ({ opened_time, closed_time, ...data }) => {
+    await choreMasterAPIAgent.post(
+      '/v1/finance/accounts',
+      {
+        ...data,
+        opened_time: new Date(
+          timezone.getUTCTimestamp(opened_time)
+        ).toISOString(),
+        closed_time: closed_time
+          ? new Date(timezone.getUTCTimestamp(closed_time)).toISOString()
+          : null,
       },
-      onSuccess: () => {
-        createAccountForm.reset()
-        setIsCreateAccountDrawerOpen(false)
-        fetchAccounts()
-      },
-    })
+      {
+        onError: () => {
+          enqueueNotification(`Unable to create account now.`, 'error')
+        },
+        onFail: ({ message }: { message: string }) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          createAccountForm.reset()
+          setIsCreateAccountDrawerOpen(false)
+          fetchAccounts()
+        },
+      }
+    )
   }
 
   const handleSubmitUpdateAccountForm: SubmitHandler<
     UpdateAccountFormInputs
-  > = async (data) => {
+  > = async ({ opened_time, closed_time, ...data }) => {
     await choreMasterAPIAgent.patch(
       `/v1/finance/accounts/${editingAccountReference}`,
-      data,
       {
+        ...data,
+        opened_time: new Date(
+          timezone.getUTCTimestamp(opened_time)
+        ).toISOString(),
+        closed_time: closed_time
+          ? new Date(timezone.getUTCTimestamp(closed_time)).toISOString()
+          : null,
+      },
+      {
+        onError: () => {
+          enqueueNotification(`Unable to update account now.`, 'error')
+        },
         onFail: ({ message }: { message: string }) => {
           enqueueNotification(message, 'error')
         },
@@ -126,7 +160,7 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="帳戶明細"
+          title="帳戶"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
@@ -154,8 +188,11 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
+                  <NoWrapTableCell>生態系</NoWrapTableCell>
+                  <NoWrapTableCell>開戶時間</NoWrapTableCell>
+                  <NoWrapTableCell>關戶時間</NoWrapTableCell>
+                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
@@ -165,10 +202,24 @@ export default function Page() {
               >
                 {accounts.map((account) => (
                   <TableRow key={account.reference} hover>
+                    <NoWrapTableCell>{account.name}</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      {
+                        financeAccountEcosystemTypes.find(
+                          (ecosystemType) =>
+                            ecosystemType.value === account.ecosystem_type
+                        )?.label
+                      }
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <DatetimeBlock isoText={account.opened_time} />
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <DatetimeBlock isoText={account.closed_time} />
+                    </NoWrapTableCell>
                     <NoWrapTableCell>
                       <Chip size="small" label={account.reference} />
                     </NoWrapTableCell>
-                    <NoWrapTableCell>{account.name}</NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
                         size="small"
@@ -208,7 +259,6 @@ export default function Page() {
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault()
-              createAccountForm.handleSubmit(handleSubmitCreateAccountForm)()
             }}
           >
             <FormControl>
@@ -227,13 +277,82 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Button
-              variant="contained"
+            <Controller
+              name="ecosystem_type"
+              control={createAccountForm.control}
+              defaultValue={financeAccountEcosystemTypes[0].value}
+              render={({ field }) => (
+                <FormControl required fullWidth size="small" variant="filled">
+                  <InputLabel>生態系</InputLabel>
+                  <Select {...field}>
+                    {financeAccountEcosystemTypes.map((ecosystemType) => (
+                      <MenuItem
+                        key={ecosystemType.value}
+                        value={ecosystemType.value}
+                      >
+                        {ecosystemType.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+              rules={{ required: '必填' }}
+            />
+            <FormControl>
+              <Controller
+                name="opened_time"
+                control={createAccountForm.control}
+                defaultValue={timezone
+                  .getCustomDate(new Date())
+                  .toISOString()
+                  .slice(0, -5)}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="開戶時間"
+                    variant="filled"
+                    type="datetime-local"
+                    slotProps={{
+                      htmlInput: {
+                        step: 1,
+                      },
+                    }}
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl>
+              <Controller
+                name="closed_time"
+                control={createAccountForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="關戶時間"
+                    variant="filled"
+                    type="datetime-local"
+                    slotProps={{
+                      htmlInput: {
+                        step: 1,
+                      },
+                    }}
+                  />
+                )}
+              />
+            </FormControl>
+            <AutoLoadingButton
               type="submit"
-              loading={createAccountForm.formState.isSubmitting}
+              variant="contained"
+              onClick={createAccountForm.handleSubmit(
+                handleSubmitCreateAccountForm
+              )}
             >
               新增
-            </Button>
+            </AutoLoadingButton>
           </Stack>
         </Box>
       </Drawer>
@@ -252,14 +371,13 @@ export default function Page() {
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault()
-              updateAccountForm.handleSubmit(handleSubmitUpdateAccountForm)()
             }}
           >
             <FormControl>
               <Controller
                 name="name"
                 control={updateAccountForm.control}
-                defaultValue=""
+                defaultValue={financeAccountEcosystemTypes[0].value}
                 render={({ field }) => (
                   <TextField
                     {...field}
@@ -271,13 +389,36 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Button
-              variant="contained"
+            <Controller
+              name="ecosystem_type"
+              control={updateAccountForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <FormControl required fullWidth size="small" variant="filled">
+                  <InputLabel>生態系</InputLabel>
+                  <Select {...field}>
+                    {financeAccountEcosystemTypes.map((ecosystemType) => (
+                      <MenuItem
+                        key={ecosystemType.value}
+                        value={ecosystemType.value}
+                      >
+                        {ecosystemType.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+              rules={{ required: '必填' }}
+            />
+            <AutoLoadingButton
               type="submit"
-              loading={updateAccountForm.formState.isSubmitting}
+              variant="contained"
+              onClick={updateAccountForm.handleSubmit(
+                handleSubmitUpdateAccountForm
+              )}
             >
               儲存
-            </Button>
+            </AutoLoadingButton>
           </Stack>
         </Box>
       </Drawer>
