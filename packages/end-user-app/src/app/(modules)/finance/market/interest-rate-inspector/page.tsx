@@ -95,7 +95,7 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="利率檢視器"
+          title="台幣存款利率"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
@@ -119,12 +119,12 @@ export default function Page() {
                 setSeriesType(newSeriesType)
               }}
             >
-              <Tooltip title="折線圖">
+              <Tooltip title="個別顯示">
                 <ToggleButton value="line">
                   <ShowChartIcon fontSize="small" />
                 </ToggleButton>
               </Tooltip>
-              <Tooltip title="堆疊面積圖">
+              <Tooltip title="合併顯示">
                 <ToggleButton value="area">
                   <StackedLineChartIcon fontSize="small" />
                 </ToggleButton>

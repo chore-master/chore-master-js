@@ -23,7 +23,7 @@ export default function Layout({
             },
             {
               type: 'link',
-              title: '利率檢視器',
+              title: '利率行情',
               href: '/finance/market/interest-rate-inspector',
               selectedWhenPartiallyMatched: true,
             },
