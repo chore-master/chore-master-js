@@ -68,9 +68,9 @@ export const TimezoneProvider = ({
 
 export const useTimezone = () => {
   const timezoneContext = React.useContext(TimezoneContext)
-  const getCustomDate = (date: Date) => {
+  const getLocalDate = (deviceDate: Date) => {
     return new Date(
-      date.getTime() + timezoneContext.offsetInMinutes * 60 * 1000
+      deviceDate.getTime() + timezoneContext.offsetInMinutes * 60 * 1000
     )
   }
   const getUTCTimestamp = (localString: string) => {
@@ -82,13 +82,23 @@ export const useTimezone = () => {
         1000
     )
   }
+  const getLocalString = (UTCString: string) => {
+    let UTCISOString
+    if (!UTCString.endsWith('Z')) {
+      UTCISOString = UTCString + 'Z'
+    } else {
+      UTCISOString = UTCString
+    }
+    return getLocalDate(new Date(UTCISOString)).toISOString()
+  }
   return {
     deviceOffsetInMinutes: timezoneContext.deviceOffsetInMinutes,
     baseTimestampInSeconds: timezoneContext.baseTimestampInSeconds,
     offsetInMinutes: timezoneContext.offsetInMinutes,
     offsetText: timezoneContext.offsetText,
     setOffsetInMinutes: timezoneContext.setOffsetInMinutes,
-    getCustomDate,
+    getLocalDate,
     getUTCTimestamp,
+    getLocalString,
   }
 }

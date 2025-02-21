@@ -225,6 +225,24 @@ export default function Page() {
                         size="small"
                         onClick={() => {
                           updateAccountForm.setValue('name', account.name)
+                          updateAccountForm.setValue(
+                            'ecosystem_type',
+                            account.ecosystem_type
+                          )
+                          updateAccountForm.setValue(
+                            'opened_time',
+                            timezone
+                              .getLocalString(account.opened_time)
+                              .slice(0, -5)
+                          )
+                          updateAccountForm.setValue(
+                            'closed_time',
+                            account.closed_time
+                              ? timezone
+                                  .getLocalString(account.closed_time)
+                                  .slice(0, -5)
+                              : ''
+                          )
                           setEditingAccountReference(account.reference)
                         }}
                       >
@@ -303,7 +321,7 @@ export default function Page() {
                 name="opened_time"
                 control={createAccountForm.control}
                 defaultValue={timezone
-                  .getCustomDate(new Date())
+                  .getLocalDate(new Date())
                   .toISOString()
                   .slice(0, -5)}
                 render={({ field }) => (
@@ -410,6 +428,49 @@ export default function Page() {
               )}
               rules={{ required: '必填' }}
             />
+            <FormControl>
+              <Controller
+                name="opened_time"
+                control={updateAccountForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="開戶時間"
+                    variant="filled"
+                    type="datetime-local"
+                    slotProps={{
+                      htmlInput: {
+                        step: 1,
+                      },
+                    }}
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl>
+              <Controller
+                name="closed_time"
+                control={updateAccountForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="關戶時間"
+                    variant="filled"
+                    type="datetime-local"
+                    slotProps={{
+                      htmlInput: {
+                        step: 1,
+                      },
+                    }}
+                  />
+                )}
+              />
+            </FormControl>
             <AutoLoadingButton
               type="submit"
               variant="contained"
