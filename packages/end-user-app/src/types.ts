@@ -80,6 +80,7 @@ export interface UpdateBalanceSheetFormInputs {
 }
 
 export interface BalanceEntry {
+  reference?: string
   account_reference: string
   asset_reference: string
   entry_type: string

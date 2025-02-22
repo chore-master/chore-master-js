@@ -23,6 +23,7 @@ import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
 import InputLabel from '@mui/material/InputLabel'
+import LinearProgress from '@mui/material/LinearProgress'
 import MuiLink from '@mui/material/Link'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
@@ -107,8 +108,8 @@ export default function Page() {
   const handleSubmitUpdateBalanceSheetForm: SubmitHandler<
     UpdateBalanceSheetFormInputs
   > = async ({ balanced_time, ...data }) => {
-    await choreMasterAPIAgent.post(
-      '/v1/finance/balance_sheets',
+    await choreMasterAPIAgent.put(
+      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
       {
         ...data,
         balanced_time: new Date(
@@ -117,13 +118,13 @@ export default function Page() {
       },
       {
         onError: () => {
-          enqueueNotification(`Unable to create balance sheet now.`, 'error')
+          enqueueNotification(`Unable to update balance sheet now.`, 'error')
         },
         onFail: ({ message }: any) => {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          router.push(`/finance/balance-sheets`)
+          router.push(`/finance/balance-sheets/${balance_sheet_reference}`)
         },
       }
     )
@@ -149,21 +150,33 @@ export default function Page() {
     setIsFetchingBalanceSheet(false)
   }, [balance_sheet_reference])
 
+  const deleteBalanceSheet = React.useCallback(
+    async (balanceSheetReference: string) => {
+      const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
+      if (!isConfirmed) {
+        return
+      }
+      await choreMasterAPIAgent.delete(
+        `/v1/finance/balance_sheets/${balanceSheetReference}`,
+        {
+          onError: () => {
+            enqueueNotification(`Unable to delete balance sheet now.`, 'error')
+          },
+          onFail: ({ message }: { message: string }) => {
+            enqueueNotification(message, 'error')
+          },
+          onSuccess: () => {
+            router.push(`/finance/balance-sheets`)
+          },
+        }
+      )
+    },
+    [enqueueNotification]
+  )
+
   React.useEffect(() => {
     fetchAssets()
   }, [fetchAssets])
-
-  // React.useEffect(() => {
-  //   const currentDate = new Date()
-  //   const balancedTime = timezone
-  //     .getLocalDate(currentDate)
-  //     .toISOString()
-  //     .slice(0, -5)
-  //   updateBalanceSheetForm.setValue('balanced_time', balancedTime)
-  //   fetchAccounts(
-  //     new Date(timezone.getUTCTimestamp(balancedTime)).toISOString()
-  //   )
-  // }, [])
 
   React.useEffect(() => {
     if (assets.length === 0) {
@@ -223,6 +236,10 @@ export default function Page() {
     }
   }, [balanceSheet])
 
+  if (isFetchingBalanceSheet || isFetchingAssets) {
+    return <LinearProgress />
+  }
+
   return (
     <React.Fragment>
       <Box sx={{ p: 2 }}>
@@ -240,7 +257,7 @@ export default function Page() {
               component={Link}
               underline="hover"
               color="inherit"
-              href={`/finance/balance_sheets/${balance_sheet_reference}`}
+              href={`/finance/balance-sheets/${balance_sheet_reference}`}
             >
               <Chip
                 size="small"
@@ -452,6 +469,31 @@ export default function Page() {
               }
             )}
           </Grid>
+        </ModuleFunctionBody>
+      </ModuleFunction>
+
+      <ModuleFunction>
+        <ModuleFunctionBody>
+          <Stack
+            component="form"
+            spacing={3}
+            p={2}
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.preventDefault()
+            }}
+          >
+            <Typography variant="h6">進階</Typography>
+            <AutoLoadingButton
+              variant="contained"
+              color="error"
+              onClick={async () => {
+                await deleteBalanceSheet(balance_sheet_reference)
+              }}
+            >
+              刪除
+            </AutoLoadingButton>
+          </Stack>
         </ModuleFunctionBody>
       </ModuleFunction>
     </React.Fragment>

@@ -106,7 +106,7 @@ export default function Page() {
                       e.stopPropagation()
                       if (balanceSheet.reference) {
                         router.push(
-                          `/finance/balance-sheets/${balanceSheet.reference}/edit`
+                          `/finance/balance-sheets/${balanceSheet.reference}`
                         )
                       }
                     }}
