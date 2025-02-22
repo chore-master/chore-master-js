@@ -123,7 +123,7 @@ export default function Page() {
                         onClick={(e) => {
                           e.stopPropagation()
                           router.push(
-                            `/finance/balance-sheets/${balanceSheet.reference}`
+                            `/finance/balance-sheets/${balanceSheet.reference}/edit`
                           )
                         }}
                       >

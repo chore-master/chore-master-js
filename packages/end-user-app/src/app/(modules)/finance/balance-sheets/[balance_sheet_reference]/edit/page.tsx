@@ -1,16 +1,22 @@
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
+import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { useTimezone } from '@/components/timezone'
 import { financeBalanceEntryTypes } from '@/constants'
-import type { Account, Asset, CreateBalanceSheetFormInputs } from '@/types'
+import type {
+  Account,
+  Asset,
+  BalanceSheetDetail,
+  UpdateBalanceSheetFormInputs,
+} from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
-import AddIcon from '@mui/icons-material/Add'
+import SaveIcon from '@mui/icons-material/Save'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
@@ -25,7 +31,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import {
   Controller,
@@ -38,6 +44,8 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
   const router = useRouter()
+  const { balance_sheet_reference }: { balance_sheet_reference: string } =
+    useParams()
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
@@ -48,9 +56,13 @@ export default function Page() {
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
 
   // BalanceSheet
-  const createBalanceSheetForm = useForm<CreateBalanceSheetFormInputs>()
-  const createBalanceSheetFormBalanceSheetEntriesFieldArray = useFieldArray({
-    control: createBalanceSheetForm.control,
+  const [balanceSheet, setBalanceSheet] =
+    React.useState<BalanceSheetDetail | null>(null)
+  const [isFetchingBalanceSheet, setIsFetchingBalanceSheet] =
+    React.useState(false)
+  const updateBalanceSheetForm = useForm<UpdateBalanceSheetFormInputs>()
+  const updateBalanceSheetFormBalanceSheetEntriesFieldArray = useFieldArray({
+    control: updateBalanceSheetForm.control,
     name: 'balance_entries',
   })
 
@@ -93,8 +105,8 @@ export default function Page() {
     [enqueueNotification]
   )
 
-  const handleSubmitCreateBalanceSheetForm: SubmitHandler<
-    CreateBalanceSheetFormInputs
+  const handleSubmitUpdateBalanceSheetForm: SubmitHandler<
+    UpdateBalanceSheetFormInputs
   > = async ({ balanced_time, ...data }) => {
     await choreMasterAPIAgent.post(
       '/v1/finance/balance_sheets',
@@ -118,21 +130,41 @@ export default function Page() {
     )
   }
 
+  const fetchBalanceSheet = React.useCallback(async () => {
+    setIsFetchingBalanceSheet(true)
+    await choreMasterAPIAgent.get(
+      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      {
+        params: {},
+        onError: () => {
+          enqueueNotification(`Unable to fetch balance sheet now.`, 'error')
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: async ({ data }: { data: BalanceSheetDetail }) => {
+          setBalanceSheet(data)
+        },
+      }
+    )
+    setIsFetchingBalanceSheet(false)
+  }, [balance_sheet_reference])
+
   React.useEffect(() => {
     fetchAssets()
   }, [fetchAssets])
 
-  React.useEffect(() => {
-    const currentDate = new Date()
-    const balancedTime = timezone
-      .getLocalDate(currentDate)
-      .toISOString()
-      .slice(0, -5)
-    createBalanceSheetForm.setValue('balanced_time', balancedTime)
-    fetchAccounts(
-      new Date(timezone.getUTCTimestamp(balancedTime)).toISOString()
-    )
-  }, [])
+  // React.useEffect(() => {
+  //   const currentDate = new Date()
+  //   const balancedTime = timezone
+  //     .getLocalDate(currentDate)
+  //     .toISOString()
+  //     .slice(0, -5)
+  //   updateBalanceSheetForm.setValue('balanced_time', balancedTime)
+  //   fetchAccounts(
+  //     new Date(timezone.getUTCTimestamp(balancedTime)).toISOString()
+  //   )
+  // }, [])
 
   React.useEffect(() => {
     if (assets.length === 0) {
@@ -140,13 +172,13 @@ export default function Page() {
     }
 
     const currentFields =
-      createBalanceSheetFormBalanceSheetEntriesFieldArray.fields
+      updateBalanceSheetFormBalanceSheetEntriesFieldArray.fields
     currentFields.forEach((field, index) => {
       const accountExists = accounts.some(
         (account) => account.reference === field.account_reference
       )
       if (!accountExists) {
-        createBalanceSheetFormBalanceSheetEntriesFieldArray.remove(index)
+        updateBalanceSheetFormBalanceSheetEntriesFieldArray.remove(index)
       }
     })
 
@@ -155,7 +187,7 @@ export default function Page() {
         (field) => field.account_reference === account.reference
       )
       if (!existingEntry) {
-        createBalanceSheetFormBalanceSheetEntriesFieldArray.append({
+        updateBalanceSheetFormBalanceSheetEntriesFieldArray.append({
           account_reference: account.reference,
           asset_reference: assets[0].reference,
           entry_type: financeBalanceEntryTypes[0].value,
@@ -164,6 +196,26 @@ export default function Page() {
       }
     })
   }, [accounts, assets])
+
+  React.useEffect(() => {
+    fetchBalanceSheet()
+  }, [])
+
+  React.useEffect(() => {
+    if (balanceSheet) {
+      const balancedTime = timezone
+        .getLocalString(balanceSheet.balanced_time)
+        .slice(0, -5)
+      fetchAccounts(
+        new Date(timezone.getUTCTimestamp(balancedTime)).toISOString()
+      )
+      updateBalanceSheetForm.setValue('balanced_time', balancedTime)
+      updateBalanceSheetForm.setValue(
+        'balance_entries',
+        balanceSheet.balance_entries
+      )
+    }
+  }, [balanceSheet])
 
   return (
     <React.Fragment>
@@ -177,24 +229,39 @@ export default function Page() {
           >
             資產負債表
           </MuiLink>
-          <Typography color="text.primary">新增</Typography>
+          {balanceSheet && (
+            <MuiLink
+              component={Link}
+              underline="hover"
+              color="inherit"
+              href={`/finance/balance_sheets/${balance_sheet_reference}`}
+            >
+              <DatetimeBlock isoText={balanceSheet.balanced_time} />
+              <Chip
+                size="small"
+                sx={{ ml: 1 }}
+                label={balanceSheet.reference}
+              />
+            </MuiLink>
+          )}
+          <Typography color="text.primary">更新</Typography>
         </Breadcrumbs>
       </Box>
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
-          title="新增資產負債表"
+          title="更新資產負債表"
           actions={[
             <AutoLoadingButton
-              key="create"
+              key="update"
               variant="contained"
-              onClick={createBalanceSheetForm.handleSubmit(
-                handleSubmitCreateBalanceSheetForm
+              onClick={updateBalanceSheetForm.handleSubmit(
+                handleSubmitUpdateBalanceSheetForm
               )}
-              disabled={!createBalanceSheetForm.formState.isValid}
-              startIcon={<AddIcon />}
+              disabled={!updateBalanceSheetForm.formState.isValid}
+              startIcon={<SaveIcon />}
             >
-              新增
+              更新
             </AutoLoadingButton>,
           ]}
           sticky
@@ -206,7 +273,7 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="balanced_time"
-                control={createBalanceSheetForm.control}
+                control={updateBalanceSheetForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
@@ -245,7 +312,7 @@ export default function Page() {
           </Stack>
 
           <Grid container spacing={2} p={2} rowSpacing={1}>
-            {createBalanceSheetFormBalanceSheetEntriesFieldArray.fields.map(
+            {updateBalanceSheetFormBalanceSheetEntriesFieldArray.fields.map(
               (field, index) => {
                 return (
                   <React.Fragment key={field.id}>
@@ -266,7 +333,7 @@ export default function Page() {
                       <Grid size={3}>
                         <Controller
                           name={`balance_entries.${index}.entry_type`}
-                          control={createBalanceSheetForm.control}
+                          control={updateBalanceSheetForm.control}
                           defaultValue={financeBalanceEntryTypes[0].value}
                           render={({ field }) => (
                             <FormControl
@@ -295,7 +362,7 @@ export default function Page() {
                         <FormControl fullWidth>
                           <Controller
                             name={`balance_entries.${index}.amount`}
-                            control={createBalanceSheetForm.control}
+                            control={updateBalanceSheetForm.control}
                             defaultValue="0"
                             render={({ field }) => (
                               <TextField
@@ -315,7 +382,7 @@ export default function Page() {
                         <FormControl fullWidth>
                           <Controller
                             name={`balance_entries.${index}.asset_reference`}
-                            control={createBalanceSheetForm.control}
+                            control={updateBalanceSheetForm.control}
                             defaultValue=""
                             render={({ field }) => (
                               <Autocomplete

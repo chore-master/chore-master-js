@@ -63,16 +63,25 @@ export interface BalanceSheetSummary {
   balanced_time: string
 }
 
+export interface BalanceSheetDetail {
+  reference: string
+  balanced_time: string
+  balance_entries: BalanceEntry[]
+}
+
 export interface CreateBalanceSheetFormInputs {
   balanced_time: string
-  balance_entries: {
-    account_reference: string
-    asset_reference: string
-    entry_type: string
-    amount: number
-  }[]
+  balance_entries: BalanceEntry[]
 }
 
 export interface UpdateBalanceSheetFormInputs {
   balanced_time: string
+  balance_entries: BalanceEntry[]
+}
+
+export interface BalanceEntry {
+  account_reference: string
+  asset_reference: string
+  entry_type: string
+  amount: string
 }
