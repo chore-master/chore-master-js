@@ -65,6 +65,12 @@ export interface BalanceSheetSummary {
 
 export interface CreateBalanceSheetFormInputs {
   balanced_time: string
+  balance_entries: {
+    account_reference: string
+    asset_reference: string
+    entry_type: string
+    amount: number
+  }[]
 }
 
 export interface UpdateBalanceSheetFormInputs {

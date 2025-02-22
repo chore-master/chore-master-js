@@ -8,7 +8,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
-import { financeAccountEcosystemTypes } from '@/enums'
+import { financeAccountEcosystemTypes } from '@/constants'
 import type {
   Account,
   CreateAccountFormInputs,

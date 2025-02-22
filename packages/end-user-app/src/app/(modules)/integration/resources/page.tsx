@@ -7,7 +7,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import { integrationResourceDiscriminators } from '@/enums'
+import { integrationResourceDiscriminators } from '@/constants'
 import type {
   CreateResourceFormInputs,
   Resource,
