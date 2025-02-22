@@ -1,7 +1,6 @@
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
-import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
@@ -173,14 +172,21 @@ export default function Page() {
 
     const currentFields =
       updateBalanceSheetFormBalanceSheetEntriesFieldArray.fields
+
+    const removingFieldIndices: number[] = []
     currentFields.forEach((field, index) => {
       const accountExists = accounts.some(
         (account) => account.reference === field.account_reference
       )
       if (!accountExists) {
-        updateBalanceSheetFormBalanceSheetEntriesFieldArray.remove(index)
+        removingFieldIndices.push(index)
       }
     })
+    removingFieldIndices
+      .sort((a, b) => b - a)
+      .forEach((index) => {
+        updateBalanceSheetFormBalanceSheetEntriesFieldArray.remove(index)
+      })
 
     accounts.forEach((account) => {
       const existingEntry = currentFields.find(
@@ -236,7 +242,6 @@ export default function Page() {
               color="inherit"
               href={`/finance/balance_sheets/${balance_sheet_reference}`}
             >
-              <DatetimeBlock isoText={balanceSheet.balanced_time} />
               <Chip
                 size="small"
                 sx={{ ml: 1 }}

@@ -141,14 +141,21 @@ export default function Page() {
 
     const currentFields =
       createBalanceSheetFormBalanceSheetEntriesFieldArray.fields
+
+    const removingFieldIndices: number[] = []
     currentFields.forEach((field, index) => {
       const accountExists = accounts.some(
         (account) => account.reference === field.account_reference
       )
       if (!accountExists) {
-        createBalanceSheetFormBalanceSheetEntriesFieldArray.remove(index)
+        removingFieldIndices.push(index)
       }
     })
+    removingFieldIndices
+      .sort((a, b) => b - a)
+      .forEach((index) => {
+        createBalanceSheetFormBalanceSheetEntriesFieldArray.remove(index)
+      })
 
     accounts.forEach((account) => {
       const existingEntry = currentFields.find(
