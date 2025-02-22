@@ -12,6 +12,7 @@ import type { Account, Asset, BalanceSheetDetail } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import EditIcon from '@mui/icons-material/Edit'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Chip from '@mui/material/Chip'
@@ -22,6 +23,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -166,7 +168,32 @@ export default function Page() {
             </Tooltip>,
           ]}
         />
-        <ModuleFunctionBody loading={isFetchingAccounts}>
+
+        <ModuleFunctionHeader
+          title={<Typography variant="h6">洞察</Typography>}
+        />
+        <ModuleFunctionBody>TBD</ModuleFunctionBody>
+
+        <ModuleFunctionHeader
+          title={<Typography variant="h6">明細</Typography>}
+          actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton
+                  onClick={fetchBalanceSheet}
+                  disabled={isFetchingBalanceSheet}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
+          ]}
+        />
+        <ModuleFunctionBody
+          loading={
+            isFetchingBalanceSheet || isFetchingAccounts || isFetchingAssets
+          }
+        >
           <TableContainer>
             <Table size="small">
               <TableHead>

@@ -20,6 +20,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -61,16 +62,6 @@ export default function Page() {
         <ModuleFunctionHeader
           title="資產負債表"
           actions={[
-            <Tooltip key="refresh" title="立即重整">
-              <span>
-                <IconButton
-                  onClick={fetchBalanceSheets}
-                  disabled={isFetchingBalanceSheets}
-                >
-                  <RefreshIcon />
-                </IconButton>
-              </span>
-            </Tooltip>,
             <Button
               key="create"
               variant="contained"
@@ -81,6 +72,27 @@ export default function Page() {
             >
               新增
             </Button>,
+          ]}
+        />
+
+        <ModuleFunctionHeader
+          title={<Typography variant="h6">洞察</Typography>}
+        />
+        <ModuleFunctionBody>TBD</ModuleFunctionBody>
+
+        <ModuleFunctionHeader
+          title={<Typography variant="h6">明細</Typography>}
+          actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton
+                  onClick={fetchBalanceSheets}
+                  disabled={isFetchingBalanceSheets}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
           ]}
         />
         <ModuleFunctionBody loading={isFetchingBalanceSheets}>
