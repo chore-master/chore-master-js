@@ -1,5 +1,6 @@
 'use client'
 
+import HighChartsCore from '@/components/charts/HighChartsCore'
 import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
   ModuleFunctionBody,
@@ -27,6 +28,7 @@ import Typography from '@mui/material/Typography'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
+import optionsTemplate from './optionsTemplate'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
@@ -34,6 +36,10 @@ export default function Page() {
   const router = useRouter()
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
+
+  // Distribution chart
+  const [options, setOptions] =
+    React.useState<Highcharts.Options>(optionsTemplate)
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
@@ -127,6 +133,43 @@ export default function Page() {
     }
   }, [balanceSheet])
 
+  React.useEffect(() => {
+    setOptions(
+      Object.assign({}, optionsTemplate, {
+        series: [
+          {
+            name: 'Percentage',
+            colorByPoint: true,
+            data: [
+              {
+                name: 'Water',
+                y: 55.02,
+              },
+              {
+                name: 'Fat',
+                sliced: true,
+                selected: true,
+                y: 26.71,
+              },
+              {
+                name: 'Carbohydrates',
+                y: 1.09,
+              },
+              {
+                name: 'Protein',
+                y: 15.5,
+              },
+              {
+                name: 'Ash',
+                y: 1.68,
+              },
+            ],
+          },
+        ],
+      })
+    )
+  }, [])
+
   return (
     <React.Fragment>
       <Box sx={{ p: 2 }}>
@@ -170,9 +213,11 @@ export default function Page() {
         />
 
         <ModuleFunctionHeader
-          title={<Typography variant="h6">洞察</Typography>}
+          title={<Typography variant="h6">結構組成</Typography>}
         />
-        <ModuleFunctionBody>TBD</ModuleFunctionBody>
+        <ModuleFunctionBody>
+          <HighChartsCore options={options} />
+        </ModuleFunctionBody>
 
         <ModuleFunctionHeader
           title={<Typography variant="h6">明細</Typography>}
