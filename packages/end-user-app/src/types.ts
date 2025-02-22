@@ -57,3 +57,16 @@ export interface UpdateAssetFormInputs {
   symbol: string
   is_settleable: boolean
 }
+
+export interface BalanceSheetSummary {
+  reference: string
+  balanced_time: string
+}
+
+export interface CreateBalanceSheetFormInputs {
+  balanced_time: string
+}
+
+export interface UpdateBalanceSheetFormInputs {
+  balanced_time: string
+}

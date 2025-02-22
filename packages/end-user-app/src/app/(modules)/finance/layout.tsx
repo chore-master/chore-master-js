@@ -41,13 +41,19 @@ export default function Layout({
         {
           type: 'link',
           title: '帳戶',
-          href: '/finance/account',
+          href: '/finance/accounts',
           selectedWhenPartiallyMatched: true,
         },
         {
           type: 'link',
           title: '資產',
-          href: '/finance/asset',
+          href: '/finance/assets',
+          selectedWhenPartiallyMatched: true,
+        },
+        {
+          type: 'link',
+          title: '資產負債表',
+          href: '/finance/balance-sheets',
           selectedWhenPartiallyMatched: true,
         },
         {

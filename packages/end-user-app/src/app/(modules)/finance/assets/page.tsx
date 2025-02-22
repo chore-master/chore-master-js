@@ -6,7 +6,11 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import { Asset, CreateAssetFormInputs, UpdateAssetFormInputs } from '@/types'
+import type {
+  Asset,
+  CreateAssetFormInputs,
+  UpdateAssetFormInputs,
+} from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
