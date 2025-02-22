@@ -97,7 +97,7 @@ export default function Page() {
     CreateBalanceSheetFormInputs
   > = async ({ balanced_time, ...data }) => {
     await choreMasterAPIAgent.post(
-      '/v1/finance/assets',
+      '/v1/finance/balance_sheets',
       {
         ...data,
         balanced_time: new Date(
