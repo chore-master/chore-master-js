@@ -224,8 +224,8 @@ export default function Page() {
         const account = accountReferenceToAccountMap[accountReference]
         const accountSettlementAsset = settleableAssets.find(
           (asset) => asset.reference === account.settlement_asset_reference
-        )
-        const accountSettlementAssetSymbol = accountSettlementAsset?.symbol
+        ) as Asset
+        const accountSettlementAssetSymbol = accountSettlementAsset.symbol
         return {
           type: 'area',
           name: account.name,
@@ -245,7 +245,8 @@ export default function Page() {
             return [
               new Date(`${balanceSheet.balanced_time}Z`).getTime() +
                 timezone.offsetInMinutes * 60 * 1000,
-              parseFloat(balanceEntry.amount) * price,
+              (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
+                price,
             ]
           }),
         }
