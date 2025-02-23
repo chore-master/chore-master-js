@@ -6,21 +6,16 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { useTimezone } from '@/components/timezone'
-import { financeBalanceEntryTypes } from '@/constants'
 import type { Account, Asset, CreateBalanceSheetFormInputs } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
-import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
-import InputLabel from '@mui/material/InputLabel'
 import MuiLink from '@mui/material/Link'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -40,8 +35,9 @@ export default function Page() {
   const router = useRouter()
 
   // Asset
-  const [assets, setAssets] = React.useState<Asset[]>([])
-  const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
+  const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
+  const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
+    React.useState(false)
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
@@ -54,21 +50,23 @@ export default function Page() {
     name: 'balance_entries',
   })
 
-  const fetchAssets = React.useCallback(async () => {
-    setIsFetchingAssets(true)
+  const fetchSettleableAssets = React.useCallback(async () => {
+    setIsFetchingSettleableAssets(true)
     await choreMasterAPIAgent.get('/v1/finance/assets', {
-      params: {},
+      params: {
+        is_settleable: true,
+      },
       onError: () => {
-        enqueueNotification(`Unable to fetch assets now.`, 'error')
+        enqueueNotification(`Unable to fetch settleable assets now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
-        setAssets(data)
+        setSettleableAssets(data)
       },
     })
-    setIsFetchingAssets(false)
+    setIsFetchingSettleableAssets(false)
   }, [enqueueNotification])
 
   const fetchAccounts = React.useCallback(
@@ -119,8 +117,8 @@ export default function Page() {
   }
 
   React.useEffect(() => {
-    fetchAssets()
-  }, [fetchAssets])
+    fetchSettleableAssets()
+  }, [fetchSettleableAssets])
 
   React.useEffect(() => {
     const currentDate = new Date()
@@ -135,10 +133,6 @@ export default function Page() {
   }, [])
 
   React.useEffect(() => {
-    if (assets.length === 0) {
-      return
-    }
-
     const currentFields =
       createBalanceSheetFormBalanceSheetEntriesFieldArray.fields
 
@@ -164,13 +158,11 @@ export default function Page() {
       if (!existingEntry) {
         createBalanceSheetFormBalanceSheetEntriesFieldArray.append({
           account_reference: account.reference,
-          asset_reference: assets[0].reference,
-          entry_type: financeBalanceEntryTypes[0].value,
           amount: '0',
         })
       }
     })
-  }, [accounts, assets])
+  }, [accounts])
 
   return (
     <React.Fragment>
@@ -246,7 +238,9 @@ export default function Page() {
           </Stack>
         </ModuleFunctionBody>
 
-        <ModuleFunctionBody loading={isFetchingAssets || isFetchingAccounts}>
+        <ModuleFunctionBody
+          loading={isFetchingSettleableAssets || isFetchingAccounts}
+        >
           <Stack spacing={3} p={2}>
             <Typography variant="h6">帳目</Typography>
           </Stack>
@@ -254,51 +248,25 @@ export default function Page() {
           <Grid container spacing={2} p={2} rowSpacing={1}>
             {createBalanceSheetFormBalanceSheetEntriesFieldArray.fields.map(
               (field, index) => {
+                const account = accounts.find(
+                  (account) => account.reference === field.account_reference
+                )
+                const settleableAsset = settleableAssets.find(
+                  (asset) =>
+                    asset.reference === account?.settlement_asset_reference
+                )
                 return (
                   <React.Fragment key={field.id}>
                     <Grid size={12} container spacing={2} alignItems="center">
-                      <Grid size={3}>
+                      <Grid size={4}>
                         <Chip
                           size="small"
-                          label={
-                            accounts.find(
-                              (account) =>
-                                account.reference === field.account_reference
-                            )?.name
-                          }
+                          label={account?.name}
                           color="info"
                           variant="outlined"
                         />
                       </Grid>
-                      <Grid size={3}>
-                        <Controller
-                          name={`balance_entries.${index}.entry_type`}
-                          control={createBalanceSheetForm.control}
-                          defaultValue={financeBalanceEntryTypes[0].value}
-                          render={({ field }) => (
-                            <FormControl
-                              required
-                              fullWidth
-                              size="small"
-                              variant="filled"
-                            >
-                              <InputLabel>類型</InputLabel>
-                              <Select {...field}>
-                                {financeBalanceEntryTypes.map((entryType) => (
-                                  <MenuItem
-                                    key={entryType.value}
-                                    value={entryType.value}
-                                  >
-                                    {entryType.label}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          )}
-                          rules={{ required: '必填' }}
-                        />
-                      </Grid>
-                      <Grid size={3}>
+                      <Grid size={4}>
                         <FormControl fullWidth>
                           <Controller
                             name={`balance_entries.${index}.amount`}
@@ -318,68 +286,13 @@ export default function Page() {
                           />
                         </FormControl>
                       </Grid>
-                      <Grid size={3}>
-                        <FormControl fullWidth>
-                          <Controller
-                            name={`balance_entries.${index}.asset_reference`}
-                            control={createBalanceSheetForm.control}
-                            defaultValue=""
-                            render={({ field }) => (
-                              <Autocomplete
-                                {...field}
-                                value={
-                                  assets.find(
-                                    (asset) => asset.reference === field.value
-                                  ) ?? null
-                                }
-                                onChange={(_event, value) => {
-                                  field.onChange(value?.reference ?? '')
-                                }}
-                                // onOpen={() => {
-                                //   if (assets.length === 0) {
-                                //     fetchAssets()
-                                //   }
-                                // }}
-                                isOptionEqualToValue={(option, value) =>
-                                  option.reference === value.reference
-                                }
-                                getOptionLabel={(option) => option.name}
-                                options={assets}
-                                autoHighlight
-                                loading={isFetchingAssets}
-                                loadingText="載入中..."
-                                noOptionsText="沒有符合的選項"
-                                renderOption={(props, option) => {
-                                  const { key, ...optionProps } = props as {
-                                    key: React.Key
-                                  }
-                                  return (
-                                    <Box
-                                      key={key}
-                                      component="li"
-                                      {...optionProps}
-                                    >
-                                      <Chip
-                                        size="small"
-                                        label={option.name}
-                                        color="info"
-                                        variant="outlined"
-                                      />
-                                    </Box>
-                                  )
-                                }}
-                                renderInput={(params) => (
-                                  <TextField
-                                    {...params}
-                                    label="結算資產"
-                                    variant="filled"
-                                    size="small"
-                                  />
-                                )}
-                              />
-                            )}
-                          />
-                        </FormControl>
+                      <Grid size={4}>
+                        <Chip
+                          size="small"
+                          label={settleableAsset?.name}
+                          color="info"
+                          variant="outlined"
+                        />
                       </Grid>
                     </Grid>
                   </React.Fragment>

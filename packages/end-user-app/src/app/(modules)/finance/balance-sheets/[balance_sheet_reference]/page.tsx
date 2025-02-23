@@ -8,7 +8,6 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
-import { financeBalanceEntryTypes } from '@/constants'
 import type { Account, Asset, BalanceSheetDetail } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
@@ -42,8 +41,9 @@ export default function Page() {
     React.useState<Highcharts.Options>(optionsTemplate)
 
   // Asset
-  const [assets, setAssets] = React.useState<Asset[]>([])
-  const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
+  const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
+  const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
+    React.useState(false)
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
@@ -55,21 +55,23 @@ export default function Page() {
   const [isFetchingBalanceSheet, setIsFetchingBalanceSheet] =
     React.useState(false)
 
-  const fetchAssets = React.useCallback(async () => {
-    setIsFetchingAssets(true)
+  const fetchSettleableAssets = React.useCallback(async () => {
+    setIsFetchingSettleableAssets(true)
     await choreMasterAPIAgent.get('/v1/finance/assets', {
-      params: {},
+      params: {
+        is_settleable: true,
+      },
       onError: () => {
-        enqueueNotification(`Unable to fetch assets now.`, 'error')
+        enqueueNotification(`Unable to fetch settleable assets now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
-        setAssets(data)
+        setSettleableAssets(data)
       },
     })
-    setIsFetchingAssets(false)
+    setIsFetchingSettleableAssets(false)
   }, [enqueueNotification])
 
   const fetchAccounts = React.useCallback(
@@ -115,8 +117,8 @@ export default function Page() {
   }, [balance_sheet_reference])
 
   React.useEffect(() => {
-    fetchAssets()
-  }, [fetchAssets])
+    fetchSettleableAssets()
+  }, [fetchSettleableAssets])
 
   React.useEffect(() => {
     fetchBalanceSheet()
@@ -236,7 +238,9 @@ export default function Page() {
         />
         <ModuleFunctionBody
           loading={
-            isFetchingBalanceSheet || isFetchingAccounts || isFetchingAssets
+            isFetchingBalanceSheet ||
+            isFetchingAccounts ||
+            isFetchingSettleableAssets
           }
         >
           <TableContainer>
@@ -244,7 +248,6 @@ export default function Page() {
               <TableHead>
                 <TableRow>
                   <NoWrapTableCell>帳戶</NoWrapTableCell>
-                  <NoWrapTableCell>類型</NoWrapTableCell>
                   <NoWrapTableCell>數量</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
@@ -254,49 +257,40 @@ export default function Page() {
                 isLoading={isFetchingBalanceSheet}
                 isEmpty={balanceSheet?.balance_entries.length === 0}
               >
-                {balanceSheet?.balance_entries.map((balanceEntry) => (
-                  <TableRow key={balanceEntry.reference} hover>
-                    <NoWrapTableCell>
-                      <Chip
-                        size="small"
-                        label={
-                          accounts.find(
-                            (account) =>
-                              account.reference ===
-                              balanceEntry.account_reference
-                          )?.name
-                        }
-                        color="info"
-                        variant="outlined"
-                      />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {
-                        financeBalanceEntryTypes.find(
-                          (balanceEntryType) =>
-                            balanceEntryType.value === balanceEntry.entry_type
-                        )?.label
-                      }
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>{balanceEntry.amount}</NoWrapTableCell>
-                    <NoWrapTableCell>
-                      <Chip
-                        size="small"
-                        label={
-                          assets.find(
-                            (asset) =>
-                              asset.reference === balanceEntry.asset_reference
-                          )?.name
-                        }
-                        color="info"
-                        variant="outlined"
-                      />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      <Chip size="small" label={balanceEntry.reference} />
-                    </NoWrapTableCell>
-                  </TableRow>
-                ))}
+                {balanceSheet?.balance_entries.map((balanceEntry) => {
+                  const account = accounts.find(
+                    (account) =>
+                      account.reference === balanceEntry.account_reference
+                  )
+                  const settleableAsset = settleableAssets.find(
+                    (asset) =>
+                      asset.reference === account?.settlement_asset_reference
+                  )
+                  return (
+                    <TableRow key={balanceEntry.reference} hover>
+                      <NoWrapTableCell>
+                        <Chip
+                          size="small"
+                          label={account?.name}
+                          color="info"
+                          variant="outlined"
+                        />
+                      </NoWrapTableCell>
+                      <NoWrapTableCell>{balanceEntry.amount}</NoWrapTableCell>
+                      <NoWrapTableCell>
+                        <Chip
+                          size="small"
+                          label={settleableAsset?.name}
+                          color="info"
+                          variant="outlined"
+                        />
+                      </NoWrapTableCell>
+                      <NoWrapTableCell>
+                        <Chip size="small" label={balanceEntry.reference} />
+                      </NoWrapTableCell>
+                    </TableRow>
+                  )
+                })}
               </StatefulTableBody>
             </Table>
           </TableContainer>

@@ -1,3 +1,5 @@
+// Resource
+
 export interface Resource {
   reference: string
   name: string
@@ -17,27 +19,7 @@ export interface UpdateResourceFormInputs {
   value: string
 }
 
-export interface Account {
-  reference: string
-  name: string
-  opened_time: string
-  closed_time: string
-  ecosystem_type: string
-}
-
-export interface CreateAccountFormInputs {
-  name: string
-  opened_time: string
-  closed_time: string
-  ecosystem_type: string
-}
-
-export interface UpdateAccountFormInputs {
-  name: string
-  opened_time: string
-  closed_time: string
-  ecosystem_type: string
-}
+// Asset
 
 export interface Asset {
   reference: string
@@ -57,6 +39,34 @@ export interface UpdateAssetFormInputs {
   symbol: string
   is_settleable: boolean
 }
+
+// Account
+
+export interface Account {
+  reference: string
+  name: string
+  opened_time: string
+  closed_time: string
+  ecosystem_type: string
+  settlement_asset_reference: string
+}
+
+export interface CreateAccountFormInputs {
+  name: string
+  opened_time: string
+  closed_time: string
+  ecosystem_type: string
+  settlement_asset_reference: string
+}
+
+export interface UpdateAccountFormInputs {
+  name: string
+  opened_time: string
+  closed_time: string
+  ecosystem_type: string
+}
+
+// BalanceSheet
 
 export interface BalanceSheetSummary {
   reference: string
@@ -79,10 +89,10 @@ export interface UpdateBalanceSheetFormInputs {
   balance_entries: BalanceEntry[]
 }
 
+// BalanceEntry
+
 export interface BalanceEntry {
   reference?: string
   account_reference: string
-  asset_reference: string
-  entry_type: string
   amount: string
 }

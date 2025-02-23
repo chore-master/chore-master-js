@@ -5,13 +5,3 @@ export const financeAccountEcosystemTypes = [
     value: 'TRAD_FI',
   },
 ]
-export const financeBalanceEntryTypes = [
-  {
-    label: '資產',
-    value: 'ASSET',
-  },
-  {
-    label: '負債',
-    value: 'LIABILITY',
-  },
-]

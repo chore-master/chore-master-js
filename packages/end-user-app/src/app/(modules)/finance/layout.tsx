@@ -40,19 +40,19 @@ export default function Layout({
         },
         {
           type: 'link',
-          title: '帳戶',
-          href: '/finance/accounts',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          type: 'link',
           title: '資產',
           href: '/finance/assets',
           selectedWhenPartiallyMatched: true,
         },
         {
           type: 'link',
-          title: '資產負債表',
+          title: '帳戶',
+          href: '/finance/accounts',
+          selectedWhenPartiallyMatched: true,
+        },
+        {
+          type: 'link',
+          title: '結餘',
           href: '/finance/balance-sheets',
           selectedWhenPartiallyMatched: true,
         },

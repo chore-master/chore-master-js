@@ -119,7 +119,7 @@ export default function Page() {
                 setSeriesType(newSeriesType)
               }}
             >
-              <Tooltip title="個別顯示">
+              <Tooltip title="獨立顯示">
                 <ToggleButton value="line">
                   <ShowChartIcon fontSize="small" />
                 </ToggleButton>

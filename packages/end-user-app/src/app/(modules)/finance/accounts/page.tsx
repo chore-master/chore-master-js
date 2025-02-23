@@ -11,6 +11,7 @@ import { useTimezone } from '@/components/timezone'
 import { financeAccountEcosystemTypes } from '@/constants'
 import type {
   Account,
+  Asset,
   CreateAccountFormInputs,
   UpdateAccountFormInputs,
 } from '@/types'
@@ -20,6 +21,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
@@ -44,6 +46,11 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
 
+  // Asset
+  const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
+  const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
+    React.useState(false)
+
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
@@ -53,6 +60,25 @@ export default function Page() {
   const [editingAccountReference, setEditingAccountReference] =
     React.useState<string>()
   const updateAccountForm = useForm<UpdateAccountFormInputs>()
+
+  const fetchSettleableAssets = React.useCallback(async () => {
+    setIsFetchingSettleableAssets(true)
+    await choreMasterAPIAgent.get('/v1/finance/assets', {
+      params: {
+        is_settleable: true,
+      },
+      onError: () => {
+        enqueueNotification(`Unable to fetch settleable assets now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setSettleableAssets(data)
+      },
+    })
+    setIsFetchingSettleableAssets(false)
+  }, [enqueueNotification])
 
   const fetchAccounts = React.useCallback(async () => {
     setIsFetchingAccounts(true)
@@ -156,6 +182,10 @@ export default function Page() {
   )
 
   React.useEffect(() => {
+    fetchSettleableAssets()
+  }, [fetchSettleableAssets])
+
+  React.useEffect(() => {
     fetchAccounts()
   }, [fetchAccounts])
 
@@ -195,6 +225,7 @@ export default function Page() {
               <TableHead>
                 <TableRow>
                   <NoWrapTableCell>名字</NoWrapTableCell>
+                  <NoWrapTableCell>結算資產</NoWrapTableCell>
                   <NoWrapTableCell>生態系</NoWrapTableCell>
                   <NoWrapTableCell>開戶時間</NoWrapTableCell>
                   <NoWrapTableCell>關戶時間</NoWrapTableCell>
@@ -209,6 +240,20 @@ export default function Page() {
                 {accounts.map((account) => (
                   <TableRow key={account.reference} hover>
                     <NoWrapTableCell>{account.name}</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <Chip
+                        size="small"
+                        label={
+                          settleableAssets.find(
+                            (asset) =>
+                              asset.reference ===
+                              account.settlement_asset_reference
+                          )?.name
+                        }
+                        color="info"
+                        variant="outlined"
+                      />
+                    </NoWrapTableCell>
                     <NoWrapTableCell>
                       {
                         financeAccountEcosystemTypes.find(
@@ -366,6 +411,66 @@ export default function Page() {
                     }}
                   />
                 )}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <Controller
+                name="settlement_asset_reference"
+                control={createAccountForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    value={
+                      settleableAssets.find(
+                        (asset) => asset.reference === field.value
+                      ) ?? null
+                    }
+                    onChange={(_event, value) => {
+                      field.onChange(value?.reference ?? '')
+                    }}
+                    // onOpen={() => {
+                    //   if (assets.length === 0) {
+                    //     fetchAssets()
+                    //   }
+                    // }}
+                    isOptionEqualToValue={(option, value) =>
+                      option.reference === value.reference
+                    }
+                    getOptionLabel={(option) => option.name}
+                    options={settleableAssets}
+                    autoHighlight
+                    loading={isFetchingSettleableAssets}
+                    // loadingText="載入中..."
+                    // noOptionsText="沒有符合的選項"
+                    renderOption={(props, option) => {
+                      const { key, ...optionProps } = props as {
+                        key: React.Key
+                      }
+                      return (
+                        <Box key={key} component="li" {...optionProps}>
+                          <Chip
+                            size="small"
+                            label={option.name}
+                            color="info"
+                            variant="outlined"
+                          />
+                        </Box>
+                      )
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="結算資產"
+                        variant="filled"
+                        size="small"
+                        helperText="建立後無法變更"
+                        required
+                      />
+                    )}
+                  />
+                )}
+                rules={{ required: '必填' }}
               />
             </FormControl>
             <AutoLoadingButton

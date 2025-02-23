@@ -35,7 +35,7 @@ export default function Page() {
     React.useState<Highcharts.Options>(optionsTemplate)
 
   // BalanceSheet
-  const [balanceSheets, setbalanceSheets] = React.useState<
+  const [balanceSheets, setBalanceSheets] = React.useState<
     BalanceSheetSummary[]
   >([])
   const [isFetchingBalanceSheets, setIsFetchingBalanceSheets] =
@@ -52,7 +52,7 @@ export default function Page() {
         enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
-        setbalanceSheets(data)
+        setBalanceSheets(data)
       },
     })
     setIsFetchingBalanceSheets(false)
