@@ -176,77 +176,68 @@ export default function Page() {
           ]}
         />
         <ModuleFunctionBody loading={isFetchingResources}>
-          {!isFetchingResources && resources.length === 0 ? (
-            <Box p={2}>
-              <Typography>目前沒有任何資源。</Typography>
-            </Box>
-          ) : (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                    <NoWrapTableCell>名字</NoWrapTableCell>
-                    <NoWrapTableCell>鑑別器</NoWrapTableCell>
-                    <NoWrapTableCell>值</NoWrapTableCell>
-                    <NoWrapTableCell align="right">操作</NoWrapTableCell>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
+                  <NoWrapTableCell>名字</NoWrapTableCell>
+                  <NoWrapTableCell>鑑別器</NoWrapTableCell>
+                  <NoWrapTableCell>值</NoWrapTableCell>
+                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
+                </TableRow>
+              </TableHead>
+              <StatefulTableBody
+                isLoading={isFetchingResources}
+                isEmpty={resources.length === 0}
+              >
+                {resources.map((integration) => (
+                  <TableRow key={integration.reference} hover>
+                    <NoWrapTableCell>
+                      <Chip size="small" label={integration.reference} />
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>{integration.name}</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      {integration.discriminator}
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <CodeBlock
+                        language="json"
+                        code={JSON.stringify(integration.value, null, 2)}
+                      />
+                    </NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          updateResourceForm.setValue('name', integration.name)
+                          updateResourceForm.setValue(
+                            'discriminator',
+                            integration.discriminator
+                          )
+                          updateResourceForm.setValue(
+                            'value',
+                            JSON.stringify(integration.value)
+                          )
+                          setEditingResourceReference(integration.reference)
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() =>
+                          void deleteResource(integration.reference)
+                        }
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </NoWrapTableCell>
                   </TableRow>
-                </TableHead>
-                <StatefulTableBody
-                  isLoading={isFetchingResources}
-                  isEmpty={resources.length === 0}
-                >
-                  {resources.map((integration) => (
-                    <TableRow key={integration.reference} hover>
-                      <NoWrapTableCell>
-                        <Chip size="small" label={integration.reference} />
-                      </NoWrapTableCell>
-                      <NoWrapTableCell>{integration.name}</NoWrapTableCell>
-                      <NoWrapTableCell>
-                        {integration.discriminator}
-                      </NoWrapTableCell>
-                      <NoWrapTableCell>
-                        <CodeBlock
-                          language="json"
-                          code={JSON.stringify(integration.value, null, 2)}
-                        />
-                      </NoWrapTableCell>
-                      <NoWrapTableCell align="right">
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            updateResourceForm.setValue(
-                              'name',
-                              integration.name
-                            )
-                            updateResourceForm.setValue(
-                              'discriminator',
-                              integration.discriminator
-                            )
-                            updateResourceForm.setValue(
-                              'value',
-                              JSON.stringify(integration.value)
-                            )
-                            setEditingResourceReference(integration.reference)
-                          }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            void deleteResource(integration.reference)
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </NoWrapTableCell>
-                    </TableRow>
-                  ))}
-                </StatefulTableBody>
-              </Table>
-            </TableContainer>
-          )}
+                ))}
+              </StatefulTableBody>
+            </Table>
+          </TableContainer>
         </ModuleFunctionBody>
 
         <ModuleFunctionBody>
