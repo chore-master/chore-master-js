@@ -1,6 +1,6 @@
 import { Options } from 'highcharts/highcharts'
 
-export default {
+export const areaChartOptionsTemplate = {
   chart: {
     type: 'area',
   },

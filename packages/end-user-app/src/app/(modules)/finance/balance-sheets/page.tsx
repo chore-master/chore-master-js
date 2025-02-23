@@ -24,15 +24,20 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import optionsTemplate from './optionsTemplate'
+import { areaChartOptionsTemplate } from './optionsTemplate'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const router = useRouter()
 
-  // Equity curve
-  const [options, setOptions] =
-    React.useState<Highcharts.Options>(optionsTemplate)
+  // Balance sheets series
+  const [balanceSheetsSeries, setBalanceSheetsSeries] = React.useState<{}[]>([])
+  const [isFetchingBalanceSheetsSeries, setIsFetchingBalanceSheetsSeries] =
+    React.useState(false)
+
+  // Chart options
+  const [areaChartOptions, setAreaChartOptions] =
+    React.useState<Highcharts.Options>(areaChartOptionsTemplate)
 
   // BalanceSheet
   const [balanceSheets, setBalanceSheets] = React.useState<
@@ -58,49 +63,41 @@ export default function Page() {
     setIsFetchingBalanceSheets(false)
   }, [enqueueNotification])
 
+  const fetchBalanceSheetsSeries = React.useCallback(async () => {
+    setIsFetchingBalanceSheetsSeries(true)
+    await choreMasterAPIAgent.get('/v1/finance/balance_sheets/series', {
+      params: {},
+      onError: () => {
+        enqueueNotification(
+          `Unable to fetch balance entry series now.`,
+          'error'
+        )
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setBalanceSheetsSeries(data.series)
+      },
+    })
+    setIsFetchingBalanceSheetsSeries(false)
+  }, [enqueueNotification])
+
   React.useEffect(() => {
     fetchBalanceSheets()
   }, [fetchBalanceSheets])
 
   React.useEffect(() => {
-    setOptions(
-      Object.assign({}, optionsTemplate, {
-        series: [
-          {
-            type: 'area',
-            name: 'A',
-            data: [
-              [Date.UTC(2024, 10, 1), 5],
-              [Date.UTC(2024, 10, 2), 3],
-              [Date.UTC(2024, 10, 4), 4],
-              [Date.UTC(2024, 10, 5), 7],
-            ],
-          },
-          {
-            type: 'area',
-            name: 'B',
-            data: [
-              [Date.UTC(2024, 10, 1), 2],
-              [Date.UTC(2024, 10, 2), -30], // Negative value
-              [Date.UTC(2024, 10, 3), 3],
-              [Date.UTC(2024, 10, 5), 2],
-            ],
-          },
-          {
-            name: 'C',
-            type: 'area',
-            data: [
-              [Date.UTC(2024, 10, 1), 1],
-              [Date.UTC(2024, 10, 2), -4],
-              [Date.UTC(2024, 10, 3), 2],
-              [Date.UTC(2024, 10, 4), 5],
-              [Date.UTC(2024, 10, 5), 3],
-            ],
-          },
-        ],
+    fetchBalanceSheetsSeries()
+  }, [fetchBalanceSheetsSeries])
+
+  React.useEffect(() => {
+    setAreaChartOptions(
+      Object.assign({}, areaChartOptionsTemplate, {
+        series: balanceSheetsSeries,
       })
     )
-  }, [])
+  }, [balanceSheetsSeries])
 
   return (
     <React.Fragment>
@@ -123,9 +120,21 @@ export default function Page() {
 
         <ModuleFunctionHeader
           title={<Typography variant="h6">資金曲線</Typography>}
+          actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton
+                  onClick={fetchBalanceSheetsSeries}
+                  disabled={isFetchingBalanceSheetsSeries}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
+          ]}
         />
-        <ModuleFunctionBody>
-          <HighChartsCore options={options} />
+        <ModuleFunctionBody loading={isFetchingBalanceSheetsSeries}>
+          <HighChartsCore options={areaChartOptions} />
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader

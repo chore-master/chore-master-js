@@ -42,6 +42,9 @@ export default function HighChartsCore({
     credits: {
       enabled: false,
     },
+    time: {
+      useUTC: true,
+    },
   }
   const mergedOptions: Highcharts.Options = merge(
     {},
