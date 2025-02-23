@@ -351,7 +351,13 @@ export default function Page() {
             </Tooltip>,
           ]}
         />
-        <ModuleFunctionBody loading={isFetchingBalanceSheetsSeries}>
+        <ModuleFunctionBody
+          loading={
+            isFetchingBalanceSheetsSeries ||
+            isFetchingPrices ||
+            isFetchingFeedResources
+          }
+        >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
             <Stack direction="row" spacing={2}>
               <FormControl variant="standard" sx={{ minWidth: 120 }}>
