@@ -93,7 +93,7 @@ export default function Page() {
 
   const handleSubmitCreateBalanceSheetForm: SubmitHandler<
     CreateBalanceSheetFormInputs
-  > = async ({ balanced_time, ...data }) => {
+  > = async ({ balanced_time, balance_entries, ...data }) => {
     await choreMasterAPIAgent.post(
       '/v1/finance/balance_sheets',
       {
@@ -101,6 +101,19 @@ export default function Page() {
         balanced_time: new Date(
           timezone.getUTCTimestamp(balanced_time)
         ).toISOString(),
+        balance_entries: balance_entries.map(
+          ({ amount, ...balance_entry }, i) => {
+            const account = accounts[i]
+            const asset = settleableAssets.find(
+              (asset) => asset.reference === account.settlement_asset_reference
+            ) as Asset
+            const decimals = asset.decimals
+            return {
+              ...balance_entry,
+              amount: Number(amount) * 10 ** decimals,
+            }
+          }
+        ),
       },
       {
         onError: () => {
@@ -174,7 +187,7 @@ export default function Page() {
             color="inherit"
             href="/finance/balance-sheets"
           >
-            資產負債表
+            結餘
           </MuiLink>
           <Typography color="text.primary">新增</Typography>
         </Breadcrumbs>
@@ -182,7 +195,7 @@ export default function Page() {
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
-          title="新增資產負債表"
+          title="新增結餘"
           actions={[
             <AutoLoadingButton
               key="create"

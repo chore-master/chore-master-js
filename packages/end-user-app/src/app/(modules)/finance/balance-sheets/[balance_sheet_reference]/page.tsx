@@ -24,6 +24,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import Decimal from 'decimal.js'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -182,7 +183,7 @@ export default function Page() {
             color="inherit"
             href="/finance/balance-sheets"
           >
-            資產負債表
+            結餘
           </MuiLink>
           {balanceSheet && (
             <span>
@@ -266,6 +267,13 @@ export default function Page() {
                     (asset) =>
                       asset.reference === account?.settlement_asset_reference
                   )
+                  const decimals = settleableAsset?.decimals
+                  const amount =
+                    decimals === undefined
+                      ? 'N/A'
+                      : new Decimal(balanceEntry.amount)
+                          .dividedBy(new Decimal(10 ** decimals))
+                          .toString()
                   return (
                     <TableRow key={balanceEntry.reference} hover>
                       <NoWrapTableCell>
@@ -276,7 +284,7 @@ export default function Page() {
                           variant="outlined"
                         />
                       </NoWrapTableCell>
-                      <NoWrapTableCell>{balanceEntry.amount}</NoWrapTableCell>
+                      <NoWrapTableCell>{amount}</NoWrapTableCell>
                       <NoWrapTableCell>
                         <Chip
                           size="small"

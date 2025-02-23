@@ -25,6 +25,7 @@ import MuiLink from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import Decimal from 'decimal.js'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -105,7 +106,7 @@ export default function Page() {
 
   const handleSubmitUpdateBalanceSheetForm: SubmitHandler<
     UpdateBalanceSheetFormInputs
-  > = async ({ balanced_time, ...data }) => {
+  > = async ({ balanced_time, balance_entries, ...data }) => {
     await choreMasterAPIAgent.put(
       `/v1/finance/balance_sheets/${balance_sheet_reference}`,
       {
@@ -113,6 +114,19 @@ export default function Page() {
         balanced_time: new Date(
           timezone.getUTCTimestamp(balanced_time)
         ).toISOString(),
+        balance_entries: balance_entries.map(
+          ({ amount, ...balance_entry }, i) => {
+            const account = accounts[i]
+            const asset = settleableAssets.find(
+              (asset) => asset.reference === account.settlement_asset_reference
+            ) as Asset
+            const decimals = asset.decimals
+            return {
+              ...balance_entry,
+              amount: Number(amount) * 10 ** decimals,
+            }
+          }
+        ),
       },
       {
         onError: () => {
@@ -221,12 +235,29 @@ export default function Page() {
         new Date(timezone.getUTCTimestamp(balancedTime)).toISOString()
       )
       updateBalanceSheetForm.setValue('balanced_time', balancedTime)
-      updateBalanceSheetForm.setValue(
-        'balance_entries',
-        balanceSheet.balance_entries
-      )
     }
   }, [balanceSheet])
+
+  React.useEffect(() => {
+    if (balanceSheet && accounts.length > 0 && settleableAssets.length > 0) {
+      updateBalanceSheetForm.setValue(
+        'balance_entries',
+        balanceSheet.balance_entries.map(({ amount, ...balance_entry }, i) => {
+          const account = accounts[i]
+          const asset = settleableAssets.find(
+            (asset) => asset.reference === account.settlement_asset_reference
+          ) as Asset
+          const decimals = asset.decimals
+          return {
+            account_reference: balance_entry.account_reference,
+            amount: new Decimal(amount)
+              .dividedBy(new Decimal(10 ** decimals))
+              .toString(),
+          }
+        })
+      )
+    }
+  }, [balanceSheet, accounts, settleableAssets])
 
   if (isFetchingBalanceSheet || isFetchingSettleableAssets) {
     return <LinearProgress />
@@ -242,7 +273,7 @@ export default function Page() {
             color="inherit"
             href="/finance/balance-sheets"
           >
-            資產負債表
+            結餘
           </MuiLink>
           {balanceSheet && (
             <MuiLink
@@ -264,7 +295,7 @@ export default function Page() {
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
-          title="更新資產負債表"
+          title="更新結餘"
           actions={[
             <AutoLoadingButton
               key="update"

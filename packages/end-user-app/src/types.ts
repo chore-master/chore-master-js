@@ -84,12 +84,18 @@ export interface BalanceSheetDetail {
 
 export interface CreateBalanceSheetFormInputs {
   balanced_time: string
-  balance_entries: BalanceEntry[]
+  balance_entries: {
+    account_reference: string
+    amount: string
+  }[]
 }
 
 export interface UpdateBalanceSheetFormInputs {
   balanced_time: string
-  balance_entries: BalanceEntry[]
+  balance_entries: {
+    account_reference: string
+    amount: string
+  }[]
 }
 
 // BalanceEntry
@@ -98,5 +104,5 @@ export interface BalanceEntry {
   reference?: string
   balance_sheet_reference?: string
   account_reference: string
-  amount: string
+  amount: number
 }
