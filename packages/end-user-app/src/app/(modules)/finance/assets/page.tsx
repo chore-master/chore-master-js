@@ -166,6 +166,7 @@ export default function Page() {
                 <TableRow>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>代號</NoWrapTableCell>
+                  <NoWrapTableCell>精度</NoWrapTableCell>
                   <NoWrapTableCell>可結算</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
@@ -179,6 +180,7 @@ export default function Page() {
                   <TableRow key={asset.reference} hover>
                     <NoWrapTableCell>{asset.name}</NoWrapTableCell>
                     <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
+                    <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
                     <NoWrapTableCell>
                       {asset.is_settleable ? (
                         <CheckBoxIcon color="disabled" />
@@ -195,6 +197,7 @@ export default function Page() {
                         onClick={() => {
                           updateAssetForm.setValue('name', asset.name)
                           updateAssetForm.setValue('symbol', asset.symbol)
+                          updateAssetForm.setValue('decimals', asset.decimals)
                           updateAssetForm.setValue(
                             'is_settleable',
                             asset.is_settleable
@@ -269,6 +272,23 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
+                name="decimals"
+                control={createAssetForm.control}
+                defaultValue={0}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="精度"
+                    variant="filled"
+                    type="number"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl>
+              <Controller
                 name="is_settleable"
                 control={createAssetForm.control}
                 defaultValue={false}
@@ -336,6 +356,23 @@ export default function Page() {
                     required
                     label="代號"
                     variant="filled"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl>
+              <Controller
+                name="decimals"
+                control={updateAssetForm.control}
+                defaultValue={0}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="精度"
+                    variant="filled"
+                    type="number"
                   />
                 )}
                 rules={{ required: '必填' }}

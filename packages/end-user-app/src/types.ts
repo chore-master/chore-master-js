@@ -25,18 +25,21 @@ export interface Asset {
   reference: string
   name: string
   symbol: string
+  decimals: number
   is_settleable: boolean
 }
 
 export interface CreateAssetFormInputs {
   name: string
   symbol: string
+  decimals: number
   is_settleable: boolean
 }
 
 export interface UpdateAssetFormInputs {
   name: string
   symbol: string
+  decimals: number
   is_settleable: boolean
 }
 
