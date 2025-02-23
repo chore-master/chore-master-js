@@ -93,6 +93,7 @@ export interface UpdateBalanceSheetFormInputs {
 
 export interface BalanceEntry {
   reference?: string
+  balance_sheet_reference?: string
   account_reference: string
   amount: string
 }

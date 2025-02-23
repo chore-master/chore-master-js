@@ -7,7 +7,8 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import type { BalanceSheetSummary } from '@/types'
+import { useTimezone } from '@/components/timezone'
+import type { Account, BalanceEntry, BalanceSheetSummary } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
@@ -29,9 +30,10 @@ import { areaChartOptionsTemplate } from './optionsTemplate'
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const router = useRouter()
+  const timezone = useTimezone()
 
   // Balance sheets series
-  const [balanceSheetsSeries, setBalanceSheetsSeries] = React.useState<{}[]>([])
+  const [balanceSheetsSeries, setBalanceSheetsSeries] = React.useState<any>({})
   const [isFetchingBalanceSheetsSeries, setIsFetchingBalanceSheetsSeries] =
     React.useState(false)
 
@@ -77,7 +79,7 @@ export default function Page() {
         enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
-        setBalanceSheetsSeries(data.series)
+        setBalanceSheetsSeries(data)
       },
     })
     setIsFetchingBalanceSheetsSeries(false)
@@ -92,12 +94,57 @@ export default function Page() {
   }, [fetchBalanceSheetsSeries])
 
   React.useEffect(() => {
+    const accounts = balanceSheetsSeries.accounts || []
+    const balanceSheets = balanceSheetsSeries.balance_sheets || []
+    const balanceEntries = balanceSheetsSeries.balance_entries || []
+
+    const accountReferenceToAccountMap: Record<string, Account> =
+      accounts.reduce((acc: any, account: Account) => {
+        acc[account.reference] = account
+        return acc
+      }, {})
+    const balanceSheetReferenceToBalanceSheetMap: Record<
+      string,
+      BalanceSheetSummary
+    > = balanceSheets.reduce((acc: any, balanceSheet: BalanceSheetSummary) => {
+      acc[balanceSheet.reference] = balanceSheet
+      return acc
+    }, {})
+    const accountReferenceToBalanceEntriesMap: Record<string, BalanceEntry[]> =
+      balanceEntries.reduce((acc: any, balanceEntry: BalanceEntry) => {
+        if (!acc[balanceEntry.account_reference]) {
+          acc[balanceEntry.account_reference] = []
+        }
+        acc[balanceEntry.account_reference].push(balanceEntry)
+        return acc
+      }, {})
+
+    const series: any = Object.entries(accountReferenceToBalanceEntriesMap).map(
+      ([accountReference, balanceEntries]) => {
+        const account = accountReferenceToAccountMap[accountReference]
+        return {
+          type: 'area',
+          name: account.name,
+          data: balanceEntries.map((balanceEntry) => {
+            const balanceSheet =
+              balanceSheetReferenceToBalanceSheetMap[
+                balanceEntry.balance_sheet_reference as string
+              ]
+            return [
+              new Date(`${balanceSheet.balanced_time}Z`).getTime() +
+                timezone.offsetInMinutes * 60 * 1000,
+              parseFloat(balanceEntry.amount),
+            ]
+          }),
+        }
+      }
+    )
     setAreaChartOptions(
       Object.assign({}, areaChartOptionsTemplate, {
-        series: balanceSheetsSeries,
+        series,
       })
     )
-  }, [balanceSheetsSeries])
+  }, [balanceSheetsSeries, timezone.offsetInMinutes])
 
   return (
     <React.Fragment>
