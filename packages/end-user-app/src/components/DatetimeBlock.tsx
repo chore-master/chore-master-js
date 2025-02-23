@@ -6,12 +6,29 @@ export default function DatetimeBlock({
   isoText,
   timestampInSeconds,
   date,
+  realTime = false,
 }: Readonly<{
   isoText?: string | null
   timestampInSeconds?: number | null
   date?: Date | null
+  realTime?: boolean
 }>) {
   const timezone = useTimezone()
+  const [baseTimestampInSeconds, setBaseTimestampInSeconds] = React.useState(
+    new Date().getTime() / 1000
+  )
+
+  React.useEffect(() => {
+    if (realTime) {
+      const interval = setInterval(() => {
+        setBaseTimestampInSeconds(new Date().getTime() / 1000)
+      }, 1000)
+      return () => {
+        clearInterval(interval)
+      }
+    }
+  }, [realTime])
+
   const tzOffset = timezone.offsetInMinutes
   let ts
   if (isoText) {
@@ -29,10 +46,9 @@ export default function DatetimeBlock({
   }
   const localDate = new Date(ts + tzOffset * 60 * 1000)
   const timeDeltaInSeconds = Math.floor(
-    timezone.baseTimestampInSeconds -
-      timezone.deviceOffsetInMinutes * 60 -
-      ts / 1000
+    baseTimestampInSeconds - timezone.deviceOffsetInMinutes * 60 - ts / 1000
   )
+
   return (
     <React.Fragment>
       {localDate.toLocaleString(undefined, { hour12: false })}

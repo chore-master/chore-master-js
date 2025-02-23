@@ -95,6 +95,8 @@ export default function ModuleLayout({
     res: endUserRes,
   } = useEndUser()
   const timezone = useTimezone()
+  const [currentDate, setCurrentDate] = React.useState(new Date())
+
   const isMenuOpen = Boolean(anchorEl)
 
   const toggleModulesDrawer = (newOpen: boolean) => () => {
@@ -120,6 +122,15 @@ export default function ModuleLayout({
       router.push('/login')
     }
   }, [endUserRes, router])
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDate(new Date())
+    }, 1000)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
 
   if (loginRequired && (!endUser || endUserSuccessLoadedCount === 0)) {
     return (
@@ -490,7 +501,7 @@ export default function ModuleLayout({
                 secondary={
                   <React.Fragment>
                     預覽目前時間：
-                    <DatetimeBlock date={new Date()} />
+                    <DatetimeBlock date={currentDate} realTime />
                   </React.Fragment>
                 }
               />

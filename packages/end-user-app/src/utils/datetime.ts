@@ -59,6 +59,9 @@ export function humanReadableRelativeDateTime(
 
 export function humanReadableTimeDeltaText(timeDeltaInSeconds: number): string {
   const absoluteSeconds = Math.abs(timeDeltaInSeconds)
+  if (absoluteSeconds <= 1) {
+    return '現在'
+  }
   let suffix = ''
   if (timeDeltaInSeconds < 0) {
     suffix = '後'
