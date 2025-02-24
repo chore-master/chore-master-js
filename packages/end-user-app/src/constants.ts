@@ -1,4 +1,7 @@
-export const integrationResourceDiscriminators = ['coingecko_feed']
+export const integrationResourceDiscriminators = [
+  'yahoo_finance_feed',
+  'coingecko_feed',
+]
 export const INTERMEDIATE_ASSET_SYMBOL = 'USD'
 export const financeAccountEcosystemTypes = [
   {
