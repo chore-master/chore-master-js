@@ -1,4 +1,5 @@
 export const integrationResourceDiscriminators = [
+  'oanda_feed',
   'yahoo_finance_feed',
   'coingecko_feed',
 ]

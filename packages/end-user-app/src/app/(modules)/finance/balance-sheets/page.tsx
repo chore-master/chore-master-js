@@ -119,7 +119,7 @@ export default function Page() {
     setIsFetchingFeedResources(true)
     await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
       params: {
-        discriminators: ['yahoo_finance_feed', 'coingecko_feed'],
+        discriminators: ['oanda_feed', 'yahoo_finance_feed', 'coingecko_feed'],
       },
       onError: () => {
         enqueueNotification(`Unable to fetch feed resources now.`, 'error')
