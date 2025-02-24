@@ -305,7 +305,10 @@ export default function Page() {
         (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
       )
       if (baseAssetIndex === -1) {
-        enqueueNotification(`USD asset not found.`, 'error')
+        enqueueNotification(
+          `Intermediate asset ${INTERMEDIATE_ASSET_SYMBOL} not found.`,
+          'error'
+        )
         return
       }
       const instrumentSymbols = settleableAssets
