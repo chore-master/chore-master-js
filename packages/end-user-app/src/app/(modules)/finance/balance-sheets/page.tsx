@@ -13,6 +13,7 @@ import type {
   Account,
   Asset,
   BalanceEntry,
+  BalanceSheetSeries,
   BalanceSheetSummary,
   Resource,
 } from '@/types'
@@ -46,53 +47,77 @@ export default function Page() {
   const router = useRouter()
   const timezone = useTimezone()
 
-  // Balance sheets series
-  const [balanceSheetsSeries, setBalanceSheetsSeries] = React.useState<any>({})
-  const [isFetchingBalanceSheetsSeries, setIsFetchingBalanceSheetsSeries] =
-    React.useState(false)
-
-  // Chart options
-  const [areaChartOptions, setAreaChartOptions] =
-    React.useState<Highcharts.Options>(areaChartOptionsTemplate)
-
-  // Balance sheet
-  const [balanceSheets, setBalanceSheets] = React.useState<
-    BalanceSheetSummary[]
-  >([])
-  const [isFetchingBalanceSheets, setIsFetchingBalanceSheets] =
-    React.useState(false)
-
-  // Settlement asset
-  const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
-  const [
-    selectedSettleableAssetReference,
-    setSelectedSettleableAssetReference,
-  ] = React.useState('')
-
   // Feed resource
   const [feedResources, setFeedResources] = React.useState<Resource[]>([])
   const [isFetchingFeedResources, setIsFetchingFeedResources] =
     React.useState(false)
   const [selectedFeedResourceReference, setSelectedFeedResourceReference] =
     React.useState('')
+
+  // Settleable asset
+  const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
+  const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
+    React.useState(false)
+  const [
+    selectedSettleableAssetReference,
+    setSelectedSettleableAssetReference,
+  ] = React.useState('')
+
+  // Balance sheets series
+  const [balanceSheetsSeries, setBalanceSheetsSeries] =
+    React.useState<BalanceSheetSeries>({
+      assets: [],
+      accounts: [],
+      balance_sheets: [],
+      balance_entries: [],
+    })
+  const [isFetchingBalanceSheetsSeries, setIsFetchingBalanceSheetsSeries] =
+    React.useState(false)
+
+  // Prices
   const [prices, setPrices] = React.useState<any>([])
   const [isFetchingPrices, setIsFetchingPrices] = React.useState(false)
 
-  const fetchBalanceSheets = React.useCallback(async () => {
-    setIsFetchingBalanceSheets(true)
-    await choreMasterAPIAgent.get('/v1/finance/balance_sheets', {
-      params: {},
+  // Chart options
+  const [areaChartOptions, setAreaChartOptions] =
+    React.useState<Highcharts.Options>(areaChartOptionsTemplate)
+
+  const fetchFeedResources = React.useCallback(async () => {
+    setIsFetchingFeedResources(true)
+    await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
+      params: {
+        discriminators: ['oanda_feed', 'yahoo_finance_feed', 'coingecko_feed'],
+      },
       onError: () => {
-        enqueueNotification(`Unable to fetch balance sheets now.`, 'error')
+        enqueueNotification(`Unable to fetch feed resources now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
-        setBalanceSheets(data)
+        setFeedResources(data)
       },
     })
-    setIsFetchingBalanceSheets(false)
+    setIsFetchingFeedResources(false)
+  }, [enqueueNotification])
+
+  const fetchSettleableAssets = React.useCallback(async () => {
+    setIsFetchingSettleableAssets(true)
+    await choreMasterAPIAgent.get('/v1/finance/assets', {
+      params: {
+        is_settleable: true,
+      },
+      onError: () => {
+        enqueueNotification(`Unable to fetch settleable assets now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setSettleableAssets(data)
+      },
+    })
+    setIsFetchingSettleableAssets(false)
   }, [enqueueNotification])
 
   const fetchBalanceSheetsSeries = React.useCallback(async () => {
@@ -113,25 +138,6 @@ export default function Page() {
       },
     })
     setIsFetchingBalanceSheetsSeries(false)
-  }, [enqueueNotification])
-
-  const fetchFeedResources = React.useCallback(async () => {
-    setIsFetchingFeedResources(true)
-    await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
-      params: {
-        discriminators: ['oanda_feed', 'yahoo_finance_feed', 'coingecko_feed'],
-      },
-      onError: () => {
-        enqueueNotification(`Unable to fetch feed resources now.`, 'error')
-      },
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data }: any) => {
-        setFeedResources(data)
-      },
-    })
-    setIsFetchingFeedResources(false)
   }, [enqueueNotification])
 
   const fetchPrices = React.useCallback(
@@ -166,21 +172,64 @@ export default function Page() {
   )
 
   React.useEffect(() => {
-    fetchBalanceSheets()
-  }, [fetchBalanceSheets])
+    fetchFeedResources()
+  }, [fetchFeedResources])
+
+  React.useEffect(() => {
+    fetchSettleableAssets()
+  }, [fetchSettleableAssets])
 
   React.useEffect(() => {
     fetchBalanceSheetsSeries()
   }, [fetchBalanceSheetsSeries])
 
   React.useEffect(() => {
-    fetchFeedResources()
-  }, [fetchFeedResources])
+    const feedResource = feedResources.find(
+      (resource) => resource.reference === selectedFeedResourceReference
+    )
+    if (!feedResource) {
+      setSelectedFeedResourceReference(feedResources[0]?.reference || '')
+    }
+  }, [feedResources, selectedFeedResourceReference])
 
   React.useEffect(() => {
-    const assets = balanceSheetsSeries.assets || []
-    setSettleableAssets(assets)
-  }, [balanceSheetsSeries])
+    const settleableAsset = settleableAssets.find(
+      (asset) => asset.reference === selectedSettleableAssetReference
+    )
+    if (!settleableAsset) {
+      setSelectedSettleableAssetReference(settleableAssets[0]?.reference || '')
+    }
+  }, [settleableAssets, selectedSettleableAssetReference])
+
+  React.useEffect(() => {
+    const balanceSheets: BalanceSheetSummary[] =
+      balanceSheetsSeries?.balance_sheets || []
+    if (
+      selectedFeedResourceReference &&
+      balanceSheets.length > 0 &&
+      settleableAssets.length > 0
+    ) {
+      const datetimes = balanceSheets.map(
+        (balanceSheet) => balanceSheet.balanced_time
+      )
+      const baseAssetIndex = settleableAssets.findIndex(
+        (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
+      )
+      if (baseAssetIndex === -1) {
+        enqueueNotification(
+          `Intermediate asset ${INTERMEDIATE_ASSET_SYMBOL} not found.`,
+          'error'
+        )
+        return
+      }
+      const instrumentSymbols = settleableAssets
+        .filter((asset) => asset.symbol !== INTERMEDIATE_ASSET_SYMBOL)
+        .map(
+          (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
+        )
+      fetchPrices(selectedFeedResourceReference, datetimes, instrumentSymbols)
+    }
+  }, [selectedFeedResourceReference, balanceSheetsSeries, settleableAssets])
 
   React.useEffect(() => {
     if (prices.length > 0 && selectedSettleableAssetReference) {
@@ -272,54 +321,6 @@ export default function Page() {
     prices,
   ])
 
-  React.useEffect(() => {
-    const settleableAsset = settleableAssets.find(
-      (asset) => asset.reference === selectedSettleableAssetReference
-    )
-    if (!settleableAsset) {
-      setSelectedSettleableAssetReference(settleableAssets[0]?.reference || '')
-    }
-  }, [settleableAssets, selectedSettleableAssetReference])
-
-  React.useEffect(() => {
-    const feedResource = feedResources.find(
-      (resource) => resource.reference === selectedFeedResourceReference
-    )
-    if (!feedResource) {
-      setSelectedFeedResourceReference(feedResources[0]?.reference || '')
-    }
-  }, [feedResources, selectedFeedResourceReference])
-
-  React.useEffect(() => {
-    const balanceSheets: BalanceSheetSummary[] =
-      balanceSheetsSeries?.balance_sheets || []
-    if (
-      selectedFeedResourceReference &&
-      balanceSheets.length > 0 &&
-      settleableAssets.length > 0
-    ) {
-      const datetimes = balanceSheets.map(
-        (balanceSheet) => balanceSheet.balanced_time
-      )
-      const baseAssetIndex = settleableAssets.findIndex(
-        (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
-      )
-      if (baseAssetIndex === -1) {
-        enqueueNotification(
-          `Intermediate asset ${INTERMEDIATE_ASSET_SYMBOL} not found.`,
-          'error'
-        )
-        return
-      }
-      const instrumentSymbols = settleableAssets
-        .filter((asset) => asset.symbol !== INTERMEDIATE_ASSET_SYMBOL)
-        .map(
-          (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
-        )
-      fetchPrices(selectedFeedResourceReference, datetimes, instrumentSymbols)
-    }
-  }, [selectedFeedResourceReference, balanceSheetsSeries, settleableAssets])
-
   return (
     <React.Fragment>
       <ModuleFunction>
@@ -405,20 +406,20 @@ export default function Page() {
 
         <ModuleFunctionHeader
           title={<Typography variant="h6">明細</Typography>}
-          actions={[
-            <Tooltip key="refresh" title="立即重整">
-              <span>
-                <IconButton
-                  onClick={fetchBalanceSheets}
-                  disabled={isFetchingBalanceSheets}
-                >
-                  <RefreshIcon />
-                </IconButton>
-              </span>
-            </Tooltip>,
-          ]}
+          // actions={[
+          //   <Tooltip key="refresh" title="立即重整">
+          //     <span>
+          //       <IconButton
+          //         onClick={fetchBalanceSheets}
+          //         disabled={isFetchingBalanceSheetsSeries}
+          //       >
+          //         <RefreshIcon />
+          //       </IconButton>
+          //     </span>
+          //   </Tooltip>,
+          // ]}
         />
-        <ModuleFunctionBody loading={isFetchingBalanceSheets}>
+        <ModuleFunctionBody loading={isFetchingBalanceSheetsSeries}>
           <TableContainer>
             <Table size="small">
               <TableHead>
@@ -429,10 +430,10 @@ export default function Page() {
                 </TableRow>
               </TableHead>
               <StatefulTableBody
-                isLoading={isFetchingBalanceSheets}
-                isEmpty={balanceSheets.length === 0}
+                isLoading={isFetchingBalanceSheetsSeries}
+                isEmpty={balanceSheetsSeries.balance_sheets.length === 0}
               >
-                {balanceSheets.map((balanceSheet) => (
+                {balanceSheetsSeries.balance_sheets.map((balanceSheet) => (
                   <TableRow
                     key={balanceSheet.reference}
                     hover

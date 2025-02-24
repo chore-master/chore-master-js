@@ -82,6 +82,13 @@ export interface BalanceSheetDetail {
   balance_entries: BalanceEntry[]
 }
 
+export interface BalanceSheetSeries {
+  assets: Asset[]
+  accounts: Account[]
+  balance_sheets: BalanceSheetSummary[]
+  balance_entries: BalanceEntry[]
+}
+
 export interface CreateBalanceSheetFormInputs {
   balanced_time: string
   balance_entries: {
