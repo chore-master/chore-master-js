@@ -6,6 +6,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { TablePagination } from '@/components/Pagination'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
@@ -71,6 +72,10 @@ export default function Page() {
       balance_sheets: [],
       balance_entries: [],
     })
+  const [balanceSheetsCount, setBalanceSheetsCount] = React.useState(0)
+  const [balanceSheetsPage, setBalanceSheetsPage] = React.useState(0)
+  const [balanceSheetsRowsPerPage, setBalanceSheetsRowsPerPage] =
+    React.useState(5)
   const [isFetchingBalanceSheetsSeries, setIsFetchingBalanceSheetsSeries] =
     React.useState(false)
 
@@ -123,7 +128,10 @@ export default function Page() {
   const fetchBalanceSheetsSeries = React.useCallback(async () => {
     setIsFetchingBalanceSheetsSeries(true)
     await choreMasterAPIAgent.get('/v1/finance/balance_sheets/series', {
-      params: {},
+      params: {
+        offset: balanceSheetsPage * balanceSheetsRowsPerPage,
+        limit: balanceSheetsRowsPerPage,
+      },
       onError: () => {
         enqueueNotification(
           `Unable to fetch balance entry series now.`,
@@ -133,12 +141,13 @@ export default function Page() {
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: any) => {
+      onSuccess: async ({ data, metadata }: any) => {
         setBalanceSheetsSeries(data)
+        setBalanceSheetsCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingBalanceSheetsSeries(false)
-  }, [enqueueNotification])
+  }, [balanceSheetsPage, balanceSheetsRowsPerPage, enqueueNotification])
 
   const fetchPrices = React.useCallback(
     async (
@@ -325,24 +334,18 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
+          sticky
           title="結餘"
           actions={[
-            <Button
-              key="create"
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => {
-                router.push(`/finance/balance-sheets/new`)
-              }}
-            >
-              新增
-            </Button>,
-          ]}
-        />
-
-        <ModuleFunctionHeader
-          title={<Typography variant="h6">資金曲線</Typography>}
-          actions={[
+            <TablePagination
+              key="pagination"
+              count={balanceSheetsCount}
+              page={balanceSheetsPage}
+              rowsPerPage={balanceSheetsRowsPerPage}
+              setPage={setBalanceSheetsPage}
+              setRowsPerPage={setBalanceSheetsRowsPerPage}
+              rowsPerPageOptions={[5, 10]}
+            />,
             <Tooltip key="refresh" title="立即重整">
               <span>
                 <IconButton
@@ -354,6 +357,10 @@ export default function Page() {
               </span>
             </Tooltip>,
           ]}
+        />
+
+        <ModuleFunctionHeader
+          title={<Typography variant="h6">資金曲線</Typography>}
         />
         <ModuleFunctionBody
           loading={
@@ -406,18 +413,18 @@ export default function Page() {
 
         <ModuleFunctionHeader
           title={<Typography variant="h6">明細</Typography>}
-          // actions={[
-          //   <Tooltip key="refresh" title="立即重整">
-          //     <span>
-          //       <IconButton
-          //         onClick={fetchBalanceSheets}
-          //         disabled={isFetchingBalanceSheetsSeries}
-          //       >
-          //         <RefreshIcon />
-          //       </IconButton>
-          //     </span>
-          //   </Tooltip>,
-          // ]}
+          actions={[
+            <Button
+              key="create"
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                router.push(`/finance/balance-sheets/new`)
+              }}
+            >
+              新增
+            </Button>,
+          ]}
         />
         <ModuleFunctionBody loading={isFetchingBalanceSheetsSeries}>
           <TableContainer>
