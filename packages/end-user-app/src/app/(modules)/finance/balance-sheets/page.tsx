@@ -83,7 +83,14 @@ export default function Page() {
   const [prices, setPrices] = React.useState<any>([])
   const [isFetchingPrices, setIsFetchingPrices] = React.useState(false)
 
-  // Chart options
+  // Chart
+  // const [areaChart, setAreaChart] = React.useState<Highcharts.Chart | null>(
+  //   null
+  // )
+  const chartRef = React.useRef<Highcharts.Chart | null>(null)
+  // const [areaChartSeries, setAreaChartSeries] = React.useState<
+  //   Highcharts.Series[]
+  // >([])
   const [areaChartOptions, setAreaChartOptions] =
     React.useState<Highcharts.Options>(areaChartOptionsTemplate)
 
@@ -288,26 +295,26 @@ export default function Page() {
           type: 'area',
           name: account.name,
           data: balanceEntries
-.map((balanceEntry) => {
-            const balanceSheet =
-              balanceSheetReferenceToBalanceSheetMap[
-                balanceEntry.balance_sheet_reference as string
+            .map((balanceEntry) => {
+              const balanceSheet =
+                balanceSheetReferenceToBalanceSheetMap[
+                  balanceEntry.balance_sheet_reference as string
+                ]
+              const price = getSyntheticPrice(
+                prices.filter(
+                  (price: any) =>
+                    price.target_datetime === balanceSheet.balanced_time
+                ),
+                accountSettlementAssetSymbol as string,
+                selectedSettleableAssetSymbol as string
+              )
+              return [
+                new Date(`${balanceSheet.balanced_time}Z`).getTime() +
+                  timezone.offsetInMinutes * 60 * 1000,
+                (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
+                  price,
               ]
-            const price = getSyntheticPrice(
-              prices.filter(
-                (price: any) =>
-                  price.target_datetime === balanceSheet.balanced_time
-              ),
-              accountSettlementAssetSymbol as string,
-              selectedSettleableAssetSymbol as string
-            )
-            return [
-              new Date(`${balanceSheet.balanced_time}Z`).getTime() +
-                timezone.offsetInMinutes * 60 * 1000,
-              (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
-                price,
-            ]
-          })
+            })
             .sort((a: any, b: any) => a[0] - b[0]),
         }
       })
@@ -410,7 +417,95 @@ export default function Page() {
               </FormControl>
             </Stack>
           </Box>
-          <HighChartsCore options={areaChartOptions} />
+          <HighChartsCore
+            // callback={(chart) => {
+            //   setAreaChart(chart)
+            //   console.log(chart)
+            // }}
+            onRender={(chart) => {
+              chartRef.current = chart
+              // const newSeries = [...chart.series]
+              // if (
+              //   JSON.stringify(newSeries) !== JSON.stringify(areaChartSeries)
+              // ) {
+              //   setAreaChartSeries(newSeries)
+              // }
+              // console.log(newSeries)
+            }}
+            options={areaChartOptions}
+          />
+          <Stack spacing={3} p={2}>
+            <Stack
+              direction="row"
+              p={2}
+              sx={{
+                flexWrap: 'wrap',
+              }}
+            >
+              <Button
+                variant="text"
+                onClick={() => {
+                  chartRef.current?.series.forEach((s: any) => {
+                    s.show()
+                  })
+                  // areaChart?.series.forEach((s: any) => {
+                  //   s.show()
+                  // })
+                  // setForceUpdate(forceUpdate + 1)
+                }}
+              >
+                選取全部
+              </Button>
+              <Button
+                variant="text"
+                onClick={() => {
+                  chartRef.current?.series.forEach((s: any) => {
+                    s.hide()
+                  })
+                  // flowChart?.series.forEach((s: any) => {
+                  //   s.hide()
+                  // })
+                  // setForceUpdate(forceUpdate + 1)
+                }}
+              >
+                反選全部
+              </Button>
+              {chartRef.current?.series.map((s: any) => (
+                <Box key={s.name} sx={{ p: 0.5 }}>
+                  <Chip
+                    label={s.name}
+                    size="small"
+                    // onClick={() => {
+                    //   if (s.visible) {
+                    //     s.hide()
+                    //     flowChart?.series
+                    //       .filter((ss: any) => ss.name === s.name)
+                    //       .forEach((ss: any) => {
+                    //         ss.hide()
+                    //       })
+                    //   } else {
+                    //     s.show()
+                    //     flowChart?.series
+                    //       .filter((ss: any) => ss.name === s.name)
+                    //       .forEach((ss: any) => {
+                    //         ss.show()
+                    //       })
+                    //   }
+                    //   setForceUpdate(forceUpdate + 1)
+                    // }}
+                    variant={s.visible ? undefined : 'outlined'}
+                    avatar={
+                      s.visible ? (
+                        <svg>
+                          <circle r="9" cx="9" cy="9" fill={s.color} />
+                        </svg>
+                      ) : undefined
+                    }
+                  />
+                </Box>
+              ))}
+            </Stack>
+          </Stack>
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
