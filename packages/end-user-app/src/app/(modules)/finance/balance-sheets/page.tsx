@@ -287,7 +287,8 @@ export default function Page() {
         return {
           type: 'area',
           name: account.name,
-          data: balanceEntries.map((balanceEntry) => {
+          data: balanceEntries
+.map((balanceEntry) => {
             const balanceSheet =
               balanceSheetReferenceToBalanceSheetMap[
                 balanceEntry.balance_sheet_reference as string
@@ -306,7 +307,8 @@ export default function Page() {
               (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
                 price,
             ]
-          }),
+          })
+            .sort((a: any, b: any) => a[0] - b[0]),
         }
       })
       const selectedAsset = settleableAssets.find(
