@@ -187,11 +187,7 @@ export default function Page() {
           </MuiLink>
           {balanceSheet && (
             <span>
-              <Chip
-                size="small"
-                sx={{ ml: 1 }}
-                label={balanceSheet.reference}
-              />
+              <Chip size="small" label={balanceSheet.reference} />
             </span>
           )}
         </Breadcrumbs>
@@ -249,7 +245,7 @@ export default function Page() {
               <TableHead>
                 <TableRow>
                   <NoWrapTableCell>帳戶</NoWrapTableCell>
-                  <NoWrapTableCell>數量</NoWrapTableCell>
+                  <NoWrapTableCell align="right">數量</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                 </TableRow>
@@ -284,7 +280,7 @@ export default function Page() {
                           variant="outlined"
                         />
                       </NoWrapTableCell>
-                      <NoWrapTableCell>{amount}</NoWrapTableCell>
+                      <NoWrapTableCell align="right">{amount}</NoWrapTableCell>
                       <NoWrapTableCell>
                         <Chip
                           size="small"

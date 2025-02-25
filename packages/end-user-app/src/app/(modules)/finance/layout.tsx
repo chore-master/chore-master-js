@@ -39,40 +39,25 @@ export default function Layout({
           type: 'divider',
         },
         {
-          type: 'link',
-          title: '資產',
-          href: '/finance/assets',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          type: 'link',
-          title: '帳戶',
-          href: '/finance/accounts',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          type: 'link',
-          title: '結餘',
-          href: '/finance/balance-sheets',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          type: 'divider',
-        },
-        {
           type: 'header',
-          title: '權益',
+          title: '我的資金',
           navigations: [
             {
               type: 'link',
-              title: '總覽',
-              href: '/finance/net-value/overview',
+              title: '資產',
+              href: '/finance/assets',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '明細',
-              href: '/finance/net-value/statement',
+              title: '帳戶',
+              href: '/finance/accounts',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: '結餘',
+              href: '/finance/balance-sheets',
               selectedWhenPartiallyMatched: true,
             },
           ],
@@ -80,6 +65,27 @@ export default function Layout({
         {
           type: 'divider',
         },
+        // {
+        //   type: 'header',
+        //   title: '權益',
+        //   navigations: [
+        //     {
+        //       type: 'link',
+        //       title: '總覽',
+        //       href: '/finance/net-value/overview',
+        //       selectedWhenPartiallyMatched: true,
+        //     },
+        //     {
+        //       type: 'link',
+        //       title: '明細',
+        //       href: '/finance/net-value/statement',
+        //       selectedWhenPartiallyMatched: true,
+        //     },
+        //   ],
+        // },
+        // {
+        //   type: 'divider',
+        // },
         {
           type: 'link',
           title: '投資組合',
