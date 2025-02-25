@@ -83,7 +83,6 @@ export interface BalanceSheetDetail {
 }
 
 export interface BalanceSheetSeries {
-  assets: Asset[]
   accounts: Account[]
   balance_sheets: BalanceSheetSummary[]
   balance_entries: BalanceEntry[]

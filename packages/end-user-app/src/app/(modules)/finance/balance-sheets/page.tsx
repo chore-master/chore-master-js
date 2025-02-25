@@ -63,6 +63,10 @@ const chartTypes = [
     label: '資產負債組成',
     value: 'assets_and_liabilities_area',
   },
+  {
+    label: '參考匯率',
+    value: 'exchange_rate',
+  },
 ]
 
 export default function Page() {
@@ -89,7 +93,6 @@ export default function Page() {
   // Balance sheets series
   const [balanceSheetsSeries, setBalanceSheetsSeries] =
     React.useState<BalanceSheetSeries>({
-      assets: [],
       accounts: [],
       balance_sheets: [],
       balance_entries: [],
@@ -335,7 +338,53 @@ export default function Page() {
 
       let series: Highcharts.SeriesOptionsType[] = []
       if (selectedChartType === 'net_value_line') {
-        series = []
+        const datapoints = balanceSheets.map((balanceSheet) => {
+          const equity = balanceEntries
+            .filter(
+              (balanceEntry) =>
+                balanceEntry.balance_sheet_reference === balanceSheet.reference
+            )
+            .reduce((acc, balanceEntry) => {
+              const accountReference = balanceEntry.account_reference
+              const account = accountReferenceToAccountMap[accountReference]
+              const legend = legends.find(
+                (legend: any) => legend.seriesId === account.reference
+              )
+              if (!legend?.isVisible) {
+                return acc
+              }
+              const accountSettlementAsset = settleableAssets.find(
+                (asset) =>
+                  asset.reference === account.settlement_asset_reference
+              ) as Asset
+              const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+              const price = getSyntheticPrice(
+                prices.filter(
+                  (price: any) =>
+                    price.target_datetime === balanceSheet.balanced_time
+                ),
+                accountSettlementAssetSymbol as string,
+                selectedSettleableAssetSymbol as string
+              )
+
+              return (
+                acc +
+                (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
+                  price
+              )
+            }, 0)
+          return [
+            new Date(`${balanceSheet.balanced_time}Z`).getTime() +
+              timezone.offsetInMinutes * 60 * 1000,
+            equity,
+          ]
+        })
+        series = [
+          {
+            type: 'line',
+            data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
+          },
+        ] as Highcharts.SeriesOptionsType[]
       } else if (selectedChartType === 'net_value_area') {
         series = Object.entries(accountReferenceToBalanceEntriesMap).map(
           ([accountReference, balanceEntries]) => {
@@ -378,7 +427,7 @@ export default function Page() {
             }
           }
         )
-      } else if (selectedChartType === 'assets_and_liabilities') {
+      } else if (selectedChartType === 'assets_and_liabilities_area') {
         series = Object.entries(accountReferenceToBalanceEntriesMap)
           .map(([accountReference, balanceEntries]) => {
             const account = accountReferenceToAccountMap[accountReference]
@@ -434,6 +483,47 @@ export default function Page() {
             ]
           })
           .flat() as Highcharts.SeriesOptionsType[]
+      } else if (selectedChartType === 'exchange_rate') {
+        const baseAssetReferenceSet = balanceSheetsSeries.accounts.reduce<
+          Set<string>
+        >((acc, account) => {
+          // if (
+          //   account.settlement_asset_reference ==
+          //   selectedSettleableAssetReference
+          // ) {
+          //   return acc
+          // }
+          acc.add(account.settlement_asset_reference)
+          return acc
+        }, new Set())
+        const quoteAssetSymbol = settleableAssets.find(
+          (asset) => asset.reference === selectedSettleableAssetReference
+        )?.symbol as string
+        series = Array.from(baseAssetReferenceSet).map((baseAssetReference) => {
+          const baseAssetSymbol = settleableAssets.find(
+            (asset) => asset.reference === baseAssetReference
+          )?.symbol as string
+          const datapoints = balanceSheets.map((balanceSheet) => {
+            const price = getSyntheticPrice(
+              prices.filter(
+                (price: any) =>
+                  price.target_datetime === balanceSheet.balanced_time
+              ),
+              baseAssetSymbol,
+              quoteAssetSymbol
+            )
+            return [
+              new Date(`${balanceSheet.balanced_time}Z`).getTime() +
+                timezone.offsetInMinutes * 60 * 1000,
+              price,
+            ]
+          })
+          return {
+            type: 'line',
+            name: `${baseAssetSymbol}/${quoteAssetSymbol}`,
+            data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
+          }
+        }) as Highcharts.SeriesOptionsType[]
       }
 
       const selectedAsset = settleableAssets.find(
@@ -494,7 +584,7 @@ export default function Page() {
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
             <Stack direction="row" spacing={2}>
               <FormControl variant="standard">
-                <InputLabel>圖別</InputLabel>
+                <InputLabel>檢視維度</InputLabel>
                 <Select
                   value={selectedChartType}
                   onChange={(event: SelectChangeEvent) => {
@@ -547,76 +637,78 @@ export default function Page() {
             </Stack>
           </Box>
           <HighChartsCore options={areaChartOptions} />
-          <Stack sx={{ mt: 2 }}>
-            <Stack
-              direction="row"
-              sx={{
-                px: 1,
-                alignItems: 'center',
-              }}
-            >
-              <FormControlLabel
-                label="期間往來帳戶"
-                sx={{ m: 0 }}
-                control={
-                  <Checkbox
-                    size="small"
-                    color="default"
-                    checked={legends.every((legend) => legend.isVisible)}
-                    indeterminate={
-                      legends.some((legend) => legend.isVisible) &&
-                      !legends.every((legend) => legend.isVisible)
-                    }
-                    onChange={(event) => {
-                      setLegends(
-                        legends.map((legend) => ({
-                          ...legend,
-                          isVisible: event.target.checked,
-                        }))
-                      )
-                    }}
-                  />
-                }
-              />
+          {selectedChartType !== 'exchange_rate' && (
+            <Stack sx={{ mt: 2 }}>
+              <Stack
+                direction="row"
+                sx={{
+                  px: 1,
+                  alignItems: 'center',
+                }}
+              >
+                <FormControlLabel
+                  label="包含帳戶"
+                  sx={{ m: 0 }}
+                  control={
+                    <Checkbox
+                      size="small"
+                      color="default"
+                      checked={legends.every((legend) => legend.isVisible)}
+                      indeterminate={
+                        legends.some((legend) => legend.isVisible) &&
+                        !legends.every((legend) => legend.isVisible)
+                      }
+                      onChange={(event) => {
+                        setLegends(
+                          legends.map((legend) => ({
+                            ...legend,
+                            isVisible: event.target.checked,
+                          }))
+                        )
+                      }}
+                    />
+                  }
+                />
+              </Stack>
+              <Stack
+                direction="row"
+                sx={{
+                  p: 1,
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                }}
+              >
+                {legends.map((legend: any, index: number) => (
+                  <Box key={legend.seriesId} sx={{ p: 0.5 }}>
+                    <Chip
+                      label={legend.label}
+                      size="small"
+                      onClick={() => {
+                        setLegends([
+                          ...legends.slice(0, index),
+                          {
+                            ...legend,
+                            isVisible: !legend.isVisible,
+                          },
+                          ...legends.slice(index + 1),
+                        ])
+                      }}
+                      variant={legend.isVisible ? undefined : 'outlined'}
+                      icon={
+                        legend.isVisible ? (
+                          <CircleIcon style={{ color: legend.color }} />
+                        ) : (
+                          <RadioButtonUncheckedIcon
+                            style={{ color: legend.color }}
+                          />
+                        )
+                      }
+                    />
+                  </Box>
+                ))}
+              </Stack>
             </Stack>
-            <Stack
-              direction="row"
-              sx={{
-                p: 1,
-                flexWrap: 'wrap',
-                alignItems: 'center',
-              }}
-            >
-              {legends.map((legend: any, index: number) => (
-                <Box key={legend.seriesId} sx={{ p: 0.5 }}>
-                  <Chip
-                    label={legend.label}
-                    size="small"
-                    onClick={() => {
-                      setLegends([
-                        ...legends.slice(0, index),
-                        {
-                          ...legend,
-                          isVisible: !legend.isVisible,
-                        },
-                        ...legends.slice(index + 1),
-                      ])
-                    }}
-                    variant={legend.isVisible ? undefined : 'outlined'}
-                    icon={
-                      legend.isVisible ? (
-                        <CircleIcon style={{ color: legend.color }} />
-                      ) : (
-                        <RadioButtonUncheckedIcon
-                          style={{ color: legend.color }}
-                        />
-                      )
-                    }
-                  />
-                </Box>
-              ))}
-            </Stack>
-          </Stack>
+          )}
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
