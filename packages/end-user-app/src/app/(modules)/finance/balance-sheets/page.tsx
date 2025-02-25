@@ -3,6 +3,7 @@
 import HighChartsCore from '@/components/charts/HighChartsCore'
 import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
+  ModuleContainer,
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
@@ -27,10 +28,12 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -245,7 +248,13 @@ export default function Page() {
         )
       fetchPrices(selectedFeedResourceReference, datetimes, instrumentSymbols)
     }
-  }, [selectedFeedResourceReference, balanceSheetsSeries, settleableAssets])
+  }, [
+    selectedFeedResourceReference,
+    balanceSheetsSeries,
+    settleableAssets,
+    fetchPrices,
+    enqueueNotification,
+  ])
 
   React.useEffect(() => {
     if (prices.length > 0 && selectedSettleableAssetReference) {
@@ -337,6 +346,7 @@ export default function Page() {
     timezone.offsetInMinutes,
     selectedSettleableAssetReference,
     prices,
+    settleableAssets,
   ])
 
   return (
@@ -346,15 +356,6 @@ export default function Page() {
           sticky
           title="結餘"
           actions={[
-            <TablePagination
-              key="pagination"
-              count={balanceSheetsCount}
-              page={balanceSheetsPage}
-              rowsPerPage={balanceSheetsRowsPerPage}
-              setPage={setBalanceSheetsPage}
-              setRowsPerPage={setBalanceSheetsRowsPerPage}
-              rowsPerPageOptions={[5, 10]}
-            />,
             <Tooltip key="refresh" title="立即重整">
               <span>
                 <IconButton
@@ -577,6 +578,19 @@ export default function Page() {
           </TableContainer>
         </ModuleFunctionBody>
       </ModuleFunction>
+      <ModuleContainer stickyBottom>
+        <Divider />
+        <Paper elevation={0}>
+          <TablePagination
+            count={balanceSheetsCount}
+            page={balanceSheetsPage}
+            rowsPerPage={balanceSheetsRowsPerPage}
+            setPage={setBalanceSheetsPage}
+            setRowsPerPage={setBalanceSheetsRowsPerPage}
+            rowsPerPageOptions={[5, 10]}
+          />
+        </Paper>
+      </ModuleContainer>
     </React.Fragment>
   )
 }
