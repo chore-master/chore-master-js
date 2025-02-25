@@ -448,20 +448,21 @@ export default function Page() {
             </Stack>
           </Box>
           <HighChartsCore options={areaChartOptions} />
-          <Stack spacing={3} p={1}>
+          <Stack sx={{ mt: 2 }}>
             <Stack
               direction="row"
               sx={{
+                px: 1,
                 alignItems: 'center',
-                justifyContent: 'flex-end',
               }}
             >
               <FormControlLabel
-                label="（反）選取全部帳戶"
+                label="期間往來帳戶"
                 sx={{ m: 0 }}
                 control={
                   <Checkbox
                     size="small"
+                    color="default"
                     checked={legends.every((legend) => legend.isVisible)}
                     indeterminate={
                       legends.some((legend) => legend.isVisible) &&
@@ -482,7 +483,7 @@ export default function Page() {
             <Stack
               direction="row"
               sx={{
-                p: 0.5,
+                p: 1,
                 flexWrap: 'wrap',
                 alignItems: 'center',
               }}
