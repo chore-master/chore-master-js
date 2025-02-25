@@ -583,7 +583,11 @@ export default function Page() {
           }
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
-            <Stack direction="row" spacing={2}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}
+            >
               <FormControl variant="standard">
                 <InputLabel>檢視維度</InputLabel>
                 <Select
