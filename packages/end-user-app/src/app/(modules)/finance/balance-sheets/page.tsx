@@ -52,23 +52,16 @@ import { areaChartOptionsTemplate } from './optionsTemplate'
 
 const chartTypes = [
   {
-    label: '折線',
-    value: 'line',
-  },
-  {
-    label: '堆疊',
-    value: 'area',
-  },
-]
-
-const dimensions = [
-  {
     label: '淨值',
-    value: 'net_value',
+    value: 'net_value_line',
   },
   {
-    label: '資產負債價值',
-    value: 'assets_and_liabilities',
+    label: '淨值組成',
+    value: 'net_value_area',
+  },
+  {
+    label: '資產負債組成',
+    value: 'assets_and_liabilities_area',
   },
 ]
 
@@ -123,9 +116,6 @@ export default function Page() {
       isVisible: boolean
     }[]
   >([])
-  const [selectedDimension, setSelectedDimension] = React.useState(
-    dimensions[0].value
-  )
   const [selectedChartType, setSelectedChartType] = React.useState(
     chartTypes[0].value
   )
@@ -344,7 +334,9 @@ export default function Page() {
       const selectedSettleableAssetSymbol = selectedSettleableAsset?.symbol
 
       let series: Highcharts.SeriesOptionsType[] = []
-      if (selectedDimension === 'net_value') {
+      if (selectedChartType === 'net_value_line') {
+        series = []
+      } else if (selectedChartType === 'net_value_area') {
         series = Object.entries(accountReferenceToBalanceEntriesMap).map(
           ([accountReference, balanceEntries]) => {
             const account = accountReferenceToAccountMap[accountReference]
@@ -377,7 +369,7 @@ export default function Page() {
               ]
             })
             return {
-              type: selectedChartType,
+              type: 'area',
               stack: 'equity',
               name: account.name,
               visible: legend?.isVisible,
@@ -385,8 +377,8 @@ export default function Page() {
               data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
             }
           }
-        ) as Highcharts.SeriesOptionsType[]
-      } else if (selectedDimension === 'assets_and_liabilities') {
+        )
+      } else if (selectedChartType === 'assets_and_liabilities') {
         series = Object.entries(accountReferenceToBalanceEntriesMap)
           .map(([accountReference, balanceEntries]) => {
             const account = accountReferenceToAccountMap[accountReference]
@@ -420,7 +412,7 @@ export default function Page() {
             })
             return [
               {
-                type: selectedChartType,
+                type: 'area',
                 stack: 'asset',
                 name: account.name,
                 visible: legend?.isVisible,
@@ -430,7 +422,7 @@ export default function Page() {
                   .sort((a: any, b: any) => a[0] - b[0]),
               },
               {
-                type: selectedChartType,
+                type: 'area',
                 stack: 'debt',
                 name: account.name,
                 visible: legend?.isVisible,
@@ -462,7 +454,6 @@ export default function Page() {
     timezone.offsetInMinutes,
     balanceSheetsSeries,
     selectedChartType,
-    selectedDimension,
     selectedSettleableAssetReference,
     prices,
     settleableAssets,
@@ -514,22 +505,6 @@ export default function Page() {
                   {chartTypes.map((chartType) => (
                     <MenuItem key={chartType.value} value={chartType.value}>
                       {chartType.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl variant="standard">
-                <InputLabel>維度</InputLabel>
-                <Select
-                  value={selectedDimension}
-                  onChange={(event: SelectChangeEvent) => {
-                    setSelectedDimension(event.target.value)
-                  }}
-                  autoWidth
-                >
-                  {dimensions.map((dimension) => (
-                    <MenuItem key={dimension.value} value={dimension.value}>
-                      {dimension.label}
                     </MenuItem>
                   ))}
                 </Select>
