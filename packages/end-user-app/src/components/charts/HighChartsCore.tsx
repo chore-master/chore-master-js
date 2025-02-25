@@ -22,11 +22,11 @@ if (typeof Highcharts === 'object') {
 export default function HighChartsCore({
   options,
   callback,
-  onRender,
-}: {
+}: // onRender,
+{
   options: Highcharts.Options
   callback?: (chart: Highcharts.Chart) => void
-  onRender?: (chart: Highcharts.Chart) => void
+  // onRender?: (chart: Highcharts.Chart) => void
 }) {
   const chartComponentRef = React.useRef<HighchartsReact.RefObject>(null)
   const [chart, setChart] = React.useState<Highcharts.Chart | null>(null)
@@ -35,20 +35,20 @@ export default function HighChartsCore({
   const [forceUpdate, setForceUpdate] = React.useState(0)
 
   const defaultOptions = {
-    chart: {
-      events: {
-        // load: function () {
-        //   console.log('load', this.series)
-        // },
-        // redraw: function () {
-        //   console.log('redraw', this.series)
-        // },
-        render: function () {
-          onRender?.(this)
-          // console.log('render', this.series)
-        },
-      },
-    },
+    // chart: {
+    //   events: {
+    //     // load: function () {
+    //     //   console.log('load', this.series)
+    //     // },
+    //     // redraw: function () {
+    //     //   console.log('redraw', this.series)
+    //     // },
+    //     render: function () {
+    //       onRender?.(this)
+    //       // console.log('render', this.series)
+    //     },
+    //   },
+    // },
     title: {
       text: '',
     },
@@ -77,9 +77,9 @@ export default function HighChartsCore({
     [callback]
   )
 
-  React.useEffect(() => {
-    setChart(chart)
-  }, [mergedOptions])
+  // React.useEffect(() => {
+  //   setChart(chart)
+  // }, [mergedOptions])
 
   // React.useEffect(() => {
   //   if (previousMode !== mode) {

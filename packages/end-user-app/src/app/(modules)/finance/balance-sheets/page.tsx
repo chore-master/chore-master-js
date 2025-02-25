@@ -10,7 +10,7 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
-import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
+import { colors20, INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
 import type {
   Account,
   Asset,
@@ -23,13 +23,17 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { getSyntheticPrice } from '@/utils/price'
 import AddIcon from '@mui/icons-material/Add'
+import CircleIcon from '@mui/icons-material/Circle'
 import EditIcon from '@mui/icons-material/Edit'
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -87,21 +91,26 @@ export default function Page() {
   const [isFetchingPrices, setIsFetchingPrices] = React.useState(false)
 
   // Chart
-  // const [areaChart, setAreaChart] = React.useState<Highcharts.Chart | null>(
-  //   null
-  // )
-  const chartRef = React.useRef<Highcharts.Chart | null>(null)
-  // const [areaChartSeries, setAreaChartSeries] = React.useState<
-  //   Highcharts.Series[]
-  // >([])
   const [areaChartOptions, setAreaChartOptions] =
     React.useState<Highcharts.Options>(areaChartOptionsTemplate)
+  const [legends, setLegends] = React.useState<
+    {
+      seriesId: string
+      label: string
+      color: string
+      isVisible: boolean
+    }[]
+  >([])
 
   const fetchFeedResources = React.useCallback(async () => {
     setIsFetchingFeedResources(true)
     await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
       params: {
-        discriminators: ['oanda_feed', 'yahoo_finance_feed', 'coingecko_feed'],
+        discriminators: [
+          'oanda_feed',
+          'yahoo_finance_feed',
+          // 'coingecko_feed'
+        ],
       },
       onError: () => {
         enqueueNotification(`Unable to fetch feed resources now.`, 'error')
@@ -257,6 +266,19 @@ export default function Page() {
   ])
 
   React.useEffect(() => {
+    if (balanceSheetsSeries.accounts.length > 0) {
+      setLegends(
+        balanceSheetsSeries.accounts.map((account, index) => ({
+          seriesId: account.reference,
+          label: account.name,
+          color: colors20[index % colors20.length],
+          isVisible: true,
+        }))
+      )
+    }
+  }, [balanceSheetsSeries])
+
+  React.useEffect(() => {
     if (prices.length > 0 && selectedSettleableAssetReference) {
       const accounts = balanceSheetsSeries.accounts || []
       const balanceSheets = balanceSheetsSeries.balance_sheets || []
@@ -300,9 +322,15 @@ export default function Page() {
           (asset) => asset.reference === account.settlement_asset_reference
         ) as Asset
         const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+        const legend = legends.find(
+          (legend: any) => legend.seriesId === account.reference
+        )
         return {
           type: 'area',
+          id: account.reference,
           name: account.name,
+          visible: legend?.isVisible,
+          color: legend?.color,
           data: balanceEntries
             .map((balanceEntry) => {
               const balanceSheet =
@@ -347,6 +375,7 @@ export default function Page() {
     selectedSettleableAssetReference,
     prices,
     settleableAssets,
+    legends,
   ])
 
   return (
@@ -381,7 +410,7 @@ export default function Page() {
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
             <Stack direction="row" spacing={2}>
-              <FormControl variant="standard" sx={{ minWidth: 120 }}>
+              <FormControl variant="standard">
                 <InputLabel>結算資產</InputLabel>
                 <Select
                   value={selectedSettleableAssetReference}
@@ -397,7 +426,7 @@ export default function Page() {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl variant="standard" sx={{ minWidth: 120 }}>
+              <FormControl variant="standard">
                 <InputLabel>報價來源</InputLabel>
                 <Select
                   value={selectedFeedResourceReference}
@@ -418,89 +447,70 @@ export default function Page() {
               </FormControl>
             </Stack>
           </Box>
-          <HighChartsCore
-            // callback={(chart) => {
-            //   setAreaChart(chart)
-            //   console.log(chart)
-            // }}
-            onRender={(chart) => {
-              chartRef.current = chart
-              // const newSeries = [...chart.series]
-              // if (
-              //   JSON.stringify(newSeries) !== JSON.stringify(areaChartSeries)
-              // ) {
-              //   setAreaChartSeries(newSeries)
-              // }
-              // console.log(newSeries)
-            }}
-            options={areaChartOptions}
-          />
-          <Stack spacing={3} p={2}>
+          <HighChartsCore options={areaChartOptions} />
+          <Stack spacing={3} p={1}>
             <Stack
               direction="row"
-              p={2}
               sx={{
-                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
               }}
             >
-              <Button
-                variant="text"
-                onClick={() => {
-                  chartRef.current?.series.forEach((s: any) => {
-                    s.show()
-                  })
-                  // areaChart?.series.forEach((s: any) => {
-                  //   s.show()
-                  // })
-                  // setForceUpdate(forceUpdate + 1)
-                }}
-              >
-                選取全部
-              </Button>
-              <Button
-                variant="text"
-                onClick={() => {
-                  chartRef.current?.series.forEach((s: any) => {
-                    s.hide()
-                  })
-                  // flowChart?.series.forEach((s: any) => {
-                  //   s.hide()
-                  // })
-                  // setForceUpdate(forceUpdate + 1)
-                }}
-              >
-                反選全部
-              </Button>
-              {chartRef.current?.series.map((s: any) => (
-                <Box key={s.name} sx={{ p: 0.5 }}>
-                  <Chip
-                    label={s.name}
+              <FormControlLabel
+                label="（反）選取全部帳戶"
+                sx={{ m: 0 }}
+                control={
+                  <Checkbox
                     size="small"
-                    // onClick={() => {
-                    //   if (s.visible) {
-                    //     s.hide()
-                    //     flowChart?.series
-                    //       .filter((ss: any) => ss.name === s.name)
-                    //       .forEach((ss: any) => {
-                    //         ss.hide()
-                    //       })
-                    //   } else {
-                    //     s.show()
-                    //     flowChart?.series
-                    //       .filter((ss: any) => ss.name === s.name)
-                    //       .forEach((ss: any) => {
-                    //         ss.show()
-                    //       })
-                    //   }
-                    //   setForceUpdate(forceUpdate + 1)
-                    // }}
-                    variant={s.visible ? undefined : 'outlined'}
-                    avatar={
-                      s.visible ? (
-                        <svg>
-                          <circle r="9" cx="9" cy="9" fill={s.color} />
-                        </svg>
-                      ) : undefined
+                    checked={legends.every((legend) => legend.isVisible)}
+                    indeterminate={
+                      legends.some((legend) => legend.isVisible) &&
+                      !legends.every((legend) => legend.isVisible)
+                    }
+                    onChange={(event) => {
+                      setLegends(
+                        legends.map((legend) => ({
+                          ...legend,
+                          isVisible: event.target.checked,
+                        }))
+                      )
+                    }}
+                  />
+                }
+              />
+            </Stack>
+            <Stack
+              direction="row"
+              sx={{
+                p: 0.5,
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }}
+            >
+              {legends.map((legend: any, index: number) => (
+                <Box key={legend.seriesId} sx={{ p: 0.5 }}>
+                  <Chip
+                    label={legend.label}
+                    size="small"
+                    onClick={() => {
+                      setLegends([
+                        ...legends.slice(0, index),
+                        {
+                          ...legend,
+                          isVisible: !legend.isVisible,
+                        },
+                        ...legends.slice(index + 1),
+                      ])
+                    }}
+                    variant={legend.isVisible ? undefined : 'outlined'}
+                    icon={
+                      legend.isVisible ? (
+                        <CircleIcon style={{ color: legend.color }} />
+                      ) : (
+                        <RadioButtonUncheckedIcon
+                          style={{ color: legend.color }}
+                        />
+                      )
                     }
                   />
                 </Box>
