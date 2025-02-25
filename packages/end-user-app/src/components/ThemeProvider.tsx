@@ -1,3 +1,4 @@
+import ThemeInitializer from '@/components/ThemeInitializer'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles'
 import { PrimeReactProvider } from 'primereact/api'
@@ -11,7 +12,9 @@ export default function ThemeProvider({
   return (
     <MUIThemeProvider theme={theme}>
       <CssBaseline />
-      <PrimeReactProvider>{children}</PrimeReactProvider>
+      <PrimeReactProvider>
+        <ThemeInitializer>{children}</ThemeInitializer>
+      </PrimeReactProvider>
     </MUIThemeProvider>
   )
 }
