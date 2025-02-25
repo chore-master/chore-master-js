@@ -437,6 +437,7 @@ export default function ModuleLayout({
 
       <Dialog
         fullWidth
+        closeAfterTransition={false}
         open={isSettingsDialogOpen}
         onClose={() => {
           setIsSettingsDialogOpen(false)
