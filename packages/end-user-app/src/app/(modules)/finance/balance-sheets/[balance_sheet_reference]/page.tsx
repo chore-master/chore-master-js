@@ -8,7 +8,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
-import type { Account, Asset, BalanceSheetDetail } from '@/types'
+import type { Account, Asset, BalanceSheetDetail, Resource } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import EditIcon from '@mui/icons-material/Edit'
@@ -16,8 +16,13 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Chip from '@mui/material/Chip'
+import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
+import InputLabel from '@mui/material/InputLabel'
 import MuiLink from '@mui/material/Link'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
@@ -28,7 +33,7 @@ import Decimal from 'decimal.js'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
-import optionsTemplate from './optionsTemplate'
+import { pieChartOptionsTemplate } from './optionsTemplate'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
@@ -37,24 +42,62 @@ export default function Page() {
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
 
-  // Distribution chart
-  const [options, setOptions] =
-    React.useState<Highcharts.Options>(optionsTemplate)
+  // Feed resource
+  const [feedResources, setFeedResources] = React.useState<Resource[]>([])
+  const [isFetchingFeedResources, setIsFetchingFeedResources] =
+    React.useState(false)
+  const [selectedFeedResourceReference, setSelectedFeedResourceReference] =
+    React.useState('')
 
-  // Asset
+  // Settleable asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
   const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
+    React.useState(false)
+  const [
+    selectedSettleableAssetReference,
+    setSelectedSettleableAssetReference,
+  ] = React.useState('')
+
+  // Balance sheet
+  const [balanceSheet, setBalanceSheet] =
+    React.useState<BalanceSheetDetail | null>(null)
+  const [isFetchingBalanceSheet, setIsFetchingBalanceSheet] =
     React.useState(false)
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
 
-  // BalanceSheet
-  const [balanceSheet, setBalanceSheet] =
-    React.useState<BalanceSheetDetail | null>(null)
-  const [isFetchingBalanceSheet, setIsFetchingBalanceSheet] =
-    React.useState(false)
+  // Prices
+  const [prices, setPrices] = React.useState<any>([])
+  const [isFetchingPrices, setIsFetchingPrices] = React.useState(false)
+
+  // Chart
+  const [pieChartOptions, setPieChartOptions] =
+    React.useState<Highcharts.Options>(pieChartOptionsTemplate)
+
+  const fetchFeedResources = React.useCallback(async () => {
+    setIsFetchingFeedResources(true)
+    await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
+      params: {
+        discriminators: [
+          'oanda_feed',
+          'yahoo_finance_feed',
+          // 'coingecko_feed'
+        ],
+      },
+      onError: () => {
+        enqueueNotification(`Unable to fetch feed resources now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setFeedResources(data)
+      },
+    })
+    setIsFetchingFeedResources(false)
+  }, [enqueueNotification])
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -74,6 +117,26 @@ export default function Page() {
     })
     setIsFetchingSettleableAssets(false)
   }, [enqueueNotification])
+
+  const fetchBalanceSheet = React.useCallback(async () => {
+    setIsFetchingBalanceSheet(true)
+    await choreMasterAPIAgent.get(
+      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      {
+        params: {},
+        onError: () => {
+          enqueueNotification(`Unable to fetch balance sheet now.`, 'error')
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: async ({ data }: { data: BalanceSheetDetail }) => {
+          setBalanceSheet(data)
+        },
+      }
+    )
+    setIsFetchingBalanceSheet(false)
+  }, [balance_sheet_reference, enqueueNotification])
 
   const fetchAccounts = React.useCallback(
     async (activeAsOfTime: string) => {
@@ -97,25 +160,9 @@ export default function Page() {
     [enqueueNotification]
   )
 
-  const fetchBalanceSheet = React.useCallback(async () => {
-    setIsFetchingBalanceSheet(true)
-    await choreMasterAPIAgent.get(
-      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
-      {
-        params: {},
-        onError: () => {
-          enqueueNotification(`Unable to fetch balance sheet now.`, 'error')
-        },
-        onFail: ({ message }: any) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: async ({ data }: { data: BalanceSheetDetail }) => {
-          setBalanceSheet(data)
-        },
-      }
-    )
-    setIsFetchingBalanceSheet(false)
-  }, [balance_sheet_reference])
+  React.useEffect(() => {
+    fetchFeedResources()
+  }, [fetchFeedResources])
 
   React.useEffect(() => {
     fetchSettleableAssets()
@@ -123,7 +170,25 @@ export default function Page() {
 
   React.useEffect(() => {
     fetchBalanceSheet()
-  }, [])
+  }, [fetchBalanceSheet])
+
+  React.useEffect(() => {
+    const feedResource = feedResources.find(
+      (resource) => resource.reference === selectedFeedResourceReference
+    )
+    if (!feedResource) {
+      setSelectedFeedResourceReference(feedResources[0]?.reference || '')
+    }
+  }, [feedResources, selectedFeedResourceReference])
+
+  React.useEffect(() => {
+    const settleableAsset = settleableAssets.find(
+      (asset) => asset.reference === selectedSettleableAssetReference
+    )
+    if (!settleableAsset) {
+      setSelectedSettleableAssetReference(settleableAssets[0]?.reference || '')
+    }
+  }, [settleableAssets, selectedSettleableAssetReference])
 
   React.useEffect(() => {
     if (balanceSheet) {
@@ -134,37 +199,29 @@ export default function Page() {
         new Date(timezone.getUTCTimestamp(balancedTime)).toISOString()
       )
     }
-  }, [balanceSheet])
+  }, [balanceSheet, fetchAccounts])
 
   React.useEffect(() => {
-    setOptions(
-      Object.assign({}, optionsTemplate, {
+    setPieChartOptions(
+      Object.assign({}, pieChartOptionsTemplate, {
         series: [
           {
             name: 'Percentage',
             colorByPoint: true,
             data: [
               {
-                name: 'Water',
-                y: 55.02,
+                name: 'A',
+                y: 100,
               },
               {
-                name: 'Fat',
+                name: 'B',
                 sliced: true,
                 selected: true,
-                y: 26.71,
+                y: 50,
               },
               {
-                name: 'Carbohydrates',
-                y: 1.09,
-              },
-              {
-                name: 'Protein',
-                y: 15.5,
-              },
-              {
-                name: 'Ash',
-                y: 1.68,
+                name: 'C',
+                y: 30,
               },
             ],
           },
@@ -195,7 +252,74 @@ export default function Page() {
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
+          sticky
           title={<DatetimeBlock isoText={balanceSheet?.balanced_time} />}
+          actions={[
+            <Tooltip key="refresh" title="立即重整">
+              <span>
+                <IconButton
+                  onClick={fetchBalanceSheet}
+                  disabled={isFetchingBalanceSheet}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>,
+          ]}
+        />
+
+        <ModuleFunctionHeader
+          title={<Typography variant="h6">結構組成</Typography>}
+        />
+        <ModuleFunctionBody>
+          <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}
+            >
+              <FormControl variant="standard">
+                <InputLabel>結算資產</InputLabel>
+                <Select
+                  value={selectedSettleableAssetReference}
+                  onChange={(event: SelectChangeEvent) => {
+                    setSelectedSettleableAssetReference(event.target.value)
+                  }}
+                  autoWidth
+                >
+                  {settleableAssets.map((asset) => (
+                    <MenuItem key={asset.reference} value={asset.reference}>
+                      {asset.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl variant="standard">
+                <InputLabel>報價來源</InputLabel>
+                <Select
+                  value={selectedFeedResourceReference}
+                  onChange={(event: SelectChangeEvent) => {
+                    setSelectedFeedResourceReference(event.target.value)
+                  }}
+                  autoWidth
+                >
+                  {feedResources.map((resource) => (
+                    <MenuItem
+                      key={resource.reference}
+                      value={resource.reference}
+                    >
+                      {resource.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+          </Box>
+          <HighChartsCore options={pieChartOptions} />
+        </ModuleFunctionBody>
+
+        <ModuleFunctionHeader
+          title={<Typography variant="h6">明細</Typography>}
           actions={[
             <Tooltip key="edit" title="編輯">
               <IconButton
@@ -207,29 +331,6 @@ export default function Page() {
               >
                 <EditIcon />
               </IconButton>
-            </Tooltip>,
-          ]}
-        />
-
-        <ModuleFunctionHeader
-          title={<Typography variant="h6">結構組成</Typography>}
-        />
-        <ModuleFunctionBody>
-          <HighChartsCore options={options} />
-        </ModuleFunctionBody>
-
-        <ModuleFunctionHeader
-          title={<Typography variant="h6">明細</Typography>}
-          actions={[
-            <Tooltip key="refresh" title="立即重整">
-              <span>
-                <IconButton
-                  onClick={fetchBalanceSheet}
-                  disabled={isFetchingBalanceSheet}
-                >
-                  <RefreshIcon />
-                </IconButton>
-              </span>
             </Tooltip>,
           ]}
         />

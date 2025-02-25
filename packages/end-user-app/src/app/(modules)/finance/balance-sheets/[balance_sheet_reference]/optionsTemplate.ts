@@ -1,6 +1,6 @@
 import { Options } from 'highcharts/highcharts'
 
-export default {
+export const pieChartOptionsTemplate = {
   chart: {
     type: 'pie',
     animation: false,
