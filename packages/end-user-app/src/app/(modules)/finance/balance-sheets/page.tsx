@@ -50,6 +50,17 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { areaChartOptionsTemplate } from './optionsTemplate'
 
+const dimensions = [
+  {
+    label: '淨值',
+    value: 'net_value',
+  },
+  {
+    label: '資產負債價值',
+    value: 'assets_and_liabilities',
+  },
+]
+
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const router = useRouter()
@@ -101,6 +112,9 @@ export default function Page() {
       isVisible: boolean
     }[]
   >([])
+  const [selectedDimension, setSelectedDimension] = React.useState(
+    dimensions[0].value
+  )
 
   const fetchFeedResources = React.useCallback(async () => {
     setIsFetchingFeedResources(true)
@@ -314,25 +328,20 @@ export default function Page() {
         (asset) => asset.reference === selectedSettleableAssetReference
       )
       const selectedSettleableAssetSymbol = selectedSettleableAsset?.symbol
-      const series: any = Object.entries(
-        accountReferenceToBalanceEntriesMap
-      ).map(([accountReference, balanceEntries]) => {
-        const account = accountReferenceToAccountMap[accountReference]
-        const accountSettlementAsset = settleableAssets.find(
-          (asset) => asset.reference === account.settlement_asset_reference
-        ) as Asset
-        const accountSettlementAssetSymbol = accountSettlementAsset.symbol
-        const legend = legends.find(
-          (legend: any) => legend.seriesId === account.reference
-        )
-        return {
-          type: 'area',
-          id: account.reference,
-          name: account.name,
-          visible: legend?.isVisible,
-          color: legend?.color,
-          data: balanceEntries
-            .map((balanceEntry) => {
+
+      let series: Highcharts.SeriesOptionsType[] = []
+      if (selectedDimension === 'net_value') {
+        series = Object.entries(accountReferenceToBalanceEntriesMap).map(
+          ([accountReference, balanceEntries]) => {
+            const account = accountReferenceToAccountMap[accountReference]
+            const accountSettlementAsset = settleableAssets.find(
+              (asset) => asset.reference === account.settlement_asset_reference
+            ) as Asset
+            const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+            const legend = legends.find(
+              (legend: any) => legend.seriesId === account.reference
+            )
+            const datapoints = balanceEntries.map((balanceEntry) => {
               const balanceSheet =
                 balanceSheetReferenceToBalanceSheetMap[
                   balanceEntry.balance_sheet_reference as string
@@ -345,6 +354,7 @@ export default function Page() {
                 accountSettlementAssetSymbol as string,
                 selectedSettleableAssetSymbol as string
               )
+
               return [
                 new Date(`${balanceSheet.balanced_time}Z`).getTime() +
                   timezone.offsetInMinutes * 60 * 1000,
@@ -352,9 +362,74 @@ export default function Page() {
                   price,
               ]
             })
-            .sort((a: any, b: any) => a[0] - b[0]),
-        }
-      })
+            return {
+              type: 'area',
+              stack: 'equity',
+              name: account.name,
+              visible: legend?.isVisible,
+              color: legend?.color,
+              data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
+            }
+          }
+        )
+      } else if (selectedDimension === 'assets_and_liabilities') {
+        series = Object.entries(accountReferenceToBalanceEntriesMap)
+          .map(([accountReference, balanceEntries]) => {
+            const account = accountReferenceToAccountMap[accountReference]
+            const accountSettlementAsset = settleableAssets.find(
+              (asset) => asset.reference === account.settlement_asset_reference
+            ) as Asset
+            const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+            const legend = legends.find(
+              (legend: any) => legend.seriesId === account.reference
+            )
+            const datapoints = balanceEntries.map((balanceEntry) => {
+              const balanceSheet =
+                balanceSheetReferenceToBalanceSheetMap[
+                  balanceEntry.balance_sheet_reference as string
+                ]
+              const price = getSyntheticPrice(
+                prices.filter(
+                  (price: any) =>
+                    price.target_datetime === balanceSheet.balanced_time
+                ),
+                accountSettlementAssetSymbol as string,
+                selectedSettleableAssetSymbol as string
+              )
+
+              return [
+                new Date(`${balanceSheet.balanced_time}Z`).getTime() +
+                  timezone.offsetInMinutes * 60 * 1000,
+                (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
+                  price,
+              ]
+            })
+            return [
+              {
+                type: 'area',
+                stack: 'asset',
+                name: account.name,
+                visible: legend?.isVisible,
+                color: legend?.color,
+                data: datapoints
+                  .filter((d) => d[1] >= 0)
+                  .sort((a: any, b: any) => a[0] - b[0]),
+              },
+              {
+                type: 'area',
+                stack: 'debt',
+                name: account.name,
+                visible: legend?.isVisible,
+                color: legend?.color,
+                data: datapoints
+                  .filter((d) => d[1] < 0)
+                  .sort((a: any, b: any) => a[0] - b[0]),
+              },
+            ]
+          })
+          .flat() as Highcharts.SeriesOptionsType[]
+      }
+
       const selectedAsset = settleableAssets.find(
         (asset) => asset.reference === selectedSettleableAssetReference
       )
@@ -370,8 +445,9 @@ export default function Page() {
       )
     }
   }, [
-    balanceSheetsSeries,
     timezone.offsetInMinutes,
+    balanceSheetsSeries,
+    selectedDimension,
     selectedSettleableAssetReference,
     prices,
     settleableAssets,
@@ -403,13 +479,30 @@ export default function Page() {
         />
         <ModuleFunctionBody
           loading={
+            isFetchingFeedResources ||
+            isFetchingSettleableAssets ||
             isFetchingBalanceSheetsSeries ||
-            isFetchingPrices ||
-            isFetchingFeedResources
+            isFetchingPrices
           }
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
             <Stack direction="row" spacing={2}>
+              <FormControl variant="standard">
+                <InputLabel>維度</InputLabel>
+                <Select
+                  value={selectedDimension}
+                  onChange={(event: SelectChangeEvent) => {
+                    setSelectedDimension(event.target.value)
+                  }}
+                  autoWidth
+                >
+                  {dimensions.map((dimension) => (
+                    <MenuItem key={dimension.value} value={dimension.value}>
+                      {dimension.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl variant="standard">
                 <InputLabel>結算資產</InputLabel>
                 <Select
