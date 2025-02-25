@@ -50,6 +50,17 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { areaChartOptionsTemplate } from './optionsTemplate'
 
+const chartTypes = [
+  {
+    label: '折線',
+    value: 'line',
+  },
+  {
+    label: '堆疊',
+    value: 'area',
+  },
+]
+
 const dimensions = [
   {
     label: '淨值',
@@ -114,6 +125,9 @@ export default function Page() {
   >([])
   const [selectedDimension, setSelectedDimension] = React.useState(
     dimensions[0].value
+  )
+  const [selectedChartType, setSelectedChartType] = React.useState(
+    chartTypes[0].value
   )
 
   const fetchFeedResources = React.useCallback(async () => {
@@ -363,7 +377,7 @@ export default function Page() {
               ]
             })
             return {
-              type: 'area',
+              type: selectedChartType,
               stack: 'equity',
               name: account.name,
               visible: legend?.isVisible,
@@ -371,7 +385,7 @@ export default function Page() {
               data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
             }
           }
-        )
+        ) as Highcharts.SeriesOptionsType[]
       } else if (selectedDimension === 'assets_and_liabilities') {
         series = Object.entries(accountReferenceToBalanceEntriesMap)
           .map(([accountReference, balanceEntries]) => {
@@ -406,7 +420,7 @@ export default function Page() {
             })
             return [
               {
-                type: 'area',
+                type: selectedChartType,
                 stack: 'asset',
                 name: account.name,
                 visible: legend?.isVisible,
@@ -416,7 +430,7 @@ export default function Page() {
                   .sort((a: any, b: any) => a[0] - b[0]),
               },
               {
-                type: 'area',
+                type: selectedChartType,
                 stack: 'debt',
                 name: account.name,
                 visible: legend?.isVisible,
@@ -447,6 +461,7 @@ export default function Page() {
   }, [
     timezone.offsetInMinutes,
     balanceSheetsSeries,
+    selectedChartType,
     selectedDimension,
     selectedSettleableAssetReference,
     prices,
@@ -487,6 +502,22 @@ export default function Page() {
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
             <Stack direction="row" spacing={2}>
+              <FormControl variant="standard">
+                <InputLabel>圖別</InputLabel>
+                <Select
+                  value={selectedChartType}
+                  onChange={(event: SelectChangeEvent) => {
+                    setSelectedChartType(event.target.value)
+                  }}
+                  autoWidth
+                >
+                  {chartTypes.map((chartType) => (
+                    <MenuItem key={chartType.value} value={chartType.value}>
+                      {chartType.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl variant="standard">
                 <InputLabel>維度</InputLabel>
                 <Select
