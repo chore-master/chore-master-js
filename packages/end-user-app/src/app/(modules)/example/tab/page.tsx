@@ -21,7 +21,7 @@ export default function Page() {
         <ModuleFunctionHeader title="頁籤" />
       </ModuleFunction>
 
-      <ModuleContainer sticky>
+      <ModuleContainer stickyTop>
         <ModuleFunction sx={{ py: 0 }}>
           <Box sx={{ mx: 2, mt: 2, borderBottom: 1, borderColor: 'divider' }}>
             <TabList
@@ -84,6 +84,14 @@ export default function Page() {
       <TabPanel value="tab3" sx={{ p: 0 }}>
         <Typography>滿版寬度，可自由運用</Typography>
       </TabPanel>
+
+      <ModuleContainer stickyBottom>
+        <ModuleFunction>
+          <Box sx={{ px: 2 }}>
+            <Typography>Sticky Bottom</Typography>
+          </Box>
+        </ModuleFunction>
+      </ModuleContainer>
     </TabContext>
   )
 }

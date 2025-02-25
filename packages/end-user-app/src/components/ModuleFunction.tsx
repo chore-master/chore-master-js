@@ -83,25 +83,43 @@ export const ModuleSplitterPanel = ({
 }
 
 export const ModuleContainer = ({
-  sticky,
+  stickyTop,
+  stickyBottom,
   sx,
   children,
-}: Readonly<{ sticky?: boolean; sx?: SxProps; children?: ReactNode }>) => {
-  const { mode, setMode } = useColorScheme()
-  if (sticky) {
+}: Readonly<{
+  stickyTop?: boolean
+  stickyBottom?: boolean
+  sx?: SxProps
+  children?: ReactNode
+}>) => {
+  const { mode } = useColorScheme()
+  const commonStickySx = {
+    position: 'sticky',
+    zIndex: 999,
+    background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+  }
+  if (stickyTop) {
     return (
       <Box
-        sx={{
-          position: 'sticky',
-          top: {
-            xs: 56,
-            sm: 64,
+        sx={Object.assign(
+          {},
+          commonStickySx,
+          {
+            top: {
+              xs: 56,
+              sm: 64,
+            },
           },
-          zIndex: 999,
-          background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
-          ...sx,
-        }}
+          sx
+        )}
       >
+        {children}
+      </Box>
+    )
+  } else if (stickyBottom) {
+    return (
+      <Box sx={Object.assign({}, commonStickySx, { bottom: 0 }, sx)}>
         {children}
       </Box>
     )
