@@ -382,6 +382,7 @@ export default function Page() {
         series = [
           {
             type: 'line',
+            name: '淨值',
             data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
           },
         ] as Highcharts.SeriesOptionsType[]
