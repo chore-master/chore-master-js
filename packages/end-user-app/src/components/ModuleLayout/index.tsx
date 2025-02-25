@@ -25,10 +25,8 @@ import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
 import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import Divider from '@mui/material/Divider'
@@ -443,8 +441,25 @@ export default function ModuleLayout({
           setIsSettingsDialogOpen(false)
         }}
       >
-        <DialogTitle>設定</DialogTitle>
-        <DialogContent>
+        <DialogTitle>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <span>設定</span>
+            <IconButton
+              aria-label="close"
+              onClick={() => {
+                setIsSettingsDialogOpen(false)
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+        </DialogTitle>
+        <DialogContent dividers>
           <List>
             <ListItem disablePadding>
               <ListItemIcon>
@@ -537,15 +552,6 @@ export default function ModuleLayout({
             </ListItem>
           </List>
         </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setIsSettingsDialogOpen(false)
-            }}
-          >
-            關閉
-          </Button>
-        </DialogActions>
       </Dialog>
     </React.Fragment>
   )
