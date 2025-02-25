@@ -6,6 +6,10 @@ export const areaChartOptionsTemplate = {
   },
   xAxis: {
     type: 'datetime',
+    // https://api.highcharts.com/highcharts/xAxis.dateTimeLabelFormats
+    dateTimeLabelFormats: {
+      month: '%Y-%m', // https://api.highcharts.com/class-reference/Highcharts.Time#dateFormat
+    },
   },
   yAxis: {
     title: {
@@ -36,10 +40,13 @@ export const areaChartOptionsTemplate = {
     shared: true,
     valueDecimals: 2,
     useHTML: true,
+    headerFormat:
+      '<div style="font-size: 14px; margin-bottom: 8px;">{point.key}</div>',
+    xDateFormat: '%Y-%m-%d %H:%M',
     pointFormat:
       '<div style="display:flex; justify-content:space-between; width:100%;">' +
       '<span style="margin-right:10px;">' +
-      '<span style="color:{series.color}">\u25CF</span> {series.name}' +
+      '<span style="color:{series.color}; font-size:16px;">\u25CF</span> {series.name}' +
       '</span>' +
       '<span style="text-align:right;">{point.y:,.2f}</span>' +
       '</div>',
