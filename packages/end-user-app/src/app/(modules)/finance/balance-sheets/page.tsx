@@ -700,13 +700,15 @@ export default function Page() {
                       }}
                       variant={legend.isVisible ? undefined : 'outlined'}
                       icon={
-                        legend.isVisible ? (
-                          <CircleIcon style={{ color: legend.color }} />
-                        ) : (
-                          <RadioButtonUncheckedIcon
-                            style={{ color: legend.color }}
-                          />
-                        )
+                        selectedChartType.endsWith('area') ? (
+                          legend.isVisible ? (
+                            <CircleIcon style={{ color: legend.color }} />
+                          ) : (
+                            <RadioButtonUncheckedIcon
+                              style={{ color: legend.color }}
+                            />
+                          )
+                        ) : undefined
                       }
                     />
                   </Box>
