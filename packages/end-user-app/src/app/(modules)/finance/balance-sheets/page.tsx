@@ -53,7 +53,7 @@ import { areaChartOptionsTemplate } from './optionsTemplate'
 const chartTypes = [
   {
     label: '淨值',
-    value: 'net_value_line',
+    value: 'net_value_areaspline',
   },
   {
     label: '淨值組成',
@@ -337,7 +337,8 @@ export default function Page() {
       const selectedSettleableAssetSymbol = selectedSettleableAsset?.symbol
 
       let series: Highcharts.SeriesOptionsType[] = []
-      if (selectedChartType === 'net_value_line') {
+      // each series must specify id to prevent bugs during switching `selectedChartType`s
+      if (selectedChartType === 'net_value_areaspline') {
         const datapoints = balanceSheets.map((balanceSheet) => {
           const equity = balanceEntries
             .filter(
@@ -381,39 +382,36 @@ export default function Page() {
         })
         series = [
           {
-            // type: 'areaspline',
-            type: 'line',
-            // stack: 'total_equity',
+            id: 'net_value_areaspline',
+            type: 'areaspline',
             name: '淨值',
-            visible: true,
-            // zones: [
-            //   {
-            //     value: 0,
-            //     color: '#ff6968',
-            //     fillColor: {
-            //       linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-            //       stops: [
-            //         [0, 'rgba(255, 105, 104, 0)'],
-            //         [1, 'rgba(255, 105, 104, 0.3)'],
-            //       ],
-            //     },
-            //     threshold: Infinity,
-            //   },
-            //   {
-            //     color: '#94caae',
-            //     fillColor: {
-            //       linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-            //       stops: [
-            //         [0, 'rgba(34, 197, 94, 0.3)'],
-            //         [1, 'rgba(34, 197, 94, 0)'],
-            //       ],
-            //     },
-            //   },
-            // ],
+            zones: [
+              {
+                value: 0,
+                color: '#ff6968',
+                fillColor: {
+                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                  stops: [
+                    [0, 'rgba(255, 105, 104, 0)'],
+                    [1, 'rgba(255, 105, 104, 0.3)'],
+                  ],
+                },
+                threshold: Infinity,
+              },
+              {
+                color: '#94caae',
+                fillColor: {
+                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                  stops: [
+                    [0, 'rgba(34, 197, 94, 0.3)'],
+                    [1, 'rgba(34, 197, 94, 0)'],
+                  ],
+                },
+              },
+            ],
             data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
           },
         ] as Highcharts.SeriesOptionsType[]
-        console.log('datapoints', datapoints)
       } else if (selectedChartType === 'net_value_area') {
         series = Object.entries(accountReferenceToBalanceEntriesMap).map(
           ([accountReference, balanceEntries]) => {
@@ -447,6 +445,7 @@ export default function Page() {
               ]
             })
             return {
+              id: `account_equity_${account.reference}_area`,
               type: 'area',
               stack: 'account_equity',
               name: account.name,
@@ -490,6 +489,7 @@ export default function Page() {
             })
             return [
               {
+                id: `account_asset_${account.reference}_area`,
                 type: 'area',
                 stack: 'account_asset',
                 name: account.name,
@@ -500,6 +500,7 @@ export default function Page() {
                   .sort((a: any, b: any) => a[0] - b[0]),
               },
               {
+                id: `account_debt_${account.reference}_area`,
                 type: 'area',
                 stack: 'account_debt',
                 name: account.name,
@@ -548,6 +549,7 @@ export default function Page() {
             ]
           })
           return {
+            id: `exchange_rate_${baseAssetSymbol}_${quoteAssetSymbol}`,
             type: 'line',
             name: `${baseAssetSymbol}/${quoteAssetSymbol}`,
             data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
