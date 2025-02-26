@@ -10,7 +10,6 @@ import SankeyModule from 'highcharts/modules/sankey'
 // import HighContrastLight from 'highcharts/themes/high-contrast-light'
 import { merge } from 'lodash'
 import React from 'react'
-import { usePrevious } from 'react-use'
 import { darkThemeOptions, lightThemeOptions } from './highchartsOptions'
 
 if (typeof Highcharts === 'object') {
@@ -28,11 +27,11 @@ export default function HighChartsCore({
   callback?: (chart: Highcharts.Chart) => void
   // onRender?: (chart: Highcharts.Chart) => void
 }) {
-  const chartComponentRef = React.useRef<HighchartsReact.RefObject>(null)
-  const [chart, setChart] = React.useState<Highcharts.Chart | null>(null)
+  // const chartComponentRef = React.useRef<HighchartsReact.RefObject>(null)
+  // const [chart, setChart] = React.useState<Highcharts.Chart | null>(null)
   const { mode } = useColorScheme()
-  const previousMode = usePrevious(mode)
-  const [forceUpdate, setForceUpdate] = React.useState(0)
+  // const previousMode = usePrevious(mode)
+  // const [forceUpdate, setForceUpdate] = React.useState(0)
 
   const defaultOptions = {
     // chart: {
@@ -72,7 +71,7 @@ export default function HighChartsCore({
   const _callback = React.useCallback(
     (chart: Highcharts.Chart) => {
       callback?.(chart)
-      setChart(chart)
+      // setChart(chart)
     },
     [callback]
   )
@@ -95,7 +94,7 @@ export default function HighChartsCore({
 
   return (
     <HighchartsReact
-      ref={chartComponentRef}
+      // ref={chartComponentRef}
       highcharts={Highcharts}
       options={mergedOptions}
       callback={_callback}

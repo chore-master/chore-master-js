@@ -348,7 +348,7 @@ export default function Page() {
               const accountReference = balanceEntry.account_reference
               const account = accountReferenceToAccountMap[accountReference]
               const legend = legends.find(
-                (legend: any) => legend.seriesId === account.reference
+                (legend) => legend.seriesId === account.reference
               )
               if (!legend?.isVisible) {
                 return acc
@@ -381,35 +381,39 @@ export default function Page() {
         })
         series = [
           {
-            type: 'areaspline',
+            // type: 'areaspline',
+            type: 'line',
+            // stack: 'total_equity',
             name: '淨值',
-            zones: [
-              {
-                value: 0,
-                color: '#ff6968',
-                fillColor: {
-                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                  stops: [
-                    [0, 'rgba(255, 105, 104, 0)'],
-                    [1, 'rgba(255, 105, 104, 0.3)'],
-                  ],
-                },
-                threshold: Infinity,
-              },
-              {
-                color: '#94caae',
-                fillColor: {
-                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                  stops: [
-                    [0, 'rgba(34, 197, 94, 0.3)'],
-                    [1, 'rgba(34, 197, 94, 0)'],
-                  ],
-                },
-              },
-            ],
+            visible: true,
+            // zones: [
+            //   {
+            //     value: 0,
+            //     color: '#ff6968',
+            //     fillColor: {
+            //       linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+            //       stops: [
+            //         [0, 'rgba(255, 105, 104, 0)'],
+            //         [1, 'rgba(255, 105, 104, 0.3)'],
+            //       ],
+            //     },
+            //     threshold: Infinity,
+            //   },
+            //   {
+            //     color: '#94caae',
+            //     fillColor: {
+            //       linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+            //       stops: [
+            //         [0, 'rgba(34, 197, 94, 0.3)'],
+            //         [1, 'rgba(34, 197, 94, 0)'],
+            //       ],
+            //     },
+            //   },
+            // ],
             data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
           },
         ] as Highcharts.SeriesOptionsType[]
+        console.log('datapoints', datapoints)
       } else if (selectedChartType === 'net_value_area') {
         series = Object.entries(accountReferenceToBalanceEntriesMap).map(
           ([accountReference, balanceEntries]) => {
@@ -444,7 +448,7 @@ export default function Page() {
             })
             return {
               type: 'area',
-              stack: 'equity',
+              stack: 'account_equity',
               name: account.name,
               visible: legend?.isVisible,
               color: legend?.color,
@@ -487,7 +491,7 @@ export default function Page() {
             return [
               {
                 type: 'area',
-                stack: 'asset',
+                stack: 'account_asset',
                 name: account.name,
                 visible: legend?.isVisible,
                 color: legend?.color,
@@ -497,7 +501,7 @@ export default function Page() {
               },
               {
                 type: 'area',
-                stack: 'debt',
+                stack: 'account_debt',
                 name: account.name,
                 visible: legend?.isVisible,
                 color: legend?.color,
@@ -676,7 +680,7 @@ export default function Page() {
                 }}
               >
                 <FormControlLabel
-                  label="包含帳戶"
+                  label="全選"
                   sx={{ m: 0 }}
                   control={
                     <Checkbox
