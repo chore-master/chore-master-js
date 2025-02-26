@@ -8,9 +8,11 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
+import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
 import type { Account, Asset, BalanceSheetDetail, Resource } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
+import { getSyntheticPrice } from '@/utils/price'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
@@ -160,6 +162,37 @@ export default function Page() {
     [enqueueNotification]
   )
 
+  const fetchPrices = React.useCallback(
+    async (
+      feedResourceReference: string,
+      datetimes: string[],
+      instrumentSymbols: string[]
+    ) => {
+      setIsFetchingPrices(true)
+      await choreMasterAPIAgent.post(
+        `/v1/integration/end_users/me/resources/${feedResourceReference}/feed/fetch_prices`,
+        {
+          target_datetimes: datetimes,
+          target_interval: '1d',
+          instrument_symbols: instrumentSymbols,
+        },
+        {
+          onError: () => {
+            enqueueNotification(`Unable to fetch prices now.`, 'error')
+          },
+          onFail: ({ message }: any) => {
+            enqueueNotification(message, 'error')
+          },
+          onSuccess: async ({ data }: any) => {
+            setPrices(data)
+          },
+        }
+      )
+      setIsFetchingPrices(false)
+    },
+    [enqueueNotification]
+  )
+
   React.useEffect(() => {
     fetchFeedResources()
   }, [fetchFeedResources])
@@ -202,33 +235,134 @@ export default function Page() {
   }, [balanceSheet, fetchAccounts])
 
   React.useEffect(() => {
-    setPieChartOptions(
-      Object.assign({}, pieChartOptionsTemplate, {
-        series: [
-          {
-            name: 'Percentage',
-            colorByPoint: true,
-            data: [
-              {
-                name: 'A',
-                y: 100,
-              },
-              {
-                name: 'B',
-                sliced: true,
-                selected: true,
-                y: 50,
-              },
-              {
-                name: 'C',
-                y: 30,
-              },
-            ],
-          },
-        ],
+    if (
+      balanceSheet &&
+      selectedFeedResourceReference &&
+      settleableAssets.length > 0
+    ) {
+      const datetimes = [balanceSheet.balanced_time]
+      const baseAssetIndex = settleableAssets.findIndex(
+        (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
+      )
+      if (baseAssetIndex === -1) {
+        enqueueNotification(
+          `Intermediate asset ${INTERMEDIATE_ASSET_SYMBOL} not found.`,
+          'error'
+        )
+        return
+      }
+      const instrumentSymbols = settleableAssets
+        .filter((asset) => asset.symbol !== INTERMEDIATE_ASSET_SYMBOL)
+        .map(
+          (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
+        )
+      fetchPrices(selectedFeedResourceReference, datetimes, instrumentSymbols)
+    }
+  }, [
+    balanceSheet,
+    selectedFeedResourceReference,
+    settleableAssets,
+    fetchPrices,
+    enqueueNotification,
+  ])
+
+  React.useEffect(() => {
+    if (
+      selectedSettleableAssetReference &&
+      balanceSheet &&
+      prices.length > 0 &&
+      accounts.length > 0 &&
+      settleableAssets.length > 0
+    ) {
+      const accountReferenceToAccountMap: Record<string, Account> =
+        accounts.reduce((acc: any, account: Account) => {
+          acc[account.reference] = account
+          return acc
+        }, {})
+      const assetReferenceToSettleableAssetMap: Record<string, Asset> =
+        settleableAssets.reduce((acc: any, asset: Asset) => {
+          acc[asset.reference] = asset
+          return acc
+        }, {})
+      const selectedSettleableAsset =
+        assetReferenceToSettleableAssetMap[selectedSettleableAssetReference]
+
+      const selectedSettleableAssetSymbol = selectedSettleableAsset?.symbol
+      const assetDrilldownSeries = {
+        name: '資產',
+        id: 'asset',
+        data: [] as [string, number][],
+      }
+      const liabilityDrilldownSeries = {
+        name: '負債',
+        id: 'liability',
+        data: [] as [string, number][],
+      }
+      balanceSheet.balance_entries.forEach((balanceEntry) => {
+        const account =
+          accountReferenceToAccountMap[balanceEntry.account_reference]
+        const accountSettlementAsset =
+          assetReferenceToSettleableAssetMap[account.settlement_asset_reference]
+        const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+        const price = getSyntheticPrice(
+          prices.filter(
+            (price: any) => price.target_datetime === balanceSheet.balanced_time
+          ),
+          accountSettlementAssetSymbol,
+          selectedSettleableAssetSymbol
+        )
+        const value =
+          (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) * price
+        if (value > 0) {
+          assetDrilldownSeries.data.push([account.name, value])
+        } else if (value < 0) {
+          liabilityDrilldownSeries.data.push([account.name, -value])
+        }
       })
-    )
-  }, [])
+      assetDrilldownSeries.data.sort((a, b) => b[1] - a[1])
+      liabilityDrilldownSeries.data.sort((a, b) => b[1] - a[1])
+
+      const series = [
+        {
+          name: '淨值組成',
+          colorByPoint: true,
+          data: [
+            {
+              name: '資產',
+              y: assetDrilldownSeries.data.reduce(
+                (acc, [_, value]) => acc + value,
+                0
+              ),
+              drilldown: 'asset',
+            },
+            {
+              name: '負債',
+              y: liabilityDrilldownSeries.data.reduce(
+                (acc, [_, value]) => acc + value,
+                0
+              ),
+              drilldown: 'liability',
+            },
+          ],
+        },
+      ]
+
+      setPieChartOptions(
+        Object.assign({}, pieChartOptionsTemplate, {
+          series: series,
+          drilldown: {
+            series: [assetDrilldownSeries, liabilityDrilldownSeries],
+          },
+        })
+      )
+    }
+  }, [
+    selectedSettleableAssetReference,
+    balanceSheet,
+    prices,
+    accounts,
+    settleableAssets,
+  ])
 
   return (
     <React.Fragment>
@@ -271,7 +405,14 @@ export default function Page() {
         <ModuleFunctionHeader
           title={<Typography variant="h6">結構組成</Typography>}
         />
-        <ModuleFunctionBody>
+        <ModuleFunctionBody
+          loading={
+            isFetchingFeedResources ||
+            isFetchingSettleableAssets ||
+            isFetchingBalanceSheet ||
+            isFetchingPrices
+          }
+        >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
             <Stack
               direction="row"

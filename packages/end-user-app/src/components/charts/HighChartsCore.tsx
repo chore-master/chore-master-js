@@ -4,6 +4,7 @@ import { useColorScheme } from '@mui/material/styles'
 import { HighchartsReact } from 'highcharts-react-official'
 import * as Highcharts from 'highcharts/highcharts'
 import AccessibilityModule from 'highcharts/modules/accessibility'
+import DrilldownModule from 'highcharts/modules/drilldown'
 import NetworkGraphModule from 'highcharts/modules/networkgraph'
 import SankeyModule from 'highcharts/modules/sankey'
 // import HighContrastDark from 'highcharts/themes/high-contrast-dark'
@@ -16,6 +17,7 @@ if (typeof Highcharts === 'object') {
   AccessibilityModule(Highcharts)
   NetworkGraphModule(Highcharts)
   SankeyModule(Highcharts)
+  DrilldownModule(Highcharts)
 }
 
 export default function HighChartsCore({
