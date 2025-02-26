@@ -224,6 +224,7 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
+                  <NoWrapTableCell align="right">#</NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
                   <NoWrapTableCell>生態系</NoWrapTableCell>
@@ -237,8 +238,9 @@ export default function Page() {
                 isLoading={isFetchingAccounts}
                 isEmpty={accounts.length === 0}
               >
-                {accounts.map((account) => (
+                {accounts.map((account, index) => (
                   <TableRow key={account.reference} hover>
+                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
                     <NoWrapTableCell>{account.name}</NoWrapTableCell>
                     <NoWrapTableCell>
                       <Chip

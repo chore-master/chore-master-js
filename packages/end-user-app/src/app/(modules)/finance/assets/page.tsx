@@ -164,6 +164,7 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
+                  <NoWrapTableCell align="right">#</NoWrapTableCell>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>代號</NoWrapTableCell>
                   <NoWrapTableCell>精度</NoWrapTableCell>
@@ -176,8 +177,9 @@ export default function Page() {
                 isLoading={isFetchingAssets}
                 isEmpty={assets.length === 0}
               >
-                {assets.map((asset) => (
+                {assets.map((asset, index) => (
                   <TableRow key={asset.reference} hover>
+                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
                     <NoWrapTableCell>{asset.name}</NoWrapTableCell>
                     <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
                     <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
