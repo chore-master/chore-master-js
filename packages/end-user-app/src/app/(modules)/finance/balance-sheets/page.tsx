@@ -381,8 +381,32 @@ export default function Page() {
         })
         series = [
           {
-            type: 'line',
+            type: 'areaspline',
             name: '淨值',
+            zones: [
+              {
+                value: 0,
+                color: '#ff6968',
+                fillColor: {
+                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                  stops: [
+                    [0, 'rgba(255, 105, 104, 0)'],
+                    [1, 'rgba(255, 105, 104, 0.3)'],
+                  ],
+                },
+                threshold: Infinity,
+              },
+              {
+                color: '#94caae',
+                fillColor: {
+                  linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                  stops: [
+                    [0, 'rgba(34, 197, 94, 0.3)'],
+                    [1, 'rgba(34, 197, 94, 0)'],
+                  ],
+                },
+              },
+            ],
             data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
           },
         ] as Highcharts.SeriesOptionsType[]
