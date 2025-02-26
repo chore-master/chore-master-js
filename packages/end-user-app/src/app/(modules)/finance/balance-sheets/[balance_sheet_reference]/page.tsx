@@ -290,13 +290,15 @@ export default function Page() {
       const selectedSettleableAssetSymbol = selectedSettleableAsset?.symbol
       const assetDrilldownSeries = {
         name: '資產',
-        id: 'asset',
-        data: [] as [string, number][],
+        id: `asset_${selectedSettleableAssetSymbol}`,
+        data: [] as [string, number, string][],
+        keys: ['name', 'y', 'settlementAssetSymbol'],
       }
       const liabilityDrilldownSeries = {
         name: '負債',
-        id: 'liability',
-        data: [] as [string, number][],
+        id: `liability_${selectedSettleableAssetSymbol}`,
+        data: [] as [string, number, string][],
+        keys: ['name', 'y', 'settlementAssetSymbol'],
       }
       balanceSheet.balance_entries.forEach((balanceEntry) => {
         const account =
@@ -314,9 +316,17 @@ export default function Page() {
         const value =
           (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) * price
         if (value > 0) {
-          assetDrilldownSeries.data.push([account.name, value])
+          assetDrilldownSeries.data.push([
+            account.name,
+            value,
+            selectedSettleableAssetSymbol,
+          ])
         } else if (value < 0) {
-          liabilityDrilldownSeries.data.push([account.name, -value])
+          liabilityDrilldownSeries.data.push([
+            account.name,
+            -value,
+            selectedSettleableAssetSymbol,
+          ])
         }
       })
       assetDrilldownSeries.data.sort((a, b) => b[1] - a[1])
@@ -324,24 +334,27 @@ export default function Page() {
 
       const series = [
         {
+          id: `net_value_${selectedSettleableAssetSymbol}_pie`,
           name: '淨值組成',
           colorByPoint: true,
           data: [
             {
               name: '資產',
               y: assetDrilldownSeries.data.reduce(
-                (acc, [_, value]) => acc + value,
+                (acc, point) => acc + point[1],
                 0
               ),
-              drilldown: 'asset',
+              drilldown: `asset_${selectedSettleableAssetSymbol}`,
+              settlementAssetSymbol: selectedSettleableAssetSymbol,
             },
             {
               name: '負債',
               y: liabilityDrilldownSeries.data.reduce(
-                (acc, [_, value]) => acc + value,
+                (acc, point) => acc + point[1],
                 0
               ),
-              drilldown: 'liability',
+              drilldown: `liability_${selectedSettleableAssetSymbol}`,
+              settlementAssetSymbol: selectedSettleableAssetSymbol,
             },
           ],
         },

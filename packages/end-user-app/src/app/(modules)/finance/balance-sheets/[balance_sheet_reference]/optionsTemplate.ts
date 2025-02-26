@@ -34,6 +34,6 @@ export const pieChartOptionsTemplate = {
     headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
     pointFormat:
       '<span style="color:{point.color}">{point.name}</span>: ' +
-      '<b>{point.y:,.2f} ({point.percentage:.2f}%)</b><br/>',
+      '<b>{point.y:,.2f} {point.settlementAssetSymbol} ({point.percentage:.2f}%)</b><br/>',
   },
 } as unknown as Options
