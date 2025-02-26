@@ -345,6 +345,7 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
+                  <NoWrapTableCell align="right">#</NoWrapTableCell>
                   <NoWrapTableCell>帳戶</NoWrapTableCell>
                   <NoWrapTableCell align="right">數量</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
@@ -355,7 +356,7 @@ export default function Page() {
                 isLoading={isFetchingBalanceSheet}
                 isEmpty={balanceSheet?.balance_entries.length === 0}
               >
-                {balanceSheet?.balance_entries.map((balanceEntry) => {
+                {balanceSheet?.balance_entries.map((balanceEntry, index) => {
                   const account = accounts.find(
                     (account) =>
                       account.reference === balanceEntry.account_reference
@@ -373,6 +374,9 @@ export default function Page() {
                           .toString()
                   return (
                     <TableRow key={balanceEntry.reference} hover>
+                      <NoWrapTableCell align="right">
+                        {index + 1}
+                      </NoWrapTableCell>
                       <NoWrapTableCell>
                         <Chip
                           size="small"

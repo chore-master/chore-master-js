@@ -738,6 +738,7 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
+                  <NoWrapTableCell align="right">#</NoWrapTableCell>
                   <NoWrapTableCell>結算時間</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
@@ -747,41 +748,48 @@ export default function Page() {
                 isLoading={isFetchingBalanceSheetsSeries}
                 isEmpty={balanceSheetsSeries.balance_sheets.length === 0}
               >
-                {balanceSheetsSeries.balance_sheets.map((balanceSheet) => (
-                  <TableRow
-                    key={balanceSheet.reference}
-                    hover
-                    sx={{ cursor: 'pointer' }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (balanceSheet.reference) {
-                        router.push(
-                          `/finance/balance-sheets/${balanceSheet.reference}`
-                        )
-                      }
-                    }}
-                  >
-                    <NoWrapTableCell>
-                      <DatetimeBlock isoText={balanceSheet.balanced_time} />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      <Chip size="small" label={balanceSheet.reference} />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
+                {balanceSheetsSeries.balance_sheets.map(
+                  (balanceSheet, index) => (
+                    <TableRow
+                      key={balanceSheet.reference}
+                      hover
+                      sx={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (balanceSheet.reference) {
                           router.push(
-                            `/finance/balance-sheets/${balanceSheet.reference}/edit`
+                            `/finance/balance-sheets/${balanceSheet.reference}`
                           )
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </NoWrapTableCell>
-                  </TableRow>
-                ))}
+                        }
+                      }}
+                    >
+                      <NoWrapTableCell align="right">
+                        {balanceSheetsPage * balanceSheetsRowsPerPage +
+                          index +
+                          1}
+                      </NoWrapTableCell>
+                      <NoWrapTableCell>
+                        <DatetimeBlock isoText={balanceSheet.balanced_time} />
+                      </NoWrapTableCell>
+                      <NoWrapTableCell>
+                        <Chip size="small" label={balanceSheet.reference} />
+                      </NoWrapTableCell>
+                      <NoWrapTableCell align="right">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            router.push(
+                              `/finance/balance-sheets/${balanceSheet.reference}/edit`
+                            )
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </NoWrapTableCell>
+                    </TableRow>
+                  )
+                )}
               </StatefulTableBody>
             </Table>
           </TableContainer>
