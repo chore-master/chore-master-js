@@ -37,6 +37,21 @@ import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { pieChartOptionsTemplate } from './optionsTemplate'
 
+const chartTypes = [
+  {
+    label: '淨值組成',
+    value: 'net_value_pie',
+  },
+  {
+    label: '資產組成',
+    value: 'asset_pie',
+  },
+  {
+    label: '負債組成',
+    value: 'liability_pie',
+  },
+]
+
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
@@ -77,6 +92,9 @@ export default function Page() {
   // Chart
   const [pieChartOptions, setPieChartOptions] =
     React.useState<Highcharts.Options>(pieChartOptionsTemplate)
+  const [selectedChartType, setSelectedChartType] = React.useState(
+    chartTypes[0].value
+  )
 
   const fetchFeedResources = React.useCallback(async () => {
     setIsFetchingFeedResources(true)
@@ -288,19 +306,8 @@ export default function Page() {
         assetReferenceToSettleableAssetMap[selectedSettleableAssetReference]
 
       const selectedSettleableAssetSymbol = selectedSettleableAsset?.symbol
-      const assetDrilldownSeries = {
-        name: '資產',
-        id: `asset_${selectedSettleableAssetSymbol}`,
-        data: [] as [string, number, string][],
-        keys: ['name', 'y', 'settlementAssetSymbol'],
-      }
-      const liabilityDrilldownSeries = {
-        name: '負債',
-        id: `liability_${selectedSettleableAssetSymbol}`,
-        data: [] as [string, number, string][],
-        keys: ['name', 'y', 'settlementAssetSymbol'],
-      }
-      balanceSheet.balance_entries.forEach((balanceEntry) => {
+
+      const accountSeries = balanceSheet.balance_entries.map((balanceEntry) => {
         const account =
           accountReferenceToAccountMap[balanceEntry.account_reference]
         const accountSettlementAsset =
@@ -315,63 +322,87 @@ export default function Page() {
         )
         const value =
           (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) * price
-        if (value > 0) {
-          assetDrilldownSeries.data.push([
-            account.name,
-            value,
-            selectedSettleableAssetSymbol,
-          ])
-        } else if (value < 0) {
-          liabilityDrilldownSeries.data.push([
-            account.name,
-            -value,
-            selectedSettleableAssetSymbol,
-          ])
+        return {
+          name: account.name,
+          y: value,
         }
       })
-      assetDrilldownSeries.data.sort((a, b) => b[1] - a[1])
-      liabilityDrilldownSeries.data.sort((a, b) => b[1] - a[1])
 
-      const series = [
-        {
-          id: `net_value_${selectedSettleableAssetSymbol}_pie`,
-          name: '淨值組成',
-          colorByPoint: true,
-          data: [
-            {
-              name: '資產',
-              y: assetDrilldownSeries.data.reduce(
-                (acc, point) => acc + point[1],
-                0
-              ),
-              drilldown: `asset_${selectedSettleableAssetSymbol}`,
-              settlementAssetSymbol: selectedSettleableAssetSymbol,
-            },
-            {
-              name: '負債',
-              y: liabilityDrilldownSeries.data.reduce(
-                (acc, point) => acc + point[1],
-                0
-              ),
-              drilldown: `liability_${selectedSettleableAssetSymbol}`,
-              settlementAssetSymbol: selectedSettleableAssetSymbol,
-            },
-          ],
-        },
-      ]
-
+      let series: Highcharts.SeriesOptionsType[] = []
+      if (selectedChartType === 'net_value_pie') {
+        series = [
+          {
+            id: `net_value_${selectedSettleableAssetSymbol}_pie`,
+            type: 'pie',
+            name: '淨值組成',
+            data: [
+              {
+                name: '資產',
+                y: accountSeries
+                  .filter((point) => point.y > 0)
+                  .reduce((acc, point) => acc + point.y, 0),
+                custom: {
+                  selectedSettleableAssetSymbol: selectedSettleableAssetSymbol,
+                },
+              },
+              {
+                name: '負債',
+                y: -accountSeries
+                  .filter((point) => point.y < 0)
+                  .reduce((acc, point) => acc + point.y, 0),
+                custom: {
+                  selectedSettleableAssetSymbol: selectedSettleableAssetSymbol,
+                },
+              },
+            ],
+          },
+        ]
+      } else if (selectedChartType === 'asset_pie') {
+        series = [
+          {
+            id: `asset_${selectedSettleableAssetSymbol}_pie`,
+            type: 'pie',
+            name: '資產組成',
+            data: accountSeries
+              .filter((point) => point.y > 0)
+              .map((point) => ({
+                ...point,
+                custom: {
+                  selectedSettleableAssetSymbol: selectedSettleableAssetSymbol,
+                },
+              }))
+              .sort((a, b) => b.y - a.y),
+          },
+        ]
+      } else if (selectedChartType === 'liability_pie') {
+        series = [
+          {
+            id: `liability_${selectedSettleableAssetSymbol}_pie`,
+            type: 'pie',
+            name: '負債組成',
+            data: accountSeries
+              .filter((point) => point.y < 0)
+              .map((point) => ({
+                ...point,
+                y: -point.y,
+                custom: {
+                  selectedSettleableAssetSymbol: selectedSettleableAssetSymbol,
+                },
+              }))
+              .sort((a, b) => b.y - a.y),
+          },
+        ]
+      }
       setPieChartOptions(
         Object.assign({}, pieChartOptionsTemplate, {
           series: series,
-          drilldown: {
-            series: [assetDrilldownSeries, liabilityDrilldownSeries],
-          },
         })
       )
     }
   }, [
-    selectedSettleableAssetReference,
     balanceSheet,
+    selectedSettleableAssetReference,
+    selectedChartType,
     prices,
     accounts,
     settleableAssets,
@@ -432,6 +463,22 @@ export default function Page() {
               spacing={2}
               sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
+              <FormControl variant="standard">
+                <InputLabel>檢視維度</InputLabel>
+                <Select
+                  value={selectedChartType}
+                  onChange={(event: SelectChangeEvent) => {
+                    setSelectedChartType(event.target.value)
+                  }}
+                  autoWidth
+                >
+                  {chartTypes.map((chartType) => (
+                    <MenuItem key={chartType.value} value={chartType.value}>
+                      {chartType.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl variant="standard">
                 <InputLabel>結算資產</InputLabel>
                 <Select

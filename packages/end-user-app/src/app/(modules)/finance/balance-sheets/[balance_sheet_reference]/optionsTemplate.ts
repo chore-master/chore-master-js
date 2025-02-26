@@ -1,9 +1,6 @@
 import { Options } from 'highcharts/highcharts'
 
 export const pieChartOptionsTemplate = {
-  chart: {
-    type: 'pie',
-  },
   plotOptions: {
     series: {
       borderRadius: 5,
@@ -34,6 +31,6 @@ export const pieChartOptionsTemplate = {
     headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
     pointFormat:
       '<span style="color:{point.color}">{point.name}</span>: ' +
-      '<b>{point.y:,.2f} {point.settlementAssetSymbol} ({point.percentage:.2f}%)</b><br/>',
+      '<b>{point.y:,.2f} {point.custom.selectedSettleableAssetSymbol} ({point.percentage:.2f}%)</b><br/>',
   },
 } as unknown as Options
