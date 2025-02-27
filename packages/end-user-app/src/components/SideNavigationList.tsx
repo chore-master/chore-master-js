@@ -29,6 +29,7 @@ export interface SideNavigationLink extends SideNavigationBase {
   href: string
   selectedWhenExactlyMatched?: boolean
   selectedWhenPartiallyMatched?: boolean
+  endNode?: React.ReactNode
 }
 
 export interface SideNavigationCollapsible extends SideNavigationBase {
@@ -80,7 +81,7 @@ export default function SideNavigationList({
   return (
     <List
       disablePadding
-      dense={indentionLevel > 0}
+      dense={indentionLevel > 1}
       sx={{
         flexGrow: 1,
         overflowY: 'hidden',
@@ -119,6 +120,7 @@ export default function SideNavigationList({
                     primary={nav.title}
                     sx={{ pl: indentionLevel * INDENTION_SCALE }}
                   />
+                  {nav.endNode}
                 </ListItemButton>
               </Link>
             </ListItem>

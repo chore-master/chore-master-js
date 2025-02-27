@@ -1,4 +1,6 @@
 import ModuleLayout from '@/components/ModuleLayout'
+import SplitscreenIcon from '@mui/icons-material/Splitscreen'
+import { grey } from '@mui/material/colors'
 import React from 'react'
 
 export default function Layout({
@@ -12,7 +14,8 @@ export default function Layout({
       moduleName="範例模組"
       navigations={[
         {
-          type: 'header',
+          type: 'collapsible',
+          isDefaultCollapsed: false,
           title: '常用情境',
           navigations: [
             {
@@ -32,6 +35,9 @@ export default function Layout({
               title: '分割面板',
               href: '/example/splitter',
               selectedWhenPartiallyMatched: true,
+              endNode: (
+                <SplitscreenIcon fontSize="small" sx={{ color: grey[500] }} />
+              ),
             },
             {
               type: 'header',
