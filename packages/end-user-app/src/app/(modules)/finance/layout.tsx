@@ -1,4 +1,10 @@
+'use client'
+
 import ModuleLayout from '@/components/ModuleLayout'
+import {
+  SideNavigationCollapsible,
+  SideNavigationLink,
+} from '@/components/SideNavigationList'
 import React from 'react'
 
 export default function Layout({
@@ -12,19 +18,23 @@ export default function Layout({
       moduleName="金融"
       navigations={[
         {
-          type: 'header',
+          type: 'collapsible',
+          isDefaultCollapsed: false,
+          getSelected: (isCollapsed: boolean, pathname: string) => {
+            return isCollapsed && pathname.startsWith('/finance/market')
+          },
           title: '市場',
           navigations: [
             {
               type: 'link',
-              title: '生態',
-              href: '/finance/market/ecosystem',
+              title: '利率行情',
+              href: '/finance/market/interest-rate-inspector',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '利率行情',
-              href: '/finance/market/interest-rate-inspector',
+              title: '生態',
+              href: '/finance/market/ecosystem',
               selectedWhenPartiallyMatched: true,
             },
             {
@@ -36,10 +46,20 @@ export default function Layout({
           ],
         },
         {
-          type: 'divider',
-        },
-        {
-          type: 'header',
+          type: 'collapsible',
+          isDefaultCollapsed: false,
+          getSelected: (
+            isCollapsed: boolean,
+            pathname: string,
+            nav: SideNavigationCollapsible
+          ) => {
+            return (
+              isCollapsed &&
+              (nav.navigations as SideNavigationLink[]).some((n) =>
+                pathname.startsWith(n.href)
+              )
+            )
+          },
           title: '我的資金',
           navigations: [
             {
@@ -87,29 +107,33 @@ export default function Layout({
         //   type: 'divider',
         // },
         {
-          type: 'link',
-          title: '投資組合',
-          href: '/finance/portfolio',
-          selectedWhenPartiallyMatched: true,
+          type: 'collapsible',
+          isDefaultCollapsed: true,
+          title: '實驗功能',
+          navigations: [
+            {
+              type: 'link',
+              title: '投資組合',
+              href: '/finance/portfolio',
+              selectedWhenPartiallyMatched: true,
+            },
+          ],
         },
-
         {
-          type: 'divider',
-        },
-        {
-          type: 'header',
-          title: '交易',
+          type: 'collapsible',
+          isDefaultCollapsed: true,
+          title: '其他',
           navigations: [
             {
               type: 'link',
               title: '執行階段',
-              href: '/trade/session',
+              href: '/finance/trade/session',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
               title: 'Risk Management',
-              href: '/trade/risk_management',
+              href: '/finance/trade/risk_management',
               selectedWhenPartiallyMatched: true,
             },
           ],
