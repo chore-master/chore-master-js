@@ -1,3 +1,11 @@
+// SystemInspect
+
+export interface SystemInspect {
+  commit_revision: string | null
+  commit_short_sha: string | null
+  env: string
+}
+
 // Resource
 
 export interface Resource {

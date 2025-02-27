@@ -5,8 +5,10 @@ import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
+import { SystemInspect } from '@/types'
+import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useEndUser } from '@/utils/auth'
-import { Logout } from '@mui/icons-material'
+import { useNotification } from '@/utils/notification'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
@@ -14,17 +16,23 @@ import AppsIcon from '@mui/icons-material/Apps'
 import CloseIcon from '@mui/icons-material/Close'
 import ContrastIcon from '@mui/icons-material/Contrast'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
+import DeviceHubIcon from '@mui/icons-material/DeviceHub'
 import HelpIcon from '@mui/icons-material/Help'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import LanIcon from '@mui/icons-material/Lan'
+import LaunchIcon from '@mui/icons-material/Launch'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import LoginIcon from '@mui/icons-material/Login'
+import LogoutIcon from '@mui/icons-material/Logout'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import SettingsIcon from '@mui/icons-material/Settings'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
 import Collapse from '@mui/material/Collapse'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -71,13 +79,22 @@ export default function ModuleLayout({
   loginRequired = false,
   children,
 }: ModuleLayoutProps) {
+  const { enqueueNotification } = useNotification()
+
   const [isModulesDrawerOpen, setIsModulesDrawerOpen] =
     React.useState<boolean>(false)
   const [isNonMobileSideNavOpen, setIsNonMobileSideNavOpen] =
     React.useState<boolean>(true)
   const [isMobileSideNavDrawerOpen, setIsMobileSideNavDrawerOpen] =
     React.useState<boolean>(false)
+  const [isAboutDialogOpen, setIsAboutDialogOpen] =
+    React.useState<boolean>(false)
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] =
+    React.useState<boolean>(false)
+  const [systemInspect, setSystemInspect] = React.useState<
+    SystemInspect | undefined
+  >()
+  const [isLoadingSystemInspect, setIsLoadingSystemInspect] =
     React.useState<boolean>(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const { mode, setMode } = useColorScheme()
@@ -96,6 +113,23 @@ export default function ModuleLayout({
   const [currentDate, setCurrentDate] = React.useState(new Date())
 
   const isMenuOpen = Boolean(anchorEl)
+
+  const fetchSystemInspect = React.useCallback(async () => {
+    setIsLoadingSystemInspect(true)
+    await choreMasterAPIAgent.get('/inspect', {
+      params: {},
+      onError: () => {
+        enqueueNotification(`Unable to fetch system inspect now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setSystemInspect(data)
+      },
+    })
+    setIsLoadingSystemInspect(false)
+  }, [enqueueNotification])
 
   const toggleModulesDrawer = (newOpen: boolean) => () => {
     setIsModulesDrawerOpen(newOpen)
@@ -326,6 +360,16 @@ export default function ModuleLayout({
               {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
                 <AccountCircle />
               </IconButton> */}
+              <Tooltip title="關於">
+                <IconButton
+                  onClick={() => {
+                    fetchSystemInspect()
+                    setIsAboutDialogOpen(true)
+                  }}
+                >
+                  <InfoOutlinedIcon />
+                </IconButton>
+              </Tooltip>
               <Tooltip title="設定">
                 <IconButton
                   onClick={() => {
@@ -420,7 +464,7 @@ export default function ModuleLayout({
                 <Link href="/logout" passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseMenu}>
                     <ListItemIcon>
-                      <Logout fontSize="small" />
+                      <LogoutIcon fontSize="small" />
                     </ListItemIcon>
                     登出目前裝置
                   </MenuItem>
@@ -432,6 +476,114 @@ export default function ModuleLayout({
           {children}
         </Stack>
       </Stack>
+
+      <Dialog
+        closeAfterTransition={false}
+        open={isAboutDialogOpen}
+        onClose={() => {
+          setIsAboutDialogOpen(false)
+        }}
+      >
+        <DialogTitle>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <span>關於</span>
+            <IconButton
+              aria-label="close"
+              onClick={() => {
+                setIsAboutDialogOpen(false)
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+        </DialogTitle>
+        <DialogContent dividers>
+          <List>
+            <ListItem disablePadding>
+              <ListItemIcon>
+                <DeviceHubIcon />
+              </ListItemIcon>
+              <ListItemText primary="系統資訊" />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography variant="body2">發佈版本</Typography>
+                    <Chip
+                      size="small"
+                      label={systemInspect?.commit_revision ?? 'N/A'}
+                    />
+                  </Stack>
+                }
+              />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography variant="body2">提交版本</Typography>
+                    <Chip
+                      size="small"
+                      label={systemInspect?.commit_short_sha ?? 'N/A'}
+                    />
+                  </Stack>
+                }
+              />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography variant="body2">環境</Typography>
+                    <Chip size="small" label={systemInspect?.env} />
+                  </Stack>
+                }
+              />
+            </ListItem>
+            <ListItem disablePadding sx={{ mt: 2 }}>
+              <ListItemIcon>
+                <PrivacyTipIcon />
+              </ListItemIcon>
+              <ListItemText primary="聲明" />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <MuiLink color="inherit" href="/privacy" target="_blank">
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Typography variant="body2">隱私權</Typography>
+                      <LaunchIcon fontSize="small" />
+                    </Stack>
+                  </MuiLink>
+                }
+              />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <MuiLink color="inherit" href="/terms" target="_blank">
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Typography variant="body2">服務條款</Typography>
+                      <LaunchIcon fontSize="small" />
+                    </Stack>
+                  </MuiLink>
+                }
+              />
+            </ListItem>
+          </List>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         fullWidth
