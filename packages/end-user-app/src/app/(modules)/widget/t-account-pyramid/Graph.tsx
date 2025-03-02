@@ -18,19 +18,22 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import React from 'react'
-import GroupNode from './GroupNode'
+import ProtocolNode from './ProtocolNode'
+
+const xGap = 256
+const yGap = 160
 
 const initialNodes: Node[] = [
   {
     id: 'eth',
-    type: 'group',
+    type: 'protocol',
     position: { x: 0, y: 0 },
     data: { title: 'ETH', pairs: [{ lendAssetSymbol: 'ETH' }] },
   },
   {
     id: 'beacon_deposit_contract',
-    type: 'group',
-    position: { x: 200, y: 0 },
+    type: 'protocol',
+    position: { x: xGap * 1, y: yGap * 0 },
     data: {
       title: 'Beacon Deposit Contract',
       pairs: [{ borrowAssetSymbol: 'ETH', lendAssetSymbol: 'stETH' }],
@@ -38,8 +41,8 @@ const initialNodes: Node[] = [
   },
   {
     id: 'tether',
-    type: 'group',
-    position: { x: 400, y: 0 },
+    type: 'protocol',
+    position: { x: xGap * 2, y: yGap * 0 },
     data: {
       title: 'Tether',
       pairs: [{ borrowAssetSymbol: 'USD', lendAssetSymbol: 'USDT' }],
@@ -47,8 +50,8 @@ const initialNodes: Node[] = [
   },
   {
     id: 'circle',
-    type: 'group',
-    position: { x: 600, y: 0 },
+    type: 'protocol',
+    position: { x: xGap * 3, y: yGap * 0 },
     data: {
       title: 'Circle',
       pairs: [{ borrowAssetSymbol: 'USD', lendAssetSymbol: 'USDC' }],
@@ -56,11 +59,64 @@ const initialNodes: Node[] = [
   },
   {
     id: 'wrapped_btc',
-    type: 'group',
-    position: { x: 800, y: 0 },
+    type: 'protocol',
+    position: { x: xGap * 4, y: yGap * 0 },
     data: {
       title: 'Wrapped BTC',
       pairs: [{ borrowAssetSymbol: 'BTC', lendAssetSymbol: 'WBTC' }],
+    },
+  },
+  {
+    id: 'lido',
+    type: 'group',
+    data: { label: 'Lido' },
+    position: { x: xGap * 2 - 10, y: yGap * 1 - 10 },
+    style: {
+      width: xGap * 2 - 10,
+      height: yGap * 1 - 10,
+    },
+  },
+  {
+    id: 'steth',
+    type: 'protocol',
+    position: { x: xGap * 0 + 10, y: yGap * 0 + 10 },
+    parentId: 'lido',
+    extent: 'parent',
+    data: {
+      title: 'stETH',
+      pairs: [{ borrowAssetSymbol: 'stETH', lendAssetSymbol: 'stETH' }],
+    },
+  },
+  {
+    id: 'wsteth',
+    type: 'protocol',
+    position: { x: xGap * 1 + 10, y: yGap * 0 + 10 },
+    parentId: 'lido',
+    extent: 'parent',
+    data: {
+      title: 'wstETH',
+      pairs: [{ borrowAssetSymbol: 'stETH', lendAssetSymbol: 'wstETH' }],
+    },
+  },
+  {
+    id: 'eigen_layer',
+    type: 'group',
+    data: { label: 'Eigen Layer' },
+    position: { x: xGap * 3 - 10, y: yGap * 2 - 10 },
+    style: {
+      width: xGap * 1 - 10,
+      height: yGap * 1 - 10,
+    },
+  },
+  {
+    id: 'rsteth',
+    type: 'protocol',
+    position: { x: xGap * 0 + 10, y: yGap * 0 + 10 },
+    parentId: 'eigen_layer',
+    extent: 'parent',
+    data: {
+      title: 'rstETH',
+      pairs: [{ borrowAssetSymbol: 'stETH', lendAssetSymbol: 'rstETH' }],
     },
   },
 ]
@@ -73,12 +129,33 @@ const initialEdges: Edge[] = [
     target: 'beacon_deposit_contract',
     targetHandle: 'ETH',
   },
+  {
+    id: 'beacon_deposit_contract.stETH->steth.stETH',
+    source: 'beacon_deposit_contract',
+    sourceHandle: 'stETH',
+    target: 'steth',
+    targetHandle: 'stETH',
+  },
+  {
+    id: 'steth.stETH->wsteth.stETH',
+    source: 'steth',
+    sourceHandle: 'stETH',
+    target: 'wsteth',
+    targetHandle: 'stETH',
+  },
+  {
+    id: 'steth.stETH->rsteth.stETH',
+    source: 'steth',
+    sourceHandle: 'stETH',
+    target: 'rsteth',
+    targetHandle: 'stETH',
+  },
 ]
 
 function Flow() {
   const nodeTypes = React.useMemo<NodeTypes>(
     () => ({
-      group: GroupNode,
+      protocol: ProtocolNode,
     }),
     []
   )

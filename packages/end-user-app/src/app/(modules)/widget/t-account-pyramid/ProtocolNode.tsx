@@ -14,14 +14,18 @@ export type GroupNodeProps = Node<
 >
 
 export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
-  const rowOffset = data.title ? 1 : 0
-  const nodeWrapperPadding = 10
-  const rowHeight = 32
+  const nodePadding = 10
+  const rowContentHeight = 32
+  const rowOffset = data.title ? rowContentHeight : 0
 
   return (
-    <div>
+    <div style={{ padding: nodePadding, border: '1px solid black' }}>
       <table
-        style={{ borderCollapse: 'collapse', display: 'grid', width: '100%' }}
+        style={{
+          borderCollapse: 'collapse',
+          tableLayout: 'fixed',
+          minWidth: 128,
+        }}
       >
         {data.title && (
           <caption
@@ -30,20 +34,24 @@ export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
               whiteSpace: 'nowrap',
               textOverflow: 'ellipsis',
               overflow: 'hidden',
-              height: rowHeight,
-              lineHeight: `${rowHeight}px`,
+              height: rowContentHeight,
+              lineHeight: `${rowContentHeight}px`,
             }}
           >
             {data.title}
           </caption>
         )}
-        <tbody style={{ display: 'table' }}>
+        <colgroup>
+          <col style={{ borderRight: '1px solid black', width: '50%' }} />
+          <col style={{ borderLeft: '1px solid black', width: '50%' }} />
+        </colgroup>
+        <tbody>
           {data.pairs.map((pair, index) => (
             <tr
               key={`${pair.borrowAssetSymbol}->${pair.lendAssetSymbol}`}
-              style={{ height: rowHeight }}
+              style={{ height: rowContentHeight }}
             >
-              <td style={{ borderRight: '1px solid black', width: '50%' }}>
+              <td>
                 {pair.borrowAssetSymbol && (
                   <Handle
                     type="target"
@@ -51,8 +59,10 @@ export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
                     id={pair.borrowAssetSymbol}
                     style={{
                       top:
-                        (rowOffset + index + 0.5) * rowHeight +
-                        nodeWrapperPadding,
+                        rowOffset +
+                        (index + 0.5) *
+                          (rowContentHeight + 4 * 2 + 4 * 2 + 1 * 2) +
+                        nodePadding,
                     }}
                   />
                 )}
@@ -61,6 +71,7 @@ export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
                     style={{
                       backgroundColor: '#eee',
                       margin: 4,
+                      padding: 4,
                       border: '1px solid black',
                     }}
                   >
@@ -68,12 +79,13 @@ export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
                   </div>
                 )}
               </td>
-              <td style={{ borderLeft: '1px solid black', width: '50%' }}>
+              <td>
                 {pair.lendAssetSymbol && (
                   <div
                     style={{
                       backgroundColor: '#eee',
                       margin: 4,
+                      padding: 4,
                       border: '1px solid black',
                     }}
                   >
@@ -87,8 +99,10 @@ export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
                     id={pair.lendAssetSymbol}
                     style={{
                       top:
-                        (rowOffset + index + 0.5) * rowHeight +
-                        nodeWrapperPadding,
+                        rowOffset +
+                        (index + 0.5) *
+                          (rowContentHeight + 4 * 2 + 4 * 2 + 1 * 2) +
+                        nodePadding,
                     }}
                   />
                 )}
