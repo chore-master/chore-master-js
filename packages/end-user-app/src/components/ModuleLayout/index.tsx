@@ -229,7 +229,7 @@ export default function ModuleLayout({
   return (
     <React.Fragment>
       <Drawer open={isModulesDrawerOpen} onClose={toggleModulesDrawer(false)}>
-        <List disablePadding sx={{ flexGrow: 1 }}>
+        <List disablePadding>
           {endUser && (
             <ListItem disablePadding>
               <Link href="/admin" passHref legacyBehavior>
@@ -287,14 +287,6 @@ export default function ModuleLayout({
             </Link>
           </ListItem>
         </List>
-        <Stack direction="row" spacing={1} p={1}>
-          <MuiLink color="inherit" variant="body2" href="/privacy">
-            隱私權
-          </MuiLink>
-          <MuiLink color="inherit" variant="body2" href="/terms">
-            服務條款
-          </MuiLink>
-        </Stack>
       </Drawer>
 
       <Stack direction="row">

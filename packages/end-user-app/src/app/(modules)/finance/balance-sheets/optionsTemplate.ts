@@ -44,7 +44,7 @@ export const areaChartOptionsTemplate = {
       '<div style="font-size: 14px; margin-bottom: 8px;">{point.key}</div>',
     xDateFormat: '%Y-%m-%d %H:%M',
     pointFormat:
-      '<div style="display:flex; justify-content:space-between; width:100%;">' +
+      '<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">' +
       '<span style="margin-right:10px;">' +
       '<span style="color:{series.color}; font-size:16px;">\u25CF</span> {series.name}' +
       '</span>' +

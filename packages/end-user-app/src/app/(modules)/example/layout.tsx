@@ -142,9 +142,9 @@ export default function Layout({
               href: '#',
               navigations: [
                 {
-                  type: 'link',
+                  type: 'collapsible',
                   title: '子選項 2.1.1',
-                  href: '#',
+                  isDefaultCollapsed: false,
                   navigations: [
                     {
                       type: 'link',
