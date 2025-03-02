@@ -13,8 +13,8 @@ export default function Layout({
       navigations={[
         {
           type: 'link',
-          title: 'Sankey Demo',
-          href: '/widget/sankey-demo',
+          title: 'T-Account Pyramid',
+          href: '/widget/t-account-pyramid',
           selectedWhenExactlyMatched: true,
         },
         {
@@ -27,6 +27,12 @@ export default function Layout({
           type: 'link',
           title: 'Transaction Visualizer',
           href: '/widget/tx-viz',
+          selectedWhenExactlyMatched: true,
+        },
+        {
+          type: 'link',
+          title: 'Sankey Demo',
+          href: '/widget/sankey-demo',
           selectedWhenExactlyMatched: true,
         },
       ]}
