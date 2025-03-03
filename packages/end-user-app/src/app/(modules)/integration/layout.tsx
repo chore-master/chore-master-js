@@ -17,24 +17,24 @@ export default function Layout({
           href: '/integration/resources',
           selectedWhenPartiallyMatched: true,
         },
-        {
-          type: 'link',
-          title: 'Google',
-          href: '/integration/google',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          type: 'link',
-          title: '永豐',
-          href: '/integration/sinotrade',
-          selectedWhenPartiallyMatched: true,
-        },
-        {
-          type: 'link',
-          title: 'OKX',
-          href: '/integration/okxtrade',
-          selectedWhenPartiallyMatched: true,
-        },
+        // {
+        //   type: 'link',
+        //   title: 'Google',
+        //   href: '/integration/google',
+        //   selectedWhenPartiallyMatched: true,
+        // },
+        // {
+        //   type: 'link',
+        //   title: '永豐',
+        //   href: '/integration/sinotrade',
+        //   selectedWhenPartiallyMatched: true,
+        // },
+        // {
+        //   type: 'link',
+        //   title: 'OKX',
+        //   href: '/integration/okxtrade',
+        //   selectedWhenPartiallyMatched: true,
+        // },
       ]}
     >
       {children}

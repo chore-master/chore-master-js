@@ -180,10 +180,10 @@ export default function Page() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>鑑別器</NoWrapTableCell>
                   <NoWrapTableCell>值</NoWrapTableCell>
+                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
@@ -193,9 +193,6 @@ export default function Page() {
               >
                 {resources.map((integration) => (
                   <TableRow key={integration.reference} hover>
-                    <NoWrapTableCell>
-                      <Chip size="small" label={integration.reference} />
-                    </NoWrapTableCell>
                     <NoWrapTableCell>{integration.name}</NoWrapTableCell>
                     <NoWrapTableCell>
                       {integration.discriminator}
@@ -205,6 +202,9 @@ export default function Page() {
                         language="json"
                         code={JSON.stringify(integration.value, null, 2)}
                       />
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <Chip size="small" label={integration.reference} />
                     </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
