@@ -38,7 +38,7 @@ export default function Page() {
 
   const fetchDatabaseConnection = async () => {
     setIsFetchingDatabaseConnection(true)
-    await choreMasterAPIAgent.get('/v1/account_center/integrations/core', {
+    await choreMasterAPIAgent.get('/v1/admin/user_database/connection', {
       params: {},
       onError: () => {
         enqueueNotification(
@@ -64,7 +64,7 @@ export default function Page() {
     DatabaseConnectionInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      '/v1/account_center/integrations/core/relational_database',
+      '/v1/admin/user_database/connection',
       data,
       {
         onFail: ({ message }: any) => {
