@@ -22,7 +22,7 @@ export default function Page() {
       </ModuleFunction>
 
       <ModuleContainer stickyTop>
-        <ModuleFunction sx={{ py: 0 }}>
+        <ModuleFunction sx={{ p: 0, px: 3 }}>
           <Box sx={{ mx: 2, mt: 2, borderBottom: 1, borderColor: 'divider' }}>
             <TabList
               variant="scrollable"

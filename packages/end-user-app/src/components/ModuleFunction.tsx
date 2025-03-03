@@ -1,5 +1,6 @@
 'use client'
 
+import { useSticky } from '@/hooks/useSticky'
 import { SxProps } from '@mui/material'
 import Box from '@mui/material/Box'
 import CardActions from '@mui/material/CardActions'
@@ -8,7 +9,8 @@ import CardHeader from '@mui/material/CardHeader'
 import Container from '@mui/material/Container'
 import LinearProgress from '@mui/material/LinearProgress'
 import Paper from '@mui/material/Paper'
-import { useColorScheme } from '@mui/material/styles'
+import { useColorScheme, useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { Splitter, SplitterPanel } from 'primereact/splitter'
 import React, { ReactNode } from 'react'
 import './splitter.css'
@@ -93,6 +95,17 @@ export const ModuleContainer = ({
   sx?: SxProps
   children?: ReactNode
 }>) => {
+  const theme = useTheme()
+  const isUpSm = useMediaQuery(theme.breakpoints.up('sm'))
+  const top = isUpSm ? 64 : 56
+  const bottom = 0
+  let rootMargin = 0
+  if (stickyTop) {
+    rootMargin = -top
+  } else if (stickyBottom) {
+    rootMargin = -bottom
+  }
+  const { sentinel, isSticky } = useSticky({ rootMargin })
   const { mode } = useColorScheme()
   const commonStickySx = {
     position: 'sticky',
@@ -101,27 +114,45 @@ export const ModuleContainer = ({
   }
   if (stickyTop) {
     return (
-      <Box
-        sx={Object.assign(
-          {},
-          commonStickySx,
-          {
-            top: {
-              xs: 56,
-              sm: 64,
+      <React.Fragment>
+        {sentinel}
+        <Box
+          sx={Object.assign(
+            {},
+            commonStickySx,
+            {
+              top,
+              boxShadow: isSticky
+                ? '0 4px 4px -4px rgba(0, 0, 0, 0.2)'
+                : 'none',
             },
-          },
-          sx
-        )}
-      >
-        {children}
-      </Box>
+            sx
+          )}
+        >
+          {children}
+        </Box>
+      </React.Fragment>
     )
   } else if (stickyBottom) {
     return (
-      <Box sx={Object.assign({}, commonStickySx, { bottom: 0 }, sx)}>
-        {children}
-      </Box>
+      <React.Fragment>
+        <Box
+          sx={Object.assign(
+            {},
+            commonStickySx,
+            {
+              bottom,
+              boxShadow: isSticky
+                ? '0 -4px 4px -4px rgba(0, 0, 0, 0.2)'
+                : 'none',
+            },
+            sx
+          )}
+        >
+          {children}
+        </Box>
+        {sentinel}
+      </React.Fragment>
     )
   } else {
     return <Box sx={sx}>{children}</Box>
