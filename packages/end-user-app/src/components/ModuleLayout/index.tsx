@@ -28,7 +28,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
-import SettingsIcon from '@mui/icons-material/Settings'
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
@@ -369,7 +369,7 @@ export default function ModuleLayout({
                     setIsSettingsDialogOpen(true)
                   }}
                 >
-                  <SettingsIcon />
+                  <SettingsOutlinedIcon />
                 </IconButton>
               </Tooltip>
               {endUser && (
