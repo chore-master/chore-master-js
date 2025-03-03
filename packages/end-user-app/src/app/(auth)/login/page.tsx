@@ -28,7 +28,7 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
 
   const handleSubmitLoginForm: SubmitHandler<LoginForm> = async (data) => {
-    await choreMasterAPIAgent.post('/v1/auth/login', data, {
+    await choreMasterAPIAgent.post('/v1/admin/auth/login', data, {
       onError: () => {
         enqueueNotification(
           'Something wrong happened. Service may be unavailable now.',
@@ -99,7 +99,7 @@ export default function Page() {
           </Button>
         </Stack>
         <Link
-          href={`${IAM_API_HOST}/v1/auth/google/authorize?success_redirect_uri=${successRedirectURI}&error_redirect_uri=${errorRedirectURI}`}
+          href={`${IAM_API_HOST}/v1/admin/auth/google/authorize?success_redirect_uri=${successRedirectURI}&error_redirect_uri=${errorRedirectURI}`}
         >
           Login with Google
         </Link>
