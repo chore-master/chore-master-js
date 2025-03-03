@@ -1,3 +1,15 @@
+export function offsetInMinutesToTimedeltaString(
+  offsetInMinutes: number
+): string {
+  const sign = offsetInMinutes >= 0 ? '+' : '-'
+  const hours = Math.floor(Math.abs(offsetInMinutes) / 60)
+  const minutes = Math.abs(offsetInMinutes) % 60
+  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+    2,
+    '0'
+  )}`
+}
+
 export function UTCStringToDate(dateTime: string): Date {
   let isoDateString = dateTime
   if (!dateTime.endsWith('Z')) {
@@ -8,10 +20,6 @@ export function UTCStringToDate(dateTime: string): Date {
 
 export function localStringToUTCString(dateTime: string): string {
   return new Date(dateTime).toISOString().slice(0, -5)
-}
-
-export function humanReadableLocalDateTime(dateTime: string): string {
-  return UTCStringToDate(dateTime).toLocaleString(undefined, { hour12: false })
 }
 
 export function dateToLocalString(date: Date): string {

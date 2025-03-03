@@ -5,14 +5,12 @@ import React from 'react'
 interface TimezoneContextType {
   deviceOffsetInMinutes: number
   offsetInMinutes: number
-  offsetText: string
   setOffsetInMinutes: (offsetInMinutes: number) => void
 }
 
 const TimezoneContext = React.createContext<TimezoneContextType>({
   deviceOffsetInMinutes: 0,
   offsetInMinutes: 0,
-  offsetText: '+00:00',
   setOffsetInMinutes: () => {},
 })
 
@@ -23,19 +21,6 @@ export const TimezoneProvider = ({
   const [offsetInMinutes, setOffsetInMinutes] = React.useState(
     deviceOffsetInMinutes
   )
-  const [offsetText, setOffsetText] = React.useState('+00:00')
-
-  React.useEffect(() => {
-    const sign = offsetInMinutes >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offsetInMinutes) / 60)
-    const minutes = Math.abs(offsetInMinutes) % 60
-    setOffsetText(
-      `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(
-        2,
-        '0'
-      )}`
-    )
-  }, [offsetInMinutes])
 
   return (
     <TimezoneContext.Provider
@@ -43,7 +28,6 @@ export const TimezoneProvider = ({
         deviceOffsetInMinutes,
         offsetInMinutes,
         setOffsetInMinutes,
-        offsetText,
       }}
     >
       {children}
@@ -79,7 +63,6 @@ export const useTimezone = () => {
   return {
     deviceOffsetInMinutes: timezoneContext.deviceOffsetInMinutes,
     offsetInMinutes: timezoneContext.offsetInMinutes,
-    offsetText: timezoneContext.offsetText,
     setOffsetInMinutes: timezoneContext.setOffsetInMinutes,
     getLocalDate,
     getUTCTimestamp,

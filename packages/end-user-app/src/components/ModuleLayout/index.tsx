@@ -8,6 +8,7 @@ import { useTimezone } from '@/components/timezone'
 import { SystemInspect } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useEndUser } from '@/utils/auth'
+import { offsetInMinutesToTimedeltaString } from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
@@ -655,7 +656,8 @@ export default function ModuleLayout({
                 inset
                 primary={
                   <React.Fragment>
-                    套用時區：UTC{timezone.offsetText}
+                    套用時區：UTC
+                    {offsetInMinutesToTimedeltaString(timezone.offsetInMinutes)}
                   </React.Fragment>
                 }
                 secondary={
@@ -676,16 +678,14 @@ export default function ModuleLayout({
                     step={30}
                     min={-600}
                     max={540}
-                    marks={[
-                      {
-                        value: 0,
-                        label: 'UTC+00:00',
-                      },
-                      {
-                        value: 480,
-                        label: 'UTC+08:00',
-                      },
-                    ]}
+                    marks={[0, timezone.deviceOffsetInMinutes].map(
+                      (offsetInMinutes) => ({
+                        value: offsetInMinutes,
+                        label: `UTC${offsetInMinutesToTimedeltaString(
+                          offsetInMinutes
+                        )}`,
+                      })
+                    )}
                     value={timezone.offsetInMinutes}
                     onChange={(event: Event, newValue: number | number[]) => {
                       timezone.setOffsetInMinutes(newValue as number)
