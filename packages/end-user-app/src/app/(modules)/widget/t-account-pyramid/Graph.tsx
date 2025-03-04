@@ -70,7 +70,12 @@ const initialNodes: Node[] = [
   {
     id: 'lido',
     type: 'cluster',
-    data: { title: 'Lido' },
+    data: {
+      title: 'Lido',
+      style: {
+        backgroundColor: 'rgba(255, 228, 228, 0.8)',
+      },
+    },
     position: { x: xGap * 2, y: yGap * 1 },
   },
   {
@@ -98,7 +103,12 @@ const initialNodes: Node[] = [
   {
     id: 'eigen_layer',
     type: 'cluster',
-    data: { title: 'Eigen Layer' },
+    data: {
+      title: 'Eigen Layer',
+      style: {
+        backgroundColor: 'rgba(215, 225, 228, 0.8)',
+      },
+    },
     position: { x: xGap * 3, y: yGap * 2 },
   },
   {
@@ -126,6 +136,7 @@ const initialEdges: Edge[] = [
     sourceHandle: 'ETH',
     target: 'beacon_deposit_contract',
     targetHandle: 'ETH',
+    zIndex: 1,
   },
   {
     id: 'beacon_deposit_contract.stETH->steth.stETH',
@@ -134,6 +145,7 @@ const initialEdges: Edge[] = [
     sourceHandle: 'stETH',
     target: 'steth',
     targetHandle: 'stETH',
+    zIndex: 1,
   },
   {
     id: 'steth.stETH->wsteth.stETH',
@@ -142,6 +154,7 @@ const initialEdges: Edge[] = [
     sourceHandle: 'stETH',
     target: 'wsteth',
     targetHandle: 'stETH',
+    zIndex: 1,
   },
   {
     id: 'steth.stETH->rsteth.stETH',
@@ -150,6 +163,7 @@ const initialEdges: Edge[] = [
     sourceHandle: 'stETH',
     target: 'rsteth',
     targetHandle: 'stETH',
+    zIndex: 1,
   },
 ]
 

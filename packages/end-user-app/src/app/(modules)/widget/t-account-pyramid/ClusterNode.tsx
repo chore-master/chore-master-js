@@ -5,6 +5,7 @@ import React from 'react'
 export type ClusterNodeProps = Node<
   {
     title?: string
+    style?: React.CSSProperties
   },
   'cluster'
 >
@@ -47,14 +48,15 @@ export default function ClusterNode({ id, data }: NodeProps<ClusterNodeProps>) {
   return (
     <div
       style={{
-        border: '1px solid black',
-        marginLeft: -padding,
-        marginTop: -padding,
+        transform: `translate(-${padding}px, -${padding}px)`,
         width,
         height,
+        ...data.style,
       }}
     >
-      <span>{data.title}</span>
+      <div>
+        <span>{data.title}</span>
+      </div>
     </div>
   )
 }
