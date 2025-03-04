@@ -18,6 +18,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import React from 'react'
+import ClusterNode from './ClusterNode'
 import ProtocolNode from './ProtocolNode'
 
 const xGap = 256
@@ -68,18 +69,14 @@ const initialNodes: Node[] = [
   },
   {
     id: 'lido',
-    type: 'group',
-    data: { label: 'Lido' },
-    position: { x: xGap * 2 - 10, y: yGap * 1 - 10 },
-    style: {
-      width: xGap * 2 - 10,
-      height: yGap * 1 - 10,
-    },
+    type: 'cluster',
+    data: { title: 'Lido' },
+    position: { x: xGap * 2, y: yGap * 1 },
   },
   {
     id: 'steth',
     type: 'protocol',
-    position: { x: xGap * 0 + 10, y: yGap * 0 + 10 },
+    position: { x: xGap * 0, y: yGap * 0 },
     parentId: 'lido',
     extent: 'parent',
     data: {
@@ -90,7 +87,7 @@ const initialNodes: Node[] = [
   {
     id: 'wsteth',
     type: 'protocol',
-    position: { x: xGap * 1 + 10, y: yGap * 0 + 10 },
+    position: { x: xGap * 1, y: yGap * 0 },
     parentId: 'lido',
     extent: 'parent',
     data: {
@@ -100,23 +97,23 @@ const initialNodes: Node[] = [
   },
   {
     id: 'eigen_layer',
-    type: 'group',
-    data: { label: 'Eigen Layer' },
-    position: { x: xGap * 3 - 10, y: yGap * 2 - 10 },
-    style: {
-      width: xGap * 1 - 10,
-      height: yGap * 1 - 10,
-    },
+    type: 'cluster',
+    data: { title: 'Eigen Layer' },
+    position: { x: xGap * 3, y: yGap * 2 },
   },
   {
     id: 'rsteth',
     type: 'protocol',
-    position: { x: xGap * 0 + 10, y: yGap * 0 + 10 },
+    position: { x: xGap * 0, y: yGap * 0 },
     parentId: 'eigen_layer',
     extent: 'parent',
     data: {
       title: 'rstETH',
-      pairs: [{ borrowAssetSymbol: 'stETH', lendAssetSymbol: 'rstETH' }],
+      pairs: [
+        { borrowAssetSymbol: 'stETH', lendAssetSymbol: 'rstETH' },
+        { borrowAssetSymbol: 'stETH1', lendAssetSymbol: 'rstETH2' },
+        { borrowAssetSymbol: 'stETH3', lendAssetSymbol: 'rstETH4' },
+      ],
     },
   },
 ]
@@ -124,6 +121,7 @@ const initialNodes: Node[] = [
 const initialEdges: Edge[] = [
   {
     id: 'eth.ETH->beacon_deposit_contract.ETH',
+    type: 'step',
     source: 'eth',
     sourceHandle: 'ETH',
     target: 'beacon_deposit_contract',
@@ -131,6 +129,7 @@ const initialEdges: Edge[] = [
   },
   {
     id: 'beacon_deposit_contract.stETH->steth.stETH',
+    type: 'step',
     source: 'beacon_deposit_contract',
     sourceHandle: 'stETH',
     target: 'steth',
@@ -138,6 +137,7 @@ const initialEdges: Edge[] = [
   },
   {
     id: 'steth.stETH->wsteth.stETH',
+    type: 'step',
     source: 'steth',
     sourceHandle: 'stETH',
     target: 'wsteth',
@@ -145,6 +145,7 @@ const initialEdges: Edge[] = [
   },
   {
     id: 'steth.stETH->rsteth.stETH',
+    type: 'step',
     source: 'steth',
     sourceHandle: 'stETH',
     target: 'rsteth',
@@ -152,16 +153,14 @@ const initialEdges: Edge[] = [
   },
 ]
 
+const nodeTypes: NodeTypes = {
+  protocol: ProtocolNode,
+  cluster: ClusterNode,
+}
+
+const edgeTypes: EdgeTypes = {}
+
 function Flow() {
-  const nodeTypes = React.useMemo<NodeTypes>(
-    () => ({
-      protocol: ProtocolNode,
-    }),
-    []
-  )
-
-  const edgeTypes = React.useMemo<EdgeTypes>(() => ({}), [])
-
   const [nodes, setNodes] = React.useState(initialNodes)
   const [edges, setEdges] = React.useState(initialEdges)
 

@@ -2,7 +2,7 @@ import type { Node, NodeProps } from '@xyflow/react'
 import { Handle, Position } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
-export type GroupNodeProps = Node<
+export type ProtocolNodeProps = Node<
   {
     title?: string
     pairs: {
@@ -13,10 +13,9 @@ export type GroupNodeProps = Node<
   'group'
 >
 
-export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
+export default function ProtocolNode({ data }: NodeProps<ProtocolNodeProps>) {
   const nodePadding = 10
   const rowContentHeight = 32
-  const rowOffset = data.title ? rowContentHeight : 0
 
   return (
     <div style={{ padding: nodePadding, border: '1px solid black' }}>
@@ -53,28 +52,24 @@ export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
             >
               <td>
                 {pair.borrowAssetSymbol && (
-                  <Handle
-                    type="target"
-                    position={Position.Left}
-                    id={pair.borrowAssetSymbol}
-                    style={{
-                      top:
-                        rowOffset +
-                        (index + 0.5) *
-                          (rowContentHeight + 4 * 2 + 4 * 2 + 1 * 2) +
-                        nodePadding,
-                    }}
-                  />
-                )}
-                {pair.borrowAssetSymbol && (
                   <div
                     style={{
+                      position: 'relative',
                       backgroundColor: '#eee',
                       margin: 4,
                       padding: 4,
-                      border: '1px solid black',
+                      border: '0px solid black',
                     }}
                   >
+                    <Handle
+                      type="target"
+                      position={Position.Left}
+                      id={pair.borrowAssetSymbol}
+                      style={{
+                        top: '50%',
+                        left: -1,
+                      }}
+                    />
                     {pair.borrowAssetSymbol}
                   </div>
                 )}
@@ -83,28 +78,24 @@ export default function GroupNode({ data }: NodeProps<GroupNodeProps>) {
                 {pair.lendAssetSymbol && (
                   <div
                     style={{
+                      position: 'relative',
                       backgroundColor: '#eee',
                       margin: 4,
                       padding: 4,
-                      border: '1px solid black',
+                      border: '0px solid black',
                     }}
                   >
                     {pair.lendAssetSymbol}
+                    <Handle
+                      type="source"
+                      position={Position.Right}
+                      id={pair.lendAssetSymbol}
+                      style={{
+                        top: '50%',
+                        right: -1,
+                      }}
+                    />
                   </div>
-                )}
-                {pair.lendAssetSymbol && (
-                  <Handle
-                    type="source"
-                    position={Position.Right}
-                    id={pair.lendAssetSymbol}
-                    style={{
-                      top:
-                        rowOffset +
-                        (index + 0.5) *
-                          (rowContentHeight + 4 * 2 + 4 * 2 + 1 * 2) +
-                        nodePadding,
-                    }}
-                  />
                 )}
               </td>
             </tr>
