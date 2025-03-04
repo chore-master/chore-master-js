@@ -6,6 +6,7 @@ export type ClusterNodeProps = Node<
   {
     title?: string
     style?: React.CSSProperties
+    inset?: number
   },
   'cluster'
 >
@@ -15,35 +16,35 @@ export default function ClusterNode({ id, data }: NodeProps<ClusterNodeProps>) {
   const [height, setHeight] = React.useState(0)
   const nodes = useNodes()
   const childNodes = nodes.filter((node) => node.parentId === id)
-  const rightmostNode = childNodes.reduce((max, node) => {
+  const rightMostNode = childNodes.reduce((max, node) => {
     const maxX = max.position.x + (max.measured?.width || 0)
     const nodeX = node.position.x + (node.measured?.width || 0)
     return nodeX > maxX ? node : max
   }, childNodes[0])
 
-  const bottommostNode = childNodes.reduce((max, node) => {
+  const bottomMostNode = childNodes.reduce((max, node) => {
     const maxY = max.position.y + (max.measured?.height || 0)
     const nodeY = node.position.y + (node.measured?.height || 0)
     return nodeY > maxY ? node : max
   }, childNodes[0])
 
-  const padding = 20
+  const padding = data.inset ?? 32
 
   React.useEffect(() => {
     setWidth(
-      rightmostNode.position.x +
-        (rightmostNode.measured?.width || 0) +
+      rightMostNode.position.x +
+        (rightMostNode.measured?.width || 0) +
         padding * 2
     )
-  }, [rightmostNode])
+  }, [rightMostNode, padding])
 
   React.useEffect(() => {
     setHeight(
-      bottommostNode.position.y +
-        (bottommostNode.measured?.height || 0) +
+      bottomMostNode.position.y +
+        (bottomMostNode.measured?.height || 0) +
         padding * 2
     )
-  }, [bottommostNode])
+  }, [bottomMostNode, padding])
 
   return (
     <div
@@ -54,9 +55,7 @@ export default function ClusterNode({ id, data }: NodeProps<ClusterNodeProps>) {
         ...data.style,
       }}
     >
-      <div>
-        <span>{data.title}</span>
-      </div>
+      <div style={{ width: '100%', textAlign: 'center' }}>{data.title}</div>
     </div>
   )
 }
