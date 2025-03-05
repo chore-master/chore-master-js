@@ -215,6 +215,7 @@ function GridLayoutFlow({
         },
       }))
     )
+    setEdges(initialEdges)
     window.requestAnimationFrame(() => {
       fitView()
     })
@@ -242,41 +243,48 @@ function GridLayoutFlow({
         return acc
       }, new Set())
     )
-    console.log('parentIds', parentIds)
 
     const nodeIdToXYPositionMap: Record<string, XYPosition> = {}
     currentNodes.forEach((node) => {
       nodeIdToXYPositionMap[node.id] = node.position
     })
 
-    let currentX = 0
-    for (let col = minCol; col <= maxCol; col++) {
-      const filteredNodes = currentNodes.filter(
-        (node: any) => node.type === 'protocol' && node.data.grid.col === col
-      )
-      console.log('filteredNodes', filteredNodes)
-      const maxWidth = Math.max(
-        ...filteredNodes.map((node) => node.measured?.width || 0)
-      )
-      filteredNodes.forEach((node) => {
-        nodeIdToXYPositionMap[node.id].x = currentX
-      })
-      currentX += maxWidth + colGap
-    }
+    parentIds.forEach((parentId) => {
+      let currentX = 0
+      for (let col = minCol; col <= maxCol; col++) {
+        const filteredNodes = currentNodes.filter(
+          (node: any) =>
+            node.parentId === parentId && node.data.grid.col === col
+        )
+        console.log('filteredNodes', filteredNodes)
+        const maxWidth = Math.max(
+          ...filteredNodes.map((node) =>
+            node.type === 'protocol' ? node.measured?.width || 0 : 0
+          )
+        )
+        filteredNodes.forEach((node) => {
+          nodeIdToXYPositionMap[node.id].x = currentX
+        })
+        currentX += maxWidth + colGap
+      }
 
-    let currentY = 0
-    for (let row = minRow; row <= maxRow; row++) {
-      const filteredNodes = currentNodes.filter(
-        (node: any) => node.type === 'protocol' && node.data.grid.row === row
-      )
-      const maxHeight = Math.max(
-        ...filteredNodes.map((node) => node.measured?.height || 0)
-      )
-      filteredNodes.forEach((node) => {
-        nodeIdToXYPositionMap[node.id].y = currentY
-      })
-      currentY += maxHeight + rowGap
-    }
+      let currentY = 0
+      for (let row = minRow; row <= maxRow; row++) {
+        const filteredNodes = currentNodes.filter(
+          (node: any) =>
+            node.parentId === parentId && node.data.grid.row === row
+        )
+        const maxHeight = Math.max(
+          ...filteredNodes.map((node) =>
+            node.type === 'protocol' ? node.measured?.height || 0 : 0
+          )
+        )
+        filteredNodes.forEach((node) => {
+          nodeIdToXYPositionMap[node.id].y = currentY
+        })
+        currentY += maxHeight + rowGap
+      }
+    })
 
     setNodes(
       initialNodes.map((node) => ({
@@ -284,14 +292,11 @@ function GridLayoutFlow({
         position: nodeIdToXYPositionMap[node.id],
       }))
     )
+    setEdges(initialEdges)
     window.requestAnimationFrame(() => {
       fitView()
     })
   }, [initialNodes])
-
-  // React.useEffect(() => {
-  //   handleGridLayout()
-  // }, [initialNodes])
 
   return (
     <div style={{ width: '100%', height: 640, backgroundColor: '#F7F9FB' }}>
