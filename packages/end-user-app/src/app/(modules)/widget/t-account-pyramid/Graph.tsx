@@ -216,9 +216,9 @@ function GridLayoutFlow({
       }))
     )
     setEdges(initialEdges)
-    window.requestAnimationFrame(() => {
-      fitView()
-    })
+    // window.requestAnimationFrame(() => {
+    //   fitView()
+    // })
   }, [initialNodes])
 
   const handleGridLayout2 = React.useCallback(() => {
@@ -256,7 +256,6 @@ function GridLayoutFlow({
           (node: any) =>
             node.parentId === parentId && node.data.grid.col === col
         )
-        console.log('filteredNodes', filteredNodes)
         const maxWidth = Math.max(
           ...filteredNodes.map((node) =>
             node.type === 'protocol' ? node.measured?.width || 0 : 0
@@ -293,10 +292,119 @@ function GridLayoutFlow({
       }))
     )
     setEdges(initialEdges)
-    window.requestAnimationFrame(() => {
-      fitView()
-    })
+    // window.requestAnimationFrame(() => {
+    //   fitView()
+    // })
   }, [initialNodes])
+
+  const handleGridLayout3 = React.useCallback(() => {
+    const colGap = 84
+    const rowGap = 84
+
+    const nodeIdToAbsoluteGridPositionMap: Record<
+      string,
+      { col: number; row: number }
+    > = {}
+    currentNodes
+      .filter((node) => node.parentId === undefined)
+      .forEach((node: any) => {
+        nodeIdToAbsoluteGridPositionMap[node.id] = {
+          col: node.data.grid.col,
+          row: node.data.grid.row,
+        }
+      })
+    currentNodes
+      .filter((node) => node.parentId !== undefined)
+      .forEach((node: any) => {
+        const parentNodeAbsoluteGridPosition =
+          nodeIdToAbsoluteGridPositionMap[node.parentId]
+        nodeIdToAbsoluteGridPositionMap[node.id] = {
+          col: parentNodeAbsoluteGridPosition.col + node.data.grid.col,
+          row: parentNodeAbsoluteGridPosition.row + node.data.grid.row,
+        }
+      })
+
+    const sortedAbsoluteCols = Array.from(
+      new Set(
+        Object.values(nodeIdToAbsoluteGridPositionMap).map(
+          (position) => position.col
+        )
+      )
+    ).sort((a, b) => a - b)
+    const sortedAbsoluteRows = Array.from(
+      new Set(
+        Object.values(nodeIdToAbsoluteGridPositionMap).map(
+          (position) => position.row
+        )
+      )
+    ).sort((a, b) => a - b)
+
+    const absoluteColToAbsoluteXMap: Record<number, number> = {}
+    let absoluteX = 0
+    sortedAbsoluteCols.forEach((absoluteCol) => {
+      const filteredNodes = currentNodes.filter(
+        (node: any) =>
+          node.type === 'protocol' &&
+          nodeIdToAbsoluteGridPositionMap[node.id].col === absoluteCol
+      )
+      let width = 128
+      if (filteredNodes.length > 0) {
+        width = Math.max(
+          ...filteredNodes.map((node) => node.measured?.width || 0)
+        )
+      }
+      absoluteColToAbsoluteXMap[absoluteCol] = absoluteX
+      absoluteX += width + colGap
+    })
+
+    const absoluteRowToAbsoluteYMap: Record<number, number> = {}
+    let absoluteY = 0
+    sortedAbsoluteRows.forEach((absoluteRow) => {
+      const filteredNodes = currentNodes.filter(
+        (node: any) =>
+          node.type === 'protocol' &&
+          nodeIdToAbsoluteGridPositionMap[node.id].row === absoluteRow
+      )
+      let height = 128
+      if (filteredNodes.length > 0) {
+        height = Math.max(
+          ...filteredNodes.map((node) => node.measured?.height || 0)
+        )
+      }
+      absoluteRowToAbsoluteYMap[absoluteRow] = absoluteY
+      absoluteY += height + rowGap
+    })
+
+    const layoutedNodes = currentNodes.map((node) => {
+      let parentNodeAbsoluteX = 0
+      let parentNodeAbsoluteY = 0
+      if (node.parentId) {
+        const parentNodeAbsoluteCol =
+          nodeIdToAbsoluteGridPositionMap[node.parentId].col
+        parentNodeAbsoluteX = absoluteColToAbsoluteXMap[parentNodeAbsoluteCol]
+        const parentNodeAbsoluteRow =
+          nodeIdToAbsoluteGridPositionMap[node.parentId].row
+        parentNodeAbsoluteY = absoluteRowToAbsoluteYMap[parentNodeAbsoluteRow]
+      }
+      const nodeAbsoluteCol = nodeIdToAbsoluteGridPositionMap[node.id].col
+      const nodeAbsoluteX = absoluteColToAbsoluteXMap[nodeAbsoluteCol]
+      const nodeAbsoluteRow = nodeIdToAbsoluteGridPositionMap[node.id].row
+      const nodeAbsoluteY = absoluteRowToAbsoluteYMap[nodeAbsoluteRow]
+
+      return {
+        ...node,
+        position: {
+          x: -parentNodeAbsoluteX + nodeAbsoluteX,
+          y: -parentNodeAbsoluteY + nodeAbsoluteY,
+        },
+      }
+    })
+    setNodes(layoutedNodes)
+    setEdges(initialEdges)
+    // window.requestAnimationFrame(() => {
+    //   fitView()
+    // })
+  }, [initialNodes, currentNodes])
 
   return (
     <div style={{ width: '100%', height: 640, backgroundColor: '#F7F9FB' }}>
@@ -315,6 +423,7 @@ function GridLayoutFlow({
         <Panel position="top-right">
           <button onClick={() => handleGridLayout1()}>Grid Layout 1</button>
           <button onClick={() => handleGridLayout2()}>Grid Layout 2</button>
+          <button onClick={() => handleGridLayout3()}>Grid Layout 3</button>
         </Panel>
         <Background />
         <Controls />
