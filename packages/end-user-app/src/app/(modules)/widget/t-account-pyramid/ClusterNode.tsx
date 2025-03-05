@@ -5,6 +5,10 @@ import React from 'react'
 export type ClusterNodeProps = Node<
   {
     title?: string
+    grid: {
+      row: number
+      col: number
+    }
     style?: React.CSSProperties
     inset?: number
   },

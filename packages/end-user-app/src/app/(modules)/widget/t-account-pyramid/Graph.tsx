@@ -21,104 +21,114 @@ import React from 'react'
 import ClusterNode from './ClusterNode'
 import ProtocolNode from './ProtocolNode'
 
-const xGap = 256
-const yGap = 160
-
 const initialNodes: Node[] = [
   {
     id: 'eth',
     type: 'protocol',
     position: { x: 0, y: 0 },
-    data: { title: 'ETH', pairs: [{ lendAssetSymbol: 'ETH' }] },
+    data: {
+      title: 'ETH',
+      grid: { row: 0, col: 0 },
+      pairs: [{ lendAssetSymbol: 'ETH' }],
+    },
   },
   {
     id: 'beacon_deposit_contract',
     type: 'protocol',
-    position: { x: xGap * 1, y: yGap * 0 },
+    position: { x: 0, y: 0 },
     data: {
       title: 'Beacon Deposit Contract',
+      grid: { row: 0, col: 1 },
       pairs: [{ borrowAssetSymbol: 'ETH', lendAssetSymbol: 'stETH' }],
     },
   },
   {
     id: 'tether',
     type: 'protocol',
-    position: { x: xGap * 2, y: yGap * 0 },
+    position: { x: 0, y: 0 },
     data: {
       title: 'Tether',
+      grid: { row: 0, col: 2 },
       pairs: [{ borrowAssetSymbol: 'USD', lendAssetSymbol: 'USDT' }],
     },
   },
   {
     id: 'circle',
     type: 'protocol',
-    position: { x: xGap * 3, y: yGap * 0 },
+    position: { x: 0, y: 0 },
     data: {
       title: 'Circle',
+      grid: { row: 0, col: 3 },
       pairs: [{ borrowAssetSymbol: 'USD', lendAssetSymbol: 'USDC' }],
     },
   },
   {
     id: 'wrapped_btc',
     type: 'protocol',
-    position: { x: xGap * 4, y: yGap * 0 },
+    position: { x: 0, y: 0 },
     data: {
       title: 'Wrapped BTC',
+      grid: { row: 0, col: 4 },
       pairs: [{ borrowAssetSymbol: 'BTC', lendAssetSymbol: 'WBTC' }],
     },
   },
   {
     id: 'lido',
     type: 'cluster',
+    position: { x: 0, y: 0 },
     data: {
       title: 'Lido',
+      grid: { row: 1, col: 2 },
       style: {
         backgroundColor: 'rgba(255, 228, 228, 0.8)',
       },
     },
-    position: { x: xGap * 2, y: yGap * 1 },
   },
   {
     id: 'steth',
     type: 'protocol',
-    position: { x: xGap * 0, y: yGap * 0 },
+    position: { x: 0, y: 0 },
     parentId: 'lido',
     extent: 'parent',
     data: {
       title: 'stETH',
+      grid: { row: 0, col: 0 },
       pairs: [{ borrowAssetSymbol: 'stETH', lendAssetSymbol: 'stETH' }],
     },
   },
   {
     id: 'wsteth',
     type: 'protocol',
-    position: { x: xGap * 1, y: yGap * 0 },
+    position: { x: 0, y: 0 },
     parentId: 'lido',
     extent: 'parent',
     data: {
       title: 'wstETH',
+      grid: { row: 0, col: 1 },
       pairs: [{ borrowAssetSymbol: 'stETH', lendAssetSymbol: 'wstETH' }],
     },
   },
   {
     id: 'eigen_layer',
     type: 'cluster',
+    position: { x: 0, y: 0 },
     data: {
       title: 'Eigen Layer',
+      grid: { row: 2, col: 3 },
       style: {
         backgroundColor: 'rgba(215, 225, 228, 0.8)',
       },
     },
-    position: { x: xGap * 3, y: yGap * 2 },
   },
   {
     id: 'rsteth',
     type: 'protocol',
-    position: { x: xGap * 0, y: yGap * 0 },
+    position: { x: 0, y: 0 },
     parentId: 'eigen_layer',
     extent: 'parent',
     data: {
       title: 'rstETH',
+      grid: { row: 0, col: 0 },
       pairs: [
         { borrowAssetSymbol: 'stETH', lendAssetSymbol: 'rstETH' },
         { borrowAssetSymbol: 'stETH1', lendAssetSymbol: 'rstETH2' },
@@ -174,28 +184,42 @@ const nodeTypes: NodeTypes = {
 
 const edgeTypes: EdgeTypes = {}
 
-function Flow() {
-  const [nodes, setNodes] = React.useState(initialNodes)
-  const [edges, setEdges] = React.useState(initialEdges)
+function GridLayoutFlow({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) {
+  const [layoutedNodes, setLayoutedNodes] = React.useState(nodes)
+  const [layoutedEdges, setLayoutedEdges] = React.useState(edges)
 
   const onNodesChange: OnNodesChange = React.useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
+    (changes) => setLayoutedNodes((nds) => applyNodeChanges(changes, nds)),
+    [setLayoutedNodes]
   )
   const onEdgesChange: OnEdgesChange = React.useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
+    (changes) => setLayoutedEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setLayoutedEdges]
   )
   const onConnect: OnConnect = React.useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
+    (connection) => setLayoutedEdges((eds) => addEdge(connection, eds)),
+    [setLayoutedEdges]
   )
+
+  React.useEffect(() => {
+    const colGap = 256
+    const rowGap = 160
+    setLayoutedNodes(
+      nodes.map((node: any) => ({
+        ...node,
+        position: {
+          x: node.data.grid.col * colGap,
+          y: node.data.grid.row * rowGap,
+        },
+      }))
+    )
+  }, [nodes])
 
   return (
     <div style={{ width: '100%', height: 640, backgroundColor: '#F7F9FB' }}>
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={layoutedNodes}
+        edges={layoutedEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -215,7 +239,7 @@ function Flow() {
 export default function Graph() {
   return (
     <ReactFlowProvider>
-      <Flow />
+      <GridLayoutFlow nodes={initialNodes} edges={initialEdges} />
     </ReactFlowProvider>
   )
 }

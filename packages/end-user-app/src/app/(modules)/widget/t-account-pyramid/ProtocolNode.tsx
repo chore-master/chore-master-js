@@ -5,6 +5,10 @@ import '@xyflow/react/dist/style.css'
 export type ProtocolNodeProps = Node<
   {
     title?: string
+    grid: {
+      row: number
+      col: number
+    }
     pairs: {
       borrowAssetSymbol?: string
       lendAssetSymbol?: string
