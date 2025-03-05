@@ -4,17 +4,19 @@ import type {
   Node,
   NodeTypes,
   OnConnect,
-  OnEdgesChange,
-  OnNodesChange,
+  XYPosition,
 } from '@xyflow/react'
 import {
   addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
   Background,
   Controls,
+  Panel,
   ReactFlow,
   ReactFlowProvider,
+  useEdgesState,
+  useNodes,
+  useNodesState,
+  useReactFlow,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import React from 'react'
@@ -184,28 +186,28 @@ const nodeTypes: NodeTypes = {
 
 const edgeTypes: EdgeTypes = {}
 
-function GridLayoutFlow({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) {
-  const [layoutedNodes, setLayoutedNodes] = React.useState(nodes)
-  const [layoutedEdges, setLayoutedEdges] = React.useState(edges)
+function GridLayoutFlow({
+  initialNodes,
+  initialEdges,
+}: {
+  initialNodes: Node[]
+  initialEdges: Edge[]
+}) {
+  const { fitView } = useReactFlow()
+  const currentNodes = useNodes()
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
-  const onNodesChange: OnNodesChange = React.useCallback(
-    (changes) => setLayoutedNodes((nds) => applyNodeChanges(changes, nds)),
-    [setLayoutedNodes]
-  )
-  const onEdgesChange: OnEdgesChange = React.useCallback(
-    (changes) => setLayoutedEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setLayoutedEdges]
-  )
   const onConnect: OnConnect = React.useCallback(
-    (connection) => setLayoutedEdges((eds) => addEdge(connection, eds)),
-    [setLayoutedEdges]
+    (connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges]
   )
 
-  React.useEffect(() => {
+  const handleGridLayout1 = React.useCallback(() => {
     const colGap = 256
     const rowGap = 160
-    setLayoutedNodes(
-      nodes.map((node: any) => ({
+    setNodes(
+      initialNodes.map((node: any) => ({
         ...node,
         position: {
           x: node.data.grid.col * colGap,
@@ -213,13 +215,89 @@ function GridLayoutFlow({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) {
         },
       }))
     )
-  }, [nodes])
+    window.requestAnimationFrame(() => {
+      fitView()
+    })
+  }, [initialNodes])
+
+  const handleGridLayout2 = React.useCallback(() => {
+    const colGap = 48
+    const rowGap = 48
+
+    const minCol = Math.min(
+      ...currentNodes.map((node: any) => node.data.grid.col)
+    )
+    const maxCol = Math.max(
+      ...currentNodes.map((node: any) => node.data.grid.col)
+    )
+    const minRow = Math.min(
+      ...currentNodes.map((node: any) => node.data.grid.row)
+    )
+    const maxRow = Math.max(
+      ...currentNodes.map((node: any) => node.data.grid.row)
+    )
+    const parentIds = Array.from(
+      currentNodes.reduce<Set<string | undefined>>((acc, node) => {
+        acc.add(node.parentId)
+        return acc
+      }, new Set())
+    )
+    console.log('parentIds', parentIds)
+
+    const nodeIdToXYPositionMap: Record<string, XYPosition> = {}
+    currentNodes.forEach((node) => {
+      nodeIdToXYPositionMap[node.id] = node.position
+    })
+
+    let currentX = 0
+    for (let col = minCol; col <= maxCol; col++) {
+      const filteredNodes = currentNodes.filter(
+        (node: any) => node.type === 'protocol' && node.data.grid.col === col
+      )
+      console.log('filteredNodes', filteredNodes)
+      const maxWidth = Math.max(
+        ...filteredNodes.map((node) => node.measured?.width || 0)
+      )
+      filteredNodes.forEach((node) => {
+        nodeIdToXYPositionMap[node.id].x = currentX
+      })
+      currentX += maxWidth + colGap
+    }
+
+    let currentY = 0
+    for (let row = minRow; row <= maxRow; row++) {
+      const filteredNodes = currentNodes.filter(
+        (node: any) => node.type === 'protocol' && node.data.grid.row === row
+      )
+      const maxHeight = Math.max(
+        ...filteredNodes.map((node) => node.measured?.height || 0)
+      )
+      filteredNodes.forEach((node) => {
+        nodeIdToXYPositionMap[node.id].y = currentY
+      })
+      currentY += maxHeight + rowGap
+    }
+
+    setNodes(
+      initialNodes.map((node) => ({
+        ...node,
+        position: nodeIdToXYPositionMap[node.id],
+      }))
+    )
+    window.requestAnimationFrame(() => {
+      fitView()
+    })
+  }, [initialNodes])
+
+  // React.useEffect(() => {
+  //   handleGridLayout()
+  // }, [initialNodes])
 
   return (
     <div style={{ width: '100%', height: 640, backgroundColor: '#F7F9FB' }}>
       <ReactFlow
-        nodes={layoutedNodes}
-        edges={layoutedEdges}
+        nodes={nodes}
+        edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -229,6 +307,10 @@ function GridLayoutFlow({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) {
         nodesDraggable
         proOptions={{ hideAttribution: true }}
       >
+        <Panel position="top-right">
+          <button onClick={() => handleGridLayout1()}>Grid Layout 1</button>
+          <button onClick={() => handleGridLayout2()}>Grid Layout 2</button>
+        </Panel>
         <Background />
         <Controls />
       </ReactFlow>
@@ -239,7 +321,7 @@ function GridLayoutFlow({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) {
 export default function Graph() {
   return (
     <ReactFlowProvider>
-      <GridLayoutFlow nodes={initialNodes} edges={initialEdges} />
+      <GridLayoutFlow initialNodes={initialNodes} initialEdges={initialEdges} />
     </ReactFlowProvider>
   )
 }
