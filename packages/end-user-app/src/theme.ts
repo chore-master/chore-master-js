@@ -6,20 +6,24 @@ import { createTheme } from '@mui/material/styles'
 
 const theme = createTheme(
   {
+    colorSchemes: {
+      light: true,
+      dark: true,
+    },
     components: {
       MuiListItemButton: {
         defaultProps: {
           disableTouchRipple: true,
         },
       },
-      MuiAppBar: {
-        styleOverrides: {
-          root: {
-            backgroundColor: 'white',
-            color: 'black',
-          },
-        },
-      },
+      // MuiAppBar: {
+      //   styleOverrides: {
+      //     root: {
+      //       backgroundColor: 'white',
+      //       color: 'black',
+      //     },
+      //   },
+      // },
     },
 
     palette: {

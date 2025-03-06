@@ -10,7 +10,7 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    iamAPIAgent.post('/v1/auth/logout', null, {
+    iamAPIAgent.post('/v1/admin/auth/logout', null, {
       onFail: (_status: any, data: any) => {
         console.error(data)
       },

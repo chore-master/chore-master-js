@@ -8,9 +8,9 @@ export default function getConfig() {
   let CHORE_MASTER_API_HOST
 
   if (ENV_NAME === EnvEnum.LOCAL) {
-    HOST = 'http://localhost:3000'
-    IAM_API_HOST = 'http://localhost:13000'
-    CHORE_MASTER_API_HOST = 'http://localhost:13000'
+    HOST = 'http://localhost:2000'
+    IAM_API_HOST = 'http://localhost:10000'
+    CHORE_MASTER_API_HOST = 'http://localhost:10000'
   } else if (ENV_NAME === EnvEnum.DEVELOPING) {
     HOST = 'https://dev--chore-master.lation.app'
     IAM_API_HOST = 'https://dev--chore-master-api.lation.app'
