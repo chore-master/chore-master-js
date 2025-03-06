@@ -8,6 +8,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
+import WithRef from '@/components/WithRef'
 import { financeAccountEcosystemTypes } from '@/constants'
 import type {
   Account,
@@ -17,6 +18,7 @@ import type {
 } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
+import { validateDatetimeField } from '@/utils/validation'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
@@ -57,13 +59,9 @@ export default function Page() {
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>({ mode: 'all' })
-  const createAccountFormClosedTimeFieldRef =
-    React.useRef<HTMLInputElement>(null)
   const [editingAccountReference, setEditingAccountReference] =
     React.useState<string>()
   const updateAccountForm = useForm<UpdateAccountFormInputs>({ mode: 'all' })
-  const updateAccountFormClosedTimeFieldRef =
-    React.useRef<HTMLInputElement>(null)
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -374,63 +372,75 @@ export default function Page() {
               rules={{ required: '必填' }}
             />
             <FormControl>
-              <Controller
-                name="opened_time"
-                control={createAccountForm.control}
-                defaultValue={timezone
-                  .getLocalDate(new Date())
-                  .toISOString()
-                  .slice(0, -5)}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="開戶時間"
-                    variant="filled"
-                    type="datetime-local"
-                    slotProps={{
-                      htmlInput: {
-                        step: 1,
-                      },
+              <WithRef
+                render={(inputRef) => (
+                  <Controller
+                    name="opened_time"
+                    control={createAccountForm.control}
+                    defaultValue={timezone
+                      .getLocalDate(new Date())
+                      .toISOString()
+                      .slice(0, -5)}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        inputRef={inputRef}
+                        required
+                        label="開戶時間"
+                        variant="filled"
+                        type="datetime-local"
+                        slotProps={{
+                          htmlInput: {
+                            step: 1,
+                          },
+                        }}
+                        error={!!createAccountForm.formState.errors.opened_time}
+                        helperText={
+                          createAccountForm.formState.errors.opened_time
+                            ?.message
+                        }
+                      />
+                    )}
+                    rules={{
+                      validate: (value) =>
+                        validateDatetimeField(value, inputRef, true),
                     }}
                   />
                 )}
-                rules={{ required: '必填' }}
               />
             </FormControl>
             <FormControl>
-              <Controller
-                name="closed_time"
-                control={createAccountForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    inputRef={createAccountFormClosedTimeFieldRef}
-                    label="關戶時間"
-                    variant="filled"
-                    type="datetime-local"
-                    slotProps={{
-                      htmlInput: {
-                        step: 1,
-                      },
+              <WithRef
+                render={(inputRef) => (
+                  <Controller
+                    name="closed_time"
+                    control={createAccountForm.control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        inputRef={inputRef}
+                        label="關戶時間"
+                        variant="filled"
+                        type="datetime-local"
+                        slotProps={{
+                          htmlInput: {
+                            step: 1,
+                          },
+                        }}
+                        error={!!createAccountForm.formState.errors.closed_time}
+                        helperText={
+                          createAccountForm.formState.errors.closed_time
+                            ?.message
+                        }
+                      />
+                    )}
+                    rules={{
+                      validate: (value) =>
+                        validateDatetimeField(value, inputRef, false),
                     }}
-                    error={!!createAccountForm.formState.errors.closed_time}
-                    helperText={
-                      createAccountForm.formState.errors.closed_time?.message
-                    }
                   />
                 )}
-                rules={{
-                  validate: (value) => {
-                    const isValid =
-                      createAccountFormClosedTimeFieldRef.current?.checkValidity()
-                    if (!value && !isValid) {
-                      return '日期格式錯誤'
-                    }
-                    return true
-                  },
-                }}
               />
             </FormControl>
             <FormControl fullWidth>
@@ -561,60 +571,72 @@ export default function Page() {
               rules={{ required: '必填' }}
             />
             <FormControl>
-              <Controller
-                name="opened_time"
-                control={updateAccountForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="開戶時間"
-                    variant="filled"
-                    type="datetime-local"
-                    slotProps={{
-                      htmlInput: {
-                        step: 1,
-                      },
+              <WithRef
+                render={(inputRef) => (
+                  <Controller
+                    name="opened_time"
+                    control={updateAccountForm.control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        inputRef={inputRef}
+                        required
+                        label="開戶時間"
+                        variant="filled"
+                        type="datetime-local"
+                        slotProps={{
+                          htmlInput: {
+                            step: 1,
+                          },
+                        }}
+                        error={!!updateAccountForm.formState.errors.opened_time}
+                        helperText={
+                          updateAccountForm.formState.errors.opened_time
+                            ?.message
+                        }
+                      />
+                    )}
+                    rules={{
+                      validate: (value) =>
+                        validateDatetimeField(value, inputRef, true),
                     }}
                   />
                 )}
-                rules={{ required: '必填' }}
               />
             </FormControl>
             <FormControl>
-              <Controller
-                name="closed_time"
-                control={updateAccountForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    inputRef={updateAccountFormClosedTimeFieldRef}
-                    label="關戶時間"
-                    variant="filled"
-                    type="datetime-local"
-                    slotProps={{
-                      htmlInput: {
-                        step: 1,
-                      },
+              <WithRef
+                render={(inputRef) => (
+                  <Controller
+                    name="closed_time"
+                    control={updateAccountForm.control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        inputRef={inputRef}
+                        label="關戶時間"
+                        variant="filled"
+                        type="datetime-local"
+                        slotProps={{
+                          htmlInput: {
+                            step: 1,
+                          },
+                        }}
+                        error={!!updateAccountForm.formState.errors.closed_time}
+                        helperText={
+                          updateAccountForm.formState.errors.closed_time
+                            ?.message
+                        }
+                      />
+                    )}
+                    rules={{
+                      validate: (value) =>
+                        validateDatetimeField(value, inputRef, false),
                     }}
-                    error={!!updateAccountForm.formState.errors.closed_time}
-                    helperText={
-                      updateAccountForm.formState.errors.closed_time?.message
-                    }
                   />
                 )}
-                rules={{
-                  validate: (value) => {
-                    const isValid =
-                      updateAccountFormClosedTimeFieldRef.current?.checkValidity()
-                    if (!value && !isValid) {
-                      return '日期格式錯誤'
-                    }
-                    return true
-                  },
-                }}
               />
             </FormControl>
             <AutoLoadingButton
