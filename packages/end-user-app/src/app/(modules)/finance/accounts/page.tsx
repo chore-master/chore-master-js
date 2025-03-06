@@ -56,10 +56,14 @@ export default function Page() {
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
-  const createAccountForm = useForm<CreateAccountFormInputs>()
+  const createAccountForm = useForm<CreateAccountFormInputs>({ mode: 'all' })
+  const createAccountFormClosedTimeFieldRef =
+    React.useRef<HTMLInputElement>(null)
   const [editingAccountReference, setEditingAccountReference] =
     React.useState<string>()
-  const updateAccountForm = useForm<UpdateAccountFormInputs>()
+  const updateAccountForm = useForm<UpdateAccountFormInputs>({ mode: 'all' })
+  const updateAccountFormClosedTimeFieldRef =
+    React.useRef<HTMLInputElement>(null)
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -402,7 +406,7 @@ export default function Page() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    required
+                    inputRef={createAccountFormClosedTimeFieldRef}
                     label="關戶時間"
                     variant="filled"
                     type="datetime-local"
@@ -411,8 +415,22 @@ export default function Page() {
                         step: 1,
                       },
                     }}
+                    error={!!createAccountForm.formState.errors.closed_time}
+                    helperText={
+                      createAccountForm.formState.errors.closed_time?.message
+                    }
                   />
                 )}
+                rules={{
+                  validate: (value) => {
+                    const isValid =
+                      createAccountFormClosedTimeFieldRef.current?.checkValidity()
+                    if (!value && !isValid) {
+                      return '日期格式錯誤'
+                    }
+                    return true
+                  },
+                }}
               />
             </FormControl>
             <FormControl fullWidth>
@@ -478,6 +496,7 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
+              disabled={!createAccountForm.formState.isValid}
               onClick={createAccountForm.handleSubmit(
                 handleSubmitCreateAccountForm
               )}
@@ -571,7 +590,7 @@ export default function Page() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    required
+                    inputRef={updateAccountFormClosedTimeFieldRef}
                     label="關戶時間"
                     variant="filled"
                     type="datetime-local"
@@ -580,13 +599,28 @@ export default function Page() {
                         step: 1,
                       },
                     }}
+                    error={!!updateAccountForm.formState.errors.closed_time}
+                    helperText={
+                      updateAccountForm.formState.errors.closed_time?.message
+                    }
                   />
                 )}
+                rules={{
+                  validate: (value) => {
+                    const isValid =
+                      updateAccountFormClosedTimeFieldRef.current?.checkValidity()
+                    if (!value && !isValid) {
+                      return '日期格式錯誤'
+                    }
+                    return true
+                  },
+                }}
               />
             </FormControl>
             <AutoLoadingButton
               type="submit"
               variant="contained"
+              disabled={!updateAccountForm.formState.isValid}
               onClick={updateAccountForm.handleSubmit(
                 handleSubmitUpdateAccountForm
               )}
