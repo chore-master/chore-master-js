@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { colors } from '@/utils/chart'
 import * as d3 from 'd3'
 import { sankey, sankeyCenter, sankeyLinkHorizontal } from 'd3-sankey'

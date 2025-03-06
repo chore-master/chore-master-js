@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as d3 from 'd3'
 import React from 'react'
 import { useMeasure } from 'react-use'

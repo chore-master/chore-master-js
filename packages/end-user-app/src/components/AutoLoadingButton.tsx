@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Button, ButtonProps } from '@mui/material'
 import React from 'react'
 
@@ -28,7 +27,6 @@ export default React.forwardRef(function AutoLoadingButton(
       ref={ref}
       loading={isLoading}
       onClick={handleClick}
-      /* eslint-disable-next-line @typescript-eslint/no-misused-spread */
       sx={{ width: 'fit-content', ...props.sx }}
       {...props}
     />

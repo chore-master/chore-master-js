@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
+import { ModuleDataGrid } from '@/components/_ModuleDataGrid'
 import ForeignEntity from '@/components/ForeignEntity'
 import ForeignEntityEditor from '@/components/ForeignEntityEditor'
-import { ModuleDataGrid } from '@/components/ModuleDataGrid'
 import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,

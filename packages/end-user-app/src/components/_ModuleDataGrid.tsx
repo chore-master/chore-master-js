@@ -83,10 +83,11 @@ export const ModuleDataGrid = ({
       editMode="row"
       slots={{
         loadingOverlay: LinearProgress as GridSlots['loadingOverlay'],
-        toolbar: EditToolbar as GridSlots['toolbar'],
+        toolbar: EditToolbar as unknown as GridSlots['toolbar'],
       }}
       slotProps={{
         toolbar: {
+          // @ts-ignore
           getNewRow,
           setRows,
           setRowModesModel: rest.onRowModesModelChange,

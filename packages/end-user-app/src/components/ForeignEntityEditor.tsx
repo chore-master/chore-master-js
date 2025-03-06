@@ -28,7 +28,7 @@ export default function ForeignEntityEditor({
 
   const handleValueChange = (event: SelectChangeEvent) => {
     const newValue = event.target.value
-    apiRef.current.setEditCellValue({
+    apiRef.current?.setEditCellValue({
       id,
       field: localFieldName,
       value: newValue,

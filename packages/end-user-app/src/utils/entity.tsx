@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import React from 'react'
 
