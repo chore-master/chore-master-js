@@ -2,6 +2,7 @@
 
 import SankeyChart from '@/components/charts/SankeyChart'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import React from 'react'
@@ -19,6 +20,7 @@ interface Link {
 }
 
 export default function Page() {
+  const { enqueueNotification } = useNotification()
   const [isLoadingData, setIsLoadingData] = React.useState(true)
   const [data, setData] = React.useState<{ nodes: Node[]; links: Link[] }>({
     nodes: [],
@@ -38,7 +40,7 @@ export default function Page() {
     await choreMasterAPIAgent.get('/widget/sankey', {
       params: {},
       onFail: ({ message }: any) => {
-        alert(message)
+        enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
         setData(data)

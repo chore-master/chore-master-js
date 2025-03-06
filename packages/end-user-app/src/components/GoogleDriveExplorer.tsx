@@ -1,4 +1,5 @@
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import { useNotification } from '@/utils/notification'
 import FolderIcon from '@mui/icons-material/Folder'
 import SearchIcon from '@mui/icons-material/Search'
 import { Typography } from '@mui/material'
@@ -38,6 +39,7 @@ export default React.forwardRef(
     },
     ref
   ) => {
+    const { enqueueNotification } = useNotification()
     const searchForm = useForm<SearchInputs>()
     const [
       isLoadingGoogleDriveFolderOptions,
@@ -62,7 +64,7 @@ export default React.forwardRef(
             page_token: googleDriveFolderOptionsNextPageToken,
           },
           onFail: ({ message }: any) => {
-            alert(message)
+            enqueueNotification(message, 'error')
           },
           onSuccess: async ({ data }: any) => {
             setGoogleDriveFolderOptions(data.list)

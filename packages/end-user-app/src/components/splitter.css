@@ -1,0 +1,17 @@
+@layer primereact {
+  .p-splitter .p-splitter-gutter {
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+    background: #f9fafb;
+  }
+  .p-splitter .p-splitter-gutter .p-splitter-gutter-handle {
+    background: #e5e7eb;
+  }
+  .p-splitter .p-splitter-gutter .p-splitter-gutter-handle:focus-visible {
+    outline: 0 none;
+    outline-offset: 0;
+    box-shadow: 0 0 0 0.2rem #c7d2fe;
+  }
+  .p-splitter .p-splitter-gutter-resizing {
+    background: #e5e7eb;
+  }
+}
