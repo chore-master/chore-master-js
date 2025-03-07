@@ -181,10 +181,11 @@ export default function ModuleLayout({
 
   const sideNav = (
     <Stack
-      sx={{
+      sx={(theme) => ({
         width: sideNavWidth,
         height: '100%',
-      }}
+        backgroundColor: theme.palette.background.default,
+      })}
     >
       <AppBar
         position="sticky"
