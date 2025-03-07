@@ -612,7 +612,7 @@ export default function Page() {
             isFetchingPrices
           }
         >
-          <Box sx={{ minWidth: 480 }}>
+          <Box sx={{ minWidth: 640 }}>
             <Stack
               direction="row"
               spacing={2}

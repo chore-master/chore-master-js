@@ -1,5 +1,5 @@
+import TablePaginationActions from '@/components/TablePaginationActions'
 import MuiTablePagination from '@mui/material/TablePagination'
-import TablePaginationActions from './TablePaginationActions'
 
 export const TablePagination = ({
   count,
