@@ -585,7 +585,7 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          sticky
+          stickyTop
           title="結餘"
           actions={[
             <Tooltip key="refresh" title="立即重整">
@@ -612,11 +612,11 @@ export default function Page() {
             isFetchingPrices
           }
         >
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ minWidth: 480 }}>
             <Stack
               direction="row"
               spacing={2}
-              sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}
+              sx={{ p: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
               <FormControl variant="standard">
                 <InputLabel>檢視維度</InputLabel>
@@ -670,82 +670,82 @@ export default function Page() {
                 </Select>
               </FormControl>
             </Stack>
-          </Box>
-          <HighChartsCore options={areaChartOptions} />
-          {selectedChartType !== 'exchange_rate' && (
-            <Stack sx={{ mt: 2 }}>
-              <Stack
-                direction="row"
-                sx={{
-                  px: 1,
-                  alignItems: 'center',
-                }}
-              >
-                <FormControlLabel
-                  label="全選"
-                  sx={{ m: 0 }}
-                  control={
-                    <Checkbox
-                      size="small"
-                      color="default"
-                      checked={legends.every((legend) => legend.isVisible)}
-                      indeterminate={
-                        legends.some((legend) => legend.isVisible) &&
-                        !legends.every((legend) => legend.isVisible)
-                      }
-                      onChange={(event) => {
-                        setLegends(
-                          legends.map((legend) => ({
-                            ...legend,
-                            isVisible: event.target.checked,
-                          }))
-                        )
-                      }}
-                    />
-                  }
-                />
-              </Stack>
-              <Stack
-                direction="row"
-                sx={{
-                  p: 1,
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                }}
-              >
-                {legends.map((legend: any, index: number) => (
-                  <Box key={legend.seriesId} sx={{ p: 0.5 }}>
-                    <Chip
-                      label={legend.label}
-                      size="small"
-                      onClick={() => {
-                        setLegends([
-                          ...legends.slice(0, index),
-                          {
-                            ...legend,
-                            isVisible: !legend.isVisible,
-                          },
-                          ...legends.slice(index + 1),
-                        ])
-                      }}
-                      variant={legend.isVisible ? undefined : 'outlined'}
-                      icon={
-                        selectedChartType.endsWith('area') ? (
-                          legend.isVisible ? (
-                            <CircleIcon style={{ color: legend.color }} />
-                          ) : (
-                            <RadioButtonUncheckedIcon
-                              style={{ color: legend.color }}
-                            />
+            <HighChartsCore options={areaChartOptions} />
+            {selectedChartType !== 'exchange_rate' && (
+              <Stack sx={{ mt: 2 }}>
+                <Stack
+                  direction="row"
+                  sx={{
+                    px: 1,
+                    alignItems: 'center',
+                  }}
+                >
+                  <FormControlLabel
+                    label="全選"
+                    sx={{ m: 0 }}
+                    control={
+                      <Checkbox
+                        size="small"
+                        color="default"
+                        checked={legends.every((legend) => legend.isVisible)}
+                        indeterminate={
+                          legends.some((legend) => legend.isVisible) &&
+                          !legends.every((legend) => legend.isVisible)
+                        }
+                        onChange={(event) => {
+                          setLegends(
+                            legends.map((legend) => ({
+                              ...legend,
+                              isVisible: event.target.checked,
+                            }))
                           )
-                        ) : undefined
-                      }
-                    />
-                  </Box>
-                ))}
+                        }}
+                      />
+                    }
+                  />
+                </Stack>
+                <Stack
+                  direction="row"
+                  sx={{
+                    p: 1,
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                  }}
+                >
+                  {legends.map((legend: any, index: number) => (
+                    <Box key={legend.seriesId} sx={{ p: 0.5 }}>
+                      <Chip
+                        label={legend.label}
+                        size="small"
+                        onClick={() => {
+                          setLegends([
+                            ...legends.slice(0, index),
+                            {
+                              ...legend,
+                              isVisible: !legend.isVisible,
+                            },
+                            ...legends.slice(index + 1),
+                          ])
+                        }}
+                        variant={legend.isVisible ? undefined : 'outlined'}
+                        icon={
+                          selectedChartType.endsWith('area') ? (
+                            legend.isVisible ? (
+                              <CircleIcon style={{ color: legend.color }} />
+                            ) : (
+                              <RadioButtonUncheckedIcon
+                                style={{ color: legend.color }}
+                              />
+                            )
+                          ) : undefined
+                        }
+                      />
+                    </Box>
+                  ))}
+                </Stack>
               </Stack>
-            </Stack>
-          )}
+            )}
+          </Box>
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader

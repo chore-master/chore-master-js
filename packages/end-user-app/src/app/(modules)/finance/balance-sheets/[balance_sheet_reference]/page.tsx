@@ -431,7 +431,7 @@ export default function Page() {
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
-          sticky
+          stickyTop
           title={<DatetimeBlock isoText={balanceSheet?.balanced_time} />}
           actions={[
             <Tooltip key="refresh" title="立即重整">
@@ -458,11 +458,11 @@ export default function Page() {
             isFetchingPrices
           }
         >
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ minWidth: 480 }}>
             <Stack
               direction="row"
               spacing={2}
-              sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}
+              sx={{ p: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
               <FormControl variant="standard">
                 <InputLabel>檢視維度</InputLabel>
@@ -516,8 +516,8 @@ export default function Page() {
                 </Select>
               </FormControl>
             </Stack>
+            <HighChartsCore options={pieChartOptions} />
           </Box>
-          <HighChartsCore options={pieChartOptions} />
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
