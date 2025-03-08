@@ -111,6 +111,7 @@ export default function Page() {
   // Chart
   const [areaChartOptions, setAreaChartOptions] =
     React.useState<Highcharts.Options>(areaChartOptionsTemplate)
+  const [areaChart, setAreaChart] = React.useState<Highcharts.Chart>()
   const [legends, setLegends] = React.useState<
     {
       seriesId: string
@@ -670,7 +671,10 @@ export default function Page() {
                 </Select>
               </FormControl>
             </Stack>
-            <HighChartsCore options={areaChartOptions} />
+            <HighChartsCore
+              callback={setAreaChart}
+              options={areaChartOptions}
+            />
             {selectedChartType !== 'exchange_rate' && (
               <Stack sx={{ mt: 2 }}>
                 <Stack
@@ -717,6 +721,26 @@ export default function Page() {
                       <Chip
                         label={legend.label}
                         size="small"
+                        onMouseEnter={() => {
+                          if (legend.isVisible && areaChart) {
+                            areaChart.series.forEach((series) => {
+                              if (
+                                series.options.id?.includes(legend.seriesId)
+                              ) {
+                                series.setState('hover', true)
+                              } else {
+                                series.setState('inactive')
+                              }
+                            })
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (legend.isVisible && areaChart) {
+                            areaChart.series.forEach((series) => {
+                              series.setState('normal')
+                            })
+                          }
+                        }}
                         onClick={() => {
                           setLegends([
                             ...legends.slice(0, index),
