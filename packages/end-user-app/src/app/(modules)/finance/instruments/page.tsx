@@ -6,7 +6,10 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import { financeInstrumentTypes } from '@/constants'
+import {
+  financeInstrumentAssetReferenceFields,
+  financeInstrumentTypes,
+} from '@/constants'
 import type {
   Asset,
   CreateInstrumentFormInputs,
@@ -28,10 +31,11 @@ import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableContainer from '@mui/material/TableContainer'
@@ -42,15 +46,6 @@ import Tooltip from '@mui/material/Tooltip'
 import { throttle } from 'lodash'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-
-const assetReferenceFieldNames = [
-  'base_asset_reference',
-  'quote_asset_reference',
-  'settlement_asset_reference',
-  'underlying_asset_reference',
-  'staking_asset_reference',
-  'yielding_asset_reference',
-] as const
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
@@ -65,6 +60,10 @@ export default function Page() {
   const [editingInstrumentReference, setEditingInstrumentReference] =
     React.useState<string>()
   const updateInstrumentForm = useForm<UpdateInstrumentFormInputs>()
+  const createInstrumentFormInstrumentType =
+    createInstrumentForm.watch('instrument_type')
+  const updateInstrumentFormInstrumentType =
+    updateInstrumentForm.watch('instrument_type')
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
@@ -234,6 +233,10 @@ export default function Page() {
               startIcon={<AddIcon />}
               onClick={() => {
                 createInstrumentForm.reset()
+                createInstrumentForm.setValue(
+                  'instrument_type',
+                  financeInstrumentTypes[0].value
+                )
                 setIsCreateInstrumentDrawerOpen(true)
               }}
             >
@@ -251,12 +254,10 @@ export default function Page() {
                   <NoWrapTableCell>數量精度</NoWrapTableCell>
                   <NoWrapTableCell>價格精度</NoWrapTableCell>
                   <NoWrapTableCell>類型</NoWrapTableCell>
-                  <NoWrapTableCell>基礎資產</NoWrapTableCell>
-                  <NoWrapTableCell>報價資產</NoWrapTableCell>
-                  <NoWrapTableCell>結算資產</NoWrapTableCell>
-                  <NoWrapTableCell>標的資產</NoWrapTableCell>
-                  <NoWrapTableCell>抵押資產</NoWrapTableCell>
-                  <NoWrapTableCell>產出資產</NoWrapTableCell>
+                  {financeInstrumentAssetReferenceFields.map(({ label }) => (
+                    <NoWrapTableCell key={label}>{label}</NoWrapTableCell>
+                  ))}
+                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
@@ -281,24 +282,11 @@ export default function Page() {
                         )?.label
                       }
                     </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {instrument.base_asset_reference}
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {instrument.quote_asset_reference}
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {instrument.settlement_asset_reference}
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {instrument.underlying_asset_reference}
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {instrument.staking_asset_reference}
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {instrument.yielding_asset_reference}
-                    </NoWrapTableCell>
+                    {financeInstrumentAssetReferenceFields.map(({ name }) => (
+                      <NoWrapTableCell key={name}>
+                        {instrument[name]}
+                      </NoWrapTableCell>
+                    ))}
                     <NoWrapTableCell>
                       <Chip size="small" label={instrument.reference} />
                     </NoWrapTableCell>
@@ -319,12 +307,14 @@ export default function Page() {
                             'instrument_type',
                             instrument.instrument_type
                           )
-                          assetReferenceFieldNames.forEach((fieldName) => {
-                            updateInstrumentForm.setValue(
-                              fieldName,
-                              instrument[fieldName]
-                            )
-                          })
+                          financeInstrumentAssetReferenceFields.forEach(
+                            ({ name }) => {
+                              updateInstrumentForm.setValue(
+                                name,
+                                instrument[name]
+                              )
+                            }
+                          )
                           setEditingInstrumentReference(instrument.reference)
                         }}
                       >
@@ -389,6 +379,7 @@ export default function Page() {
                     label="數量精度"
                     variant="filled"
                     type="number"
+                    helperText="建立後無法變更"
                   />
                 )}
                 rules={{ required: '必填' }}
@@ -406,6 +397,7 @@ export default function Page() {
                     label="價格精度"
                     variant="filled"
                     type="number"
+                    helperText="建立後無法變更"
                   />
                 )}
                 rules={{ required: '必填' }}
@@ -420,11 +412,13 @@ export default function Page() {
                   <InputLabel>類型</InputLabel>
                   <Select
                     {...field}
-                    onChange={(event, newValue) => {
-                      field.onChange(newValue)
-                      assetReferenceFieldNames.forEach((fieldName) => {
-                        createInstrumentForm.setValue(fieldName, '')
-                      })
+                    onChange={(event: SelectChangeEvent) => {
+                      field.onChange(event.target.value)
+                      financeInstrumentAssetReferenceFields.forEach(
+                        ({ name }) => {
+                          createInstrumentForm.setValue(name, '')
+                        }
+                      )
                     }}
                   >
                     {financeInstrumentTypes.map((instrumentType) => (
@@ -436,88 +430,95 @@ export default function Page() {
                       </MenuItem>
                     ))}
                   </Select>
+                  <FormHelperText>建立後無法變更</FormHelperText>
                 </FormControl>
               )}
               rules={{ required: '必填' }}
             />
-            <FormControl fullWidth>
-              <Controller
-                name="base_asset_reference"
-                control={createInstrumentForm.control}
-                defaultValue=""
-                render={({ field }) => {
-                  const instrumentType =
-                    createInstrumentForm.getValues('instrument_type')
-                  return (
-                    <Autocomplete
-                      {...field}
-                      value={
-                        field.value
-                          ? assetReferenceToAssetMap[field.value]
-                          : null
-                      }
-                      onChange={(_event, value: Asset | null) => {
-                        field.onChange(value?.reference ?? '')
-                      }}
-                      onInputChange={(event, newInputValue) => {
-                        setAssetInputValue(newInputValue)
-                      }}
-                      onOpen={() => {
-                        if (assets.length === 0) {
-                          fetchAssets()
+            {financeInstrumentAssetReferenceFields
+              .filter((assetReferenceField) =>
+                (
+                  assetReferenceField.requiredByInstrumentTypes as unknown as string[]
+                ).includes(createInstrumentFormInstrumentType)
+              )
+              .map((assetReferenceField) => (
+                <FormControl fullWidth key={assetReferenceField.name}>
+                  <Controller
+                    name={assetReferenceField.name}
+                    control={createInstrumentForm.control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <Autocomplete
+                        {...field}
+                        value={
+                          field.value
+                            ? assetReferenceToAssetMap[field.value]
+                            : null
                         }
-                      }}
-                      isOptionEqualToValue={(option, value) =>
-                        option.reference === value.reference
-                      }
-                      getOptionLabel={(option) => option.name}
-                      filterOptions={(assets) => {
-                        const lowerCaseAssetInputValue =
-                          assetInputValue.toLowerCase()
-                        return assets.filter(
-                          (asset) =>
-                            asset.name
-                              .toLowerCase()
-                              .includes(lowerCaseAssetInputValue) ||
-                            asset.symbol
-                              .toLowerCase()
-                              .includes(lowerCaseAssetInputValue)
-                        )
-                      }}
-                      options={assets}
-                      autoHighlight
-                      loading={isFetchingAssets}
-                      loadingText="載入中..."
-                      noOptionsText="沒有符合的選項"
-                      renderOption={(props, option) => {
-                        const { key, ...optionProps } = props as {
-                          key: React.Key
+                        onChange={(_event, value: Asset | null) => {
+                          field.onChange(value?.reference ?? '')
+                        }}
+                        onInputChange={(event, newInputValue) => {
+                          setAssetInputValue(newInputValue)
+                        }}
+                        onOpen={() => {
+                          if (assets.length === 0) {
+                            fetchAssets()
+                          }
+                        }}
+                        isOptionEqualToValue={(option, value) =>
+                          option.reference === value.reference
                         }
-                        return (
-                          <Box key={key} component="li" {...optionProps}>
-                            <Chip
-                              size="small"
-                              label={option.name}
-                              color="info"
-                              variant="outlined"
-                            />
-                          </Box>
-                        )
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="基礎資產"
-                          variant="filled"
-                          size="small"
-                          required={['FX'].includes(instrumentType)}
-                        />
-                      )}
-                    />
-                  )
-                }}
-              />
-            </FormControl>
+                        getOptionLabel={(option) => option.name}
+                        filterOptions={(assets) => {
+                          const lowerCaseAssetInputValue =
+                            assetInputValue.toLowerCase()
+                          return assets.filter(
+                            (asset) =>
+                              asset.name
+                                .toLowerCase()
+                                .includes(lowerCaseAssetInputValue) ||
+                              asset.symbol
+                                .toLowerCase()
+                                .includes(lowerCaseAssetInputValue)
+                          )
+                        }}
+                        options={assets}
+                        autoHighlight
+                        loading={isFetchingAssets}
+                        loadingText="載入中..."
+                        noOptionsText="沒有符合的選項"
+                        renderOption={(props, option) => {
+                          const { key, ...optionProps } = props as {
+                            key: React.Key
+                          }
+                          return (
+                            <Box key={key} component="li" {...optionProps}>
+                              <Chip
+                                size="small"
+                                label={option.name}
+                                color="info"
+                                variant="outlined"
+                              />
+                            </Box>
+                          )
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label={assetReferenceField.label}
+                            variant="filled"
+                            size="small"
+                            helperText="建立後無法變更"
+                            required
+                          />
+                        )}
+                      />
+                    )}
+                    rules={{ required: '必填' }}
+                  />
+                </FormControl>
+              ))}
             <AutoLoadingButton
               type="submit"
               variant="contained"

@@ -13,18 +13,59 @@ export const financeAccountEcosystemTypes = [
 
 export const financeInstrumentTypes = [
   {
-    label: '外匯',
-    value: 'FX',
-  },
-  {
     label: '股票',
     value: 'EQUITY',
   },
   {
-    label: '賺幣',
+    label: '外匯',
+    value: 'FX',
+  },
+  {
+    label: '期貨',
+    value: 'FUTURE',
+  },
+  {
+    label: '衍生品',
+    value: 'DERIVATIVE',
+  },
+  {
+    label: '收益',
     value: 'EARNING',
   },
-]
+] as const
+
+export const financeInstrumentAssetReferenceFields = [
+  {
+    name: 'base_asset_reference',
+    label: '基礎資產',
+    requiredByInstrumentTypes: ['FX'],
+  },
+  {
+    name: 'quote_asset_reference',
+    label: '報價資產',
+    requiredByInstrumentTypes: ['FX', 'FUTURE', 'DERIVATIVE'],
+  },
+  {
+    name: 'settlement_asset_reference',
+    label: '結算資產',
+    requiredByInstrumentTypes: ['FUTURE', 'DERIVATIVE'],
+  },
+  {
+    name: 'underlying_asset_reference',
+    label: '標的資產',
+    requiredByInstrumentTypes: ['FUTURE', 'DERIVATIVE'],
+  },
+  {
+    name: 'staking_asset_reference',
+    label: '質押資產',
+    requiredByInstrumentTypes: ['EARNING'],
+  },
+  {
+    name: 'yielding_asset_reference',
+    label: '收益資產',
+    requiredByInstrumentTypes: ['EARNING'],
+  },
+] as const
 
 export const colors10 = [
   '#2caffe',
@@ -37,7 +78,7 @@ export const colors10 = [
   '#fa4b42',
   '#feb56a',
   '#91e8e1',
-]
+] as const
 
 // https://stackoverflow.com/a/34163778
 export const colors20 = [
@@ -61,4 +102,4 @@ export const colors20 = [
   '#DBDB8D',
   '#17BECF',
   '#9EDAE5',
-]
+] as const
