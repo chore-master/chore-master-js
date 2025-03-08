@@ -26,11 +26,9 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
@@ -62,8 +60,6 @@ export default function Page() {
   const updateInstrumentForm = useForm<UpdateInstrumentFormInputs>()
   const createInstrumentFormInstrumentType =
     createInstrumentForm.watch('instrument_type')
-  const updateInstrumentFormInstrumentType =
-    updateInstrumentForm.watch('instrument_type')
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
@@ -206,7 +202,10 @@ export default function Page() {
   }, [fetchInstruments])
 
   React.useEffect(() => {
-    if (assetInputValue.length > 0) {
+    if (
+      (assetInputValue.length === 0 && assets.length === 0) ||
+      assetInputValue.length > 0
+    ) {
       throttledFetchAssets(assetInputValue)
     }
   }, [assetInputValue])
@@ -295,26 +294,6 @@ export default function Page() {
                         size="small"
                         onClick={() => {
                           updateInstrumentForm.setValue('name', instrument.name)
-                          updateInstrumentForm.setValue(
-                            'quantity_decimals',
-                            instrument.quantity_decimals
-                          )
-                          updateInstrumentForm.setValue(
-                            'price_decimals',
-                            instrument.price_decimals
-                          )
-                          updateInstrumentForm.setValue(
-                            'instrument_type',
-                            instrument.instrument_type
-                          )
-                          financeInstrumentAssetReferenceFields.forEach(
-                            ({ name }) => {
-                              updateInstrumentForm.setValue(
-                                name,
-                                instrument[name]
-                              )
-                            }
-                          )
                           setEditingInstrumentReference(instrument.reference)
                         }}
                       >
@@ -462,9 +441,7 @@ export default function Page() {
                           setAssetInputValue(newInputValue)
                         }}
                         onOpen={() => {
-                          if (assets.length === 0) {
-                            fetchAssets()
-                          }
+                          setAssetInputValue('')
                         }}
                         isOptionEqualToValue={(option, value) =>
                           option.reference === value.reference
@@ -562,52 +539,6 @@ export default function Page() {
                   />
                 )}
                 rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="symbol"
-                control={updateInstrumentForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="代號"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="decimals"
-                control={updateInstrumentForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="精度"
-                    variant="filled"
-                    type="number"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={updateInstrumentForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
-                  />
-                )}
               />
             </FormControl>
             <AutoLoadingButton
