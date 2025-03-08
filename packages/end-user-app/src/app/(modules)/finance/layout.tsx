@@ -83,6 +83,32 @@ export default function Layout({
           ],
         },
         {
+          type: 'collapsible',
+          isDefaultCollapsed: false,
+          title: '我的投資',
+          getSelected: (isCollapsed: boolean, pathname: string) => {
+            return (
+              isCollapsed &&
+              (pathname.startsWith('/finance/instruments') ||
+                pathname.startsWith('/finance/portfolio'))
+            )
+          },
+          navigations: [
+            {
+              type: 'link',
+              title: '交易品種',
+              href: '/finance/instruments',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: '投資組合',
+              href: '/finance/portfolios',
+              selectedWhenPartiallyMatched: true,
+            },
+          ],
+        },
+        {
           type: 'divider',
         },
         // {
@@ -106,19 +132,6 @@ export default function Layout({
         // {
         //   type: 'divider',
         // },
-        {
-          type: 'collapsible',
-          isDefaultCollapsed: true,
-          title: '實驗功能',
-          navigations: [
-            {
-              type: 'link',
-              title: '投資組合',
-              href: '/finance/portfolio',
-              selectedWhenPartiallyMatched: true,
-            },
-          ],
-        },
         {
           type: 'collapsible',
           isDefaultCollapsed: true,

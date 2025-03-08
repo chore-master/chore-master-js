@@ -11,6 +11,21 @@ export const financeAccountEcosystemTypes = [
   },
 ]
 
+export const financeInstrumentTypes = [
+  {
+    label: '外匯',
+    value: 'FX',
+  },
+  {
+    label: '股票',
+    value: 'EQUITY',
+  },
+  {
+    label: '賺幣',
+    value: 'EARNING',
+  },
+]
+
 export const colors10 = [
   '#2caffe',
   '#544fc5',
