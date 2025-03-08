@@ -722,7 +722,11 @@ export default function Page() {
                         label={legend.label}
                         size="small"
                         onMouseEnter={() => {
-                          if (legend.isVisible && areaChart) {
+                          if (
+                            selectedChartType.endsWith('area') &&
+                            legend.isVisible &&
+                            areaChart
+                          ) {
                             areaChart.series.forEach((series) => {
                               if (
                                 series.options.id?.includes(legend.seriesId)
@@ -735,7 +739,11 @@ export default function Page() {
                           }
                         }}
                         onMouseLeave={() => {
-                          if (legend.isVisible && areaChart) {
+                          if (
+                            selectedChartType.endsWith('area') &&
+                            legend.isVisible &&
+                            areaChart
+                          ) {
                             areaChart.series.forEach((series) => {
                               series.setState('normal')
                             })
