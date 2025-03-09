@@ -162,3 +162,21 @@ export interface UpdateInstrumentFormInputs {
   staking_asset_reference?: string
   yielding_asset_reference?: string
 }
+
+// Portfolio
+
+export interface Portfolio {
+  reference: string
+  name: string
+  description?: string
+}
+
+export interface CreatePortfolioFormInputs {
+  name: string
+  description?: string
+}
+
+export interface UpdatePortfolioFormInputs {
+  name?: string
+  description?: string
+}

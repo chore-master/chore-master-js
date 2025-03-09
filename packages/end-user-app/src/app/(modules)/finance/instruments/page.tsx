@@ -6,6 +6,7 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { TablePagination } from '@/components/Pagination'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import {
   financeInstrumentAssetReferenceFields,
@@ -320,7 +321,7 @@ export default function Page() {
                             variant="outlined"
                           />
                         ) : (
-                          'N/A'
+                          <PlaceholderTypography>N/A</PlaceholderTypography>
                         )}
                       </NoWrapTableCell>
                     ))}
