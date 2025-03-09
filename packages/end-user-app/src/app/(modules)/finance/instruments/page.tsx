@@ -41,7 +41,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
-import { throttle } from 'lodash'
+import debounce from 'lodash/debounce'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
@@ -90,7 +90,7 @@ export default function Page() {
   }, [enqueueNotification])
 
   const fetchAssets = React.useCallback(
-    async (search?: string) => {
+    async ({ search }: { search?: string }) => {
       setIsFetchingAssets(true)
       await choreMasterAPIAgent.get('/v1/finance/assets', {
         params: { search },
@@ -128,10 +128,9 @@ export default function Page() {
     [enqueueNotification]
   )
 
-  const throttledFetchAssets = React.useMemo(
-    () => throttle(fetchAssets, 300),
-    []
-  )
+  const debouncedFetchAssets = React.useCallback(debounce(fetchAssets, 1500), [
+    fetchAssets,
+  ])
 
   const handleSubmitCreateInstrumentForm: SubmitHandler<
     CreateInstrumentFormInputs
@@ -202,11 +201,8 @@ export default function Page() {
   }, [fetchInstruments])
 
   React.useEffect(() => {
-    if (
-      (assetInputValue.length === 0 && assets.length === 0) ||
-      assetInputValue.length > 0
-    ) {
-      throttledFetchAssets(assetInputValue)
+    if (assetInputValue.length > 0) {
+      debouncedFetchAssets({ search: assetInputValue })
     }
   }, [assetInputValue])
 
@@ -436,12 +432,18 @@ export default function Page() {
                         }
                         onChange={(_event, value: Asset | null) => {
                           field.onChange(value?.reference ?? '')
+                          setAssetInputValue('')
                         }}
                         onInputChange={(event, newInputValue) => {
                           setAssetInputValue(newInputValue)
                         }}
                         onOpen={() => {
-                          setAssetInputValue('')
+                          if (
+                            assetInputValue.length === 0 &&
+                            assets.length === 0
+                          ) {
+                            fetchAssets({ search: assetInputValue })
+                          }
                         }}
                         isOptionEqualToValue={(option, value) =>
                           option.reference === value.reference
