@@ -551,6 +551,7 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
+              disabled={!createInstrumentForm.formState.isValid}
               onClick={createInstrumentForm.handleSubmit(
                 handleSubmitCreateInstrumentForm
               )}
@@ -596,6 +597,7 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
+              disabled={!updateInstrumentForm.formState.isValid}
               onClick={updateInstrumentForm.handleSubmit(
                 handleSubmitUpdateInstrumentForm
               )}
