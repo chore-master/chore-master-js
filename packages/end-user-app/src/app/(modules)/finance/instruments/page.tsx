@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { TablePagination } from '@/components/Pagination'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import {
   financeInstrumentAssetReferenceFields,
@@ -50,6 +51,9 @@ export default function Page() {
 
   // Instruments
   const [instruments, setInstruments] = React.useState<Instrument[]>([])
+  const [instrumentsCount, setInstrumentsCount] = React.useState(0)
+  const [instrumentsPage, setInstrumentsPage] = React.useState(0)
+  const [instrumentsRowsPerPage, setInstrumentsRowsPerPage] = React.useState(10)
   const [isFetchingInstruments, setIsFetchingInstruments] =
     React.useState(false)
   const [isCreateInstrumentDrawerOpen, setIsCreateInstrumentDrawerOpen] =
@@ -75,19 +79,23 @@ export default function Page() {
   const fetchInstruments = React.useCallback(async () => {
     setIsFetchingInstruments(true)
     await choreMasterAPIAgent.get('/v1/finance/instruments', {
-      params: {},
+      params: {
+        offset: instrumentsPage * instrumentsRowsPerPage,
+        limit: instrumentsRowsPerPage,
+      },
       onError: () => {
         enqueueNotification(`Unable to fetch instruments now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: any) => {
+      onSuccess: async ({ data, metadata }: any) => {
         setInstruments(data)
+        setInstrumentsCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingInstruments(false)
-  }, [enqueueNotification])
+  }, [instrumentsPage, instrumentsRowsPerPage])
 
   const fetchAssets = React.useCallback(
     async ({
@@ -341,6 +349,14 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            count={instrumentsCount}
+            page={instrumentsPage}
+            rowsPerPage={instrumentsRowsPerPage}
+            setPage={setInstrumentsPage}
+            setRowsPerPage={setInstrumentsRowsPerPage}
+            rowsPerPageOptions={[10, 20]}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
 
