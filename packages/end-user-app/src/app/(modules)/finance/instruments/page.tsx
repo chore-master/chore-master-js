@@ -303,11 +303,15 @@ export default function Page() {
                       {instrument.price_decimals}
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      {
-                        financeInstrumentTypes.find(
-                          (type) => type.value === instrument.instrument_type
-                        )?.label
-                      }
+                      <Chip
+                        size="small"
+                        label={
+                          financeInstrumentTypes.find(
+                            (type) => type.value === instrument.instrument_type
+                          )?.label
+                        }
+                        variant="outlined"
+                      />
                     </NoWrapTableCell>
                     {financeInstrumentAssetReferenceFields.map(({ name }) => (
                       <NoWrapTableCell key={name}>

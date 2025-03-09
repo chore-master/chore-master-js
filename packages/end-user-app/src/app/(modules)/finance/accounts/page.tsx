@@ -6,6 +6,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
@@ -259,18 +260,26 @@ export default function Page() {
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      {
-                        financeAccountEcosystemTypes.find(
-                          (ecosystemType) =>
-                            ecosystemType.value === account.ecosystem_type
-                        )?.label
-                      }
+                      <Chip
+                        size="small"
+                        label={
+                          financeAccountEcosystemTypes.find(
+                            (ecosystemType) =>
+                              ecosystemType.value === account.ecosystem_type
+                          )?.label
+                        }
+                        variant="outlined"
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
                       <DatetimeBlock isoText={account.opened_time} />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <DatetimeBlock isoText={account.closed_time} />
+                      {account.closed_time ? (
+                        <DatetimeBlock isoText={account.closed_time} />
+                      ) : (
+                        <PlaceholderTypography>N/A</PlaceholderTypography>
+                      )}
                     </NoWrapTableCell>
                     <NoWrapTableCell>
                       <Chip size="small" label={account.reference} />
