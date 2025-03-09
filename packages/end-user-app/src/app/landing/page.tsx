@@ -4,11 +4,13 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 // Material UI components
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
-import PersonalizeIcon from '@mui/icons-material/Person'
-import EfficiencyIcon from '@mui/icons-material/Speed'
-import ModuleIcon from '@mui/icons-material/ViewModule'
+import AssessmentIcon from '@mui/icons-material/Assessment'
+import AutoGraphIcon from '@mui/icons-material/AutoGraph'
+import BookIcon from '@mui/icons-material/Book'
+import ShowChartIcon from '@mui/icons-material/ShowChart'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
@@ -32,7 +34,7 @@ const landingTheme = createTheme({
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#E57373', // Soft coral/pink - more attractive than the green
+      main: '#E57373', // Soft coral/pink
       light: '#FFB2B2',
       dark: '#AF4448',
       contrastText: '#FFFFFF',
@@ -65,43 +67,43 @@ export default function Page() {
   // Sample screenshots - replace these with actual paths to your screenshots
   const screenshots = [
     {
-      label: '儀表板總覽',
+      label: '資產負債總覽',
       imgPath: '/images/dashboard-screenshot.png',
-      description: '一目了然的儀表板，讓您掌握所有任務和進度',
+      description: '一目了然的儀表板，讓您掌握所有資產、負債和淨值變化',
     },
     {
-      label: '任務管理',
-      imgPath: '/images/tasks-screenshot.png',
-      description: '直覺式的任務管理介面，輕鬆安排您的日常活動',
+      label: '資產分佈分析',
+      imgPath: '/images/asset-distribution-screenshot.png',
+      description: '視覺化的資產分佈圖表，幫助您優化資產配置',
     },
     {
-      label: '模組設定',
-      imgPath: '/images/modules-screenshot.png',
-      description: '自訂模組，打造專屬於您的個人助理',
+      label: '投資組合管理',
+      imgPath: '/images/portfolio-screenshot.png',
+      description: '全面的投資組合追蹤與管理功能',
     },
     {
-      label: '數據分析',
-      imgPath: '/images/analytics-screenshot.png',
-      description: '詳細的數據分析，幫助您優化日常效率',
+      label: '財務報表',
+      imgPath: '/images/financial-reports-screenshot.png',
+      description: '詳細的財務報表，幫助您掌握財務健康狀況',
     },
   ]
 
-  // Additional usage examples for feature section
-  const usageExamples = [
+  // Financial module features
+  const financialFeatures = [
     {
-      title: '財務追蹤',
-      imgPath: '/images/finance-example.png',
-      description: '追蹤您的收入和支出，建立預算並達成財務目標',
+      title: '資產負債追蹤',
+      imgPath: '/images/asset-tracking.png',
+      description: '定期追蹤您的資產、負債和淨值變化，掌握財務全貌',
     },
     {
-      title: '健康管理',
-      imgPath: '/images/health-example.png',
-      description: '記錄運動、飲食和睡眠數據，維持健康生活方式',
+      title: '投資組合管理',
+      imgPath: '/images/portfolio-management.png',
+      description: '追蹤您的投資組合表現，分析收益與風險',
     },
     {
-      title: '專案協作',
-      imgPath: '/images/project-example.png',
-      description: '與團隊成員協作，追蹤專案進度和里程碑',
+      title: '財務記帳功能',
+      imgPath: '/images/financial-journal.png',
+      description: '即將推出的記帳功能，幫助您記錄日常收支',
     },
   ]
 
@@ -120,33 +122,35 @@ export default function Page() {
   const features = [
     {
       icon: (
-        <ModuleIcon
+        <AccountBalanceIcon
           fontSize="large"
           sx={{ color: landingTheme.palette.primary.main }}
         />
       ),
-      title: '模組化解決方案',
-      description: '透過可自訂的模組，依照您的需求打造專屬助理系統。',
+      title: '資產負債追蹤',
+      description:
+        '定期追蹤資產、負債、淨值，檢視資產負債分佈狀況，掌握您的財務健康。',
     },
     {
       icon: (
-        <EfficiencyIcon
+        <ShowChartIcon
           fontSize="large"
           sx={{ color: landingTheme.palette.primary.main }}
         />
       ),
-      title: '提升效率',
-      description: '將日常瑣事自動化，讓您專注於更重要的事情。',
+      title: '投資組合管理',
+      description: '全面管理您的投資組合，追蹤績效，分析風險，優化投資策略。',
     },
     {
       icon: (
-        <PersonalizeIcon
+        <AutoGraphIcon
           fontSize="large"
           sx={{ color: landingTheme.palette.primary.main }}
         />
       ),
-      title: '個人化體驗',
-      description: '根據您的使用習慣和偏好，提供量身定制的服務。',
+      title: '託管式交易策略',
+      description:
+        '即將推出的功能，讓您為投資組合建立託管式交易策略，自動追蹤餘額、部位和損益。',
     },
   ]
 
@@ -168,11 +172,11 @@ export default function Page() {
                 Chore Master
               </Typography>
               <Typography variant="h5" paragraph>
-                讓日常瑣事變得更有效率
+                讓財務管理變得更有效率
               </Typography>
               <Typography variant="body1" paragraph sx={{ mb: 4 }}>
                 Chore Master
-                是一套著重於個人需求的助理，透過模組化的解決方案，將日常瑣事變得更有效率。
+                是一套著重於個人財務需求的助理，透過模組化的解決方案，幫助您追蹤資產、管理投資組合，讓財務管理變得更有效率。
               </Typography>
               <Stack direction="row" spacing={2}>
                 <Button
@@ -318,7 +322,7 @@ export default function Page() {
           為什麼選擇 Chore Master？
         </Typography>
         <Typography variant="body1" align="center" paragraph sx={{ mb: 6 }}>
-          我們提供的不只是一個工具，而是一個能夠適應您生活方式的智能助理
+          我們提供的不只是一個工具，而是一個能夠幫助您掌握財務狀況的智能助理
         </Typography>
 
         <Grid container spacing={4}>
@@ -347,18 +351,18 @@ export default function Page() {
         </Grid>
       </Container>
 
-      {/* Usage Examples Section with Screenshots */}
+      {/* Financial Module Features Section */}
       <Box sx={{ bgcolor: 'background.paper', py: 8, mb: 6 }}>
         <Container maxWidth="lg">
           <Typography variant="h4" component="h2" align="center" gutterBottom>
-            實際應用案例
+            金融模組功能
           </Typography>
           <Typography variant="body1" align="center" paragraph sx={{ mb: 6 }}>
-            探索 Chore Master 如何幫助您管理各種日常任務
+            探索 Chore Master 如何幫助您管理財務和投資
           </Typography>
 
           <Grid container spacing={4}>
-            {usageExamples.map((example, index) => (
+            {financialFeatures.map((feature, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Card
                   sx={{
@@ -393,16 +397,16 @@ export default function Page() {
                       }}
                     >
                       <Typography variant="body1">
-                        {example.title} 截圖
+                        {feature.title} 截圖
                       </Typography>
                     </Box>
                   </Box>
                   <CardContent>
                     <Typography variant="h6" component="h3" gutterBottom>
-                      {example.title}
+                      {feature.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {example.description}
+                      {feature.description}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -412,82 +416,114 @@ export default function Page() {
         </Container>
       </Box>
 
-      {/* How It Works Section */}
+      {/* Roadmap Section */}
       <Container maxWidth="lg" sx={{ mb: 8 }}>
         <Typography variant="h4" component="h2" align="center" gutterBottom>
-          如何使用 Chore Master
+          功能發展路線圖
         </Typography>
         <Typography variant="body1" align="center" paragraph sx={{ mb: 6 }}>
-          簡單三步驟，開始提升您的生活效率
+          我們不斷優化和擴充 Chore Master 的功能
         </Typography>
 
         <Grid container spacing={3}>
           {[
             {
               step: '1',
-              text: '註冊並登入您的帳戶',
-              imgPath: '/images/signup-screenshot.png',
-              description: '簡單快速的註冊流程，立即開始使用',
+              text: '資產負債追蹤',
+              icon: (
+                <AssessmentIcon
+                  sx={{
+                    fontSize: 40,
+                    color: landingTheme.palette.primary.main,
+                  }}
+                />
+              ),
+              description: '追蹤資產、負債、淨值，檢視資產負債分佈狀況',
+              status: '已推出',
             },
             {
               step: '2',
-              text: '選擇並設定您需要的模組',
-              imgPath: '/images/setup-screenshot.png',
-              description: '依照您的需求自訂各種功能模組',
+              text: '財務記帳功能',
+              icon: (
+                <BookIcon
+                  sx={{
+                    fontSize: 40,
+                    color: landingTheme.palette.primary.main,
+                  }}
+                />
+              ),
+              description: '記錄日常收支，管理預算，追蹤消費習慣',
+              status: '即將推出',
             },
             {
               step: '3',
-              text: '開始享受更有效率的生活',
-              imgPath: '/images/using-screenshot.png',
-              description: '讓 Chore Master 協助您管理日常瑣事',
+              text: '託管式交易策略',
+              icon: (
+                <AutoGraphIcon
+                  sx={{
+                    fontSize: 40,
+                    color: landingTheme.palette.primary.main,
+                  }}
+                />
+              ),
+              description:
+                '為投資組合建立託管式交易策略，自動追蹤餘額、部位和損益',
+              status: '開發中',
             },
           ].map((item, index) => (
             <Grid item xs={12} md={4} key={index}>
               <Box sx={{ textAlign: 'center' }}>
                 <Box
                   sx={{
-                    width: 60,
-                    height: 60,
+                    width: 80,
+                    height: 80,
                     borderRadius: '50%',
-                    bgcolor: landingTheme.palette.secondary.main,
+                    bgcolor: 'rgba(93, 138, 168, 0.1)',
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     margin: '0 auto',
                     mb: 2,
-                    fontSize: 24,
-                    fontWeight: 'bold',
                   }}
                 >
-                  {item.step}
+                  {item.icon}
                 </Box>
                 <Typography variant="h6" gutterBottom>
                   {item.text}
                 </Typography>
 
-                {/* Step screenshot */}
                 <Box
                   sx={{
-                    mt: 2,
-                    mb: 3,
-                    mx: 'auto',
-                    maxWidth: 280,
-                    height: 180,
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    boxShadow: 1,
-                    bgcolor: 'rgba(0,0,0,0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    display: 'inline-block',
+                    px: 2,
+                    py: 0.5,
+                    borderRadius: 1,
+                    bgcolor:
+                      item.status === '已推出'
+                        ? 'success.light'
+                        : item.status === '即將推出'
+                        ? 'warning.light'
+                        : 'info.light',
+                    color:
+                      item.status === '已推出'
+                        ? 'success.dark'
+                        : item.status === '即將推出'
+                        ? 'warning.dark'
+                        : 'info.dark',
+                    mb: 2,
                   }}
                 >
-                  {/* Replace with actual images when available */}
-                  <Typography variant="body2">步驟 {item.step} 截圖</Typography>
+                  <Typography variant="caption" fontWeight="medium">
+                    {item.status}
+                  </Typography>
                 </Box>
 
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
                   {item.description}
                 </Typography>
               </Box>
@@ -496,42 +532,69 @@ export default function Page() {
         </Grid>
       </Container>
 
-      {/* Screenshot Gallery Section */}
+      {/* Investment Portfolio Management Section */}
       <Box sx={{ bgcolor: 'background.paper', py: 8, mb: 6 }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" component="h2" align="center" gutterBottom>
-            功能展示
-          </Typography>
-          <Typography variant="body1" align="center" paragraph sx={{ mb: 6 }}>
-            探索 Chore Master 的各種功能和介面
-          </Typography>
-
-          <Grid container spacing={2}>
-            {[...Array(6)].map((_, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Box
-                  sx={{
-                    height: 200,
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    boxShadow: 1,
-                    bgcolor: 'rgba(0,0,0,0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'transform 0.3s ease',
-                    '&:hover': {
-                      transform: 'scale(1.03)',
-                      cursor: 'pointer',
-                      boxShadow: 3,
-                    },
-                  }}
-                >
-                  {/* Replace with actual images when available */}
-                  <Typography variant="body2">功能截圖 {index + 1}</Typography>
-                </Box>
-              </Grid>
-            ))}
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Typography variant="h4" component="h2" gutterBottom>
+                投資組合管理
+              </Typography>
+              <Typography variant="body1" paragraph>
+                Chore Master 的投資組合管理功能讓您能夠：
+              </Typography>
+              <Stack spacing={2}>
+                {[
+                  '追蹤多個投資組合的表現',
+                  '分析投資收益與風險',
+                  '檢視資產配置和多元化程度',
+                  '設定投資目標並追蹤進度',
+                  '即將推出：託管式交易策略，自動追蹤餘額、部位和損益',
+                ].map((item, index) => (
+                  <Box
+                    key={index}
+                    sx={{ display: 'flex', alignItems: 'center' }}
+                  >
+                    <Box
+                      sx={{
+                        minWidth: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        bgcolor: landingTheme.palette.primary.main,
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mr: 2,
+                        fontSize: 14,
+                      }}
+                    >
+                      ✓
+                    </Box>
+                    <Typography variant="body1">{item}</Typography>
+                  </Box>
+                ))}
+              </Stack>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box
+                sx={{
+                  height: 350,
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  boxShadow: 3,
+                  bgcolor: 'rgba(0,0,0,0.05)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {/* Replace with actual image */}
+                <Typography variant="h6" color="text.secondary">
+                  投資組合管理介面截圖
+                </Typography>
+              </Box>
+            </Grid>
           </Grid>
         </Container>
       </Box>
@@ -548,10 +611,10 @@ export default function Page() {
           }}
         >
           <Typography variant="h4" component="h2" gutterBottom>
-            準備好開始使用 Chore Master 了嗎？
+            準備好開始管理您的財務了嗎？
           </Typography>
           <Typography variant="body1" paragraph sx={{ mb: 4 }}>
-            立即註冊，體驗如何讓日常瑣事變得更有效率
+            立即註冊，體驗 Chore Master 如何幫助您追蹤資產、管理投資組合
           </Typography>
           <Button
             variant="contained"
@@ -582,7 +645,7 @@ export default function Page() {
                 Chore Master
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                讓日常瑣事變得更有效率
+                讓財務管理變得更有效率
               </Typography>
             </Grid>
             <Grid item xs={12} md={4}>
