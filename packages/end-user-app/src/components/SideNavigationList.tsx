@@ -75,7 +75,6 @@ export default function SideNavigationList({
       titleToIsChildrenCollapsed
     )
     setTitleToIsChildrenCollapsed({ ...newTitleToIsChildrenCollapsed })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigations])
 
   return (

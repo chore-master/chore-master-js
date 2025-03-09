@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
@@ -296,6 +295,7 @@ export default function Page() {
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
+          stickyTop
           title="更新結餘"
           actions={[
             <AutoLoadingButton
@@ -310,7 +310,6 @@ export default function Page() {
               更新
             </AutoLoadingButton>,
           ]}
-          sticky
         />
 
         <ModuleFunctionBody>

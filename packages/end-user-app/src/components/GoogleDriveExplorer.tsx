@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import FolderIcon from '@mui/icons-material/Folder'
