@@ -90,10 +90,16 @@ export default function Page() {
   }, [enqueueNotification])
 
   const fetchAssets = React.useCallback(
-    async ({ search }: { search?: string }) => {
+    async ({
+      search,
+      references,
+    }: {
+      search?: string
+      references?: string[]
+    }) => {
       setIsFetchingAssets(true)
       await choreMasterAPIAgent.get('/v1/finance/assets', {
-        params: { search },
+        params: { search, references },
         onError: () => {
           enqueueNotification(`Unable to fetch assets now.`, 'error')
         },
@@ -206,6 +212,23 @@ export default function Page() {
     }
   }, [assetInputValue])
 
+  React.useEffect(() => {
+    const assetReferenceSet = instruments.reduce(
+      (acc: Set<string>, instrument) => {
+        financeInstrumentAssetReferenceFields.forEach(({ name }) => {
+          if (instrument[name]) {
+            acc.add(instrument[name])
+          }
+        })
+        return acc
+      },
+      new Set<string>()
+    )
+    if (assetReferenceSet.size > 0) {
+      fetchAssets({ references: Array.from(assetReferenceSet) })
+    }
+  }, [instruments])
+
   return (
     <React.Fragment>
       <ModuleFunction>
@@ -279,7 +302,18 @@ export default function Page() {
                     </NoWrapTableCell>
                     {financeInstrumentAssetReferenceFields.map(({ name }) => (
                       <NoWrapTableCell key={name}>
-                        {instrument[name]}
+                        {instrument[name] ? (
+                          <Chip
+                            size="small"
+                            label={
+                              assetReferenceToAssetMap[instrument[name]]?.name
+                            }
+                            color="info"
+                            variant="outlined"
+                          />
+                        ) : (
+                          'N/A'
+                        )}
                       </NoWrapTableCell>
                     ))}
                     <NoWrapTableCell>
