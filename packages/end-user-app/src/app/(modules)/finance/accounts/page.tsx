@@ -6,6 +6,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
@@ -56,6 +57,9 @@ export default function Page() {
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
+  const [accountsCount, setAccountsCount] = React.useState(0)
+  const [accountsPage, setAccountsPage] = React.useState(0)
+  const [accountsRowsPerPage, setAccountsRowsPerPage] = React.useState(10)
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
@@ -86,19 +90,29 @@ export default function Page() {
   const fetchAccounts = React.useCallback(async () => {
     setIsFetchingAccounts(true)
     await choreMasterAPIAgent.get('/v1/finance/accounts', {
-      params: {},
+      params: {
+        offset: accountsPage * accountsRowsPerPage,
+        limit: accountsRowsPerPage,
+      },
       onError: () => {
         enqueueNotification(`Unable to fetch accounts now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: { data: Account[] }) => {
+      onSuccess: async ({
+        data,
+        metadata,
+      }: {
+        data: Account[]
+        metadata: any
+      }) => {
         setAccounts(data)
+        setAccountsCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingAccounts(false)
-  }, [enqueueNotification])
+  }, [accountsPage, accountsRowsPerPage])
 
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
@@ -324,6 +338,14 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            count={accountsCount}
+            page={accountsPage}
+            rowsPerPage={accountsRowsPerPage}
+            setPage={setAccountsPage}
+            setRowsPerPage={setAccountsRowsPerPage}
+            rowsPerPageOptions={[10, 20]}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
 
