@@ -2,7 +2,7 @@ import { iamAPIAgent } from '@/utils/apiAgent'
 import React from 'react'
 
 interface EndUserType {
-  email: string
+  name: string
   is_mounted?: boolean
 }
 
@@ -30,7 +30,7 @@ export const EndUserProvider = (props: any) => {
 
   const fetchEndUser = async () => {
     setIsLoading(true)
-    iamAPIAgent.get('/v1/admin/end_users/me', {
+    iamAPIAgent.get('/v1/identity/users/me', {
       params: {},
       onFail: ({ res }: any) => {
         setRes(res)

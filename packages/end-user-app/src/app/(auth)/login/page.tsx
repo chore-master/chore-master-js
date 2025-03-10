@@ -24,7 +24,7 @@ import { useRouter } from 'next/navigation'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export interface LoginForm {
-  email: string
+  username: string
   password: string
 }
 
@@ -70,7 +70,7 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
 
   const handleSubmitLoginForm: SubmitHandler<LoginForm> = async (data) => {
-    await choreMasterAPIAgent.post('/v1/admin/auth/login', data, {
+    await choreMasterAPIAgent.post('/v1/identity/user_sessions/login', data, {
       onError: () => {
         enqueueNotification(
           'Something wrong happened. Service may be unavailable now.',
@@ -136,7 +136,7 @@ export default function Page() {
               >
                 <FormControl fullWidth>
                   <Controller
-                    name="email"
+                    name="username"
                     control={loginForm.control}
                     defaultValue=""
                     render={({ field, fieldState }) => (

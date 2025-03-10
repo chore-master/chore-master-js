@@ -377,9 +377,9 @@ export default function ModuleLayout({
                 <Tooltip
                   title={
                     <React.Fragment>
-                      <span>管理員帳戶</span>
+                      <span>使用者</span>
                       <br />
-                      <span>{endUser.email}</span>
+                      <span>{endUser.name}</span>
                     </React.Fragment>
                   }
                 >
@@ -391,7 +391,7 @@ export default function ModuleLayout({
                       onClick={handleAvatarClick}
                     >
                       <Avatar sx={{ width: 32, height: 32 }}>
-                        {endUser.email.substring(0, 1).toUpperCase()}
+                        {endUser.name.substring(0, 1).toUpperCase()}
                       </Avatar>
                     </IconButton>
                   </span>

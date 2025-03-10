@@ -14,7 +14,7 @@ export default function Page() {
   const router = useRouter()
 
   const fetchEndUser = async () => {
-    iamAPIAgent.get('/v1/admin/end_users/me', {
+    iamAPIAgent.get('/v1/identity/users/me', {
       params: {},
       onError: () => {
         enqueueNotification(
