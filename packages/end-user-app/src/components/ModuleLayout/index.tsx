@@ -487,7 +487,6 @@ export default function ModuleLayout({
           >
             <span>關於</span>
             <IconButton
-              aria-label="close"
               onClick={() => {
                 setIsAboutDialogOpen(false)
               }}
@@ -596,7 +595,6 @@ export default function ModuleLayout({
           >
             <span>設定</span>
             <IconButton
-              aria-label="close"
               onClick={() => {
                 setIsSettingsDialogOpen(false)
               }}

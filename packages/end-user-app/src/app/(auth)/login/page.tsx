@@ -24,7 +24,7 @@ import { useRouter } from 'next/navigation'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export interface LoginForm {
-  username: string
+  email: string
   password: string
 }
 
@@ -136,7 +136,7 @@ export default function Page() {
               >
                 <FormControl fullWidth>
                   <Controller
-                    name="username"
+                    name="email"
                     control={loginForm.control}
                     defaultValue=""
                     render={({ field, fieldState }) => (
