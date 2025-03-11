@@ -29,6 +29,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
+import SwitchAccountIcon from '@mui/icons-material/SwitchAccount'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
@@ -457,6 +458,15 @@ export default function ModuleLayout({
                       <LogoutIcon fontSize="small" />
                     </ListItemIcon>
                     登出目前裝置
+                  </MenuItem>
+                </Link>
+                <Divider />
+                <Link href="/login" passHref legacyBehavior>
+                  <MenuItem component="a" onClick={handleCloseMenu}>
+                    <ListItemIcon>
+                      <SwitchAccountIcon fontSize="small" />
+                    </ListItemIcon>
+                    登入其他帳號
                   </MenuItem>
                 </Link>
               </Menu>

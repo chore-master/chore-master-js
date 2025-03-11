@@ -1,7 +1,7 @@
 'use client'
 
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import getConfig from '@/utils/config'
+import { useAuth } from '@/utils/auth'
 import { useNotification } from '@/utils/notification'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
@@ -59,13 +59,13 @@ const loginTheme = createTheme({
   },
 })
 
+const logingRedirectPath = '/finance'
+
 export default function Page() {
-  const { HOST, IAM_API_HOST } = getConfig()
-  const errorRedirectURI = encodeURI(`${HOST}/login`)
-  const successRedirectURI = encodeURI(`${HOST}/financial-management`)
   const router = useRouter()
   const loginForm = useForm<LoginForm>()
   const { enqueueNotification } = useNotification()
+  const auth = useAuth()
 
   const handleSubmitLoginForm: SubmitHandler<LoginForm> = async (data) => {
     await choreMasterAPIAgent.post('/v1/identity/user_sessions/login', data, {
@@ -80,7 +80,7 @@ export default function Page() {
       },
       onSuccess: () => {
         loginForm.reset()
-        router.push('/finance')
+        router.push(logingRedirectPath)
       },
     })
   }
@@ -195,9 +195,38 @@ export default function Page() {
                   登入
                 </Button>
 
+                {!auth.isLoadingUser && auth.user && (
+                  <>
+                    <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
+                      <Box
+                        sx={{ flex: 1, borderBottom: '1px solid #e0e0e0' }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mx: 1 }}
+                      >
+                        或
+                      </Typography>
+                      <Box
+                        sx={{ flex: 1, borderBottom: '1px solid #e0e0e0' }}
+                      />
+                    </Box>
+
+                    <Button
+                      variant="outlined"
+                      onClick={() => router.push(logingRedirectPath)}
+                      fullWidth
+                      sx={{ py: 1.5 }}
+                    >
+                      以 {auth.user.name} 身份繼續
+                    </Button>
+                  </>
+                )}
+
                 <Box sx={{ textAlign: 'center', mt: 2 }}>
                   <Link
-                    href="/landing"
+                    href="/"
                     style={{
                       textDecoration: 'none',
                       color: loginTheme.palette.text.secondary,
