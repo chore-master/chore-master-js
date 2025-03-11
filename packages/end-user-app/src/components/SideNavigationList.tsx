@@ -12,6 +12,7 @@ import React from 'react'
 
 interface SideNavigationBase {
   navigations?: SideNavigation[]
+  isVisible?: boolean
 }
 
 interface SideNavigationHeader extends SideNavigationBase {
@@ -87,79 +88,90 @@ export default function SideNavigationList({
         '&:hover': { overflowY: 'auto' },
       }}
     >
-      {navigations.map((nav, i) => {
-        let content: React.ReactNode
-        const isChildrenCollapsed =
-          nav.type === 'collapsible' && titleToIsChildrenCollapsed[nav.title]
-        if (nav.type === 'header') {
-          content = (
-            <ListSubheader sx={{ ml: indentionLevel * INDENTION_SCALE }}>
-              {nav.title}
-            </ListSubheader>
-          )
-        } else if (nav.type === 'divider') {
-          content = (
-            <Divider
-              sx={{ my: 1, mr: 2, ml: (indentionLevel + 1) * INDENTION_SCALE }}
-            />
-          )
-        } else if (nav.type === 'link') {
-          content = (
-            <ListItem disablePadding>
-              <Link href={nav.href} passHref legacyBehavior>
+      {navigations
+        .filter((nav) => nav.isVisible === undefined || nav.isVisible)
+        .map((nav, i) => {
+          let content: React.ReactNode
+          const isChildrenCollapsed =
+            nav.type === 'collapsible' && titleToIsChildrenCollapsed[nav.title]
+          if (nav.type === 'header') {
+            content = (
+              <ListSubheader sx={{ ml: indentionLevel * INDENTION_SCALE }}>
+                {nav.title}
+              </ListSubheader>
+            )
+          } else if (nav.type === 'divider') {
+            content = (
+              <Divider
+                sx={{
+                  my: 1,
+                  mr: 2,
+                  ml: (indentionLevel + 1) * INDENTION_SCALE,
+                }}
+              />
+            )
+          } else if (nav.type === 'link') {
+            content = (
+              <ListItem disablePadding>
+                <Link href={nav.href} passHref legacyBehavior>
+                  <ListItemButton
+                    component="a"
+                    selected={
+                      (nav.selectedWhenExactlyMatched &&
+                        pathname === nav.href) ??
+                      (nav.selectedWhenPartiallyMatched &&
+                        pathname.startsWith(nav.href))
+                    }
+                  >
+                    <ListItemText
+                      primary={nav.title}
+                      sx={{ pl: indentionLevel * INDENTION_SCALE }}
+                    />
+                    {nav.endNode}
+                  </ListItemButton>
+                </Link>
+              </ListItem>
+            )
+          } else if (nav.type === 'collapsible') {
+            content = (
+              <ListItem disablePadding>
                 <ListItemButton
-                  component="a"
-                  selected={
-                    (nav.selectedWhenExactlyMatched && pathname === nav.href) ??
-                    (nav.selectedWhenPartiallyMatched &&
-                      pathname.startsWith(nav.href))
-                  }
+                  selected={nav.getSelected?.(
+                    isChildrenCollapsed,
+                    pathname,
+                    nav
+                  )}
+                  onClick={() => {
+                    setTitleToIsChildrenCollapsed({
+                      ...titleToIsChildrenCollapsed,
+                      [nav.title]: !isChildrenCollapsed,
+                    })
+                  }}
                 >
                   <ListItemText
                     primary={nav.title}
                     sx={{ pl: indentionLevel * INDENTION_SCALE }}
                   />
-                  {nav.endNode}
+                  {isChildrenCollapsed ? <ExpandMore /> : <ExpandLess />}
                 </ListItemButton>
-              </Link>
-            </ListItem>
+              </ListItem>
+            )
+          }
+          return (
+            <React.Fragment key={i}>
+              {content}
+              <Collapse in={!isChildrenCollapsed} timeout="auto" unmountOnExit>
+                {nav.navigations && (
+                  <SideNavigationList
+                    pathname={pathname}
+                    navigations={nav.navigations}
+                    indentionLevel={indentionLevel + 1}
+                  />
+                )}
+              </Collapse>
+            </React.Fragment>
           )
-        } else if (nav.type === 'collapsible') {
-          content = (
-            <ListItem disablePadding>
-              <ListItemButton
-                selected={nav.getSelected?.(isChildrenCollapsed, pathname, nav)}
-                onClick={() => {
-                  setTitleToIsChildrenCollapsed({
-                    ...titleToIsChildrenCollapsed,
-                    [nav.title]: !isChildrenCollapsed,
-                  })
-                }}
-              >
-                <ListItemText
-                  primary={nav.title}
-                  sx={{ pl: indentionLevel * INDENTION_SCALE }}
-                />
-                {isChildrenCollapsed ? <ExpandMore /> : <ExpandLess />}
-              </ListItemButton>
-            </ListItem>
-          )
-        }
-        return (
-          <React.Fragment key={i}>
-            {content}
-            <Collapse in={!isChildrenCollapsed} timeout="auto" unmountOnExit>
-              {nav.navigations && (
-                <SideNavigationList
-                  pathname={pathname}
-                  navigations={nav.navigations}
-                  indentionLevel={indentionLevel + 1}
-                />
-              )}
-            </Collapse>
-          </React.Fragment>
-        )
-      })}
+        })}
     </List>
   )
 }

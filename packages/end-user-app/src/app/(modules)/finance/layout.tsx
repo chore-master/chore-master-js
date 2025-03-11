@@ -5,6 +5,7 @@ import {
   SideNavigationCollapsible,
   SideNavigationLink,
 } from '@/components/SideNavigationList'
+import { useAuth } from '@/utils/auth'
 import React from 'react'
 
 export default function Layout({
@@ -12,6 +13,7 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const auth = useAuth()
   return (
     <ModuleLayout
       loginRequired
@@ -24,6 +26,7 @@ export default function Layout({
             return isCollapsed && pathname.startsWith('/finance/market')
           },
           title: '市場',
+          isVisible: auth.userIsSomeRole(['ADMIN']),
           navigations: [
             {
               type: 'link',
@@ -86,6 +89,7 @@ export default function Layout({
           type: 'collapsible',
           isDefaultCollapsed: false,
           title: '我的投資',
+          isVisible: auth.userIsSomeRole(['ADMIN']),
           getSelected: (isCollapsed: boolean, pathname: string) => {
             return (
               isCollapsed &&
@@ -110,32 +114,13 @@ export default function Layout({
         },
         {
           type: 'divider',
+          isVisible: auth.userIsSomeRole(['ADMIN']),
         },
-        // {
-        //   type: 'header',
-        //   title: '權益',
-        //   navigations: [
-        //     {
-        //       type: 'link',
-        //       title: '總覽',
-        //       href: '/finance/net-value/overview',
-        //       selectedWhenPartiallyMatched: true,
-        //     },
-        //     {
-        //       type: 'link',
-        //       title: '明細',
-        //       href: '/finance/net-value/statement',
-        //       selectedWhenPartiallyMatched: true,
-        //     },
-        //   ],
-        // },
-        // {
-        //   type: 'divider',
-        // },
         {
           type: 'collapsible',
           isDefaultCollapsed: true,
           title: '其他',
+          isVisible: auth.userIsSomeRole(['ADMIN']),
           navigations: [
             {
               type: 'link',
