@@ -53,7 +53,7 @@ export default function Page() {
 
   const fetchAssets = React.useCallback(async () => {
     setIsFetchingAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {},
       onError: () => {
         enqueueNotification(`Unable to fetch assets now.`, 'error')
@@ -71,7 +71,7 @@ export default function Page() {
   const handleSubmitCreateAssetForm: SubmitHandler<
     CreateAssetFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/finance/assets', data, {
+    await choreMasterAPIAgent.post('/v1/finance/users/me/assets', data, {
       onError: () => {
         enqueueNotification(`Unable to create asset now.`, 'error')
       },
@@ -90,7 +90,7 @@ export default function Page() {
     UpdateAssetFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/finance/assets/${editingAssetReference}`,
+      `/v1/finance/users/me/assets/${editingAssetReference}`,
       data,
       {
         onError: () => {
@@ -114,17 +114,20 @@ export default function Page() {
       if (!isConfirmed) {
         return
       }
-      await choreMasterAPIAgent.delete(`/v1/finance/assets/${assetReference}`, {
-        onError: () => {
-          enqueueNotification(`Unable to delete asset now.`, 'error')
-        },
-        onFail: ({ message }: any) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: () => {
-          fetchAssets()
-        },
-      })
+      await choreMasterAPIAgent.delete(
+        `/v1/finance/users/me/assets/${assetReference}`,
+        {
+          onError: () => {
+            enqueueNotification(`Unable to delete asset now.`, 'error')
+          },
+          onFail: ({ message }: any) => {
+            enqueueNotification(message, 'error')
+          },
+          onSuccess: () => {
+            fetchAssets()
+          },
+        }
+      )
     },
     [enqueueNotification, fetchAssets]
   )

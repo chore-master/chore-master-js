@@ -70,7 +70,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -89,7 +89,7 @@ export default function Page() {
 
   const fetchAccounts = React.useCallback(async () => {
     setIsFetchingAccounts(true)
-    await choreMasterAPIAgent.get('/v1/finance/accounts', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
       params: {
         offset: accountsPage * accountsRowsPerPage,
         limit: accountsRowsPerPage,
@@ -118,7 +118,7 @@ export default function Page() {
     CreateAccountFormInputs
   > = async ({ opened_time, closed_time, ...data }) => {
     await choreMasterAPIAgent.post(
-      '/v1/finance/accounts',
+      '/v1/finance/users/me/accounts',
       {
         ...data,
         opened_time: new Date(
@@ -148,7 +148,7 @@ export default function Page() {
     UpdateAccountFormInputs
   > = async ({ opened_time, closed_time, ...data }) => {
     await choreMasterAPIAgent.patch(
-      `/v1/finance/accounts/${editingAccountReference}`,
+      `/v1/finance/users/me/accounts/${editingAccountReference}`,
       {
         ...data,
         opened_time: new Date(
@@ -181,7 +181,7 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/accounts/${accountReference}`,
+        `/v1/finance/users/me/accounts/${accountReference}`,
         {
           onError: () => {
             enqueueNotification(`Unable to delete account now.`, 'error')
