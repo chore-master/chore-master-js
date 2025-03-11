@@ -92,7 +92,7 @@ export default function Page() {
 
   const fetchDatabaseSchema = React.useCallback(async () => {
     setIsLoadingDatabaseSchema(true)
-    await choreMasterAPIAgent.get('/v1/admin/user_database/schema', {
+    await choreMasterAPIAgent.get('/v1/admin/database/schema', {
       params: {},
       onError: () => {
         enqueueNotification(
@@ -133,7 +133,7 @@ export default function Page() {
       formData.append('upload_files', file)
     })
     await choreMasterAPIAgent.patch(
-      '/v1/admin/user_database/tables/data/import_files',
+      '/v1/admin/database/tables/data/import_files',
       formData,
       {
         onError: () => {
@@ -155,7 +155,7 @@ export default function Page() {
 
   const handleExportTableFiles = async () => {
     await choreMasterAPIAgent.post(
-      '/v1/admin/user_database/tables/data/export_files',
+      '/v1/admin/database/tables/data/export_files',
       {
         table_name_to_selected_column_names: tableNameToSelectedColumnNames,
       },
