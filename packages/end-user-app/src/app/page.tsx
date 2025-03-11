@@ -440,6 +440,7 @@ export default function Page() {
               ),
               description: '追蹤資產、負債、淨值，檢視資產負債分佈狀況',
               status: '已推出',
+              statusColor: 'primary',
             },
             {
               step: '2',
@@ -454,6 +455,7 @@ export default function Page() {
               ),
               description: '記錄日常收支，管理預算，追蹤消費習慣',
               status: '即將推出',
+              statusColor: 'secondary',
             },
             {
               step: '3',
@@ -469,6 +471,7 @@ export default function Page() {
               description:
                 '為投資組合建立託管式交易策略，自動追蹤餘額、部位和損益',
               status: '開發中',
+              statusColor: 'default',
             },
           ].map((item, index) => (
             <Grid item xs={12} md={4} key={index}>
@@ -493,31 +496,33 @@ export default function Page() {
                   {item.text}
                 </Typography>
 
-                <Box
+                <Typography
+                  variant="caption"
                   sx={{
                     display: 'inline-block',
-                    px: 2,
+                    px: 1.5,
                     py: 0.5,
                     borderRadius: 1,
-                    bgcolor:
-                      item.status === '已推出'
-                        ? 'success.light'
-                        : item.status === '即將推出'
-                        ? 'warning.light'
-                        : 'info.light',
-                    color:
-                      item.status === '已推出'
-                        ? 'success.dark'
-                        : item.status === '即將推出'
-                        ? 'warning.dark'
-                        : 'info.dark',
-                    mb: 2,
+                    fontWeight: 'medium',
+                    ...(item.statusColor === 'primary' && {
+                      backgroundColor: 'rgba(93, 138, 168, 0.1)',
+                      color: landingTheme.palette.primary.dark,
+                      border: '1px solid rgba(93, 138, 168, 0.2)',
+                    }),
+                    ...(item.statusColor === 'secondary' && {
+                      backgroundColor: 'rgba(229, 115, 115, 0.1)',
+                      color: landingTheme.palette.secondary.dark,
+                      border: '1px solid rgba(229, 115, 115, 0.2)',
+                    }),
+                    ...(item.statusColor === 'default' && {
+                      backgroundColor: 'rgba(158, 158, 158, 0.1)',
+                      color: '#616161',
+                      border: '1px solid rgba(158, 158, 158, 0.2)',
+                    }),
                   }}
                 >
-                  <Typography variant="caption" fontWeight="medium">
-                    {item.status}
-                  </Typography>
-                </Box>
+                  {item.status}
+                </Typography>
 
                 <Typography
                   variant="body2"
