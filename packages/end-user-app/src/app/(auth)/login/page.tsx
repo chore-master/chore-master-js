@@ -4,7 +4,6 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import getConfig from '@/utils/config'
 import { useNotification } from '@/utils/notification'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
-import GoogleIcon from '@mui/icons-material/Google'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import Box from '@mui/material/Box'
@@ -12,7 +11,6 @@ import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Container from '@mui/material/Container'
-import Divider from '@mui/material/Divider'
 import FormControl from '@mui/material/FormControl'
 import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
@@ -197,40 +195,7 @@ export default function Page() {
                   登入
                 </Button>
 
-                <Divider sx={{ my: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    或
-                  </Typography>
-                </Divider>
-
-                <Button
-                  component={Link}
-                  href={`${IAM_API_HOST}/v1/admin/auth/google/authorize?success_redirect_uri=${successRedirectURI}&error_redirect_uri=${errorRedirectURI}`}
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<GoogleIcon />}
-                  sx={{ py: 1.5 }}
-                >
-                  使用 Google 帳號登入
-                </Button>
-
                 <Box sx={{ textAlign: 'center', mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    還沒有帳號？{' '}
-                    <Link
-                      href="/signup"
-                      style={{
-                        textDecoration: 'none',
-                        color: loginTheme.palette.primary.main,
-                        fontWeight: 600,
-                      }}
-                    >
-                      立即註冊
-                    </Link>
-                  </Typography>
-                </Box>
-
-                <Box sx={{ textAlign: 'center' }}>
                   <Link
                     href="/landing"
                     style={{
