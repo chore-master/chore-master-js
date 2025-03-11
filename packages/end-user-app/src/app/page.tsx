@@ -9,7 +9,6 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import AutoGraphIcon from '@mui/icons-material/AutoGraph'
-import BookIcon from '@mui/icons-material/Book'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -444,16 +443,16 @@ export default function Page() {
             },
             {
               step: '2',
-              text: '財務記帳功能',
+              text: '投資組合管理',
               icon: (
-                <BookIcon
+                <ShowChartIcon
                   sx={{
                     fontSize: 40,
                     color: landingTheme.palette.primary.main,
                   }}
                 />
               ),
-              description: '記錄日常收支，管理預算，追蹤消費習慣',
+              description: '追蹤您的投資組合表現，分析收益與風險',
               status: '即將推出',
               statusColor: 'secondary',
             },
@@ -676,15 +675,6 @@ export default function Page() {
                 >
                   <Typography variant="body2">關於我們</Typography>
                 </Link>
-                <Link
-                  href="#"
-                  style={{
-                    textDecoration: 'none',
-                    color: landingTheme.palette.text.secondary,
-                  }}
-                >
-                  <Typography variant="body2">聯絡我們</Typography>
-                </Link>
               </Stack>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -693,22 +683,22 @@ export default function Page() {
               </Typography>
               <Stack spacing={1}>
                 <Link
-                  href="#"
+                  href="/privacy"
                   style={{
                     textDecoration: 'none',
                     color: landingTheme.palette.text.secondary,
                   }}
                 >
-                  <Typography variant="body2">隱私政策</Typography>
+                  <Typography variant="body2">隱私權政策</Typography>
                 </Link>
                 <Link
-                  href="#"
+                  href="/terms"
                   style={{
                     textDecoration: 'none',
                     color: landingTheme.palette.text.secondary,
                   }}
                 >
-                  <Typography variant="body2">使用條款</Typography>
+                  <Typography variant="body2">服務條款</Typography>
                 </Link>
               </Stack>
             </Grid>
