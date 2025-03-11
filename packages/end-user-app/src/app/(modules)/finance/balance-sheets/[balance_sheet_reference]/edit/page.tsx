@@ -65,7 +65,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -85,7 +85,7 @@ export default function Page() {
   const fetchAccounts = React.useCallback(
     async (activeAsOfTime: string) => {
       setIsFetchingAccounts(true)
-      await choreMasterAPIAgent.get('/v1/finance/accounts', {
+      await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
         params: {
           active_as_of_time: activeAsOfTime,
         },
@@ -108,7 +108,7 @@ export default function Page() {
     UpdateBalanceSheetFormInputs
   > = async ({ balanced_time, balance_entries, ...data }) => {
     await choreMasterAPIAgent.put(
-      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      `/v1/finance/users/me/balance_sheets/${balance_sheet_reference}`,
       {
         ...data,
         balanced_time: new Date(
@@ -145,7 +145,7 @@ export default function Page() {
   const fetchBalanceSheet = React.useCallback(async () => {
     setIsFetchingBalanceSheet(true)
     await choreMasterAPIAgent.get(
-      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      `/v1/finance/users/me/balance_sheets/${balance_sheet_reference}`,
       {
         params: {},
         onError: () => {
@@ -169,7 +169,7 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/balance_sheets/${balanceSheetReference}`,
+        `/v1/finance/users/me/balance_sheets/${balanceSheetReference}`,
         {
           onError: () => {
             enqueueNotification(`Unable to delete balance sheet now.`, 'error')

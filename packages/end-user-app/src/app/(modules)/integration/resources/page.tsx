@@ -59,7 +59,7 @@ export default function Page() {
 
   const fetchResources = React.useCallback(async () => {
     setIsFetchingResources(true)
-    await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
+    await choreMasterAPIAgent.get('/v1/integration/users/me/resources', {
       params: {},
       onError: () => {
         enqueueNotification(`Unable to fetch resources now.`, 'error')
@@ -77,30 +77,26 @@ export default function Page() {
   const handleSubmitCreateResourceForm: SubmitHandler<
     CreateResourceFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post(
-      '/v1/integration/end_users/me/resources',
-      data,
-      {
-        onError: () => {
-          enqueueNotification(`Unable to create resource now.`, 'error')
-        },
-        onFail: ({ message }: any) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: () => {
-          createResourceForm.reset()
-          fetchResources()
-          setIsCreateResourceDrawerOpen(false)
-        },
-      }
-    )
+    await choreMasterAPIAgent.post('/v1/integration/users/me/resources', data, {
+      onError: () => {
+        enqueueNotification(`Unable to create resource now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: () => {
+        createResourceForm.reset()
+        fetchResources()
+        setIsCreateResourceDrawerOpen(false)
+      },
+    })
   }
 
   const handleSubmitUpdateResourceForm: SubmitHandler<
     UpdateResourceFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/integration/end_users/me/resources/${editingResourceReference}`,
+      `/v1/integration/users/me/resources/${editingResourceReference}`,
       data,
       {
         onError: () => {
@@ -125,7 +121,7 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/integration/end_users/me/resources/${resourceReference}`,
+        `/v1/integration/users/me/resources/${resourceReference}`,
         {
           onError: () => {
             enqueueNotification(`Unable to delete resource now.`, 'error')
@@ -349,6 +345,7 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
+              disabled={!createResourceForm.formState.isValid}
               onClick={createResourceForm.handleSubmit(
                 handleSubmitCreateResourceForm
               )}
@@ -435,6 +432,7 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
+              disabled={!updateResourceForm.formState.isValid}
               onClick={updateResourceForm.handleSubmit(
                 handleSubmitUpdateResourceForm
               )}

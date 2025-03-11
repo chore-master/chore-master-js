@@ -126,7 +126,7 @@ export default function Page() {
 
   const fetchFeedResources = React.useCallback(async () => {
     setIsFetchingFeedResources(true)
-    await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
+    await choreMasterAPIAgent.get('/v1/integration/users/me/resources', {
       params: {
         discriminators: [
           'oanda_feed',
@@ -149,7 +149,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -168,25 +168,28 @@ export default function Page() {
 
   const fetchBalanceSheetsSeries = React.useCallback(async () => {
     setIsFetchingBalanceSheetsSeries(true)
-    await choreMasterAPIAgent.get('/v1/finance/balance_sheets/series', {
-      params: {
-        offset: balanceSheetsPage * balanceSheetsRowsPerPage,
-        limit: balanceSheetsRowsPerPage,
-      },
-      onError: () => {
-        enqueueNotification(
-          `Unable to fetch balance entry series now.`,
-          'error'
-        )
-      },
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data, metadata }: any) => {
-        setBalanceSheetsSeries(data)
-        setBalanceSheetsCount(metadata.offset_pagination.count)
-      },
-    })
+    await choreMasterAPIAgent.get(
+      '/v1/finance/users/me/balance_sheets/series',
+      {
+        params: {
+          offset: balanceSheetsPage * balanceSheetsRowsPerPage,
+          limit: balanceSheetsRowsPerPage,
+        },
+        onError: () => {
+          enqueueNotification(
+            `Unable to fetch balance entry series now.`,
+            'error'
+          )
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: async ({ data, metadata }: any) => {
+          setBalanceSheetsSeries(data)
+          setBalanceSheetsCount(metadata.offset_pagination.count)
+        },
+      }
+    )
     setIsFetchingBalanceSheetsSeries(false)
   }, [balanceSheetsPage, balanceSheetsRowsPerPage, enqueueNotification])
 
@@ -198,7 +201,7 @@ export default function Page() {
     ) => {
       setIsFetchingPrices(true)
       await choreMasterAPIAgent.post(
-        `/v1/integration/end_users/me/resources/${feedResourceReference}/feed/fetch_prices`,
+        `/v1/integration/users/me/resources/${feedResourceReference}/feed/fetch_prices`,
         {
           target_datetimes: datetimes,
           target_interval: '1d',

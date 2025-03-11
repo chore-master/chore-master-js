@@ -52,7 +52,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -72,7 +72,7 @@ export default function Page() {
   const fetchAccounts = React.useCallback(
     async (activeAsOfTime: string) => {
       setIsFetchingAccounts(true)
-      await choreMasterAPIAgent.get('/v1/finance/accounts', {
+      await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
         params: {
           active_as_of_time: activeAsOfTime,
         },
@@ -95,7 +95,7 @@ export default function Page() {
     CreateBalanceSheetFormInputs
   > = async ({ balanced_time, balance_entries, ...data }) => {
     await choreMasterAPIAgent.post(
-      '/v1/finance/balance_sheets',
+      '/v1/finance/users/me/balance_sheets',
       {
         ...data,
         balanced_time: new Date(

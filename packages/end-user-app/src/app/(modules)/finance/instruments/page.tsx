@@ -79,7 +79,7 @@ export default function Page() {
 
   const fetchInstruments = React.useCallback(async () => {
     setIsFetchingInstruments(true)
-    await choreMasterAPIAgent.get('/v1/finance/instruments', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/instruments', {
       params: {
         offset: instrumentsPage * instrumentsRowsPerPage,
         limit: instrumentsRowsPerPage,
@@ -107,7 +107,7 @@ export default function Page() {
       references?: string[]
     }) => {
       setIsFetchingAssets(true)
-      await choreMasterAPIAgent.get('/v1/finance/assets', {
+      await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
         params: { search, references },
         onError: () => {
           enqueueNotification(`Unable to fetch assets now.`, 'error')
@@ -150,7 +150,7 @@ export default function Page() {
   const handleSubmitCreateInstrumentForm: SubmitHandler<
     CreateInstrumentFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/finance/instruments', data, {
+    await choreMasterAPIAgent.post('/v1/finance/users/me/instruments', data, {
       onError: () => {
         enqueueNotification(`Unable to create instrument now.`, 'error')
       },
@@ -169,7 +169,7 @@ export default function Page() {
     UpdateInstrumentFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/finance/instruments/${editingInstrumentReference}`,
+      `/v1/finance/users/me/instruments/${editingInstrumentReference}`,
       data,
       {
         onError: () => {
@@ -194,7 +194,7 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/instruments/${instrumentReference}`,
+        `/v1/finance/users/me/instruments/${instrumentReference}`,
         {
           onError: () => {
             enqueueNotification(`Unable to delete instrument now.`, 'error')

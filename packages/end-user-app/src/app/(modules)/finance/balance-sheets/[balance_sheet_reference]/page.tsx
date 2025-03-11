@@ -98,13 +98,9 @@ export default function Page() {
 
   const fetchFeedResources = React.useCallback(async () => {
     setIsFetchingFeedResources(true)
-    await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
+    await choreMasterAPIAgent.get('/v1/integration/users/me/resources', {
       params: {
-        discriminators: [
-          'oanda_feed',
-          'yahoo_finance_feed',
-          // 'coingecko_feed'
-        ],
+        discriminators: ['oanda_feed', 'yahoo_finance_feed'],
       },
       onError: () => {
         enqueueNotification(`Unable to fetch feed resources now.`, 'error')
@@ -121,7 +117,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -141,7 +137,7 @@ export default function Page() {
   const fetchBalanceSheet = React.useCallback(async () => {
     setIsFetchingBalanceSheet(true)
     await choreMasterAPIAgent.get(
-      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      `/v1/finance/users/me/balance_sheets/${balance_sheet_reference}`,
       {
         params: {},
         onError: () => {
@@ -161,7 +157,7 @@ export default function Page() {
   const fetchAccounts = React.useCallback(
     async (activeAsOfTime: string) => {
       setIsFetchingAccounts(true)
-      await choreMasterAPIAgent.get('/v1/finance/accounts', {
+      await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
         params: {
           active_as_of_time: activeAsOfTime,
         },
@@ -188,7 +184,7 @@ export default function Page() {
     ) => {
       setIsFetchingPrices(true)
       await choreMasterAPIAgent.post(
-        `/v1/integration/end_users/me/resources/${feedResourceReference}/feed/fetch_prices`,
+        `/v1/integration/users/me/resources/${feedResourceReference}/feed/fetch_prices`,
         {
           target_datetimes: datetimes,
           target_interval: '1d',
