@@ -1,103 +1,187 @@
+'use client'
+
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 import Container from '@mui/material/Container'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import Link from 'next/link'
+
+// Create a custom theme with updated colors to match landing page
+const policyTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#5D8AA8', // Soft blue
+      light: '#7FA8C9',
+      dark: '#3A6B8C',
+      contrastText: '#FFFFFF',
+    },
+    secondary: {
+      main: '#E57373', // Soft coral/pink
+      light: '#FFB2B2',
+      dark: '#AF4448',
+      contrastText: '#FFFFFF',
+    },
+    background: {
+      default: '#FFFFFF',
+      paper: '#F5F5F5',
+    },
+  },
+  typography: {
+    h4: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 600,
+      marginTop: '1.5rem',
+    },
+  },
+})
 
 export default function Page() {
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        隱私權政策
-      </Typography>
+    <ThemeProvider theme={policyTheme}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          py: 4,
+        }}
+      >
+        <Container maxWidth="md">
+          <Card
+            elevation={3}
+            sx={{
+              borderRadius: 2,
+              overflow: 'hidden',
+              mb: 4,
+            }}
+          >
+            <CardContent sx={{ p: 4 }}>
+              <Typography variant="h4" gutterBottom color="primary">
+                隱私權政策
+              </Typography>
 
-      <Typography>
-        Chore
-        Master（以下稱「本網站」或「我們」）重視您的隱私。這份隱私權政策旨在告知您我們如何收集、使用、存儲和保護您的個人資料。
-      </Typography>
+              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
+                Chore
+                Master（以下稱「本網站」或「我們」）重視您的隱私。這份隱私權政策旨在告知您我們如何收集、使用、存儲和保護您的個人資料。
+              </Typography>
 
-      <Typography variant="h6" gutterBottom>
-        資料收集
-      </Typography>
-      <Typography>
-        當您使用 Google 帳號登入本網站時，我們會收集以下個人資料：
-      </Typography>
-      <Typography component="ul" gutterBottom>
-        <Typography component="li">您的電子郵件地址</Typography>
-        <Typography component="li">
-          基本個人資訊（例如，您的姓名和個人資料圖片）
-        </Typography>
-      </Typography>
-      <Typography>
-        此外，我們會索取以下 Google Drive 和 Spreadsheet
-        的存取權限，以便提供完整的應用程式功能：
-      </Typography>
-      <Typography component="ul" gutterBottom>
-        <Typography component="li">存取您的 Google Drive</Typography>
-        <Typography component="li">
-          存取和管理您的 Google Spreadsheet
-        </Typography>
-      </Typography>
+              <Typography variant="h6" gutterBottom color="primary">
+                資料收集
+              </Typography>
+              <Typography variant="body1">
+                當您使用 Google 帳號登入本網站時，我們會收集以下個人資料：
+              </Typography>
+              <Box component="ul" sx={{ pl: 4 }}>
+                <Typography component="li" variant="body1">
+                  您的電子郵件地址
+                </Typography>
+                <Typography component="li" variant="body1">
+                  基本個人資訊（例如，您的姓名和個人資料圖片）
+                </Typography>
+              </Box>
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                此外，我們會索取以下 Google Drive 和 Spreadsheet
+                的存取權限，以便提供完整的應用程式功能：
+              </Typography>
+              <Box component="ul" sx={{ pl: 4 }}>
+                <Typography component="li" variant="body1">
+                  存取您的 Google Drive
+                </Typography>
+                <Typography component="li" variant="body1">
+                  存取和管理您的 Google Spreadsheet
+                </Typography>
+              </Box>
 
-      <Typography variant="h6" gutterBottom>
-        資料使用
-      </Typography>
-      <Typography>我們收集的個人資料將用於以下目的：</Typography>
-      <Typography component="ul" gutterBottom>
-        <Typography component="li">驗證您的身份並提供登入服務</Typography>
-        <Typography component="li">提供和改善我們的服務</Typography>
-        <Typography component="li">
-          允許您使用 Google Drive 和 Spreadsheet 的相關功能
-        </Typography>
-      </Typography>
+              <Typography variant="h6" gutterBottom color="primary">
+                資料使用
+              </Typography>
+              <Typography variant="body1">
+                我們收集的個人資料將用於以下目的：
+              </Typography>
+              <Box component="ul" sx={{ pl: 4 }}>
+                <Typography component="li" variant="body1">
+                  驗證您的身份並提供登入服務
+                </Typography>
+                <Typography component="li" variant="body1">
+                  提供和改善我們的服務
+                </Typography>
+                <Typography component="li" variant="body1">
+                  允許您使用 Google Drive 和 Spreadsheet 的相關功能
+                </Typography>
+              </Box>
 
-      <Typography variant="h6" gutterBottom>
-        資料共享和披露
-      </Typography>
-      <Typography>
-        我們不會與任何第三方共享、出售、出租或以其他方式披露您的個人資料，除非在以下情況下：
-      </Typography>
-      <Typography component="ul" gutterBottom>
-        <Typography component="li">獲得您的明確同意</Typography>
-        <Typography component="li">為了遵守法律法規或應政府要求</Typography>
-        <Typography component="li">
-          為了保護我們的權利、隱私、安全或財產，或是保護公眾或其他用戶的權利和安全
-        </Typography>
-      </Typography>
+              <Typography variant="h6" gutterBottom color="primary">
+                資料共享和披露
+              </Typography>
+              <Typography variant="body1">
+                我們不會與任何第三方共享、出售、出租或以其他方式披露您的個人資料，除非在以下情況下：
+              </Typography>
+              <Box component="ul" sx={{ pl: 4 }}>
+                <Typography component="li" variant="body1">
+                  獲得您的明確同意
+                </Typography>
+                <Typography component="li" variant="body1">
+                  為了遵守法律法規或應政府要求
+                </Typography>
+                <Typography component="li" variant="body1">
+                  為了保護我們的權利、隱私、安全或財產，或是保護公眾或其他用戶的權利和安全
+                </Typography>
+              </Box>
 
-      <Typography variant="h6" gutterBottom>
-        資料安全
-      </Typography>
-      <Typography>
-        我們採取適當的技術和組織措施來保護您的個人資料免受未經授權的訪問、洩露、篡改或毀壞。
-      </Typography>
+              <Typography variant="h6" gutterBottom color="primary">
+                資料安全
+              </Typography>
+              <Typography variant="body1" paragraph>
+                我們採取適當的技術和組織措施來保護您的個人資料免受未經授權的訪問、洩露、篡改或毀壞。
+              </Typography>
 
-      <Typography variant="h6" gutterBottom>
-        用戶權利
-      </Typography>
-      <Typography>由於我們的應用程式特性，用戶不具備以下權利：</Typography>
-      <Typography component="ul" gutterBottom>
-        <Typography component="li">
-          刪除權：用戶無法要求刪除我們所持有的個人資料
-        </Typography>
-        <Typography component="li">
-          限制處理權：用戶無法要求限制處理個人資料
-        </Typography>
-        <Typography component="li">
-          資料可攜權：用戶無法要求將個人資料轉移給第三方
-        </Typography>
-      </Typography>
+              <Typography variant="h6" gutterBottom color="primary">
+                用戶權利
+              </Typography>
+              <Typography variant="body1">
+                由於我們的應用程式特性，用戶不具備以下權利：
+              </Typography>
+              <Box component="ul" sx={{ pl: 4 }}>
+                <Typography component="li" variant="body1">
+                  刪除權：用戶無法要求刪除我們所持有的個人資料
+                </Typography>
+                <Typography component="li" variant="body1">
+                  限制處理權：用戶無法要求限制處理個人資料
+                </Typography>
+                <Typography component="li" variant="body1">
+                  資料可攜權：用戶無法要求將個人資料轉移給第三方
+                </Typography>
+              </Box>
 
-      <Typography variant="h6" gutterBottom>
-        聯繫我們
-      </Typography>
-      <Typography>
-        目前，用戶無法直接聯繫我們。如果您有任何疑問或問題，請參閱我們的常見問題頁面或使用應用程式內的幫助功能尋求支持。
-      </Typography>
+              <Typography variant="h6" gutterBottom color="primary">
+                政策更新
+              </Typography>
+              <Typography variant="body1" paragraph>
+                我們可能會不時更新本隱私權政策以反映我們服務的變更或法律規定的變化。任何更新將發布在本頁面上，並且在發布後立即生效。
+              </Typography>
 
-      <Typography variant="h6" gutterBottom>
-        政策更新
-      </Typography>
-      <Typography>
-        我們可能會不時更新本隱私權政策以反映我們服務的變更或法律規定的變化。任何更新將發布在本頁面上，並且在發布後立即生效。
-      </Typography>
-    </Container>
+              <Box sx={{ textAlign: 'center', mt: 4 }}>
+                <Link
+                  href="/"
+                  style={{
+                    textDecoration: 'none',
+                    color: policyTheme.palette.text.secondary,
+                    fontSize: '0.875rem',
+                  }}
+                >
+                  返回首頁
+                </Link>
+              </Box>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
+    </ThemeProvider>
   )
 }
