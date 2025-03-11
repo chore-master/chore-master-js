@@ -78,7 +78,7 @@ export default function Page() {
         )
       },
       onFail: ({ message }: any) => {
-        enqueueNotification(message)
+        enqueueNotification(message, 'warning')
       },
       onSuccess: () => {
         loginForm.reset()

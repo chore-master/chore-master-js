@@ -29,6 +29,18 @@ export default function Layout({
             },
           ],
         },
+        {
+          type: 'header',
+          title: '使用者',
+          navigations: [
+            {
+              type: 'link',
+              title: '使用者',
+              href: '/admin/users',
+              selectedWhenPartiallyMatched: true,
+            },
+          ],
+        },
       ]}
     >
       {children}

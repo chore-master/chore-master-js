@@ -9,8 +9,23 @@ export interface SystemInspect {
 // User
 
 export interface User {
+  reference?: string
   name: string
+  username?: string
   user_roles: UserRole[]
+}
+
+export interface CreateUserFormInputs {
+  reference?: string
+  name: string
+  username: string
+  password: string
+}
+
+export interface UpdateUserFormInputs {
+  name?: string
+  username?: string
+  password?: string
 }
 
 export interface UserRole {

@@ -7,6 +7,6 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    router.push('/admin/database/tables')
+    router.push('/admin/users')
   }, [router])
 }
