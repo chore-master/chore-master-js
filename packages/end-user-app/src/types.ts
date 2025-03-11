@@ -6,6 +6,21 @@ export interface SystemInspect {
   env: string
 }
 
+// User
+
+export interface User {
+  name: string
+  user_roles: UserRole[]
+}
+
+export interface UserRole {
+  role: Role
+}
+
+export interface Role {
+  symbol: string
+}
+
 // Resource
 
 export interface Resource {

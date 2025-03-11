@@ -1,11 +1,11 @@
 'use client'
 
-import { EndUserProvider } from '@/utils/auth'
+import { AuthProvider } from '@/utils/auth'
 
 export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return <EndUserProvider>{children}</EndUserProvider>
+  return <AuthProvider>{children}</AuthProvider>
 }

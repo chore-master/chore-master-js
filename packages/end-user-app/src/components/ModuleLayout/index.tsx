@@ -7,7 +7,7 @@ import SideNavigationList, {
 import { useTimezone } from '@/components/timezone'
 import { SystemInspect } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import { useEndUser } from '@/utils/auth'
+import { useAuth } from '@/utils/auth'
 import { offsetInMinutesToTimedeltaString } from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
@@ -104,12 +104,7 @@ export default function ModuleLayout({
   )
   const router = useRouter()
   const pathname = usePathname()
-  const {
-    isLoading: isLoadingEndUser,
-    endUser,
-    successLoadedCount: endUserSuccessLoadedCount,
-    res: endUserRes,
-  } = useEndUser()
+  const auth = useAuth()
   const timezone = useTimezone()
   const [currentDate, setCurrentDate] = React.useState(new Date())
 
@@ -145,16 +140,16 @@ export default function ModuleLayout({
   }
 
   React.useEffect(() => {
-    if (loginRequired && endUserRes?.status === 401) {
+    if (loginRequired && auth.userRes?.status === 401) {
       router.push('/login')
     }
-  }, [loginRequired, endUserRes, router])
+  }, [loginRequired, auth.userRes, router])
 
   React.useEffect(() => {
-    if (endUserRes?.status === 403) {
+    if (auth.userRes?.status === 403) {
       router.push('/login')
     }
-  }, [endUserRes, router])
+  }, [auth.userRes, router])
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -165,7 +160,7 @@ export default function ModuleLayout({
     }
   }, [])
 
-  if (loginRequired && (!endUser || endUserSuccessLoadedCount === 0)) {
+  if (loginRequired && (!auth.user || auth.userSuccessLoadedCount === 0)) {
     return (
       <Box
         sx={{
@@ -232,7 +227,7 @@ export default function ModuleLayout({
     <React.Fragment>
       <Drawer open={isModulesDrawerOpen} onClose={toggleModulesDrawer(false)}>
         <List disablePadding>
-          {endUser && (
+          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
             <ListItem disablePadding>
               <Link href="/admin" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -244,7 +239,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {endUser && (
+          {auth.user && (
             <ListItem disablePadding>
               <Link href="/finance" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -256,7 +251,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {endUser && (
+          {auth.user && (
             <ListItem disablePadding>
               <Link href="/integration" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -268,26 +263,30 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          <ListItem disablePadding>
-            <Link href="/widget" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemIcon>
-                  <WidgetsIcon />
-                </ListItemIcon>
-                <ListItemText primary="小工具" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
-          <ListItem disablePadding>
-            <Link href="/example" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemIcon>
-                  <HelpIcon />
-                </ListItemIcon>
-                <ListItemText primary="範例模組" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
+          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
+            <ListItem disablePadding>
+              <Link href="/widget" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <WidgetsIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="小工具" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
+          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
+            <ListItem disablePadding>
+              <Link href="/example" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <HelpIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="範例模組" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
         </List>
       </Drawer>
 
@@ -351,9 +350,6 @@ export default function ModuleLayout({
                 </IconButton>
               </Tooltip>
               <Box sx={{ flexGrow: 1 }} />
-              {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
-                <AccountCircle />
-              </IconButton> */}
               <Tooltip title="關於">
                 <IconButton
                   onClick={() => {
@@ -373,13 +369,13 @@ export default function ModuleLayout({
                   <SettingsOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              {endUser && (
+              {auth.user && (
                 <Tooltip
                   title={
                     <React.Fragment>
                       <span>使用者</span>
                       <br />
-                      <span>{endUser.name}</span>
+                      <span>{auth.user.name}</span>
                     </React.Fragment>
                   }
                 >
@@ -387,23 +383,23 @@ export default function ModuleLayout({
                     <IconButton
                       size="small"
                       sx={{ mx: 1 }}
-                      disabled={isLoadingEndUser}
+                      disabled={auth.isLoadingUser}
                       onClick={handleAvatarClick}
                     >
                       <Avatar sx={{ width: 32, height: 32 }}>
-                        {endUser.name.substring(0, 1).toUpperCase()}
+                        {auth.user.name.substring(0, 1).toUpperCase()}
                       </Avatar>
                     </IconButton>
                   </span>
                 </Tooltip>
               )}
-              {!loginRequired && !endUser && (
+              {!loginRequired && !auth.user && (
                 <Tooltip title="登入">
                   <span>
                     <IconButton
                       size="small"
                       sx={{ mx: 1 }}
-                      disabled={isLoadingEndUser}
+                      disabled={auth.isLoadingUser}
                       onClick={() => {
                         router.push('/login')
                       }}
