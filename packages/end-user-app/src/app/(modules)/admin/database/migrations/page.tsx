@@ -41,27 +41,30 @@ export default function Page() {
 
   const fetchDatabaseRevisions = async () => {
     setIsFetchingDatabaseRevisions(true)
-    await choreMasterAPIAgent.get('/v1/admin/user_database/connection', {
-      params: {},
-      onError: () => {
-        enqueueNotification(
-          'Something wrong happened. Service may be unavailable now.',
-          'error'
-        )
-      },
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data }: any) => {
-        if (data.applied_revision) {
-          setAllRevisions(data.all_revisions)
-          setAppliedRevision(data.applied_revision)
-        } else {
-          setAllRevisions([...data.all_revisions, rootRevision])
-          setAppliedRevision(rootRevision)
-        }
-      },
-    })
+    await choreMasterAPIAgent.get(
+      '/v1/admin/user_database/migrations/revisions',
+      {
+        params: {},
+        onError: () => {
+          enqueueNotification(
+            'Something wrong happened. Service may be unavailable now.',
+            'error'
+          )
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: async ({ data }: any) => {
+          if (data.applied_revision) {
+            setAllRevisions(data.all_revisions)
+            setAppliedRevision(data.applied_revision)
+          } else {
+            setAllRevisions([...data.all_revisions, rootRevision])
+            setAppliedRevision(rootRevision)
+          }
+        },
+      }
+    )
     setIsFetchingDatabaseRevisions(false)
   }
 

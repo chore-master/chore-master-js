@@ -17,20 +17,14 @@ export default function Layout({
           navigations: [
             {
               type: 'link',
-              title: '連線',
-              href: '/admin/database/connection',
+              title: '資料表',
+              href: '/admin/database/tables',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
               title: '遷徙管理',
               href: '/admin/database/migrations',
-              selectedWhenPartiallyMatched: true,
-            },
-            {
-              type: 'link',
-              title: '資料表',
-              href: '/admin/database/tables',
               selectedWhenPartiallyMatched: true,
             },
           ],
