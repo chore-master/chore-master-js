@@ -9,6 +9,13 @@ PORT=2000 yarn workspace @app/end-user-app dev
 
 ## Deployment
 
+## Docker Compose
+
+```sh
+sudo docker compose -f ./deployments/docker-compose.local.yml -p chore_master_end_user_app_local up -d --build
+sudo docker compose -f ./deployments/docker-compose.local.yml -p chore_master_end_user_app_local down
+```
+
 ### Amplify
 
 - App settings > General settings
