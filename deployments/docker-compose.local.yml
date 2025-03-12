@@ -1,0 +1,12 @@
+name: chore_master_web_local
+services:
+  end_user_app:
+    build:
+      context: ../
+      dockerfile: ./deployments/end_user_app/Dockerfile
+    environment:
+      NEXT_PUBLIC_ENV_NAME: 'production'
+      NEXT_PUBLIC_CHORE_MASTER_API_HOST: 'http://localhost:13000'
+      PORT: 8888
+    ports:
+      - 8888:8888

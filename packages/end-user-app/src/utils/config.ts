@@ -21,6 +21,10 @@ export default function getConfig() {
     CHORE_MASTER_API_HOST = 'https://chore-master-api.lation.app'
   }
 
+  if (process.env.NEXT_PUBLIC_CHORE_MASTER_API_HOST) {
+    CHORE_MASTER_API_HOST = process.env.NEXT_PUBLIC_CHORE_MASTER_API_HOST
+  }
+
   return {
     ENV_NAME,
     HOST,
