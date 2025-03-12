@@ -1,5 +1,5 @@
 import { User } from '@/types'
-import { iamAPIAgent } from '@/utils/apiAgent'
+import choreMasterAPIAgent from '@/utils/apiAgent'
 import React from 'react'
 
 interface AuthContextType {
@@ -26,7 +26,7 @@ export const AuthProvider = (props: any) => {
 
   const fetchUser = React.useCallback(async () => {
     setIsLoadingUser(true)
-    iamAPIAgent.get('/v1/identity/users/me', {
+    choreMasterAPIAgent.get('/v1/identity/users/me', {
       params: {},
       onFail: ({ res }: any) => {
         setUserRes(res)
