@@ -6,6 +6,8 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
@@ -542,7 +544,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>帳戶</NoWrapTableCell>
                   <NoWrapTableCell align="right">數量</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
@@ -572,27 +576,26 @@ export default function Page() {
                   return (
                     <TableRow key={balanceEntry.reference} hover>
                       <NoWrapTableCell align="right">
-                        {index + 1}
+                        <PlaceholderTypography>
+                          {index + 1}
+                        </PlaceholderTypography>
                       </NoWrapTableCell>
                       <NoWrapTableCell>
-                        <Chip
-                          size="small"
-                          label={account?.name}
-                          color="info"
-                          variant="outlined"
-                        />
+                        <ReferenceBlock label={account?.name} foreignValue />
                       </NoWrapTableCell>
                       <NoWrapTableCell align="right">{amount}</NoWrapTableCell>
                       <NoWrapTableCell>
-                        <Chip
-                          size="small"
+                        <ReferenceBlock
                           label={settleableAsset?.name}
-                          color="info"
-                          variant="outlined"
+                          foreignValue
                         />
                       </NoWrapTableCell>
                       <NoWrapTableCell>
-                        <Chip size="small" label={balanceEntry.reference} />
+                        <ReferenceBlock
+                          label={balanceEntry.reference}
+                          primaryKey
+                          monospace
+                        />
                       </NoWrapTableCell>
                     </TableRow>
                   )

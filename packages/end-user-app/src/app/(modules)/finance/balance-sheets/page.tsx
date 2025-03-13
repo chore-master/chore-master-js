@@ -8,6 +8,8 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { TablePagination } from '@/components/Pagination'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { colors20, INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
@@ -803,7 +805,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>結算時間</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
@@ -829,15 +833,21 @@ export default function Page() {
                       }}
                     >
                       <NoWrapTableCell align="right">
-                        {balanceSheetsPage * balanceSheetsRowsPerPage +
-                          index +
-                          1}
+                        <PlaceholderTypography>
+                          {balanceSheetsPage * balanceSheetsRowsPerPage +
+                            index +
+                            1}
+                        </PlaceholderTypography>
                       </NoWrapTableCell>
                       <NoWrapTableCell>
                         <DatetimeBlock isoText={balanceSheet.balanced_time} />
                       </NoWrapTableCell>
                       <NoWrapTableCell>
-                        <Chip size="small" label={balanceSheet.reference} />
+                        <ReferenceBlock
+                          label={balanceSheet.reference}
+                          primaryKey
+                          monospace
+                        />
                       </NoWrapTableCell>
                       <NoWrapTableCell align="right">
                         <IconButton

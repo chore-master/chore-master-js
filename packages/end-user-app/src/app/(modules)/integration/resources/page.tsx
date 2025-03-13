@@ -6,6 +6,9 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { TablePagination } from '@/components/Pagination'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { integrationResourceDiscriminators } from '@/constants'
 import type {
@@ -27,7 +30,6 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
@@ -49,6 +51,9 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const [resources, setResources] = React.useState<Resource[]>([])
+  const [resourcesCount, setResourcesCount] = React.useState(0)
+  const [resourcesPage, setResourcesPage] = React.useState(0)
+  const [resourcesRowsPerPage, setResourcesRowsPerPage] = React.useState(10)
   const [isFetchingResources, setIsFetchingResources] = React.useState(false)
   const [isCreateResourceDrawerOpen, setIsCreateResourceDrawerOpen] =
     React.useState(false)
@@ -60,15 +65,25 @@ export default function Page() {
   const fetchResources = React.useCallback(async () => {
     setIsFetchingResources(true)
     await choreMasterAPIAgent.get('/v1/integration/users/me/resources', {
-      params: {},
+      params: {
+        offset: resourcesPage * resourcesRowsPerPage,
+        limit: resourcesRowsPerPage,
+      },
       onError: () => {
         enqueueNotification(`Unable to fetch resources now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: any) => {
+      onSuccess: async ({
+        data,
+        metadata,
+      }: {
+        data: Resource[]
+        metadata: any
+      }) => {
         setResources(data)
+        setResourcesCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingResources(false)
@@ -176,6 +191,9 @@ export default function Page() {
             <Table>
               <TableHead>
                 <TableRow>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>鑑別器</NoWrapTableCell>
                   <NoWrapTableCell>值</NoWrapTableCell>
@@ -187,8 +205,13 @@ export default function Page() {
                 isLoading={isFetchingResources}
                 isEmpty={resources.length === 0}
               >
-                {resources.map((integration) => (
+                {resources.map((integration, index) => (
                   <TableRow key={integration.reference} hover>
+                    <NoWrapTableCell align="right">
+                      <PlaceholderTypography>
+                        {resourcesPage * resourcesRowsPerPage + index + 1}
+                      </PlaceholderTypography>
+                    </NoWrapTableCell>
                     <NoWrapTableCell>{integration.name}</NoWrapTableCell>
                     <NoWrapTableCell>
                       {integration.discriminator}
@@ -200,7 +223,11 @@ export default function Page() {
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip size="small" label={integration.reference} />
+                      <ReferenceBlock
+                        label={integration.reference}
+                        primaryKey
+                        monospace
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
@@ -234,6 +261,14 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            count={resourcesCount}
+            page={resourcesPage}
+            rowsPerPage={resourcesRowsPerPage}
+            setPage={setResourcesPage}
+            setRowsPerPage={setResourcesRowsPerPage}
+            rowsPerPageOptions={[10, 20]}
+          />
         </ModuleFunctionBody>
 
         <ModuleFunctionBody>

@@ -8,6 +8,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
@@ -241,7 +242,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
                   <NoWrapTableCell>生態系</NoWrapTableCell>
@@ -257,11 +260,14 @@ export default function Page() {
               >
                 {accounts.map((account, index) => (
                   <TableRow key={account.reference} hover>
-                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <PlaceholderTypography>
+                        {accountsPage * accountsRowsPerPage + index + 1}
+                      </PlaceholderTypography>
+                    </NoWrapTableCell>
                     <NoWrapTableCell>{account.name}</NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip
-                        size="small"
+                      <ReferenceBlock
                         label={
                           settleableAssets.find(
                             (asset) =>
@@ -269,20 +275,17 @@ export default function Page() {
                               account.settlement_asset_reference
                           )?.name
                         }
-                        color="info"
-                        variant="outlined"
+                        foreignValue
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip
-                        size="small"
+                      <ReferenceBlock
                         label={
                           financeAccountEcosystemTypes.find(
                             (ecosystemType) =>
                               ecosystemType.value === account.ecosystem_type
                           )?.label
                         }
-                        variant="outlined"
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
@@ -296,7 +299,11 @@ export default function Page() {
                       )}
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip size="small" label={account.reference} />
+                      <ReferenceBlock
+                        label={account.reference}
+                        primaryKey
+                        monospace
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
