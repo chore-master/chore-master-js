@@ -33,9 +33,9 @@ const landingTheme = createTheme({
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#E57373', // Soft coral/pink
-      light: '#FFB2B2',
-      dark: '#AF4448',
+      main: '#D2B48C', // Beige/tan color instead of coral/pink
+      light: '#E6D2B8',
+      dark: '#B29066',
       contrastText: '#FFFFFF',
     },
     background: {
@@ -509,9 +509,9 @@ export default function Page() {
                       border: '1px solid rgba(93, 138, 168, 0.2)',
                     }),
                     ...(item.statusColor === 'secondary' && {
-                      backgroundColor: 'rgba(229, 115, 115, 0.1)',
+                      backgroundColor: 'rgba(210, 180, 140, 0.1)',
                       color: landingTheme.palette.secondary.dark,
-                      border: '1px solid rgba(229, 115, 115, 0.2)',
+                      border: '1px solid rgba(210, 180, 140, 0.2)',
                     }),
                     ...(item.statusColor === 'default' && {
                       backgroundColor: 'rgba(158, 158, 158, 0.1)',

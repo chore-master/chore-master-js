@@ -119,7 +119,7 @@ export default function Page() {
                 登入 Chore Master
               </Typography>
               <Typography variant="body2">
-                登入您的帳戶，開始管理您的財務
+                登入您的帳戶，開始使用個人化助理服務
               </Typography>
             </Box>
 
