@@ -1,6 +1,8 @@
 'use client'
 
 import DatetimeBlock from '@/components/DatetimeBlock'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
@@ -34,7 +36,6 @@ import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
 import Collapse from '@mui/material/Collapse'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -515,10 +516,15 @@ export default function ModuleLayout({
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="body2">發佈版本</Typography>
-                    <Chip
-                      size="small"
-                      label={systemInspect?.commit_revision ?? 'N/A'}
-                    />
+                    {systemInspect?.commit_revision ? (
+                      <ReferenceBlock
+                        label={systemInspect.commit_revision}
+                        primaryKey
+                        monospace
+                      />
+                    ) : (
+                      <PlaceholderTypography>N/A</PlaceholderTypography>
+                    )}
                   </Stack>
                 }
               />
@@ -529,10 +535,15 @@ export default function ModuleLayout({
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="body2">提交版本</Typography>
-                    <Chip
-                      size="small"
-                      label={systemInspect?.commit_short_sha ?? 'N/A'}
-                    />
+                    {systemInspect?.commit_short_sha ? (
+                      <ReferenceBlock
+                        label={systemInspect.commit_short_sha}
+                        primaryKey
+                        monospace
+                      />
+                    ) : (
+                      <PlaceholderTypography>N/A</PlaceholderTypography>
+                    )}
                   </Stack>
                 }
               />
@@ -543,7 +554,11 @@ export default function ModuleLayout({
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="body2">環境</Typography>
-                    <Chip size="small" label={systemInspect?.env} />
+                    {systemInspect?.env ? (
+                      <ReferenceBlock label={systemInspect.env} primaryKey />
+                    ) : (
+                      <PlaceholderTypography>N/A</PlaceholderTypography>
+                    )}
                   </Stack>
                 }
               />

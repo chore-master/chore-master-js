@@ -7,6 +7,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import {
   financeInstrumentAssetReferenceFields,
@@ -28,7 +29,6 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
@@ -294,7 +294,11 @@ export default function Page() {
               >
                 {instruments.map((instrument, index) => (
                   <TableRow key={instrument.reference} hover>
-                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <PlaceholderTypography>
+                        {instrumentsPage * instrumentsRowsPerPage + index + 1}
+                      </PlaceholderTypography>
+                    </NoWrapTableCell>
                     <NoWrapTableCell>{instrument.name}</NoWrapTableCell>
                     <NoWrapTableCell>
                       {instrument.quantity_decimals}
@@ -303,26 +307,23 @@ export default function Page() {
                       {instrument.price_decimals}
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip
-                        size="small"
+                      <ReferenceBlock
                         label={
                           financeInstrumentTypes.find(
                             (type) => type.value === instrument.instrument_type
                           )?.label
                         }
-                        variant="outlined"
+                        foreignValue
                       />
                     </NoWrapTableCell>
                     {financeInstrumentAssetReferenceFields.map(({ name }) => (
                       <NoWrapTableCell key={name}>
                         {instrument[name] ? (
-                          <Chip
-                            size="small"
+                          <ReferenceBlock
                             label={
                               assetReferenceToAssetMap[instrument[name]]?.name
                             }
-                            color="info"
-                            variant="outlined"
+                            foreignValue
                           />
                         ) : (
                           <PlaceholderTypography>N/A</PlaceholderTypography>
@@ -330,7 +331,11 @@ export default function Page() {
                       </NoWrapTableCell>
                     ))}
                     <NoWrapTableCell>
-                      <Chip size="small" label={instrument.reference} />
+                      <ReferenceBlock
+                        label={instrument.reference}
+                        primaryKey
+                        monospace
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
@@ -528,11 +533,9 @@ export default function Page() {
                           }
                           return (
                             <Box key={key} component="li" {...optionProps}>
-                              <Chip
-                                size="small"
+                              <ReferenceBlock
                                 label={option.name}
-                                color="info"
-                                variant="outlined"
+                                foreignValue
                               />
                             </Box>
                           )
