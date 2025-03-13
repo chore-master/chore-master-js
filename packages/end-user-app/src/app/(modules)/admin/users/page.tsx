@@ -6,6 +6,8 @@ import ModuleFunction, {
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
 import { TablePagination } from '@/components/Pagination'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import type { CreateUserFormInputs, UpdateUserFormInputs, User } from '@/types'
@@ -18,7 +20,6 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
@@ -183,7 +184,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>使用者名稱</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
@@ -196,11 +199,19 @@ export default function Page() {
               >
                 {users.map((user, index) => (
                   <TableRow key={user.reference} hover>
-                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <PlaceholderTypography>
+                        {usersPage * usersRowsPerPage + index + 1}
+                      </PlaceholderTypography>
+                    </NoWrapTableCell>
                     <NoWrapTableCell>{user.name}</NoWrapTableCell>
                     <NoWrapTableCell>{user.username}</NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip size="small" label={user.reference} />
+                      <ReferenceBlock
+                        label={user.reference}
+                        primaryKey
+                        monospace
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
