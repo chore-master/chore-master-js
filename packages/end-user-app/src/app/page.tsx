@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -645,9 +646,16 @@ export default function Page() {
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             <Grid item xs={12} md={4}>
-              <Typography variant="h6" gutterBottom>
-                Chore Master
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Image
+                  src="/icon.svg"
+                  alt="Chore Master Logo"
+                  width={40}
+                  height={40}
+                  style={{ marginRight: '12px' }}
+                />
+                <Typography variant="h6">Chore Master</Typography>
+              </Box>
               <Typography variant="body2" color="text.secondary">
                 讓財務管理變得更有效率
               </Typography>
