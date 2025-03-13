@@ -10,11 +10,11 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import { integrationResourceDiscriminators } from '@/constants'
+import { integrationOperatorDiscriminators } from '@/constants'
 import type {
-  CreateResourceFormInputs,
-  Resource,
-  UpdateResourceFormInputs,
+  CreateOperatorFormInputs,
+  Operator,
+  UpdateOperatorFormInputs,
 } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
@@ -50,27 +50,27 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
-  const [resources, setResources] = React.useState<Resource[]>([])
-  const [resourcesCount, setResourcesCount] = React.useState(0)
-  const [resourcesPage, setResourcesPage] = React.useState(0)
-  const [resourcesRowsPerPage, setResourcesRowsPerPage] = React.useState(10)
-  const [isFetchingResources, setIsFetchingResources] = React.useState(false)
-  const [isCreateResourceDrawerOpen, setIsCreateResourceDrawerOpen] =
+  const [operators, setOperators] = React.useState<Operator[]>([])
+  const [operatorsCount, setOperatorsCount] = React.useState(0)
+  const [operatorsPage, setOperatorsPage] = React.useState(0)
+  const [operatorsRowsPerPage, setOperatorsRowsPerPage] = React.useState(10)
+  const [isFetchingOperators, setIsFetchingOperators] = React.useState(false)
+  const [isCreateOperatorDrawerOpen, setIsCreateOperatorDrawerOpen] =
     React.useState(false)
-  const [editingResourceReference, setEditingResourceReference] =
+  const [editingOperatorReference, setEditingOperatorReference] =
     React.useState<string>()
-  const createResourceForm = useForm<CreateResourceFormInputs>()
-  const updateResourceForm = useForm<UpdateResourceFormInputs>()
+  const createOperatorForm = useForm<CreateOperatorFormInputs>()
+  const updateOperatorForm = useForm<UpdateOperatorFormInputs>()
 
-  const fetchResources = React.useCallback(async () => {
-    setIsFetchingResources(true)
-    await choreMasterAPIAgent.get('/v1/integration/users/me/resources', {
+  const fetchOperators = React.useCallback(async () => {
+    setIsFetchingOperators(true)
+    await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
       params: {
-        offset: resourcesPage * resourcesRowsPerPage,
-        limit: resourcesRowsPerPage,
+        offset: operatorsPage * operatorsRowsPerPage,
+        limit: operatorsRowsPerPage,
       },
       onError: () => {
-        enqueueNotification(`Unable to fetch resources now.`, 'error')
+        enqueueNotification(`Unable to fetch operators now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
@@ -79,95 +79,95 @@ export default function Page() {
         data,
         metadata,
       }: {
-        data: Resource[]
+        data: Operator[]
         metadata: any
       }) => {
-        setResources(data)
-        setResourcesCount(metadata.offset_pagination.count)
+        setOperators(data)
+        setOperatorsCount(metadata.offset_pagination.count)
       },
     })
-    setIsFetchingResources(false)
+    setIsFetchingOperators(false)
   }, [enqueueNotification])
 
-  const handleSubmitCreateResourceForm: SubmitHandler<
-    CreateResourceFormInputs
+  const handleSubmitCreateOperatorForm: SubmitHandler<
+    CreateOperatorFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/integration/users/me/resources', data, {
+    await choreMasterAPIAgent.post('/v1/integration/users/me/operators', data, {
       onError: () => {
-        enqueueNotification(`Unable to create resource now.`, 'error')
+        enqueueNotification(`Unable to create operator now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
-        createResourceForm.reset()
-        fetchResources()
-        setIsCreateResourceDrawerOpen(false)
+        createOperatorForm.reset()
+        fetchOperators()
+        setIsCreateOperatorDrawerOpen(false)
       },
     })
   }
 
-  const handleSubmitUpdateResourceForm: SubmitHandler<
-    UpdateResourceFormInputs
+  const handleSubmitUpdateOperatorForm: SubmitHandler<
+    UpdateOperatorFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/integration/users/me/resources/${editingResourceReference}`,
+      `/v1/integration/users/me/operators/${editingOperatorReference}`,
       data,
       {
         onError: () => {
-          enqueueNotification(`Unable to update resource now.`, 'error')
+          enqueueNotification(`Unable to update operator now.`, 'error')
         },
         onFail: ({ message }: any) => {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          updateResourceForm.reset()
-          fetchResources()
-          setEditingResourceReference(undefined)
+          updateOperatorForm.reset()
+          fetchOperators()
+          setEditingOperatorReference(undefined)
         },
       }
     )
   }
 
-  const deleteResource = React.useCallback(
-    async (resourceReference: string) => {
+  const deleteOperator = React.useCallback(
+    async (operatorReference: string) => {
       const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
       if (!isConfirmed) {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/integration/users/me/resources/${resourceReference}`,
+        `/v1/integration/users/me/operators/${operatorReference}`,
         {
           onError: () => {
-            enqueueNotification(`Unable to delete resource now.`, 'error')
+            enqueueNotification(`Unable to delete operator now.`, 'error')
           },
           onFail: ({ message }: any) => {
             enqueueNotification(message, 'error')
           },
           onSuccess: () => {
-            fetchResources()
+            fetchOperators()
           },
         }
       )
     },
-    [enqueueNotification, fetchResources]
+    [enqueueNotification, fetchOperators]
   )
 
   React.useEffect(() => {
-    void fetchResources()
-  }, [fetchResources])
+    void fetchOperators()
+  }, [fetchOperators])
 
   return (
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="資源"
+          title="運算器"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
                 <IconButton
-                  onClick={fetchResources}
-                  disabled={isFetchingResources}
+                  onClick={fetchOperators}
+                  disabled={isFetchingOperators}
                 >
                   <RefreshIcon />
                 </IconButton>
@@ -178,15 +178,15 @@ export default function Page() {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => {
-                createResourceForm.reset()
-                setIsCreateResourceDrawerOpen(true)
+                createOperatorForm.reset()
+                setIsCreateOperatorDrawerOpen(true)
               }}
             >
               新增
             </Button>,
           ]}
         />
-        <ModuleFunctionBody loading={isFetchingResources}>
+        <ModuleFunctionBody loading={isFetchingOperators}>
           <TableContainer>
             <Table>
               <TableHead>
@@ -202,29 +202,27 @@ export default function Page() {
                 </TableRow>
               </TableHead>
               <StatefulTableBody
-                isLoading={isFetchingResources}
-                isEmpty={resources.length === 0}
+                isLoading={isFetchingOperators}
+                isEmpty={operators.length === 0}
               >
-                {resources.map((integration, index) => (
-                  <TableRow key={integration.reference} hover>
+                {operators.map((operator, index) => (
+                  <TableRow key={operator.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {resourcesPage * resourcesRowsPerPage + index + 1}
+                        {operatorsPage * operatorsRowsPerPage + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
-                    <NoWrapTableCell>{integration.name}</NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {integration.discriminator}
-                    </NoWrapTableCell>
+                    <NoWrapTableCell>{operator.name}</NoWrapTableCell>
+                    <NoWrapTableCell>{operator.discriminator}</NoWrapTableCell>
                     <NoWrapTableCell>
                       <CodeBlock
                         language="json"
-                        code={JSON.stringify(integration.value, null, 2)}
+                        code={JSON.stringify(operator.value, null, 2)}
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
                       <ReferenceBlock
-                        label={integration.reference}
+                        label={operator.reference}
                         primaryKey
                         monospace
                       />
@@ -233,25 +231,23 @@ export default function Page() {
                       <IconButton
                         size="small"
                         onClick={() => {
-                          updateResourceForm.setValue('name', integration.name)
-                          updateResourceForm.setValue(
+                          updateOperatorForm.setValue('name', operator.name)
+                          updateOperatorForm.setValue(
                             'discriminator',
-                            integration.discriminator
+                            operator.discriminator
                           )
-                          updateResourceForm.setValue(
+                          updateOperatorForm.setValue(
                             'value',
-                            JSON.stringify(integration.value)
+                            JSON.stringify(operator.value)
                           )
-                          setEditingResourceReference(integration.reference)
+                          setEditingOperatorReference(operator.reference)
                         }}
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         size="small"
-                        onClick={() =>
-                          void deleteResource(integration.reference)
-                        }
+                        onClick={() => void deleteOperator(operator.reference)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -262,11 +258,11 @@ export default function Page() {
             </Table>
           </TableContainer>
           <TablePagination
-            count={resourcesCount}
-            page={resourcesPage}
-            rowsPerPage={resourcesRowsPerPage}
-            setPage={setResourcesPage}
-            setRowsPerPage={setResourcesRowsPerPage}
+            count={operatorsCount}
+            page={operatorsPage}
+            rowsPerPage={operatorsRowsPerPage}
+            setPage={setOperatorsPage}
+            setRowsPerPage={setOperatorsRowsPerPage}
             rowsPerPageOptions={[10, 20]}
           />
         </ModuleFunctionBody>
@@ -306,13 +302,13 @@ export default function Page() {
 
       <Drawer
         anchor="right"
-        open={isCreateResourceDrawerOpen}
+        open={isCreateOperatorDrawerOpen}
         onClose={() => {
-          setIsCreateResourceDrawerOpen(false)
+          setIsCreateOperatorDrawerOpen(false)
         }}
       >
         <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增資源" />
+          <CardHeader title="新增運算器" />
           <Stack
             component="form"
             spacing={3}
@@ -325,7 +321,7 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="name"
-                control={createResourceForm.control}
+                control={createOperatorForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
@@ -341,13 +337,13 @@ export default function Page() {
             </FormControl>
             <Controller
               name="discriminator"
-              control={createResourceForm.control}
+              control={createOperatorForm.control}
               defaultValue=""
               render={({ field }) => (
                 <FormControl required fullWidth size="small" variant="filled">
                   <InputLabel>鑑別器</InputLabel>
                   <Select {...field}>
-                    {integrationResourceDiscriminators.map((discriminator) => (
+                    {integrationOperatorDiscriminators.map((discriminator) => (
                       <MenuItem key={discriminator} value={discriminator}>
                         {discriminator}
                       </MenuItem>
@@ -360,7 +356,7 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="value"
-                control={createResourceForm.control}
+                control={createOperatorForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
@@ -380,9 +376,9 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
-              disabled={!createResourceForm.formState.isValid}
-              onClick={createResourceForm.handleSubmit(
-                handleSubmitCreateResourceForm
+              disabled={!createOperatorForm.formState.isValid}
+              onClick={createOperatorForm.handleSubmit(
+                handleSubmitCreateOperatorForm
               )}
             >
               新增
@@ -393,13 +389,13 @@ export default function Page() {
 
       <Drawer
         anchor="right"
-        open={!!editingResourceReference}
+        open={!!editingOperatorReference}
         onClose={() => {
-          setEditingResourceReference(undefined)
+          setEditingOperatorReference(undefined)
         }}
       >
         <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯資源" />
+          <CardHeader title="編輯運算器" />
           <Stack
             component="form"
             spacing={3}
@@ -412,7 +408,7 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="name"
-                control={updateResourceForm.control}
+                control={updateOperatorForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
@@ -428,13 +424,13 @@ export default function Page() {
             </FormControl>
             <Controller
               name="discriminator"
-              control={updateResourceForm.control}
+              control={updateOperatorForm.control}
               defaultValue=""
               render={({ field }) => (
                 <FormControl required fullWidth size="small" variant="filled">
                   <InputLabel>鑑別器</InputLabel>
                   <Select {...field}>
-                    {integrationResourceDiscriminators.map((discriminator) => (
+                    {integrationOperatorDiscriminators.map((discriminator) => (
                       <MenuItem key={discriminator} value={discriminator}>
                         {discriminator}
                       </MenuItem>
@@ -447,7 +443,7 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="value"
-                control={updateResourceForm.control}
+                control={updateOperatorForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
@@ -467,9 +463,9 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
-              disabled={!updateResourceForm.formState.isValid}
-              onClick={updateResourceForm.handleSubmit(
-                handleSubmitUpdateResourceForm
+              disabled={!updateOperatorForm.formState.isValid}
+              onClick={updateOperatorForm.handleSubmit(
+                handleSubmitUpdateOperatorForm
               )}
             >
               儲存

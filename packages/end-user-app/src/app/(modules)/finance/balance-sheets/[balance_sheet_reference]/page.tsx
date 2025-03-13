@@ -11,7 +11,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
-import type { Account, Asset, BalanceSheetDetail, Resource } from '@/types'
+import type { Account, Asset, BalanceSheetDetail, Operator } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { getSyntheticPrice } from '@/utils/price'
@@ -60,11 +60,11 @@ export default function Page() {
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
 
-  // Feed resource
-  const [feedResources, setFeedResources] = React.useState<Resource[]>([])
-  const [isFetchingFeedResources, setIsFetchingFeedResources] =
+  // Feed operator
+  const [feedOperators, setFeedOperators] = React.useState<Operator[]>([])
+  const [isFetchingFeedOperators, setIsFetchingFeedOperators] =
     React.useState(false)
-  const [selectedFeedResourceReference, setSelectedFeedResourceReference] =
+  const [selectedFeedOperatorReference, setSelectedFeedOperatorReference] =
     React.useState('')
 
   // Settleable asset
@@ -97,23 +97,23 @@ export default function Page() {
     chartTypes[0].value
   )
 
-  const fetchFeedResources = React.useCallback(async () => {
-    setIsFetchingFeedResources(true)
-    await choreMasterAPIAgent.get('/v1/integration/users/me/resources', {
+  const fetchFeedOperators = React.useCallback(async () => {
+    setIsFetchingFeedOperators(true)
+    await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
       params: {
         discriminators: ['oanda_feed', 'yahoo_finance_feed'],
       },
       onError: () => {
-        enqueueNotification(`Unable to fetch feed resources now.`, 'error')
+        enqueueNotification(`Unable to fetch feed operators now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
-        setFeedResources(data)
+        setFeedOperators(data)
       },
     })
-    setIsFetchingFeedResources(false)
+    setIsFetchingFeedOperators(false)
   }, [enqueueNotification])
 
   const fetchSettleableAssets = React.useCallback(async () => {
@@ -179,13 +179,13 @@ export default function Page() {
 
   const fetchPrices = React.useCallback(
     async (
-      feedResourceReference: string,
+      feedOperatorReference: string,
       datetimes: string[],
       instrumentSymbols: string[]
     ) => {
       setIsFetchingPrices(true)
       await choreMasterAPIAgent.post(
-        `/v1/integration/users/me/resources/${feedResourceReference}/feed/fetch_prices`,
+        `/v1/integration/users/me/operators/${feedOperatorReference}/feed/fetch_prices`,
         {
           target_datetimes: datetimes,
           target_interval: '1d',
@@ -209,8 +209,8 @@ export default function Page() {
   )
 
   React.useEffect(() => {
-    fetchFeedResources()
-  }, [fetchFeedResources])
+    fetchFeedOperators()
+  }, [fetchFeedOperators])
 
   React.useEffect(() => {
     fetchSettleableAssets()
@@ -221,13 +221,13 @@ export default function Page() {
   }, [fetchBalanceSheet])
 
   React.useEffect(() => {
-    const feedResource = feedResources.find(
-      (resource) => resource.reference === selectedFeedResourceReference
+    const feedOperator = feedOperators.find(
+      (operator) => operator.reference === selectedFeedOperatorReference
     )
-    if (!feedResource) {
-      setSelectedFeedResourceReference(feedResources[0]?.reference || '')
+    if (!feedOperator) {
+      setSelectedFeedOperatorReference(feedOperators[0]?.reference || '')
     }
-  }, [feedResources, selectedFeedResourceReference])
+  }, [feedOperators, selectedFeedOperatorReference])
 
   React.useEffect(() => {
     const settleableAsset = settleableAssets.find(
@@ -252,7 +252,7 @@ export default function Page() {
   React.useEffect(() => {
     if (
       balanceSheet &&
-      selectedFeedResourceReference &&
+      selectedFeedOperatorReference &&
       settleableAssets.length > 0
     ) {
       const datetimes = [balanceSheet.balanced_time]
@@ -271,11 +271,11 @@ export default function Page() {
         .map(
           (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
         )
-      fetchPrices(selectedFeedResourceReference, datetimes, instrumentSymbols)
+      fetchPrices(selectedFeedOperatorReference, datetimes, instrumentSymbols)
     }
   }, [
     balanceSheet,
-    selectedFeedResourceReference,
+    selectedFeedOperatorReference,
     settleableAssets,
     fetchPrices,
     enqueueNotification,
@@ -450,7 +450,7 @@ export default function Page() {
         />
         <ModuleFunctionBody
           loading={
-            isFetchingFeedResources ||
+            isFetchingFeedOperators ||
             isFetchingSettleableAssets ||
             isFetchingBalanceSheet ||
             isFetchingPrices
@@ -497,18 +497,18 @@ export default function Page() {
               <FormControl variant="standard">
                 <InputLabel>報價來源</InputLabel>
                 <Select
-                  value={selectedFeedResourceReference}
+                  value={selectedFeedOperatorReference}
                   onChange={(event: SelectChangeEvent) => {
-                    setSelectedFeedResourceReference(event.target.value)
+                    setSelectedFeedOperatorReference(event.target.value)
                   }}
                   autoWidth
                 >
-                  {feedResources.map((resource) => (
+                  {feedOperators.map((operator) => (
                     <MenuItem
-                      key={resource.reference}
-                      value={resource.reference}
+                      key={operator.reference}
+                      value={operator.reference}
                     >
-                      {resource.name}
+                      {operator.name}
                     </MenuItem>
                   ))}
                 </Select>

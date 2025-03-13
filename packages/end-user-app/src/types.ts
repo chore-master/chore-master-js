@@ -36,22 +36,22 @@ export interface Role {
   symbol: string
 }
 
-// Resource
+// Operator
 
-export interface Resource {
+export interface Operator {
   reference: string
   name: string
   discriminator: string
   value: string
 }
 
-export interface CreateResourceFormInputs {
+export interface CreateOperatorFormInputs {
   name: string
   discriminator: string
   value: string
 }
 
-export interface UpdateResourceFormInputs {
+export interface UpdateOperatorFormInputs {
   name: string
   discriminator: string
   value: string
