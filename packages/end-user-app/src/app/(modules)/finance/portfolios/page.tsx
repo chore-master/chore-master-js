@@ -7,6 +7,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import {
   CreatePortfolioFormInputs,
@@ -174,7 +175,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>描述</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
@@ -187,14 +190,24 @@ export default function Page() {
               >
                 {portfolios.map((portfolio, index) => (
                   <TableRow key={portfolio.reference} hover>
-                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <PlaceholderTypography>
+                        {portfoliosPage * portfoliosRowsPerPage + index + 1}
+                      </PlaceholderTypography>
+                    </NoWrapTableCell>
                     <NoWrapTableCell>{portfolio.name}</NoWrapTableCell>
                     <NoWrapTableCell>
                       {portfolio.description || (
                         <PlaceholderTypography>無</PlaceholderTypography>
                       )}
                     </NoWrapTableCell>
-                    <NoWrapTableCell>{portfolio.reference}</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <ReferenceBlock
+                        label={portfolio.reference}
+                        primaryKey
+                        monospace
+                      />
+                    </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
                         size="small"
