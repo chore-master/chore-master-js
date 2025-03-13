@@ -93,7 +93,7 @@ export default function Page() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          background: '#f8f5e6',
           py: 4,
         }}
       >
@@ -103,6 +103,7 @@ export default function Page() {
             sx={{
               borderRadius: 2,
               overflow: 'hidden',
+              background: '#fffdf5',
             }}
           >
             <Box
