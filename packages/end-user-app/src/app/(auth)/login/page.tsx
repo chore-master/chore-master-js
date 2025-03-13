@@ -3,7 +3,6 @@
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
 import { useNotification } from '@/utils/notification'
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import Box from '@mui/material/Box'
@@ -17,6 +16,7 @@ import Stack from '@mui/material/Stack'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
@@ -114,7 +114,14 @@ export default function Page() {
                 textAlign: 'center',
               }}
             >
-              <AccountBalanceIcon sx={{ fontSize: 40, mb: 1 }} />
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                <Image
+                  src="/icon.svg"
+                  alt="Chore Master Logo"
+                  width={40}
+                  height={40}
+                />
+              </Box>
               <Typography variant="h5" component="h1" gutterBottom>
                 登入 Chore Master
               </Typography>
