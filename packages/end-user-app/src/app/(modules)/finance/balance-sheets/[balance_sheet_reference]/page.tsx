@@ -19,7 +19,6 @@ import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
@@ -419,9 +418,11 @@ export default function Page() {
             結餘
           </MuiLink>
           {balanceSheet && (
-            <span>
-              <Chip size="small" label={balanceSheet.reference} />
-            </span>
+            <ReferenceBlock
+              label={balanceSheet.reference}
+              primaryKey
+              monospace
+            />
           )}
         </Breadcrumbs>
       </Box>

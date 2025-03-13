@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { useTimezone } from '@/components/timezone'
 import type { Account, Asset, CreateBalanceSheetFormInputs } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -12,7 +13,6 @@ import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
 import MuiLink from '@mui/material/Link'
@@ -272,12 +272,7 @@ export default function Page() {
                   <React.Fragment key={field.id}>
                     <Grid size={12} container spacing={2} alignItems="center">
                       <Grid size={4}>
-                        <Chip
-                          size="small"
-                          label={account?.name}
-                          color="info"
-                          variant="outlined"
-                        />
+                        <ReferenceBlock label={account?.name} foreignValue />
                       </Grid>
                       <Grid size={4}>
                         <FormControl fullWidth>
@@ -300,11 +295,9 @@ export default function Page() {
                         </FormControl>
                       </Grid>
                       <Grid size={4}>
-                        <Chip
-                          size="small"
+                        <ReferenceBlock
                           label={settleableAsset?.name}
-                          color="info"
-                          variant="outlined"
+                          foreignValue
                         />
                       </Grid>
                     </Grid>

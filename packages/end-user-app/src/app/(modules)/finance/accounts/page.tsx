@@ -30,7 +30,6 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
@@ -517,12 +516,7 @@ export default function Page() {
                       }
                       return (
                         <Box key={key} component="li" {...optionProps}>
-                          <Chip
-                            size="small"
-                            label={option.name}
-                            color="info"
-                            variant="outlined"
-                          />
+                          <ReferenceBlock label={option.name} foreignValue />
                         </Box>
                       )
                     }}

@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { useTimezone } from '@/components/timezone'
 import type {
   Account,
@@ -17,7 +18,6 @@ import { useNotification } from '@/utils/notification'
 import SaveIcon from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
 import LinearProgress from '@mui/material/LinearProgress'
@@ -282,10 +282,10 @@ export default function Page() {
               color="inherit"
               href={`/finance/balance-sheets/${balance_sheet_reference}`}
             >
-              <Chip
-                size="small"
-                sx={{ ml: 1 }}
+              <ReferenceBlock
                 label={balanceSheet.reference}
+                primaryKey
+                monospace
               />
             </MuiLink>
           )}
@@ -372,12 +372,7 @@ export default function Page() {
                   <React.Fragment key={field.id}>
                     <Grid size={12} container spacing={2} alignItems="center">
                       <Grid size={4}>
-                        <Chip
-                          size="small"
-                          label={account?.name}
-                          color="info"
-                          variant="outlined"
-                        />
+                        <ReferenceBlock label={account?.name} foreignValue />
                       </Grid>
                       <Grid size={4}>
                         <FormControl fullWidth>
@@ -400,11 +395,9 @@ export default function Page() {
                         </FormControl>
                       </Grid>
                       <Grid size={4}>
-                        <Chip
-                          size="small"
+                        <ReferenceBlock
                           label={settleableAsset?.name}
-                          color="info"
-                          variant="outlined"
+                          foreignValue
                         />
                       </Grid>
                     </Grid>
