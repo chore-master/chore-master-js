@@ -36,6 +36,12 @@ export interface Role {
   symbol: string
 }
 
+export interface LoginForm {
+  username: string
+  password: string
+  turnstile_token: string
+}
+
 // Operator
 
 export interface Operator {

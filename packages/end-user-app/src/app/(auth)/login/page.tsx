@@ -1,8 +1,11 @@
 'use client'
 
+import { LoginForm } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
+import getConfig from '@/utils/config'
 import { useNotification } from '@/utils/notification'
+import { Turnstile } from '@marsidev/react-turnstile'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import Box from '@mui/material/Box'
@@ -21,10 +24,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
-export interface LoginForm {
-  username: string
-  password: string
-}
+const { CLOUDFLARE_TURNSTILE_SITE_KEY } = getConfig()
 
 // Create a custom theme with updated colors to match landing page
 const loginTheme = createTheme({
@@ -192,11 +192,33 @@ export default function Page() {
                   />
                 </FormControl>
 
+                <Controller
+                  name="turnstile_token"
+                  control={loginForm.control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <Turnstile
+                      siteKey={CLOUDFLARE_TURNSTILE_SITE_KEY}
+                      options={{
+                        theme: 'light',
+                        size: 'flexible',
+                        appearance: 'execute',
+                        language: 'zh-TW',
+                      }}
+                      onSuccess={(token) => {
+                        field.onChange(token)
+                      }}
+                    />
+                  )}
+                  rules={{ required: true }}
+                />
+
                 <Button
                   variant="contained"
                   type="submit"
                   size="large"
                   fullWidth
+                  disabled={!loginForm.formState.isValid}
                   loading={loginForm.formState.isSubmitting}
                   sx={{ py: 1.5 }}
                 >

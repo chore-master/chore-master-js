@@ -2,6 +2,8 @@ import { EnvEnum } from '@module/utils/constants'
 
 export default function getConfig() {
   const ENV_NAME = process.env.NEXT_PUBLIC_ENV_NAME || EnvEnum.PRODUCTION
+  const CLOUDFLARE_TURNSTILE_SITE_KEY =
+    process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || ''
 
   let HOST
   let IAM_API_HOST
@@ -30,5 +32,6 @@ export default function getConfig() {
     HOST,
     IAM_API_HOST,
     CHORE_MASTER_API_HOST,
+    CLOUDFLARE_TURNSTILE_SITE_KEY,
   }
 }

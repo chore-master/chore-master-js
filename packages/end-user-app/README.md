@@ -2,10 +2,17 @@
 
 ## Development
 
-```sh
-yarn workspace @app/end-user-app add <package-name>
-PORT=2000 yarn workspace @app/end-user-app dev
-```
+1. Copy `.env.local.example` to `.env.local` and set the environment variables.
+2. Run the development server.
+
+    ```sh
+    PORT=2000 yarn workspace @app/end-user-app dev
+    ```
+3. To install a new package, run the following command.
+
+    ```sh
+    yarn workspace @app/end-user-app add <package-name>
+    ```
 
 ## Deployment
 
