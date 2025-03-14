@@ -13,8 +13,8 @@ export default function Layout({
       navigations={[
         {
           type: 'link',
-          title: '資源',
-          href: '/integration/resources',
+          title: '運算器',
+          href: '/integration/operators',
           selectedWhenPartiallyMatched: true,
         },
         // {

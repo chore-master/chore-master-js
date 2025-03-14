@@ -25,7 +25,6 @@ const theme = createTheme(
       //   },
       // },
     },
-
     palette: {
       //   mode: 'dark',
       //   primary: { main: 'rgb(102, 157, 246)' },

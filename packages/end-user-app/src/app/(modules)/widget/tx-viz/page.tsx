@@ -1,5 +1,4 @@
 // @ts-nocheck
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'

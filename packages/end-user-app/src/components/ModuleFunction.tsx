@@ -15,6 +15,14 @@ import { Splitter, SplitterPanel } from 'primereact/splitter'
 import React, { ReactNode } from 'react'
 import './splitter.css'
 
+const stickyTopStyle = {
+  boxShadow: '0 4px 4px -4px rgba(0, 0, 0, 0.2)',
+}
+
+const stickyBottomStyle = {
+  boxShadow: '0 -4px 4px -4px rgba(0, 0, 0, 0.2)',
+}
+
 export default function ModuleFunction({
   children,
   sx,
@@ -122,10 +130,8 @@ export const ModuleContainer = ({
             commonStickySx,
             {
               top,
-              boxShadow: isSticky
-                ? '0 4px 4px -4px rgba(0, 0, 0, 0.2)'
-                : 'none',
             },
+            isSticky ? stickyTopStyle : {},
             sx
           )}
         >
@@ -142,10 +148,8 @@ export const ModuleContainer = ({
             commonStickySx,
             {
               bottom,
-              boxShadow: isSticky
-                ? '0 -4px 4px -4px rgba(0, 0, 0, 0.2)'
-                : 'none',
             },
+            isSticky ? stickyBottomStyle : {},
             sx
           )}
         >
@@ -163,16 +167,29 @@ export const ModuleFunctionHeader = ({
   children,
   title,
   actions,
-  sticky,
+  stickyTop,
   sx,
 }: Readonly<{
   children?: ReactNode
   title?: ReactNode
   actions?: ReactNode
-  sticky?: boolean
+  stickyTop?: boolean
   sx?: SxProps
 }>) => {
-  const { mode, setMode } = useColorScheme()
+  const theme = useTheme()
+  const isUpSm = useMediaQuery(theme.breakpoints.up('sm'))
+  const top = isUpSm ? 64 : 56
+  let rootMargin = 0
+  if (stickyTop) {
+    rootMargin = -top
+  }
+  const { sentinel, isSticky } = useSticky({ rootMargin })
+  const { mode } = useColorScheme()
+  const commonStickySx = {
+    position: 'sticky',
+    zIndex: 999,
+    background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+  }
   const childrenNode = (
     <CardHeader
       title={title}
@@ -187,19 +204,25 @@ export const ModuleFunctionHeader = ({
       {children}
     </CardHeader>
   )
-  if (sticky) {
+  if (stickyTop) {
     return (
-      <Paper
-        elevation={0}
-        sx={{
-          position: 'sticky',
-          top: 64,
-          zIndex: 999,
-          background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
-        }}
-      >
-        {childrenNode}
-      </Paper>
+      <React.Fragment>
+        {sentinel}
+        <Paper
+          elevation={0}
+          sx={Object.assign(
+            {},
+            commonStickySx,
+            {
+              top,
+            },
+            isSticky ? stickyTopStyle : {},
+            sx
+          )}
+        >
+          {childrenNode}
+        </Paper>
+      </React.Fragment>
     )
   }
   return childrenNode

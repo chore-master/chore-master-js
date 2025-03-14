@@ -6,22 +6,58 @@ export interface SystemInspect {
   env: string
 }
 
-// Resource
+// User
 
-export interface Resource {
+export interface User {
+  reference?: string
+  name: string
+  username?: string
+  user_roles: UserRole[]
+}
+
+export interface CreateUserFormInputs {
+  reference?: string
+  name: string
+  username: string
+  password: string
+}
+
+export interface UpdateUserFormInputs {
+  name?: string
+  username?: string
+  password?: string
+}
+
+export interface UserRole {
+  role: Role
+}
+
+export interface Role {
+  symbol: string
+}
+
+export interface LoginForm {
+  username: string
+  password: string
+  turnstile_token: string
+}
+
+// Operator
+
+export interface Operator {
   reference: string
   name: string
   discriminator: string
   value: string
 }
 
-export interface CreateResourceFormInputs {
+export interface CreateOperatorFormInputs {
   name: string
   discriminator: string
   value: string
 }
 
-export interface UpdateResourceFormInputs {
+export interface UpdateOperatorFormInputs {
   name: string
   discriminator: string
   value: string
@@ -119,4 +155,64 @@ export interface BalanceEntry {
   balance_sheet_reference?: string
   account_reference: string
   amount: number
+}
+
+// Instrument
+
+export interface Instrument {
+  reference: string
+  name: string
+  quantity_decimals: number
+  price_decimals: number
+  instrument_type: string
+  base_asset_reference?: string
+  quote_asset_reference?: string
+  settlement_asset_reference?: string
+  underlying_asset_reference?: string
+  staking_asset_reference?: string
+  yielding_asset_reference?: string
+}
+
+export interface CreateInstrumentFormInputs {
+  name: string
+  quantity_decimals: number
+  price_decimals: number
+  instrument_type: string
+  base_asset_reference?: string
+  quote_asset_reference?: string
+  settlement_asset_reference?: string
+  underlying_asset_reference?: string
+  staking_asset_reference?: string
+  yielding_asset_reference?: string
+}
+
+export interface UpdateInstrumentFormInputs {
+  name?: string
+  quantity_decimals?: number
+  price_decimals?: number
+  instrument_type?: string
+  base_asset_reference?: string
+  quote_asset_reference?: string
+  settlement_asset_reference?: string
+  underlying_asset_reference?: string
+  staking_asset_reference?: string
+  yielding_asset_reference?: string
+}
+
+// Portfolio
+
+export interface Portfolio {
+  reference: string
+  name: string
+  description?: string
+}
+
+export interface CreatePortfolioFormInputs {
+  name: string
+  description?: string
+}
+
+export interface UpdatePortfolioFormInputs {
+  name?: string
+  description?: string
 }

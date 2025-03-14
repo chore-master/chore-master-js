@@ -9,26 +9,22 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import type {
-  Asset,
-  CreateAssetFormInputs,
-  UpdateAssetFormInputs,
+import {
+  CreatePortfolioFormInputs,
+  Portfolio,
+  UpdatePortfolioFormInputs,
 } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
-import CheckBoxIcon from '@mui/icons-material/CheckBox'
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Checkbox from '@mui/material/Checkbox'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -43,123 +39,120 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 export default function Page() {
   const { enqueueNotification } = useNotification()
 
-  // Asset
-  const [assets, setAssets] = React.useState<Asset[]>([])
-  const [assetsCount, setAssetsCount] = React.useState(0)
-  const [assetsPage, setAssetsPage] = React.useState(0)
-  const [assetsRowsPerPage, setAssetsRowsPerPage] = React.useState(10)
-  const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
-  const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
+  // Portfolios
+  const [portfolios, setPortfolios] = React.useState<Portfolio[]>([])
+  const [portfoliosCount, setPortfoliosCount] = React.useState(0)
+  const [portfoliosPage, setPortfoliosPage] = React.useState(0)
+  const [portfoliosRowsPerPage, setPortfoliosRowsPerPage] = React.useState(10)
+  const [isFetchingPortfolios, setIsFetchingPortfolios] = React.useState(false)
+  const [isCreatePortfolioDrawerOpen, setIsCreatePortfolioDrawerOpen] =
     React.useState(false)
-  const createAssetForm = useForm<CreateAssetFormInputs>()
-  const [editingAssetReference, setEditingAssetReference] =
+  const createPortfolioForm = useForm<CreatePortfolioFormInputs>()
+  const [editingPortfolioReference, setEditingPortfolioReference] =
     React.useState<string>()
-  const updateAssetForm = useForm<UpdateAssetFormInputs>()
+  const updatePortfolioForm = useForm<UpdatePortfolioFormInputs>()
 
-  const fetchAssets = React.useCallback(async () => {
-    setIsFetchingAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
+  const fetchPortfolios = React.useCallback(async () => {
+    setIsFetchingPortfolios(true)
+    await choreMasterAPIAgent.get('/v1/finance/portfolios', {
       params: {
-        offset: assetsPage * assetsRowsPerPage,
-        limit: assetsRowsPerPage,
+        offset: portfoliosPage * portfoliosRowsPerPage,
+        limit: portfoliosRowsPerPage,
       },
       onError: () => {
-        enqueueNotification(`Unable to fetch assets now.`, 'error')
+        enqueueNotification(`Unable to fetch portfolios now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({
-        data,
-        metadata,
-      }: {
-        data: Asset[]
-        metadata: any
-      }) => {
-        setAssets(data)
-        setAssetsCount(metadata.offset_pagination.count)
+      onSuccess: async ({ data, metadata }: any) => {
+        setPortfolios(data)
+        setPortfoliosCount(metadata.offset_pagination.count)
       },
     })
-    setIsFetchingAssets(false)
-  }, [assetsPage, assetsRowsPerPage])
+    setIsFetchingPortfolios(false)
+  }, [portfoliosPage, portfoliosRowsPerPage])
 
-  const handleSubmitCreateAssetForm: SubmitHandler<
-    CreateAssetFormInputs
+  const handleSubmitCreatePortfolioForm: SubmitHandler<
+    CreatePortfolioFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/finance/users/me/assets', data, {
+    await choreMasterAPIAgent.post('/v1/finance/portfolios', data, {
       onError: () => {
-        enqueueNotification(`Unable to create asset now.`, 'error')
+        enqueueNotification(`Unable to create portfolio now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
-        createAssetForm.reset()
-        setIsCreateAssetDrawerOpen(false)
-        fetchAssets()
+        createPortfolioForm.reset()
+        setIsCreatePortfolioDrawerOpen(false)
+        fetchPortfolios()
       },
     })
   }
 
-  const handleSubmitUpdateAssetForm: SubmitHandler<
-    UpdateAssetFormInputs
+  const handleSubmitUpdatePortfolioForm: SubmitHandler<
+    UpdatePortfolioFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/finance/users/me/assets/${editingAssetReference}`,
+      `/v1/finance/portfolios/${editingPortfolioReference}`,
       data,
       {
         onError: () => {
-          enqueueNotification(`Unable to update asset now.`, 'error')
+          enqueueNotification(`Unable to update portfolio now.`, 'error')
         },
         onFail: ({ message }: any) => {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          updateAssetForm.reset()
-          setEditingAssetReference(undefined)
-          fetchAssets()
+          updatePortfolioForm.reset()
+          setEditingPortfolioReference(undefined)
+          fetchPortfolios()
         },
       }
     )
   }
 
-  const deleteAsset = React.useCallback(
-    async (assetReference: string) => {
+  const deletePortfolio = React.useCallback(
+    async (portfolioReference: string) => {
       const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
       if (!isConfirmed) {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/users/me/assets/${assetReference}`,
+        `/v1/finance/portfolios/${portfolioReference}`,
         {
           onError: () => {
-            enqueueNotification(`Unable to delete asset now.`, 'error')
+            enqueueNotification(`Unable to delete portfolio now.`, 'error')
           },
           onFail: ({ message }: any) => {
             enqueueNotification(message, 'error')
           },
           onSuccess: () => {
-            fetchAssets()
+            fetchPortfolios()
           },
         }
       )
     },
-    [enqueueNotification, fetchAssets]
+    [enqueueNotification, fetchPortfolios]
   )
 
   React.useEffect(() => {
-    fetchAssets()
-  }, [fetchAssets])
+    fetchPortfolios()
+  }, [fetchPortfolios])
 
   return (
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="資產"
+          title="投資組合"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
-                <IconButton onClick={fetchAssets} disabled={isFetchingAssets}>
+                <IconButton
+                  onClick={fetchPortfolios}
+                  disabled={isFetchingPortfolios}
+                >
                   <RefreshIcon />
                 </IconButton>
               </span>
@@ -169,15 +162,15 @@ export default function Page() {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => {
-                createAssetForm.reset()
-                setIsCreateAssetDrawerOpen(true)
+                createPortfolioForm.reset()
+                setIsCreatePortfolioDrawerOpen(true)
               }}
             >
               新增
             </Button>,
           ]}
         />
-        <ModuleFunctionBody loading={isFetchingAssets}>
+        <ModuleFunctionBody loading={isFetchingPortfolios}>
           <TableContainer>
             <Table size="small">
               <TableHead>
@@ -186,37 +179,31 @@ export default function Page() {
                     <PlaceholderTypography>#</PlaceholderTypography>
                   </NoWrapTableCell>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
-                  <NoWrapTableCell>代號</NoWrapTableCell>
-                  <NoWrapTableCell>精度</NoWrapTableCell>
-                  <NoWrapTableCell>可結算</NoWrapTableCell>
+                  <NoWrapTableCell>描述</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody
-                isLoading={isFetchingAssets}
-                isEmpty={assets.length === 0}
+                isLoading={isFetchingPortfolios}
+                isEmpty={portfolios.length === 0}
               >
-                {assets.map((asset, index) => (
-                  <TableRow key={asset.reference} hover>
+                {portfolios.map((portfolio, index) => (
+                  <TableRow key={portfolio.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {assetsPage * assetsRowsPerPage + index + 1}
+                        {portfoliosPage * portfoliosRowsPerPage + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
-                    <NoWrapTableCell>{asset.name}</NoWrapTableCell>
-                    <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
-                    <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
+                    <NoWrapTableCell>{portfolio.name}</NoWrapTableCell>
                     <NoWrapTableCell>
-                      {asset.is_settleable ? (
-                        <CheckBoxIcon color="disabled" />
-                      ) : (
-                        <CheckBoxOutlineBlankIcon color="disabled" />
+                      {portfolio.description || (
+                        <PlaceholderTypography>無</PlaceholderTypography>
                       )}
                     </NoWrapTableCell>
                     <NoWrapTableCell>
                       <ReferenceBlock
-                        label={asset.reference}
+                        label={portfolio.reference}
                         primaryKey
                         monospace
                       />
@@ -225,21 +212,19 @@ export default function Page() {
                       <IconButton
                         size="small"
                         onClick={() => {
-                          updateAssetForm.setValue('name', asset.name)
-                          updateAssetForm.setValue('symbol', asset.symbol)
-                          updateAssetForm.setValue('decimals', asset.decimals)
-                          updateAssetForm.setValue(
-                            'is_settleable',
-                            asset.is_settleable
+                          updatePortfolioForm.setValue('name', portfolio.name)
+                          updatePortfolioForm.setValue(
+                            'description',
+                            portfolio.description
                           )
-                          setEditingAssetReference(asset.reference)
+                          setEditingPortfolioReference(portfolio.reference)
                         }}
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         size="small"
-                        onClick={() => deleteAsset(asset.reference)}
+                        onClick={() => deletePortfolio(portfolio.reference)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -250,11 +235,11 @@ export default function Page() {
             </Table>
           </TableContainer>
           <TablePagination
-            count={assetsCount}
-            page={assetsPage}
-            rowsPerPage={assetsRowsPerPage}
-            setPage={setAssetsPage}
-            setRowsPerPage={setAssetsRowsPerPage}
+            count={portfoliosCount}
+            page={portfoliosPage}
+            rowsPerPage={portfoliosRowsPerPage}
+            setPage={setPortfoliosPage}
+            setRowsPerPage={setPortfoliosRowsPerPage}
             rowsPerPageOptions={[10, 20]}
           />
         </ModuleFunctionBody>
@@ -262,11 +247,11 @@ export default function Page() {
 
       <Drawer
         anchor="right"
-        open={isCreateAssetDrawerOpen}
-        onClose={() => setIsCreateAssetDrawerOpen(false)}
+        open={isCreatePortfolioDrawerOpen}
+        onClose={() => setIsCreatePortfolioDrawerOpen(false)}
       >
         <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增資產" />
+          <CardHeader title="新增投資組合" />
           <Stack
             component="form"
             spacing={3}
@@ -279,7 +264,7 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="name"
-                control={createAssetForm.control}
+                control={createPortfolioForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
@@ -294,46 +279,16 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="symbol"
-                control={createAssetForm.control}
+                name="description"
+                control={createPortfolioForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    required
-                    label="代號"
+                    label="描述"
                     variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="decimals"
-                control={createAssetForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="精度"
-                    variant="filled"
-                    type="number"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={createAssetForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
+                    multiline
+                    rows={5}
                   />
                 )}
               />
@@ -341,8 +296,9 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
-              onClick={createAssetForm.handleSubmit(
-                handleSubmitCreateAssetForm
+              disabled={!createPortfolioForm.formState.isValid}
+              onClick={createPortfolioForm.handleSubmit(
+                handleSubmitCreatePortfolioForm
               )}
             >
               新增
@@ -353,11 +309,11 @@ export default function Page() {
 
       <Drawer
         anchor="right"
-        open={editingAssetReference !== undefined}
-        onClose={() => setEditingAssetReference(undefined)}
+        open={editingPortfolioReference !== undefined}
+        onClose={() => setEditingPortfolioReference(undefined)}
       >
         <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯資產" />
+          <CardHeader title="編輯投資組合" />
           <Stack
             component="form"
             spacing={3}
@@ -370,7 +326,7 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="name"
-                control={updateAssetForm.control}
+                control={updatePortfolioForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
@@ -385,46 +341,16 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="symbol"
-                control={updateAssetForm.control}
+                name="description"
+                control={updatePortfolioForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    required
-                    label="代號"
+                    label="描述"
                     variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="decimals"
-                control={updateAssetForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="精度"
-                    variant="filled"
-                    type="number"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={updateAssetForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
+                    multiline
+                    rows={5}
                   />
                 )}
               />
@@ -432,8 +358,9 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
-              onClick={updateAssetForm.handleSubmit(
-                handleSubmitUpdateAssetForm
+              disabled={!updatePortfolioForm.formState.isValid}
+              onClick={updatePortfolioForm.handleSubmit(
+                handleSubmitUpdatePortfolioForm
               )}
             >
               儲存

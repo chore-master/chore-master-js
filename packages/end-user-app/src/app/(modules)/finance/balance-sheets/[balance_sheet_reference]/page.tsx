@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import HighChartsCore from '@/components/charts/HighChartsCore'
@@ -7,10 +6,12 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
-import type { Account, Asset, BalanceSheetDetail, Resource } from '@/types'
+import type { Account, Asset, BalanceSheetDetail, Operator } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { getSyntheticPrice } from '@/utils/price'
@@ -18,7 +19,6 @@ import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
@@ -60,11 +60,11 @@ export default function Page() {
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
 
-  // Feed resource
-  const [feedResources, setFeedResources] = React.useState<Resource[]>([])
-  const [isFetchingFeedResources, setIsFetchingFeedResources] =
+  // Feed operator
+  const [feedOperators, setFeedOperators] = React.useState<Operator[]>([])
+  const [isFetchingFeedOperators, setIsFetchingFeedOperators] =
     React.useState(false)
-  const [selectedFeedResourceReference, setSelectedFeedResourceReference] =
+  const [selectedFeedOperatorReference, setSelectedFeedOperatorReference] =
     React.useState('')
 
   // Settleable asset
@@ -97,32 +97,28 @@ export default function Page() {
     chartTypes[0].value
   )
 
-  const fetchFeedResources = React.useCallback(async () => {
-    setIsFetchingFeedResources(true)
-    await choreMasterAPIAgent.get('/v1/integration/end_users/me/resources', {
+  const fetchFeedOperators = React.useCallback(async () => {
+    setIsFetchingFeedOperators(true)
+    await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
       params: {
-        discriminators: [
-          'oanda_feed',
-          'yahoo_finance_feed',
-          // 'coingecko_feed'
-        ],
+        discriminators: ['oanda_feed', 'yahoo_finance_feed'],
       },
       onError: () => {
-        enqueueNotification(`Unable to fetch feed resources now.`, 'error')
+        enqueueNotification(`Unable to fetch feed operators now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
       onSuccess: async ({ data }: any) => {
-        setFeedResources(data)
+        setFeedOperators(data)
       },
     })
-    setIsFetchingFeedResources(false)
+    setIsFetchingFeedOperators(false)
   }, [enqueueNotification])
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -142,7 +138,7 @@ export default function Page() {
   const fetchBalanceSheet = React.useCallback(async () => {
     setIsFetchingBalanceSheet(true)
     await choreMasterAPIAgent.get(
-      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      `/v1/finance/users/me/balance_sheets/${balance_sheet_reference}`,
       {
         params: {},
         onError: () => {
@@ -162,7 +158,7 @@ export default function Page() {
   const fetchAccounts = React.useCallback(
     async (activeAsOfTime: string) => {
       setIsFetchingAccounts(true)
-      await choreMasterAPIAgent.get('/v1/finance/accounts', {
+      await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
         params: {
           active_as_of_time: activeAsOfTime,
         },
@@ -183,13 +179,13 @@ export default function Page() {
 
   const fetchPrices = React.useCallback(
     async (
-      feedResourceReference: string,
+      feedOperatorReference: string,
       datetimes: string[],
       instrumentSymbols: string[]
     ) => {
       setIsFetchingPrices(true)
       await choreMasterAPIAgent.post(
-        `/v1/integration/end_users/me/resources/${feedResourceReference}/feed/fetch_prices`,
+        `/v1/integration/users/me/operators/${feedOperatorReference}/feed/fetch_prices`,
         {
           target_datetimes: datetimes,
           target_interval: '1d',
@@ -213,8 +209,8 @@ export default function Page() {
   )
 
   React.useEffect(() => {
-    fetchFeedResources()
-  }, [fetchFeedResources])
+    fetchFeedOperators()
+  }, [fetchFeedOperators])
 
   React.useEffect(() => {
     fetchSettleableAssets()
@@ -225,13 +221,13 @@ export default function Page() {
   }, [fetchBalanceSheet])
 
   React.useEffect(() => {
-    const feedResource = feedResources.find(
-      (resource) => resource.reference === selectedFeedResourceReference
+    const feedOperator = feedOperators.find(
+      (operator) => operator.reference === selectedFeedOperatorReference
     )
-    if (!feedResource) {
-      setSelectedFeedResourceReference(feedResources[0]?.reference || '')
+    if (!feedOperator) {
+      setSelectedFeedOperatorReference(feedOperators[0]?.reference || '')
     }
-  }, [feedResources, selectedFeedResourceReference])
+  }, [feedOperators, selectedFeedOperatorReference])
 
   React.useEffect(() => {
     const settleableAsset = settleableAssets.find(
@@ -256,7 +252,7 @@ export default function Page() {
   React.useEffect(() => {
     if (
       balanceSheet &&
-      selectedFeedResourceReference &&
+      selectedFeedOperatorReference &&
       settleableAssets.length > 0
     ) {
       const datetimes = [balanceSheet.balanced_time]
@@ -275,11 +271,11 @@ export default function Page() {
         .map(
           (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
         )
-      fetchPrices(selectedFeedResourceReference, datetimes, instrumentSymbols)
+      fetchPrices(selectedFeedOperatorReference, datetimes, instrumentSymbols)
     }
   }, [
     balanceSheet,
-    selectedFeedResourceReference,
+    selectedFeedOperatorReference,
     settleableAssets,
     fetchPrices,
     enqueueNotification,
@@ -422,16 +418,18 @@ export default function Page() {
             結餘
           </MuiLink>
           {balanceSheet && (
-            <span>
-              <Chip size="small" label={balanceSheet.reference} />
-            </span>
+            <ReferenceBlock
+              label={balanceSheet.reference}
+              primaryKey
+              monospace
+            />
           )}
         </Breadcrumbs>
       </Box>
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
-          sticky
+          stickyTop
           title={<DatetimeBlock isoText={balanceSheet?.balanced_time} />}
           actions={[
             <Tooltip key="refresh" title="立即重整">
@@ -452,17 +450,17 @@ export default function Page() {
         />
         <ModuleFunctionBody
           loading={
-            isFetchingFeedResources ||
+            isFetchingFeedOperators ||
             isFetchingSettleableAssets ||
             isFetchingBalanceSheet ||
             isFetchingPrices
           }
         >
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ minWidth: 480 }}>
             <Stack
               direction="row"
               spacing={2}
-              sx={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}
+              sx={{ p: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
               <FormControl variant="standard">
                 <InputLabel>檢視維度</InputLabel>
@@ -499,25 +497,25 @@ export default function Page() {
               <FormControl variant="standard">
                 <InputLabel>報價來源</InputLabel>
                 <Select
-                  value={selectedFeedResourceReference}
+                  value={selectedFeedOperatorReference}
                   onChange={(event: SelectChangeEvent) => {
-                    setSelectedFeedResourceReference(event.target.value)
+                    setSelectedFeedOperatorReference(event.target.value)
                   }}
                   autoWidth
                 >
-                  {feedResources.map((resource) => (
+                  {feedOperators.map((operator) => (
                     <MenuItem
-                      key={resource.reference}
-                      value={resource.reference}
+                      key={operator.reference}
+                      value={operator.reference}
                     >
-                      {resource.name}
+                      {operator.name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Stack>
+            <HighChartsCore options={pieChartOptions} />
           </Box>
-          <HighChartsCore options={pieChartOptions} />
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
@@ -547,7 +545,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>帳戶</NoWrapTableCell>
                   <NoWrapTableCell align="right">數量</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
@@ -577,27 +577,26 @@ export default function Page() {
                   return (
                     <TableRow key={balanceEntry.reference} hover>
                       <NoWrapTableCell align="right">
-                        {index + 1}
+                        <PlaceholderTypography>
+                          {index + 1}
+                        </PlaceholderTypography>
                       </NoWrapTableCell>
                       <NoWrapTableCell>
-                        <Chip
-                          size="small"
-                          label={account?.name}
-                          color="info"
-                          variant="outlined"
-                        />
+                        <ReferenceBlock label={account?.name} foreignValue />
                       </NoWrapTableCell>
                       <NoWrapTableCell align="right">{amount}</NoWrapTableCell>
                       <NoWrapTableCell>
-                        <Chip
-                          size="small"
+                        <ReferenceBlock
                           label={settleableAsset?.name}
-                          color="info"
-                          variant="outlined"
+                          foreignValue
                         />
                       </NoWrapTableCell>
                       <NoWrapTableCell>
-                        <Chip size="small" label={balanceEntry.reference} />
+                        <ReferenceBlock
+                          label={balanceEntry.reference}
+                          primaryKey
+                          monospace
+                        />
                       </NoWrapTableCell>
                     </TableRow>
                   )

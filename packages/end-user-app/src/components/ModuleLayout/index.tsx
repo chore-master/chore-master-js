@@ -1,13 +1,15 @@
 'use client'
 
 import DatetimeBlock from '@/components/DatetimeBlock'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
 import { SystemInspect } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import { useEndUser } from '@/utils/auth'
+import { useAuth } from '@/utils/auth'
 import { offsetInMinutesToTimedeltaString } from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
@@ -29,11 +31,11 @@ import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
+import SwitchAccountIcon from '@mui/icons-material/SwitchAccount'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
 import Collapse from '@mui/material/Collapse'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -104,12 +106,7 @@ export default function ModuleLayout({
   )
   const router = useRouter()
   const pathname = usePathname()
-  const {
-    isLoading: isLoadingEndUser,
-    endUser,
-    successLoadedCount: endUserSuccessLoadedCount,
-    res: endUserRes,
-  } = useEndUser()
+  const auth = useAuth()
   const timezone = useTimezone()
   const [currentDate, setCurrentDate] = React.useState(new Date())
 
@@ -145,16 +142,16 @@ export default function ModuleLayout({
   }
 
   React.useEffect(() => {
-    if (loginRequired && endUserRes?.status === 401) {
+    if (loginRequired && auth.userRes?.status === 401) {
       router.push('/login')
     }
-  }, [loginRequired, endUserRes, router])
+  }, [loginRequired, auth.userRes, router])
 
   React.useEffect(() => {
-    if (endUserRes?.status === 403) {
+    if (auth.userRes?.status === 403) {
       router.push('/login')
     }
-  }, [endUserRes, router])
+  }, [auth.userRes, router])
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -165,7 +162,7 @@ export default function ModuleLayout({
     }
   }, [])
 
-  if (loginRequired && (!endUser || endUserSuccessLoadedCount === 0)) {
+  if (loginRequired && (!auth.user || auth.userSuccessLoadedCount === 0)) {
     return (
       <Box
         sx={{
@@ -181,10 +178,11 @@ export default function ModuleLayout({
 
   const sideNav = (
     <Stack
-      sx={{
+      sx={(theme) => ({
         width: sideNavWidth,
         height: '100%',
-      }}
+        backgroundColor: theme.palette.background.default,
+      })}
     >
       <AppBar
         position="sticky"
@@ -231,7 +229,7 @@ export default function ModuleLayout({
     <React.Fragment>
       <Drawer open={isModulesDrawerOpen} onClose={toggleModulesDrawer(false)}>
         <List disablePadding>
-          {endUser && (
+          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
             <ListItem disablePadding>
               <Link href="/admin" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -243,7 +241,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {endUser && (
+          {auth.user && (
             <ListItem disablePadding>
               <Link href="/finance" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -255,7 +253,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {endUser && (
+          {auth.user && (
             <ListItem disablePadding>
               <Link href="/integration" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -267,26 +265,30 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          <ListItem disablePadding>
-            <Link href="/widget" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemIcon>
-                  <WidgetsIcon />
-                </ListItemIcon>
-                <ListItemText primary="小工具" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
-          <ListItem disablePadding>
-            <Link href="/example" passHref legacyBehavior>
-              <ListItemButton component="a">
-                <ListItemIcon>
-                  <HelpIcon />
-                </ListItemIcon>
-                <ListItemText primary="範例模組" />
-              </ListItemButton>
-            </Link>
-          </ListItem>
+          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
+            <ListItem disablePadding>
+              <Link href="/widget" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <WidgetsIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="小工具" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
+          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
+            <ListItem disablePadding>
+              <Link href="/example" passHref legacyBehavior>
+                <ListItemButton component="a">
+                  <ListItemIcon>
+                    <HelpIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="範例模組" />
+                </ListItemButton>
+              </Link>
+            </ListItem>
+          )}
         </List>
       </Drawer>
 
@@ -350,9 +352,6 @@ export default function ModuleLayout({
                 </IconButton>
               </Tooltip>
               <Box sx={{ flexGrow: 1 }} />
-              {/* <IconButton size="large" color="inherit" onClick={handleMenu}>
-                <AccountCircle />
-              </IconButton> */}
               <Tooltip title="關於">
                 <IconButton
                   onClick={() => {
@@ -372,13 +371,13 @@ export default function ModuleLayout({
                   <SettingsOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              {endUser && (
+              {auth.user && (
                 <Tooltip
                   title={
                     <React.Fragment>
-                      <span>管理員帳戶</span>
+                      <span>使用者</span>
                       <br />
-                      <span>{endUser.email}</span>
+                      <span>{auth.user.name}</span>
                     </React.Fragment>
                   }
                 >
@@ -386,23 +385,23 @@ export default function ModuleLayout({
                     <IconButton
                       size="small"
                       sx={{ mx: 1 }}
-                      disabled={isLoadingEndUser}
+                      disabled={auth.isLoadingUser}
                       onClick={handleAvatarClick}
                     >
                       <Avatar sx={{ width: 32, height: 32 }}>
-                        {endUser.email.substring(0, 1).toUpperCase()}
+                        {auth.user.name.substring(0, 1).toUpperCase()}
                       </Avatar>
                     </IconButton>
                   </span>
                 </Tooltip>
               )}
-              {!loginRequired && !endUser && (
+              {!loginRequired && !auth.user && (
                 <Tooltip title="登入">
                   <span>
                     <IconButton
                       size="small"
                       sx={{ mx: 1 }}
-                      disabled={isLoadingEndUser}
+                      disabled={auth.isLoadingUser}
                       onClick={() => {
                         router.push('/login')
                       }}
@@ -462,6 +461,15 @@ export default function ModuleLayout({
                     登出目前裝置
                   </MenuItem>
                 </Link>
+                <Divider />
+                <Link href="/login" passHref legacyBehavior>
+                  <MenuItem component="a" onClick={handleCloseMenu}>
+                    <ListItemIcon>
+                      <SwitchAccountIcon fontSize="small" />
+                    </ListItemIcon>
+                    登入其他帳號
+                  </MenuItem>
+                </Link>
               </Menu>
             </Toolbar>
             <Divider />
@@ -486,7 +494,6 @@ export default function ModuleLayout({
           >
             <span>關於</span>
             <IconButton
-              aria-label="close"
               onClick={() => {
                 setIsAboutDialogOpen(false)
               }}
@@ -509,10 +516,15 @@ export default function ModuleLayout({
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="body2">發佈版本</Typography>
-                    <Chip
-                      size="small"
-                      label={systemInspect?.commit_revision ?? 'N/A'}
-                    />
+                    {systemInspect?.commit_revision ? (
+                      <ReferenceBlock
+                        label={systemInspect.commit_revision}
+                        primaryKey
+                        monospace
+                      />
+                    ) : (
+                      <PlaceholderTypography>N/A</PlaceholderTypography>
+                    )}
                   </Stack>
                 }
               />
@@ -523,10 +535,15 @@ export default function ModuleLayout({
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="body2">提交版本</Typography>
-                    <Chip
-                      size="small"
-                      label={systemInspect?.commit_short_sha ?? 'N/A'}
-                    />
+                    {systemInspect?.commit_short_sha ? (
+                      <ReferenceBlock
+                        label={systemInspect.commit_short_sha}
+                        primaryKey
+                        monospace
+                      />
+                    ) : (
+                      <PlaceholderTypography>N/A</PlaceholderTypography>
+                    )}
                   </Stack>
                 }
               />
@@ -537,7 +554,11 @@ export default function ModuleLayout({
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="body2">環境</Typography>
-                    <Chip size="small" label={systemInspect?.env} />
+                    {systemInspect?.env ? (
+                      <ReferenceBlock label={systemInspect.env} primaryKey />
+                    ) : (
+                      <PlaceholderTypography>N/A</PlaceholderTypography>
+                    )}
                   </Stack>
                 }
               />
@@ -595,7 +616,6 @@ export default function ModuleLayout({
           >
             <span>設定</span>
             <IconButton
-              aria-label="close"
               onClick={() => {
                 setIsSettingsDialogOpen(false)
               }}

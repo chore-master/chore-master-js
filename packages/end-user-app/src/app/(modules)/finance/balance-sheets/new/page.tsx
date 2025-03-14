@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
@@ -6,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { useTimezone } from '@/components/timezone'
 import type { Account, Asset, CreateBalanceSheetFormInputs } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -13,7 +13,6 @@ import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
 import MuiLink from '@mui/material/Link'
@@ -53,7 +52,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -73,7 +72,7 @@ export default function Page() {
   const fetchAccounts = React.useCallback(
     async (activeAsOfTime: string) => {
       setIsFetchingAccounts(true)
-      await choreMasterAPIAgent.get('/v1/finance/accounts', {
+      await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
         params: {
           active_as_of_time: activeAsOfTime,
         },
@@ -96,7 +95,7 @@ export default function Page() {
     CreateBalanceSheetFormInputs
   > = async ({ balanced_time, balance_entries, ...data }) => {
     await choreMasterAPIAgent.post(
-      '/v1/finance/balance_sheets',
+      '/v1/finance/users/me/balance_sheets',
       {
         ...data,
         balanced_time: new Date(
@@ -196,6 +195,7 @@ export default function Page() {
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
+          stickyTop
           title="新增結餘"
           actions={[
             <AutoLoadingButton
@@ -210,7 +210,6 @@ export default function Page() {
               新增
             </AutoLoadingButton>,
           ]}
-          sticky
         />
 
         <ModuleFunctionBody>
@@ -273,12 +272,7 @@ export default function Page() {
                   <React.Fragment key={field.id}>
                     <Grid size={12} container spacing={2} alignItems="center">
                       <Grid size={4}>
-                        <Chip
-                          size="small"
-                          label={account?.name}
-                          color="info"
-                          variant="outlined"
-                        />
+                        <ReferenceBlock label={account?.name} foreignValue />
                       </Grid>
                       <Grid size={4}>
                         <FormControl fullWidth>
@@ -301,11 +295,9 @@ export default function Page() {
                         </FormControl>
                       </Grid>
                       <Grid size={4}>
-                        <Chip
-                          size="small"
+                        <ReferenceBlock
                           label={settleableAsset?.name}
-                          color="info"
-                          variant="outlined"
+                          foreignValue
                         />
                       </Grid>
                     </Grid>

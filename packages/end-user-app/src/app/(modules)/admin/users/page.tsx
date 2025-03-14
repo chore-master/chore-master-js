@@ -9,26 +9,19 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import type {
-  Asset,
-  CreateAssetFormInputs,
-  UpdateAssetFormInputs,
-} from '@/types'
+import { useTimezone } from '@/components/timezone'
+import type { CreateUserFormInputs, UpdateUserFormInputs, User } from '@/types'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
-import CheckBoxIcon from '@mui/icons-material/CheckBox'
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Checkbox from '@mui/material/Checkbox'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -42,29 +35,30 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
+  const timezone = useTimezone()
 
-  // Asset
-  const [assets, setAssets] = React.useState<Asset[]>([])
-  const [assetsCount, setAssetsCount] = React.useState(0)
-  const [assetsPage, setAssetsPage] = React.useState(0)
-  const [assetsRowsPerPage, setAssetsRowsPerPage] = React.useState(10)
-  const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
-  const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
+  // User
+  const [users, setUsers] = React.useState<User[]>([])
+  const [usersCount, setUsersCount] = React.useState(0)
+  const [usersPage, setUsersPage] = React.useState(0)
+  const [usersRowsPerPage, setUsersRowsPerPage] = React.useState(10)
+  const [isFetchingUsers, setIsFetchingUsers] = React.useState(false)
+  const [isCreateUserDrawerOpen, setIsCreateUserDrawerOpen] =
     React.useState(false)
-  const createAssetForm = useForm<CreateAssetFormInputs>()
-  const [editingAssetReference, setEditingAssetReference] =
+  const createUserForm = useForm<CreateUserFormInputs>({ mode: 'all' })
+  const [editingUserReference, setEditingUserReference] =
     React.useState<string>()
-  const updateAssetForm = useForm<UpdateAssetFormInputs>()
+  const updateUserForm = useForm<UpdateUserFormInputs>({ mode: 'all' })
 
-  const fetchAssets = React.useCallback(async () => {
-    setIsFetchingAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
+  const fetchUsers = React.useCallback(async () => {
+    setIsFetchingUsers(true)
+    await choreMasterAPIAgent.get('/v1/admin/users', {
       params: {
-        offset: assetsPage * assetsRowsPerPage,
-        limit: assetsRowsPerPage,
+        offset: usersPage * usersRowsPerPage,
+        limit: usersRowsPerPage,
       },
       onError: () => {
-        enqueueNotification(`Unable to fetch assets now.`, 'error')
+        enqueueNotification(`Unable to fetch users now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
@@ -73,93 +67,100 @@ export default function Page() {
         data,
         metadata,
       }: {
-        data: Asset[]
+        data: User[]
         metadata: any
       }) => {
-        setAssets(data)
-        setAssetsCount(metadata.offset_pagination.count)
+        setUsers(data)
+        setUsersCount(metadata.offset_pagination.count)
       },
     })
-    setIsFetchingAssets(false)
-  }, [assetsPage, assetsRowsPerPage])
+    setIsFetchingUsers(false)
+  }, [usersPage, usersRowsPerPage])
 
-  const handleSubmitCreateAssetForm: SubmitHandler<
-    CreateAssetFormInputs
-  > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/finance/users/me/assets', data, {
-      onError: () => {
-        enqueueNotification(`Unable to create asset now.`, 'error')
+  const handleSubmitCreateUserForm: SubmitHandler<
+    CreateUserFormInputs
+  > = async ({ reference, ...data }) => {
+    await choreMasterAPIAgent.post(
+      '/v1/admin/users',
+      {
+        reference: !!reference ? reference : undefined,
+        ...data,
       },
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: () => {
-        createAssetForm.reset()
-        setIsCreateAssetDrawerOpen(false)
-        fetchAssets()
-      },
-    })
-  }
-
-  const handleSubmitUpdateAssetForm: SubmitHandler<
-    UpdateAssetFormInputs
-  > = async (data) => {
-    await choreMasterAPIAgent.patch(
-      `/v1/finance/users/me/assets/${editingAssetReference}`,
-      data,
       {
         onError: () => {
-          enqueueNotification(`Unable to update asset now.`, 'error')
+          enqueueNotification(`Unable to create user now.`, 'error')
         },
-        onFail: ({ message }: any) => {
+        onFail: ({ message }: { message: string }) => {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          updateAssetForm.reset()
-          setEditingAssetReference(undefined)
-          fetchAssets()
+          createUserForm.reset()
+          setIsCreateUserDrawerOpen(false)
+          fetchUsers()
         },
       }
     )
   }
 
-  const deleteAsset = React.useCallback(
-    async (assetReference: string) => {
+  const handleSubmitUpdateUserForm: SubmitHandler<
+    UpdateUserFormInputs
+  > = async ({ password, ...data }) => {
+    await choreMasterAPIAgent.patch(
+      `/v1/admin/users/${editingUserReference}`,
+      {
+        password: !!password ? password : undefined,
+        ...data,
+      },
+      {
+        onError: () => {
+          enqueueNotification(`Unable to update user now.`, 'error')
+        },
+        onFail: ({ message }: { message: string }) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          updateUserForm.reset()
+          setEditingUserReference(undefined)
+          fetchUsers()
+        },
+      }
+    )
+  }
+
+  const deleteUser = React.useCallback(
+    async (userReference: string) => {
       const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
       if (!isConfirmed) {
         return
       }
-      await choreMasterAPIAgent.delete(
-        `/v1/finance/users/me/assets/${assetReference}`,
-        {
-          onError: () => {
-            enqueueNotification(`Unable to delete asset now.`, 'error')
-          },
-          onFail: ({ message }: any) => {
-            enqueueNotification(message, 'error')
-          },
-          onSuccess: () => {
-            fetchAssets()
-          },
-        }
-      )
+      await choreMasterAPIAgent.delete(`/v1/admin/users/${userReference}`, {
+        onError: () => {
+          enqueueNotification(`Unable to delete user now.`, 'error')
+        },
+        onFail: ({ message }: { message: string }) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          fetchUsers()
+        },
+      })
     },
-    [enqueueNotification, fetchAssets]
+    [enqueueNotification, fetchUsers]
   )
 
   React.useEffect(() => {
-    fetchAssets()
-  }, [fetchAssets])
+    fetchUsers()
+  }, [fetchUsers])
 
   return (
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="資產"
+          title="使用者"
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
-                <IconButton onClick={fetchAssets} disabled={isFetchingAssets}>
+                <IconButton onClick={fetchUsers} disabled={isFetchingUsers}>
                   <RefreshIcon />
                 </IconButton>
               </span>
@@ -169,15 +170,16 @@ export default function Page() {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => {
-                createAssetForm.reset()
-                setIsCreateAssetDrawerOpen(true)
+                createUserForm.reset()
+                setIsCreateUserDrawerOpen(true)
               }}
             >
               新增
             </Button>,
           ]}
         />
-        <ModuleFunctionBody loading={isFetchingAssets}>
+
+        <ModuleFunctionBody loading={isFetchingUsers}>
           <TableContainer>
             <Table size="small">
               <TableHead>
@@ -185,38 +187,28 @@ export default function Page() {
                   <NoWrapTableCell align="right">
                     <PlaceholderTypography>#</PlaceholderTypography>
                   </NoWrapTableCell>
-                  <NoWrapTableCell>名稱</NoWrapTableCell>
-                  <NoWrapTableCell>代號</NoWrapTableCell>
-                  <NoWrapTableCell>精度</NoWrapTableCell>
-                  <NoWrapTableCell>可結算</NoWrapTableCell>
+                  <NoWrapTableCell>名字</NoWrapTableCell>
+                  <NoWrapTableCell>使用者名稱</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                   <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody
-                isLoading={isFetchingAssets}
-                isEmpty={assets.length === 0}
+                isLoading={isFetchingUsers}
+                isEmpty={users.length === 0}
               >
-                {assets.map((asset, index) => (
-                  <TableRow key={asset.reference} hover>
+                {users.map((user, index) => (
+                  <TableRow key={user.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {assetsPage * assetsRowsPerPage + index + 1}
+                        {usersPage * usersRowsPerPage + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
-                    <NoWrapTableCell>{asset.name}</NoWrapTableCell>
-                    <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
-                    <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {asset.is_settleable ? (
-                        <CheckBoxIcon color="disabled" />
-                      ) : (
-                        <CheckBoxOutlineBlankIcon color="disabled" />
-                      )}
-                    </NoWrapTableCell>
+                    <NoWrapTableCell>{user.name}</NoWrapTableCell>
+                    <NoWrapTableCell>{user.username}</NoWrapTableCell>
                     <NoWrapTableCell>
                       <ReferenceBlock
-                        label={asset.reference}
+                        label={user.reference}
                         primaryKey
                         monospace
                       />
@@ -225,21 +217,16 @@ export default function Page() {
                       <IconButton
                         size="small"
                         onClick={() => {
-                          updateAssetForm.setValue('name', asset.name)
-                          updateAssetForm.setValue('symbol', asset.symbol)
-                          updateAssetForm.setValue('decimals', asset.decimals)
-                          updateAssetForm.setValue(
-                            'is_settleable',
-                            asset.is_settleable
-                          )
-                          setEditingAssetReference(asset.reference)
+                          updateUserForm.setValue('name', user.name)
+                          updateUserForm.setValue('username', user.username)
+                          setEditingUserReference(user.reference)
                         }}
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         size="small"
-                        onClick={() => deleteAsset(asset.reference)}
+                        onClick={() => deleteUser(user.reference as string)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -250,11 +237,11 @@ export default function Page() {
             </Table>
           </TableContainer>
           <TablePagination
-            count={assetsCount}
-            page={assetsPage}
-            rowsPerPage={assetsRowsPerPage}
-            setPage={setAssetsPage}
-            setRowsPerPage={setAssetsRowsPerPage}
+            count={usersCount}
+            page={usersPage}
+            rowsPerPage={usersRowsPerPage}
+            setPage={setUsersPage}
+            setRowsPerPage={setUsersRowsPerPage}
             rowsPerPageOptions={[10, 20]}
           />
         </ModuleFunctionBody>
@@ -262,11 +249,11 @@ export default function Page() {
 
       <Drawer
         anchor="right"
-        open={isCreateAssetDrawerOpen}
-        onClose={() => setIsCreateAssetDrawerOpen(false)}
+        open={isCreateUserDrawerOpen}
+        onClose={() => setIsCreateUserDrawerOpen(false)}
       >
         <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增資產" />
+          <CardHeader title="新增使用者" />
           <Stack
             component="form"
             spacing={3}
@@ -279,13 +266,13 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="name"
-                control={createAssetForm.control}
+                control={createUserForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
                     required
-                    label="名稱"
+                    label="名字"
                     variant="filled"
                   />
                 )}
@@ -294,14 +281,14 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="symbol"
-                control={createAssetForm.control}
+                name="username"
+                control={createUserForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
                     required
-                    label="代號"
+                    label="使用者名稱"
                     variant="filled"
                   />
                 )}
@@ -310,16 +297,15 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="decimals"
-                control={createAssetForm.control}
-                defaultValue={0}
+                name="password"
+                control={createUserForm.control}
+                defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
                     required
-                    label="精度"
+                    label="密碼"
                     variant="filled"
-                    type="number"
                   />
                 )}
                 rules={{ required: '必填' }}
@@ -327,13 +313,15 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="is_settleable"
-                control={createAssetForm.control}
-                defaultValue={false}
+                name="reference"
+                control={createUserForm.control}
+                defaultValue=""
                 render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
+                  <TextField
+                    {...field}
+                    label="系統識別碼"
+                    variant="filled"
+                    helperText="建立後無法變更"
                   />
                 )}
               />
@@ -341,9 +329,8 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
-              onClick={createAssetForm.handleSubmit(
-                handleSubmitCreateAssetForm
-              )}
+              disabled={!createUserForm.formState.isValid}
+              onClick={createUserForm.handleSubmit(handleSubmitCreateUserForm)}
             >
               新增
             </AutoLoadingButton>
@@ -353,11 +340,11 @@ export default function Page() {
 
       <Drawer
         anchor="right"
-        open={editingAssetReference !== undefined}
-        onClose={() => setEditingAssetReference(undefined)}
+        open={editingUserReference !== undefined}
+        onClose={() => setEditingUserReference(undefined)}
       >
         <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯資產" />
+          <CardHeader title="編輯使用者" />
           <Stack
             component="form"
             spacing={3}
@@ -370,13 +357,13 @@ export default function Page() {
             <FormControl>
               <Controller
                 name="name"
-                control={updateAssetForm.control}
+                control={updateUserForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
                     required
-                    label="名稱"
+                    label="名字"
                     variant="filled"
                   />
                 )}
@@ -385,14 +372,14 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="symbol"
-                control={updateAssetForm.control}
+                name="username"
+                control={updateUserForm.control}
                 defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
                     required
-                    label="代號"
+                    label="使用者名稱"
                     variant="filled"
                   />
                 )}
@@ -401,30 +388,15 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="decimals"
-                control={updateAssetForm.control}
-                defaultValue={0}
+                name="password"
+                control={updateUserForm.control}
+                defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    required
-                    label="精度"
+                    label="密碼"
                     variant="filled"
-                    type="number"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={updateAssetForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
+                    helperText="留空則不變更"
                   />
                 )}
               />
@@ -432,9 +404,8 @@ export default function Page() {
             <AutoLoadingButton
               type="submit"
               variant="contained"
-              onClick={updateAssetForm.handleSubmit(
-                handleSubmitUpdateAssetForm
-              )}
+              disabled={!updateUserForm.formState.isValid}
+              onClick={updateUserForm.handleSubmit(handleSubmitUpdateUserForm)}
             >
               儲存
             </AutoLoadingButton>

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import HighChartsCore from '@/components/charts/HighChartsCore'
@@ -107,31 +106,33 @@ export default function Page() {
           ]}
         />
         <ModuleFunctionBody loading={isLoadingInterestRateInspect}>
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
-            <ToggleButtonGroup
-              color="primary"
-              value={seriesType}
-              exclusive
-              onChange={(
-                event: React.MouseEvent<HTMLElement>,
-                newSeriesType: string
-              ) => {
-                setSeriesType(newSeriesType)
-              }}
-            >
-              <Tooltip title="獨立顯示">
-                <ToggleButton value="line">
-                  <ShowChartIcon fontSize="small" />
-                </ToggleButton>
-              </Tooltip>
-              <Tooltip title="合併顯示">
-                <ToggleButton value="area">
-                  <StackedLineChartIcon fontSize="small" />
-                </ToggleButton>
-              </Tooltip>
-            </ToggleButtonGroup>
+          <Box sx={{ minWidth: 480 }}>
+            <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+              <ToggleButtonGroup
+                color="primary"
+                value={seriesType}
+                exclusive
+                onChange={(
+                  event: React.MouseEvent<HTMLElement>,
+                  newSeriesType: string
+                ) => {
+                  setSeriesType(newSeriesType)
+                }}
+              >
+                <Tooltip title="獨立顯示">
+                  <ToggleButton value="line">
+                    <ShowChartIcon fontSize="small" />
+                  </ToggleButton>
+                </Tooltip>
+                <Tooltip title="合併顯示">
+                  <ToggleButton value="area">
+                    <StackedLineChartIcon fontSize="small" />
+                  </ToggleButton>
+                </Tooltip>
+              </ToggleButtonGroup>
+            </Box>
+            <HighChartsCore options={options} />
           </Box>
-          <HighChartsCore options={options} />
         </ModuleFunctionBody>
       </ModuleFunction>
     </React.Fragment>
