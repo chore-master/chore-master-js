@@ -13,7 +13,7 @@ import type {
   Asset,
   CreateAssetFormInputs,
   UpdateAssetFormInputs,
-} from '@/types'
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'

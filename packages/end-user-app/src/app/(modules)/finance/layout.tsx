@@ -26,7 +26,7 @@ export default function Layout({
             return isCollapsed && pathname.startsWith('/finance/market')
           },
           title: '市場',
-          isVisible: auth.userIsSomeRole(['ADMIN']),
+          isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
           navigations: [
             {
               type: 'link',
@@ -64,6 +64,7 @@ export default function Layout({
             )
           },
           title: '我的資金',
+          isVisible: auth.currentUserHasSomeOfRoles(['FREEMIUM']),
           navigations: [
             {
               type: 'link',
@@ -89,7 +90,7 @@ export default function Layout({
           type: 'collapsible',
           isDefaultCollapsed: false,
           title: '我的投資',
-          isVisible: auth.userIsSomeRole(['ADMIN']),
+          isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
           getSelected: (isCollapsed: boolean, pathname: string) => {
             return (
               isCollapsed &&
@@ -114,13 +115,13 @@ export default function Layout({
         },
         {
           type: 'divider',
-          isVisible: auth.userIsSomeRole(['ADMIN']),
+          isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
         },
         {
           type: 'collapsible',
           isDefaultCollapsed: true,
           title: '其他',
-          isVisible: auth.userIsSomeRole(['ADMIN']),
+          isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
           navigations: [
             {
               type: 'link',

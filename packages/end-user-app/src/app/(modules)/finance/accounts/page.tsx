@@ -18,7 +18,7 @@ import type {
   Asset,
   CreateAccountFormInputs,
   UpdateAccountFormInputs,
-} from '@/types'
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { validateDatetimeField } from '@/utils/validation'

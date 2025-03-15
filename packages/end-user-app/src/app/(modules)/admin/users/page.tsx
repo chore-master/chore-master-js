@@ -9,13 +9,10 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import { useTimezone } from '@/components/timezone'
-import type { CreateUserFormInputs, UpdateUserFormInputs, User } from '@/types'
+import type { CreateUserFormInputs, UserSummary } from '@/types/admin'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/DeleteOutlined'
-import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -30,15 +27,16 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
-  const timezone = useTimezone()
+  const router = useRouter()
 
   // User
-  const [users, setUsers] = React.useState<User[]>([])
+  const [users, setUsers] = React.useState<UserSummary[]>([])
   const [usersCount, setUsersCount] = React.useState(0)
   const [usersPage, setUsersPage] = React.useState(0)
   const [usersRowsPerPage, setUsersRowsPerPage] = React.useState(10)
@@ -46,9 +44,6 @@ export default function Page() {
   const [isCreateUserDrawerOpen, setIsCreateUserDrawerOpen] =
     React.useState(false)
   const createUserForm = useForm<CreateUserFormInputs>({ mode: 'all' })
-  const [editingUserReference, setEditingUserReference] =
-    React.useState<string>()
-  const updateUserForm = useForm<UpdateUserFormInputs>({ mode: 'all' })
 
   const fetchUsers = React.useCallback(async () => {
     setIsFetchingUsers(true)
@@ -67,7 +62,7 @@ export default function Page() {
         data,
         metadata,
       }: {
-        data: User[]
+        data: UserSummary[]
         metadata: any
       }) => {
         setUsers(data)
@@ -101,52 +96,6 @@ export default function Page() {
       }
     )
   }
-
-  const handleSubmitUpdateUserForm: SubmitHandler<
-    UpdateUserFormInputs
-  > = async ({ password, ...data }) => {
-    await choreMasterAPIAgent.patch(
-      `/v1/admin/users/${editingUserReference}`,
-      {
-        password: !!password ? password : undefined,
-        ...data,
-      },
-      {
-        onError: () => {
-          enqueueNotification(`Unable to update user now.`, 'error')
-        },
-        onFail: ({ message }: { message: string }) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: () => {
-          updateUserForm.reset()
-          setEditingUserReference(undefined)
-          fetchUsers()
-        },
-      }
-    )
-  }
-
-  const deleteUser = React.useCallback(
-    async (userReference: string) => {
-      const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
-      if (!isConfirmed) {
-        return
-      }
-      await choreMasterAPIAgent.delete(`/v1/admin/users/${userReference}`, {
-        onError: () => {
-          enqueueNotification(`Unable to delete user now.`, 'error')
-        },
-        onFail: ({ message }: { message: string }) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: () => {
-          fetchUsers()
-        },
-      })
-    },
-    [enqueueNotification, fetchUsers]
-  )
 
   React.useEffect(() => {
     fetchUsers()
@@ -190,7 +139,6 @@ export default function Page() {
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>使用者名稱</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody
@@ -198,7 +146,14 @@ export default function Page() {
                 isEmpty={users.length === 0}
               >
                 {users.map((user, index) => (
-                  <TableRow key={user.reference} hover>
+                  <TableRow
+                    key={user.reference}
+                    hover
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      router.push(`/admin/users/${user.reference}`)
+                    }}
+                  >
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
                         {usersPage * usersRowsPerPage + index + 1}
@@ -212,24 +167,6 @@ export default function Page() {
                         primaryKey
                         monospace
                       />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          updateUserForm.setValue('name', user.name)
-                          updateUserForm.setValue('username', user.username)
-                          setEditingUserReference(user.reference)
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => deleteUser(user.reference as string)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
                     </NoWrapTableCell>
                   </TableRow>
                 ))}
@@ -333,81 +270,6 @@ export default function Page() {
               onClick={createUserForm.handleSubmit(handleSubmitCreateUserForm)}
             >
               新增
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
-
-      <Drawer
-        anchor="right"
-        open={editingUserReference !== undefined}
-        onClose={() => setEditingUserReference(undefined)}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯使用者" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={updateUserForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名字"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="username"
-                control={updateUserForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="使用者名稱"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="password"
-                control={updateUserForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="密碼"
-                    variant="filled"
-                    helperText="留空則不變更"
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!updateUserForm.formState.isValid}
-              onClick={updateUserForm.handleSubmit(handleSubmitUpdateUserForm)}
-            >
-              儲存
             </AutoLoadingButton>
           </Stack>
         </Box>
