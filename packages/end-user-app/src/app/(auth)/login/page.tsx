@@ -191,7 +191,6 @@ export default function Page() {
                     rules={{ required: '請輸入密碼' }}
                   />
                 </FormControl>
-
                 <Controller
                   name="turnstile_token"
                   control={loginForm.control}
@@ -203,7 +202,7 @@ export default function Page() {
                         theme: 'light',
                         size: 'flexible',
                         appearance: 'execute',
-                        language: 'zh-TW',
+                        language: 'zh-tw',
                       }}
                       onSuccess={(token) => {
                         field.onChange(token)
@@ -212,7 +211,6 @@ export default function Page() {
                   )}
                   rules={{ required: true }}
                 />
-
                 <Button
                   variant="contained"
                   type="submit"
