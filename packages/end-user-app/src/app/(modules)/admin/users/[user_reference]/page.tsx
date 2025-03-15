@@ -36,7 +36,7 @@ import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
@@ -44,6 +44,7 @@ export default function Page() {
   const [tabValue, setTabValue] = React.useState<string>('overview')
   const { enqueueNotification } = useNotification()
   const { user_reference }: { user_reference: string } = useParams()
+  const router = useRouter()
 
   // User
   const [user, setUser] = React.useState<UserDetail | null>(null)
@@ -128,7 +129,7 @@ export default function Page() {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
-        fetchUser()
+        router.push('/admin/users')
       },
     })
   }, [])
