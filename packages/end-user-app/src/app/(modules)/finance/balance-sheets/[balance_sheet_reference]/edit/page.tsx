@@ -12,7 +12,7 @@ import type {
   Asset,
   BalanceSheetDetail,
   UpdateBalanceSheetFormInputs,
-} from '@/types'
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import SaveIcon from '@mui/icons-material/Save'

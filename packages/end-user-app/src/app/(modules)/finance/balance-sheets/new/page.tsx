@@ -7,7 +7,11 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { useTimezone } from '@/components/timezone'
-import type { Account, Asset, CreateBalanceSheetFormInputs } from '@/types'
+import type {
+  Account,
+  Asset,
+  CreateBalanceSheetFormInputs,
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'

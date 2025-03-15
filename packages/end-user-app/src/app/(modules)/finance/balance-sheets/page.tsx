@@ -19,8 +19,8 @@ import type {
   BalanceEntry,
   BalanceSheetSeries,
   BalanceSheetSummary,
-  Operator,
-} from '@/types'
+} from '@/types/finance'
+import type { Operator } from '@/types/integration'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { getSyntheticPrice } from '@/utils/price'
@@ -820,10 +820,10 @@ export default function Page() {
                       hover
                       sx={{ cursor: 'pointer' }}
                       onClick={() => {
-                                                  router.push(
-                            `/finance/balance-sheets/${balanceSheet.reference}`
-                          )
-                                              }}
+                        router.push(
+                          `/finance/balance-sheets/${balanceSheet.reference}`
+                        )
+                      }}
                     >
                       <NoWrapTableCell align="right">
                         <PlaceholderTypography>
