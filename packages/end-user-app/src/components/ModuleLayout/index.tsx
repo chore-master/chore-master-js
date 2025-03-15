@@ -7,7 +7,7 @@ import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
-import { SystemInspect } from '@/types'
+import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
 import { offsetInMinutesToTimedeltaString } from '@/utils/datetime'
@@ -142,16 +142,16 @@ export default function ModuleLayout({
   }
 
   React.useEffect(() => {
-    if (loginRequired && auth.userRes?.status === 401) {
+    if (loginRequired && auth.currentUserRes?.status === 401) {
       router.push('/login')
     }
-  }, [loginRequired, auth.userRes, router])
+  }, [loginRequired, auth.currentUserRes, router])
 
   React.useEffect(() => {
-    if (auth.userRes?.status === 403) {
+    if (auth.currentUserRes?.status === 403) {
       router.push('/login')
     }
-  }, [auth.userRes, router])
+  }, [auth.currentUserRes, router])
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -162,7 +162,10 @@ export default function ModuleLayout({
     }
   }, [])
 
-  if (loginRequired && (!auth.user || auth.userSuccessLoadedCount === 0)) {
+  if (
+    loginRequired &&
+    (!auth.currentUser || auth.currentUserSuccessLoadedCount === 0)
+  ) {
     return (
       <Box
         sx={{
@@ -229,7 +232,7 @@ export default function ModuleLayout({
     <React.Fragment>
       <Drawer open={isModulesDrawerOpen} onClose={toggleModulesDrawer(false)}>
         <List disablePadding>
-          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
+          {auth.currentUser && auth.currentUserHasSomeOfRoles(['ADMIN']) && (
             <ListItem disablePadding>
               <Link href="/admin" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -241,7 +244,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {auth.user && (
+          {auth.currentUser && (
             <ListItem disablePadding>
               <Link href="/finance" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -253,7 +256,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {auth.user && (
+          {auth.currentUser && (
             <ListItem disablePadding>
               <Link href="/integration" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -265,7 +268,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
+          {auth.currentUser && auth.currentUserHasSomeOfRoles(['ADMIN']) && (
             <ListItem disablePadding>
               <Link href="/widget" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -277,7 +280,7 @@ export default function ModuleLayout({
               </Link>
             </ListItem>
           )}
-          {auth.user && auth.userIsSomeRole(['ADMIN']) && (
+          {auth.currentUser && auth.currentUserHasSomeOfRoles(['ADMIN']) && (
             <ListItem disablePadding>
               <Link href="/example" passHref legacyBehavior>
                 <ListItemButton component="a">
@@ -371,13 +374,13 @@ export default function ModuleLayout({
                   <SettingsOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              {auth.user && (
+              {auth.currentUser && (
                 <Tooltip
                   title={
                     <React.Fragment>
                       <span>使用者</span>
                       <br />
-                      <span>{auth.user.name}</span>
+                      <span>{auth.currentUser.name}</span>
                     </React.Fragment>
                   }
                 >
@@ -385,23 +388,23 @@ export default function ModuleLayout({
                     <IconButton
                       size="small"
                       sx={{ mx: 1 }}
-                      disabled={auth.isLoadingUser}
+                      disabled={auth.isLoadingCurrentUser}
                       onClick={handleAvatarClick}
                     >
                       <Avatar sx={{ width: 32, height: 32 }}>
-                        {auth.user.name.substring(0, 1).toUpperCase()}
+                        {auth.currentUser.name.substring(0, 1).toUpperCase()}
                       </Avatar>
                     </IconButton>
                   </span>
                 </Tooltip>
               )}
-              {!loginRequired && !auth.user && (
+              {!loginRequired && !auth.currentUser && (
                 <Tooltip title="登入">
                   <span>
                     <IconButton
                       size="small"
                       sx={{ mx: 1 }}
-                      disabled={auth.isLoadingUser}
+                      disabled={auth.isLoadingCurrentUser}
                       onClick={() => {
                         router.push('/login')
                       }}

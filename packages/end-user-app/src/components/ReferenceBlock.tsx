@@ -7,12 +7,14 @@ export default function ReferenceBlock({
   foreignValue = false,
   monospace = false,
   sx,
+  disabled = false,
 }: {
   label?: string
   primaryKey?: boolean
   foreignValue?: boolean
   monospace?: boolean
   sx?: SxProps
+  disabled?: boolean
 }) {
   const fontFamily = monospace ? 'monospace' : undefined
   const variant = primaryKey ? undefined : 'outlined'
@@ -24,6 +26,7 @@ export default function ReferenceBlock({
       sx={{ fontFamily, ...sx }}
       variant={variant}
       color={color}
+      disabled={disabled}
     />
   )
 }

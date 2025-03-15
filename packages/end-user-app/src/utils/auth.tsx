@@ -1,43 +1,44 @@
-import { User } from '@/types'
+import { CurrentUser } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import React from 'react'
 
 interface AuthContextType {
-  isLoadingUser: boolean
-  userSuccessLoadedCount: number
-  userRes: any
-  user: User | null
-  userIsSomeRole: (roleSymbols: string[]) => boolean
+  isLoadingCurrentUser: boolean
+  currentUserSuccessLoadedCount: number
+  currentUserRes: any
+  currentUser: CurrentUser | null
+  currentUserHasSomeOfRoles: (roleSymbols: string[]) => boolean
 }
 
 const AuthContext = React.createContext<AuthContextType>({
-  isLoadingUser: false,
-  userSuccessLoadedCount: 0,
-  userRes: null,
-  user: null,
-  userIsSomeRole: () => false,
+  isLoadingCurrentUser: false,
+  currentUserSuccessLoadedCount: 0,
+  currentUserRes: null,
+  currentUser: null,
+  currentUserHasSomeOfRoles: () => false,
 })
 
 export const AuthProvider = (props: any) => {
-  const [isLoadingUser, setIsLoadingUser] = React.useState(false)
-  const [userSuccessLoadedCount, setUserSuccessLoadedCount] = React.useState(0)
-  const [userRes, setUserRes] = React.useState(null)
-  const [user, setUser] = React.useState<User | null>(null)
+  const [isLoadingCurrentUser, setIsLoadingCurrentUser] = React.useState(false)
+  const [currentUserSuccessLoadedCount, setUserSuccessLoadedCount] =
+    React.useState(0)
+  const [currentUserRes, setUserRes] = React.useState(null)
+  const [currentUser, setCurrentUser] = React.useState<CurrentUser | null>(null)
 
   const fetchUser = React.useCallback(async () => {
-    setIsLoadingUser(true)
+    setIsLoadingCurrentUser(true)
     choreMasterAPIAgent.get('/v1/identity/users/me', {
       params: {},
       onFail: ({ res }: any) => {
         setUserRes(res)
-        setUser(null)
-        setIsLoadingUser(false)
+        setCurrentUser(null)
+        setIsLoadingCurrentUser(false)
       },
       onSuccess: async ({ res, data }: any) => {
         setUserRes(res)
-        setUser(data)
+        setCurrentUser(data)
         setUserSuccessLoadedCount((c) => c + 1)
-        setIsLoadingUser(false)
+        setIsLoadingCurrentUser(false)
       },
     })
   }, [])
@@ -49,13 +50,15 @@ export const AuthProvider = (props: any) => {
   return (
     <AuthContext.Provider
       value={{
-        isLoadingUser,
-        userSuccessLoadedCount,
-        userRes,
-        user,
-        userIsSomeRole: (roleSymbols: string[]) => {
-          return user?.user_roles.some((userRole) =>
-            roleSymbols.includes(userRole.role.symbol)
+        isLoadingCurrentUser,
+        currentUserSuccessLoadedCount,
+        currentUserRes,
+        currentUser,
+        currentUserHasSomeOfRoles: (roleSymbols: string[]) => {
+          return (
+            currentUser?.user_roles.some((userRole) =>
+              roleSymbols.includes(userRole.role.symbol)
+            ) ?? false
           )
         },
       }}
@@ -67,10 +70,10 @@ export const AuthProvider = (props: any) => {
 export const useAuth = () => {
   const authContext = React.useContext(AuthContext)
   return {
-    isLoadingUser: authContext.isLoadingUser,
-    userSuccessLoadedCount: authContext.userSuccessLoadedCount,
-    userRes: authContext.userRes,
-    user: authContext.user,
-    userIsSomeRole: authContext.userIsSomeRole,
+    isLoadingCurrentUser: authContext.isLoadingCurrentUser,
+    currentUserSuccessLoadedCount: authContext.currentUserSuccessLoadedCount,
+    currentUserRes: authContext.currentUserRes,
+    currentUser: authContext.currentUser,
+    currentUserHasSomeOfRoles: authContext.currentUserHasSomeOfRoles,
   }
 }

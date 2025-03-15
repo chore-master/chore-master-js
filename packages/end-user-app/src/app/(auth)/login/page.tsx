@@ -1,6 +1,6 @@
 'use client'
 
-import { LoginForm } from '@/types'
+import { LoginForm } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
 import getConfig from '@/utils/config'
@@ -223,7 +223,7 @@ export default function Page() {
                   登入
                 </Button>
 
-                {!auth.isLoadingUser && auth.user && (
+                {!auth.isLoadingCurrentUser && auth.currentUser && (
                   <>
                     <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
                       <Box
@@ -247,7 +247,7 @@ export default function Page() {
                       fullWidth
                       sx={{ py: 1.5 }}
                     >
-                      以 {auth.user.name} 身份繼續
+                      以 {auth.currentUser.name} 身份繼續
                     </Button>
                   </>
                 )}

@@ -819,14 +819,11 @@ export default function Page() {
                       key={balanceSheet.reference}
                       hover
                       sx={{ cursor: 'pointer' }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (balanceSheet.reference) {
-                          router.push(
+                      onClick={() => {
+                                                  router.push(
                             `/finance/balance-sheets/${balanceSheet.reference}`
                           )
-                        }
-                      }}
+                                              }}
                     >
                       <NoWrapTableCell align="right">
                         <PlaceholderTypography>
