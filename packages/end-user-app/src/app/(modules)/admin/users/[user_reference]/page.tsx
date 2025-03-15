@@ -255,26 +255,31 @@ export default function Page() {
               </ListItem>
               <ListSubheader>角色</ListSubheader>
               <ListItem>
-                <Stack
-                  direction="row"
-                  sx={{
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                  }}
-                >
-                  {user?.user_roles.map((userRole) => (
-                    <Box key={userRole.reference} sx={{ pr: 1, pb: 1 }}>
-                      <ReferenceBlock
-                        label={
-                          roles.find(
-                            (role) => role.reference === userRole.role_reference
-                          )?.symbol
-                        }
-                        foreignValue
-                      />
-                    </Box>
-                  ))}
-                </Stack>
+                {user?.user_roles.length === 0 ? (
+                  <PlaceholderTypography>無</PlaceholderTypography>
+                ) : (
+                  <Stack
+                    direction="row"
+                    sx={{
+                      flexWrap: 'wrap',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {user?.user_roles.map((userRole) => (
+                      <Box key={userRole.reference} sx={{ pr: 1, pb: 1 }}>
+                        <ReferenceBlock
+                          label={
+                            roles.find(
+                              (role) =>
+                                role.reference === userRole.role_reference
+                            )?.symbol
+                          }
+                          foreignValue
+                        />
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
               </ListItem>
             </List>
           </ModuleFunctionBody>
@@ -374,8 +379,8 @@ export default function Page() {
                   </TableRow>
                 </TableHead>
                 <StatefulTableBody
-                  isLoading={isFetchingUser}
-                  isEmpty={user?.user_roles.length === 0}
+                  isLoading={isFetchingUser || isFetchingRoles}
+                  isEmpty={roles.length === 0}
                 >
                   {roles.map((role, index) => {
                     const userRole = user?.user_roles.find(

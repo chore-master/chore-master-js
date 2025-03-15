@@ -1,4 +1,7 @@
+'use client'
+
 import ModuleLayout from '@/components/ModuleLayout'
+import { useAuth } from '@/utils/auth'
 import React from 'react'
 
 export default function Layout({
@@ -6,6 +9,7 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const auth = useAuth()
   return (
     <ModuleLayout
       loginRequired
@@ -14,6 +18,7 @@ export default function Layout({
         {
           type: 'link',
           title: '運算器',
+          isVisible: auth.currentUserHasSomeOfRoles(['FREEMIUM']),
           href: '/integration/operators',
           selectedWhenPartiallyMatched: true,
         },

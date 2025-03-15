@@ -64,6 +64,7 @@ export default function Layout({
             )
           },
           title: '我的資金',
+          isVisible: auth.currentUserHasSomeOfRoles(['FREEMIUM']),
           navigations: [
             {
               type: 'link',

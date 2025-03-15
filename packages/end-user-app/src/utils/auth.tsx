@@ -1,3 +1,5 @@
+'use client'
+
 import { CurrentUser } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import React from 'react'
