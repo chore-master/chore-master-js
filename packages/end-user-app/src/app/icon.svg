@@ -1,0 +1,10 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 - 使用 policy 中的藍色 #5D8AA8 -->
+  <rect x="0" y="0" width="200" height="200" fill="#5D8AA8" />
+  
+  <!-- 白色 C 字母 -->
+  <path d="M70 65 C50 100, 50 100, 70 135 H95 C75 105, 75 95, 95 65 H70 Z" fill="white" />
+  
+  <!-- 米色 C 字母 (重疊效果) -->
+  <path d="M110 65 C90 100, 90 100, 110 135 H135 C115 105, 115 95, 135 65 H110 Z" fill="#f5f2e9" opacity="0.9" />
+</svg> 

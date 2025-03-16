@@ -5,12 +5,15 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { TablePagination } from '@/components/Pagination'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import type {
   Asset,
   CreateAssetFormInputs,
   UpdateAssetFormInputs,
-} from '@/types'
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
@@ -23,7 +26,6 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
 import Checkbox from '@mui/material/Checkbox'
-import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -43,6 +45,9 @@ export default function Page() {
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
+  const [assetsCount, setAssetsCount] = React.useState(0)
+  const [assetsPage, setAssetsPage] = React.useState(0)
+  const [assetsRowsPerPage, setAssetsRowsPerPage] = React.useState(10)
   const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
   const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
     React.useState(false)
@@ -53,25 +58,35 @@ export default function Page() {
 
   const fetchAssets = React.useCallback(async () => {
     setIsFetchingAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
-      params: {},
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
+      params: {
+        offset: assetsPage * assetsRowsPerPage,
+        limit: assetsRowsPerPage,
+      },
       onError: () => {
         enqueueNotification(`Unable to fetch assets now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: any) => {
+      onSuccess: async ({
+        data,
+        metadata,
+      }: {
+        data: Asset[]
+        metadata: any
+      }) => {
         setAssets(data)
+        setAssetsCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingAssets(false)
-  }, [enqueueNotification])
+  }, [assetsPage, assetsRowsPerPage])
 
   const handleSubmitCreateAssetForm: SubmitHandler<
     CreateAssetFormInputs
   > = async (data) => {
-    await choreMasterAPIAgent.post('/v1/finance/assets', data, {
+    await choreMasterAPIAgent.post('/v1/finance/users/me/assets', data, {
       onError: () => {
         enqueueNotification(`Unable to create asset now.`, 'error')
       },
@@ -90,7 +105,7 @@ export default function Page() {
     UpdateAssetFormInputs
   > = async (data) => {
     await choreMasterAPIAgent.patch(
-      `/v1/finance/assets/${editingAssetReference}`,
+      `/v1/finance/users/me/assets/${editingAssetReference}`,
       data,
       {
         onError: () => {
@@ -114,17 +129,20 @@ export default function Page() {
       if (!isConfirmed) {
         return
       }
-      await choreMasterAPIAgent.delete(`/v1/finance/assets/${assetReference}`, {
-        onError: () => {
-          enqueueNotification(`Unable to delete asset now.`, 'error')
-        },
-        onFail: ({ message }: any) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: () => {
-          fetchAssets()
-        },
-      })
+      await choreMasterAPIAgent.delete(
+        `/v1/finance/users/me/assets/${assetReference}`,
+        {
+          onError: () => {
+            enqueueNotification(`Unable to delete asset now.`, 'error')
+          },
+          onFail: ({ message }: any) => {
+            enqueueNotification(message, 'error')
+          },
+          onSuccess: () => {
+            fetchAssets()
+          },
+        }
+      )
     },
     [enqueueNotification, fetchAssets]
   )
@@ -164,7 +182,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>代號</NoWrapTableCell>
                   <NoWrapTableCell>精度</NoWrapTableCell>
@@ -179,7 +199,11 @@ export default function Page() {
               >
                 {assets.map((asset, index) => (
                   <TableRow key={asset.reference} hover>
-                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <PlaceholderTypography>
+                        {assetsPage * assetsRowsPerPage + index + 1}
+                      </PlaceholderTypography>
+                    </NoWrapTableCell>
                     <NoWrapTableCell>{asset.name}</NoWrapTableCell>
                     <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
                     <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
@@ -191,7 +215,11 @@ export default function Page() {
                       )}
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip size="small" label={asset.reference} />
+                      <ReferenceBlock
+                        label={asset.reference}
+                        primaryKey
+                        monospace
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
@@ -221,6 +249,14 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            count={assetsCount}
+            page={assetsPage}
+            rowsPerPage={assetsRowsPerPage}
+            setPage={setAssetsPage}
+            setRowsPerPage={setAssetsRowsPerPage}
+            rowsPerPageOptions={[10, 20]}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
 

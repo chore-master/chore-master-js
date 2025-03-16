@@ -6,6 +6,9 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { TablePagination } from '@/components/Pagination'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
@@ -15,7 +18,7 @@ import type {
   Asset,
   CreateAccountFormInputs,
   UpdateAccountFormInputs,
-} from '@/types'
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { validateDatetimeField } from '@/utils/validation'
@@ -27,7 +30,6 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Chip from '@mui/material/Chip'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
@@ -55,6 +57,9 @@ export default function Page() {
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
+  const [accountsCount, setAccountsCount] = React.useState(0)
+  const [accountsPage, setAccountsPage] = React.useState(0)
+  const [accountsRowsPerPage, setAccountsRowsPerPage] = React.useState(10)
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
@@ -65,7 +70,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -84,26 +89,36 @@ export default function Page() {
 
   const fetchAccounts = React.useCallback(async () => {
     setIsFetchingAccounts(true)
-    await choreMasterAPIAgent.get('/v1/finance/accounts', {
-      params: {},
+    await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
+      params: {
+        offset: accountsPage * accountsRowsPerPage,
+        limit: accountsRowsPerPage,
+      },
       onError: () => {
         enqueueNotification(`Unable to fetch accounts now.`, 'error')
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },
-      onSuccess: async ({ data }: { data: Account[] }) => {
+      onSuccess: async ({
+        data,
+        metadata,
+      }: {
+        data: Account[]
+        metadata: any
+      }) => {
         setAccounts(data)
+        setAccountsCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingAccounts(false)
-  }, [enqueueNotification])
+  }, [accountsPage, accountsRowsPerPage])
 
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
   > = async ({ opened_time, closed_time, ...data }) => {
     await choreMasterAPIAgent.post(
-      '/v1/finance/accounts',
+      '/v1/finance/users/me/accounts',
       {
         ...data,
         opened_time: new Date(
@@ -133,7 +148,7 @@ export default function Page() {
     UpdateAccountFormInputs
   > = async ({ opened_time, closed_time, ...data }) => {
     await choreMasterAPIAgent.patch(
-      `/v1/finance/accounts/${editingAccountReference}`,
+      `/v1/finance/users/me/accounts/${editingAccountReference}`,
       {
         ...data,
         opened_time: new Date(
@@ -166,7 +181,7 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/accounts/${accountReference}`,
+        `/v1/finance/users/me/accounts/${accountReference}`,
         {
           onError: () => {
             enqueueNotification(`Unable to delete account now.`, 'error')
@@ -226,7 +241,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
                   <NoWrapTableCell>生態系</NoWrapTableCell>
@@ -242,11 +259,14 @@ export default function Page() {
               >
                 {accounts.map((account, index) => (
                   <TableRow key={account.reference} hover>
-                    <NoWrapTableCell align="right">{index + 1}</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      <PlaceholderTypography>
+                        {accountsPage * accountsRowsPerPage + index + 1}
+                      </PlaceholderTypography>
+                    </NoWrapTableCell>
                     <NoWrapTableCell>{account.name}</NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip
-                        size="small"
+                      <ReferenceBlock
                         label={
                           settleableAssets.find(
                             (asset) =>
@@ -254,26 +274,35 @@ export default function Page() {
                               account.settlement_asset_reference
                           )?.name
                         }
-                        color="info"
-                        variant="outlined"
+                        foreignValue
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      {
-                        financeAccountEcosystemTypes.find(
-                          (ecosystemType) =>
-                            ecosystemType.value === account.ecosystem_type
-                        )?.label
-                      }
+                      <ReferenceBlock
+                        label={
+                          financeAccountEcosystemTypes.find(
+                            (ecosystemType) =>
+                              ecosystemType.value === account.ecosystem_type
+                          )?.label
+                        }
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
                       <DatetimeBlock isoText={account.opened_time} />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <DatetimeBlock isoText={account.closed_time} />
+                      {account.closed_time ? (
+                        <DatetimeBlock isoText={account.closed_time} />
+                      ) : (
+                        <PlaceholderTypography>N/A</PlaceholderTypography>
+                      )}
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <Chip size="small" label={account.reference} />
+                      <ReferenceBlock
+                        label={account.reference}
+                        primaryKey
+                        monospace
+                      />
                     </NoWrapTableCell>
                     <NoWrapTableCell align="right">
                       <IconButton
@@ -315,6 +344,14 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            count={accountsCount}
+            page={accountsPage}
+            rowsPerPage={accountsRowsPerPage}
+            setPage={setAccountsPage}
+            setRowsPerPage={setAccountsRowsPerPage}
+            rowsPerPageOptions={[10, 20]}
+          />
         </ModuleFunctionBody>
       </ModuleFunction>
 
@@ -479,12 +516,7 @@ export default function Page() {
                       }
                       return (
                         <Box key={key} component="li" {...optionProps}>
-                          <Chip
-                            size="small"
-                            label={option.name}
-                            color="info"
-                            variant="outlined"
-                          />
+                          <ReferenceBlock label={option.name} foreignValue />
                         </Box>
                       )
                     }}

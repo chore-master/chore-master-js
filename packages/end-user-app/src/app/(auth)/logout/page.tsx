@@ -1,6 +1,6 @@
 'use client'
 
-import { iamAPIAgent } from '@/utils/apiAgent'
+import choreMasterAPIAgent from '@/utils/apiAgent'
 import Box from '@mui/material/Box'
 import LinearProgress from '@mui/material/LinearProgress'
 import { useRouter } from 'next/navigation'
@@ -10,7 +10,7 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    iamAPIAgent.post('/v1/admin/auth/logout', null, {
+    choreMasterAPIAgent.post('/v1/identity/user_sessions/logout', null, {
       onFail: (_status: any, data: any) => {
         console.error(data)
       },

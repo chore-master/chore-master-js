@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
@@ -42,7 +41,7 @@ export default function Page() {
 
   const fetchDatabaseRevisions = async () => {
     setIsFetchingDatabaseRevisions(true)
-    await choreMasterAPIAgent.get('/v1/admin/user_database/connection', {
+    await choreMasterAPIAgent.get('/v1/admin/database/migrations/revisions', {
       params: {},
       onError: () => {
         enqueueNotification(
@@ -68,7 +67,7 @@ export default function Page() {
 
   const onUpgradeClick = async () => {
     await choreMasterAPIAgent.post(
-      '/v1/admin/user_database/migrations/upgrade',
+      '/v1/admin/database/migrations/upgrade',
       null,
       {
         onError: () => {
@@ -93,7 +92,7 @@ export default function Page() {
       return
     }
     await choreMasterAPIAgent.post(
-      '/v1/admin/user_database/migrations/downgrade',
+      '/v1/admin/database/migrations/downgrade',
       null,
       {
         onError: () => {
@@ -114,7 +113,7 @@ export default function Page() {
 
   const onGenerateRevisionClick = async () => {
     await choreMasterAPIAgent.post(
-      '/v1/admin/user_database/migrations/generate_revision',
+      '/v1/admin/database/migrations/generate_revision',
       null,
       {
         onFail: ({ message }: any) => {
@@ -129,7 +128,7 @@ export default function Page() {
 
   const handleDeleteRevision = async (revision: string) => {
     await choreMasterAPIAgent.delete(
-      `/v1/admin/user_database/migrations/${revision}`,
+      `/v1/admin/database/migrations/${revision}`,
       {
         onFail: ({ message }: any) => {
           enqueueNotification(message, 'error')
@@ -142,18 +141,15 @@ export default function Page() {
   }
 
   const handleRevisionClick = async (revision: string) => {
-    await choreMasterAPIAgent.get(
-      `/v1/admin/user_database/migrations/${revision}`,
-      {
-        params: {},
-        onFail: ({ message }: any) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: async ({ data }: any) => {
-          await setFocusedRevisionScriptContent(data.script_content)
-        },
-      }
-    )
+    await choreMasterAPIAgent.get(`/v1/admin/database/migrations/${revision}`, {
+      params: {},
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        await setFocusedRevisionScriptContent(data.script_content)
+      },
+    })
   }
 
   const onResetClick = async () => {
@@ -161,7 +157,7 @@ export default function Page() {
     if (!isConfirmed) {
       return
     }
-    await choreMasterAPIAgent.post(`/v1/admin/user_database/reset`, null, {
+    await choreMasterAPIAgent.post(`/v1/admin/database/reset`, null, {
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'error')
       },

@@ -35,19 +35,23 @@ export default function ClusterNode({ id, data }: NodeProps<ClusterNodeProps>) {
   const padding = data.inset ?? 32
 
   React.useEffect(() => {
-    setWidth(
-      rightMostNode.position.x +
-        (rightMostNode.measured?.width || 0) +
-        padding * 2
-    )
+    if (rightMostNode) {
+      setWidth(
+        rightMostNode.position.x +
+          (rightMostNode.measured?.width || 0) +
+          padding * 2
+      )
+    }
   }, [rightMostNode, padding])
 
   React.useEffect(() => {
-    setHeight(
-      bottomMostNode.position.y +
-        (bottomMostNode.measured?.height || 0) +
-        padding * 2
-    )
+    if (bottomMostNode) {
+      setHeight(
+        bottomMostNode.position.y +
+          (bottomMostNode.measured?.height || 0) +
+          padding * 2
+      )
+    }
   }, [bottomMostNode, padding])
 
   return (

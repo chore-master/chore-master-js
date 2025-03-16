@@ -17,8 +17,8 @@ export default function Layout({
           navigations: [
             {
               type: 'link',
-              title: '連線',
-              href: '/admin/database/connection',
+              title: '資料表',
+              href: '/admin/database/tables',
               selectedWhenPartiallyMatched: true,
             },
             {
@@ -27,10 +27,16 @@ export default function Layout({
               href: '/admin/database/migrations',
               selectedWhenPartiallyMatched: true,
             },
+          ],
+        },
+        {
+          type: 'header',
+          title: '使用者',
+          navigations: [
             {
               type: 'link',
-              title: '資料表',
-              href: '/admin/database/tables',
+              title: '使用者',
+              href: '/admin/users',
               selectedWhenPartiallyMatched: true,
             },
           ],

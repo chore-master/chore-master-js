@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
@@ -6,19 +5,19 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import ReferenceBlock from '@/components/ReferenceBlock'
 import { useTimezone } from '@/components/timezone'
 import type {
   Account,
   Asset,
   BalanceSheetDetail,
   UpdateBalanceSheetFormInputs,
-} from '@/types'
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import SaveIcon from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
 import LinearProgress from '@mui/material/LinearProgress'
@@ -66,7 +65,7 @@ export default function Page() {
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
-    await choreMasterAPIAgent.get('/v1/finance/assets', {
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
         is_settleable: true,
       },
@@ -86,7 +85,7 @@ export default function Page() {
   const fetchAccounts = React.useCallback(
     async (activeAsOfTime: string) => {
       setIsFetchingAccounts(true)
-      await choreMasterAPIAgent.get('/v1/finance/accounts', {
+      await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
         params: {
           active_as_of_time: activeAsOfTime,
         },
@@ -109,7 +108,7 @@ export default function Page() {
     UpdateBalanceSheetFormInputs
   > = async ({ balanced_time, balance_entries, ...data }) => {
     await choreMasterAPIAgent.put(
-      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      `/v1/finance/users/me/balance_sheets/${balance_sheet_reference}`,
       {
         ...data,
         balanced_time: new Date(
@@ -146,7 +145,7 @@ export default function Page() {
   const fetchBalanceSheet = React.useCallback(async () => {
     setIsFetchingBalanceSheet(true)
     await choreMasterAPIAgent.get(
-      `/v1/finance/balance_sheets/${balance_sheet_reference}`,
+      `/v1/finance/users/me/balance_sheets/${balance_sheet_reference}`,
       {
         params: {},
         onError: () => {
@@ -170,7 +169,7 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/balance_sheets/${balanceSheetReference}`,
+        `/v1/finance/users/me/balance_sheets/${balanceSheetReference}`,
         {
           onError: () => {
             enqueueNotification(`Unable to delete balance sheet now.`, 'error')
@@ -283,10 +282,10 @@ export default function Page() {
               color="inherit"
               href={`/finance/balance-sheets/${balance_sheet_reference}`}
             >
-              <Chip
-                size="small"
-                sx={{ ml: 1 }}
+              <ReferenceBlock
                 label={balanceSheet.reference}
+                primaryKey
+                monospace
               />
             </MuiLink>
           )}
@@ -296,6 +295,7 @@ export default function Page() {
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
+          stickyTop
           title="更新結餘"
           actions={[
             <AutoLoadingButton
@@ -310,7 +310,6 @@ export default function Page() {
               更新
             </AutoLoadingButton>,
           ]}
-          sticky
         />
 
         <ModuleFunctionBody>
@@ -373,12 +372,7 @@ export default function Page() {
                   <React.Fragment key={field.id}>
                     <Grid size={12} container spacing={2} alignItems="center">
                       <Grid size={4}>
-                        <Chip
-                          size="small"
-                          label={account?.name}
-                          color="info"
-                          variant="outlined"
-                        />
+                        <ReferenceBlock label={account?.name} foreignValue />
                       </Grid>
                       <Grid size={4}>
                         <FormControl fullWidth>
@@ -401,11 +395,9 @@ export default function Page() {
                         </FormControl>
                       </Grid>
                       <Grid size={4}>
-                        <Chip
-                          size="small"
+                        <ReferenceBlock
                           label={settleableAsset?.name}
-                          color="info"
-                          variant="outlined"
+                          foreignValue
                         />
                       </Grid>
                     </Grid>

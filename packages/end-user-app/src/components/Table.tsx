@@ -1,3 +1,4 @@
+import PlaceholderTypography from '@/components/PlaceholderTypography'
 import TableBody, { TableBodyProps } from '@mui/material/TableBody'
 import TableCell, { TableCellProps } from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
@@ -21,9 +22,7 @@ export function StatefulTableBody({
       {isLoading && isEmpty && (
         <TableRow>
           <NoWrapTableCell colSpan={999}>
-            <Typography variant="body2" color="text.secondary">
-              {loadingText}
-            </Typography>
+            <PlaceholderTypography>{loadingText}</PlaceholderTypography>
           </NoWrapTableCell>
         </TableRow>
       )}

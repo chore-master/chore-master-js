@@ -23,11 +23,13 @@ if (typeof Highcharts === 'object') {
 export default function HighChartsCore({
   options,
   callback,
+  style,
 }: // onRender,
 {
   options: Highcharts.Options
   callback?: (chart: Highcharts.Chart) => void
   // onRender?: (chart: Highcharts.Chart) => void
+  style?: React.CSSProperties
 }) {
   // const chartComponentRef = React.useRef<HighchartsReact.RefObject>(null)
   // const [chart, setChart] = React.useState<Highcharts.Chart | null>(null)
@@ -100,6 +102,9 @@ export default function HighChartsCore({
       highcharts={Highcharts}
       options={mergedOptions}
       callback={_callback}
+      containerProps={{
+        style,
+      }}
     />
   )
 }

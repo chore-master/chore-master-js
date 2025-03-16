@@ -7,6 +7,6 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    router.push('/integration/resources')
+    router.push('/integration/operators')
   }, [router])
 }

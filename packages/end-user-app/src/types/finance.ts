@@ -1,32 +1,3 @@
-// SystemInspect
-
-export interface SystemInspect {
-  commit_revision: string | null
-  commit_short_sha: string | null
-  env: string
-}
-
-// Resource
-
-export interface Resource {
-  reference: string
-  name: string
-  discriminator: string
-  value: string
-}
-
-export interface CreateResourceFormInputs {
-  name: string
-  discriminator: string
-  value: string
-}
-
-export interface UpdateResourceFormInputs {
-  name: string
-  discriminator: string
-  value: string
-}
-
 // Asset
 
 export interface Asset {
@@ -119,4 +90,64 @@ export interface BalanceEntry {
   balance_sheet_reference?: string
   account_reference: string
   amount: number
+}
+
+// Instrument
+
+export interface Instrument {
+  reference: string
+  name: string
+  quantity_decimals: number
+  price_decimals: number
+  instrument_type: string
+  base_asset_reference?: string
+  quote_asset_reference?: string
+  settlement_asset_reference?: string
+  underlying_asset_reference?: string
+  staking_asset_reference?: string
+  yielding_asset_reference?: string
+}
+
+export interface CreateInstrumentFormInputs {
+  name: string
+  quantity_decimals: number
+  price_decimals: number
+  instrument_type: string
+  base_asset_reference?: string
+  quote_asset_reference?: string
+  settlement_asset_reference?: string
+  underlying_asset_reference?: string
+  staking_asset_reference?: string
+  yielding_asset_reference?: string
+}
+
+export interface UpdateInstrumentFormInputs {
+  name?: string
+  quantity_decimals?: number
+  price_decimals?: number
+  instrument_type?: string
+  base_asset_reference?: string
+  quote_asset_reference?: string
+  settlement_asset_reference?: string
+  underlying_asset_reference?: string
+  staking_asset_reference?: string
+  yielding_asset_reference?: string
+}
+
+// Portfolio
+
+export interface Portfolio {
+  reference: string
+  name: string
+  description?: string
+}
+
+export interface CreatePortfolioFormInputs {
+  name: string
+  description?: string
+}
+
+export interface UpdatePortfolioFormInputs {
+  name?: string
+  description?: string
 }
