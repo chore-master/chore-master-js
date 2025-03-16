@@ -5,6 +5,7 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
 import getConfig from '@/utils/config'
 import { useNotification } from '@/utils/notification'
+import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { Turnstile } from '@marsidev/react-turnstile'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
@@ -22,6 +23,7 @@ import Typography from '@mui/material/Typography'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useRef } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 const { CLOUDFLARE_TURNSTILE_SITE_KEY } = getConfig()
@@ -64,6 +66,7 @@ const logingRedirectPath = '/finance'
 export default function Page() {
   const router = useRouter()
   const loginForm = useForm<LoginForm>()
+  const loginFormTokenTurnstileRef = useRef<TurnstileInstance | null>(null)
   const { enqueueNotification } = useNotification()
   const auth = useAuth()
 
@@ -74,9 +77,11 @@ export default function Page() {
           'Something wrong happened. Service may be unavailable now.',
           'error'
         )
+        loginFormTokenTurnstileRef.current?.reset()
       },
       onFail: ({ message }: any) => {
         enqueueNotification(message, 'warning')
+        loginFormTokenTurnstileRef.current?.reset()
       },
       onSuccess: () => {
         loginForm.reset()
@@ -197,6 +202,7 @@ export default function Page() {
                   defaultValue=""
                   render={({ field }) => (
                     <Turnstile
+                      ref={loginFormTokenTurnstileRef}
                       siteKey={CLOUDFLARE_TURNSTILE_SITE_KEY}
                       options={{
                         theme: 'light',
