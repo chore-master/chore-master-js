@@ -9,6 +9,7 @@ import ModuleFunction, {
   ModuleSplitter,
   ModuleSplitterPanel,
 } from '@/components/ModuleFunction'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
 import { NoWrapTableCell } from '@/components/Table'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import * as blobUtils from '@/utils/blob'
@@ -232,8 +233,8 @@ export default function Page() {
             </AutoLoadingButton>
           </Stack>
           <Divider />
-          <ModuleSplitter layout="horizontal">
-            <ModuleSplitterPanel size={25} style={{ overflow: 'auto' }}>
+          <ModuleSplitter layout="horizontal" style={{ maxHeight: 400 }}>
+            <ModuleSplitterPanel size={40} style={{ overflow: 'auto' }}>
               <Box sx={{ display: 'flex', flexGrow: 1 }}>
                 <List sx={{ flexGrow: 1 }}>
                   <ListSubheader>
@@ -331,8 +332,12 @@ export default function Page() {
                 </List>
               </Box>
             </ModuleSplitterPanel>
-            <ModuleSplitterPanel size={75} style={{ overflow: 'auto' }}>
-              {viewingTableIndex !== undefined && (
+            <ModuleSplitterPanel size={60} style={{ overflow: 'auto' }}>
+              {viewingTableIndex === undefined ? (
+                <PlaceholderTypography sx={{ p: 2 }}>
+                  選擇特定資料表以篩選欄位
+                </PlaceholderTypography>
+              ) : (
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
