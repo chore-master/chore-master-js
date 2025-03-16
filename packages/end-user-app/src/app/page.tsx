@@ -67,43 +67,38 @@ export default function Page() {
   // Sample screenshots - replace these with actual paths to your screenshots
   const screenshots = [
     {
+      label: '淨值變化',
+      imgPath: '/images/net-worth.png',
+      description: '追蹤您的淨值變化趨勢，掌握財務成長情況',
+    },
+    {
       label: '資產負債總覽',
-      imgPath: '/images/dashboard-screenshot.png',
+      imgPath: '/images/asset-liability-time-series.png',
       description: '一目了然的儀表板，讓您掌握所有資產、負債和淨值變化',
     },
     {
       label: '資產分佈分析',
-      imgPath: '/images/asset-distribution-screenshot.png',
+      imgPath: '/images/asset-distribution.png',
       description: '視覺化的資產分佈圖表，幫助您優化資產配置',
-    },
-    {
-      label: '投資組合管理',
-      imgPath: '/images/portfolio-screenshot.png',
-      description: '全面的投資組合追蹤與管理功能',
-    },
-    {
-      label: '財務報表',
-      imgPath: '/images/financial-reports-screenshot.png',
-      description: '詳細的財務報表，幫助您掌握財務健康狀況',
     },
   ]
 
   // Financial module features
   const financialFeatures = [
     {
+      title: '淨值趨勢分析',
+      imgPath: '/images/net-worth.png',
+      description: '追蹤您的淨值變化趨勢，掌握財務成長情況',
+    },
+    {
       title: '資產負債追蹤',
-      imgPath: '/images/asset-tracking.png',
+      imgPath: '/images/asset-liability-time-series.png',
       description: '定期追蹤您的資產、負債和淨值變化，掌握財務全貌',
     },
     {
-      title: '投資組合管理',
-      imgPath: '/images/portfolio-management.png',
-      description: '追蹤您的投資組合表現，分析收益與風險',
-    },
-    {
-      title: '財務記帳功能',
-      imgPath: '/images/financial-journal.png',
-      description: '即將推出的記帳功能，幫助您記錄日常收支',
+      title: '資產分佈分析',
+      imgPath: '/images/asset-distribution.png',
+      description: '視覺化您的資產分佈，了解資產配置情況',
     },
   ]
 
@@ -210,14 +205,14 @@ export default function Page() {
                     height: 300,
                     width: '100%',
                     position: 'relative',
-                    bgcolor: 'rgba(255,255,255,0.1)',
+                    bgcolor: '#FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     overflow: 'hidden',
                   }}
                 >
-                  {/* Replace with actual images when available */}
+                  {/* 使用實際圖片替換佔位符 */}
                   <Box
                     sx={{
                       position: 'relative',
@@ -228,13 +223,12 @@ export default function Page() {
                       justifyContent: 'center',
                     }}
                   >
-                    {/* Placeholder for actual image */}
-                    <Typography
-                      variant="h6"
-                      sx={{ zIndex: 1, color: 'white', textAlign: 'center' }}
-                    >
-                      {screenshots[activeStep].label}
-                    </Typography>
+                    <Image
+                      src={screenshots[activeStep].imgPath}
+                      alt={screenshots[activeStep].label}
+                      fill
+                      style={{ objectFit: 'contain' }}
+                    />
                     <Box
                       sx={{
                         position: 'absolute',
@@ -243,6 +237,8 @@ export default function Page() {
                         right: 0,
                         px: 2,
                         zIndex: 1,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        py: 1,
                       }}
                     >
                       <Typography
@@ -380,10 +376,10 @@ export default function Page() {
                     sx={{
                       position: 'relative',
                       pt: '56.25%' /* 16:9 aspect ratio */,
-                      bgcolor: 'rgba(0,0,0,0.05)',
+                      bgcolor: '#FFFFFF',
                     }}
                   >
-                    {/* Replace with actual images when available */}
+                    {/* 使用實際圖片替換佔位符 */}
                     <Box
                       sx={{
                         position: 'absolute',
@@ -396,9 +392,12 @@ export default function Page() {
                         justifyContent: 'center',
                       }}
                     >
-                      <Typography variant="body1">
-                        {feature.title} 截圖
-                      </Typography>
+                      <Image
+                        src={feature.imgPath}
+                        alt={`${feature.title}截圖`}
+                        fill
+                        style={{ objectFit: 'contain' }}
+                      />
                     </Box>
                   </Box>
                   <CardContent>
@@ -588,13 +587,13 @@ export default function Page() {
                   borderRadius: 2,
                   overflow: 'hidden',
                   boxShadow: 3,
-                  bgcolor: 'rgba(0,0,0,0.05)',
+                  bgcolor: '#FFFFFF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                {/* Replace with actual image */}
+                {/* 投資組合管理的佔位符 */}
                 <Typography variant="h6" color="text.secondary">
                   投資組合管理介面截圖
                 </Typography>
@@ -665,24 +664,28 @@ export default function Page() {
                 連結
               </Typography>
               <Stack spacing={1}>
-                <Link
-                  href="/login"
-                  style={{
-                    textDecoration: 'none',
-                    color: landingTheme.palette.text.secondary,
-                  }}
-                >
-                  <Typography variant="body2">登入</Typography>
-                </Link>
-                <Link
-                  href="#"
-                  style={{
-                    textDecoration: 'none',
-                    color: landingTheme.palette.text.secondary,
-                  }}
-                >
-                  <Typography variant="body2">關於我們</Typography>
-                </Link>
+                <Typography variant="body2">
+                  <Link
+                    href="/login"
+                    style={{
+                      textDecoration: 'none',
+                      color: landingTheme.palette.text.secondary,
+                    }}
+                  >
+                    登入
+                  </Link>
+                </Typography>
+                <Typography variant="body2">
+                  <Link
+                    href="#"
+                    style={{
+                      textDecoration: 'none',
+                      color: landingTheme.palette.text.secondary,
+                    }}
+                  >
+                    關於我們
+                  </Link>
+                </Typography>
               </Stack>
             </Grid>
             <Grid item xs={12} md={4}>
@@ -690,24 +693,28 @@ export default function Page() {
                 法律資訊
               </Typography>
               <Stack spacing={1}>
-                <Link
-                  href="/privacy"
-                  style={{
-                    textDecoration: 'none',
-                    color: landingTheme.palette.text.secondary,
-                  }}
-                >
-                  <Typography variant="body2">隱私權政策</Typography>
-                </Link>
-                <Link
-                  href="/terms"
-                  style={{
-                    textDecoration: 'none',
-                    color: landingTheme.palette.text.secondary,
-                  }}
-                >
-                  <Typography variant="body2">服務條款</Typography>
-                </Link>
+                <Typography variant="body2">
+                  <Link
+                    href="/privacy"
+                    style={{
+                      textDecoration: 'none',
+                      color: landingTheme.palette.text.secondary,
+                    }}
+                  >
+                    隱私權政策
+                  </Link>
+                </Typography>
+                <Typography variant="body2">
+                  <Link
+                    href="/terms"
+                    style={{
+                      textDecoration: 'none',
+                      color: landingTheme.palette.text.secondary,
+                    }}
+                  >
+                    服務條款
+                  </Link>
+                </Typography>
               </Stack>
             </Grid>
           </Grid>
