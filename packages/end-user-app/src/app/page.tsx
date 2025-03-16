@@ -195,7 +195,6 @@ export default function Page() {
                   position: 'relative',
                   maxWidth: 500,
                   mx: 'auto',
-                  boxShadow: 3,
                   borderRadius: 2,
                   overflow: 'hidden',
                 }}
@@ -205,14 +204,14 @@ export default function Page() {
                     height: 300,
                     width: '100%',
                     position: 'relative',
-                    bgcolor: '#FFFFFF',
+                    bgcolor: landingTheme.palette.primary.main,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     overflow: 'hidden',
                   }}
                 >
-                  {/* 使用實際圖片替換佔位符 */}
+                  {/* 使用 Device Mockup 包裝截圖 */}
                   <Box
                     sx={{
                       position: 'relative',
@@ -223,12 +222,58 @@ export default function Page() {
                       justifyContent: 'center',
                     }}
                   >
-                    <Image
-                      src={screenshots[activeStep].imgPath}
-                      alt={screenshots[activeStep].label}
-                      fill
-                      style={{ objectFit: 'contain' }}
-                    />
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '8px',
+                        boxShadow: 'none',
+                        overflow: 'hidden',
+                        backgroundColor: 'white',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: '24px',
+                          backgroundColor: '#f5f5f5',
+                          borderBottom: '1px solid #e0e0e0',
+                          zIndex: 2,
+                        },
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          top: '8px',
+                          left: '8px',
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: '#ff5f57',
+                          boxShadow: '16px 0 0 #ffbd2e, 32px 0 0 #28c941',
+                          zIndex: 2,
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: '24px',
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <Image
+                          src={screenshots[activeStep].imgPath}
+                          alt={screenshots[activeStep].label}
+                          fill
+                          style={{ objectFit: 'contain', padding: '8px' }}
+                        />
+                      </Box>
+                    </Box>
                     <Box
                       sx={{
                         position: 'absolute',
@@ -263,6 +308,7 @@ export default function Page() {
                     justifyContent: 'space-between',
                     transform: 'translateY(-50%)',
                     px: 1,
+                    pointerEvents: 'none',
                   }}
                 >
                   <IconButton
@@ -271,6 +317,8 @@ export default function Page() {
                       color: 'white',
                       bgcolor: 'rgba(0,0,0,0.3)',
                       '&:hover': { bgcolor: 'rgba(0,0,0,0.5)' },
+                      boxShadow: 'none',
+                      pointerEvents: 'auto',
                     }}
                     size="small"
                   >
@@ -282,6 +330,8 @@ export default function Page() {
                       color: 'white',
                       bgcolor: 'rgba(0,0,0,0.3)',
                       '&:hover': { bgcolor: 'rgba(0,0,0,0.5)' },
+                      boxShadow: 'none',
+                      pointerEvents: 'auto',
                     }}
                     size="small"
                   >
@@ -298,10 +348,15 @@ export default function Page() {
                     bgcolor: 'transparent',
                     '& .MuiMobileStepper-dot': {
                       bgcolor: 'rgba(255,255,255,0.5)',
+                      boxShadow: 'none',
                     },
                     '& .MuiMobileStepper-dotActive': {
                       bgcolor: 'white',
+                      boxShadow: 'none',
                     },
+                    mt: 0,
+                    mb: 0,
+                    py: 1,
                   }}
                   nextButton={<Box />}
                   backButton={<Box />}
@@ -318,7 +373,7 @@ export default function Page() {
           為什麼選擇 Chore Master？
         </Typography>
         <Typography variant="body1" align="center" paragraph sx={{ mb: 6 }}>
-          我們提供的不只是一個工具，而是一個能夠幫助您掌握財務狀況的智能助理
+          從資產追蹤到投資管理，我們為您打造全方位的個人財務管理平台
         </Typography>
 
         <Grid container spacing={4}>
@@ -379,7 +434,7 @@ export default function Page() {
                       bgcolor: '#FFFFFF',
                     }}
                   >
-                    {/* 使用實際圖片替換佔位符 */}
+                    {/* 還原為原始版本，不使用 Device Mockup */}
                     <Box
                       sx={{
                         position: 'absolute',
@@ -539,65 +594,125 @@ export default function Page() {
       {/* Investment Portfolio Management Section */}
       <Box sx={{ bgcolor: 'background.paper', py: 8, mb: 6 }}>
         <Container maxWidth="lg">
-          <Grid container spacing={4} alignItems="center">
+          <Box sx={{ textAlign: 'center', mb: 6 }}>
+            <Typography variant="h4" component="h2" gutterBottom>
+              投資組合管理
+            </Typography>
+            <Typography variant="body1" sx={{ maxWidth: '800px', mx: 'auto' }}>
+              Chore Master 的投資組合管理功能提供完整的投資追蹤與分析工具，
+              幫助您做出更明智的投資決策。
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
-              <Typography variant="h4" component="h2" gutterBottom>
-                投資組合管理
-              </Typography>
-              <Typography variant="body1" paragraph>
-                Chore Master 的投資組合管理功能讓您能夠：
-              </Typography>
-              <Stack spacing={2}>
-                {[
-                  '追蹤多個投資組合的表現',
-                  '分析投資收益與風險',
-                  '檢視資產配置和多元化程度',
-                  '設定投資目標並追蹤進度',
-                  '即將推出：託管式交易策略，自動追蹤餘額、部位和損益',
-                ].map((item, index) => (
-                  <Box
-                    key={index}
-                    sx={{ display: 'flex', alignItems: 'center' }}
-                  >
-                    <Box
-                      sx={{
-                        minWidth: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        bgcolor: landingTheme.palette.primary.main,
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mr: 2,
-                        fontSize: 14,
-                      }}
-                    >
-                      ✓
-                    </Box>
-                    <Typography variant="body1">{item}</Typography>
-                  </Box>
-                ))}
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box
+              <Paper
+                elevation={0}
                 sx={{
-                  height: 350,
+                  p: 4,
+                  height: '100%',
+                  bgcolor: 'rgba(93, 138, 168, 0.1)',
                   borderRadius: 2,
-                  overflow: 'hidden',
-                  boxShadow: 3,
-                  bgcolor: '#FFFFFF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                 }}
               >
-                {/* 投資組合管理的佔位符 */}
-                <Typography variant="h6" color="text.secondary">
-                  投資組合管理介面截圖
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ color: 'primary.main' }}
+                >
+                  基礎功能
                 </Typography>
-              </Box>
+                <Stack spacing={2}>
+                  {[
+                    '追蹤多個投資組合的表現',
+                    '分析投資收益與風險',
+                    '檢視資產配置和多元化程度',
+                  ].map((item, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: 2,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          minWidth: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          bgcolor: 'primary.main',
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          mr: 2,
+                          fontSize: 14,
+                        }}
+                      >
+                        ✓
+                      </Box>
+                      <Typography variant="body1">{item}</Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 4,
+                  height: '100%',
+                  bgcolor: 'rgba(210, 180, 140, 0.1)',
+                  borderRadius: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ color: 'secondary.main' }}
+                >
+                  進階功能
+                </Typography>
+                <Stack spacing={2}>
+                  {[
+                    '設定投資目標並追蹤進度',
+                    '即將推出：託管式交易策略',
+                    '自動追蹤餘額、部位和損益',
+                  ].map((item, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: 2,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          minWidth: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          bgcolor: 'secondary.main',
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          mr: 2,
+                          fontSize: 14,
+                        }}
+                      >
+                        ✓
+                      </Box>
+                      <Typography variant="body1">{item}</Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Paper>
             </Grid>
           </Grid>
         </Container>
