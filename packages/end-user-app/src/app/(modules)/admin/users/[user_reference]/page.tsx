@@ -290,7 +290,7 @@ export default function Page() {
       <TabPanel value="settings" sx={{ p: 0 }}>
         <ModuleFunction>
           <ModuleFunctionHeader title="基本資訊" />
-          <ModuleFunctionBody>
+          <ModuleFunctionBody loading={isFetchingUser}>
             <Stack
               component="form"
               spacing={3}
