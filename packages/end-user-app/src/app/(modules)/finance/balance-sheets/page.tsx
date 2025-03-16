@@ -672,10 +672,27 @@ export default function Page() {
                 </Select>
               </FormControl>
             </Stack>
-            <HighChartsCore
-              callback={setAreaChart}
-              options={areaChartOptions}
-            />
+            {areaChartOptions.series?.every(
+              (series) => series.visible === false
+            ) ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 400,
+                }}
+              >
+                <PlaceholderTypography>
+                  目前沒有資料可以繪製
+                </PlaceholderTypography>
+              </Box>
+            ) : (
+              <HighChartsCore
+                callback={setAreaChart}
+                options={areaChartOptions}
+              />
+            )}
             {selectedChartType !== 'exchange_rate' && (
               <Stack sx={{ mt: 2 }}>
                 <Stack
