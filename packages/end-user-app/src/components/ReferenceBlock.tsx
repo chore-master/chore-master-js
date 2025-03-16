@@ -1,5 +1,6 @@
 import Chip from '@mui/material/Chip'
 import { SxProps } from '@mui/material/styles'
+import Link from 'next/link'
 
 export default function ReferenceBlock({
   label,
@@ -8,6 +9,7 @@ export default function ReferenceBlock({
   monospace = false,
   sx,
   disabled = false,
+  href,
 }: {
   label?: string
   primaryKey?: boolean
@@ -15,11 +17,12 @@ export default function ReferenceBlock({
   monospace?: boolean
   sx?: SxProps
   disabled?: boolean
+  href?: string
 }) {
   const fontFamily = monospace ? 'monospace' : undefined
   const variant = primaryKey ? undefined : 'outlined'
   const color = foreignValue ? 'info' : undefined
-  return (
+  const children = (
     <Chip
       size="small"
       label={label}
@@ -29,4 +32,5 @@ export default function ReferenceBlock({
       disabled={disabled}
     />
   )
+  return href ? <Link href={href}>{children}</Link> : children
 }

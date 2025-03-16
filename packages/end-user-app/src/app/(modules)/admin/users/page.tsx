@@ -146,14 +146,7 @@ export default function Page() {
                 isEmpty={users.length === 0}
               >
                 {users.map((user, index) => (
-                  <TableRow
-                    key={user.reference}
-                    hover
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => {
-                      router.push(`/admin/users/${user.reference}`)
-                    }}
-                  >
+                  <TableRow key={user.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
                         {usersPage * usersRowsPerPage + index + 1}
@@ -166,6 +159,7 @@ export default function Page() {
                         label={user.reference}
                         primaryKey
                         monospace
+                        href={`/admin/users/${user.reference}`}
                       />
                     </NoWrapTableCell>
                   </TableRow>

@@ -815,16 +815,7 @@ export default function Page() {
               >
                 {balanceSheetsSeries.balance_sheets.map(
                   (balanceSheet, index) => (
-                    <TableRow
-                      key={balanceSheet.reference}
-                      hover
-                      sx={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        router.push(
-                          `/finance/balance-sheets/${balanceSheet.reference}`
-                        )
-                      }}
-                    >
+                    <TableRow key={balanceSheet.reference} hover>
                       <NoWrapTableCell align="right">
                         <PlaceholderTypography>
                           {balanceSheetsPage * balanceSheetsRowsPerPage +
@@ -840,6 +831,7 @@ export default function Page() {
                           label={balanceSheet.reference}
                           primaryKey
                           monospace
+                          href={`/finance/balance-sheets/${balanceSheet.reference}`}
                         />
                       </NoWrapTableCell>
                       <NoWrapTableCell align="right">
