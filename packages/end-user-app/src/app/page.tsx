@@ -68,17 +68,17 @@ export default function Page() {
   const screenshots = [
     {
       label: '淨值變化',
-      imgPath: '/images/net-worth.png',
+      imgPath: '/images/net-worth.svg',
       description: '追蹤您的淨值變化趨勢，掌握財務成長情況',
     },
     {
       label: '資產負債總覽',
-      imgPath: '/images/asset-liability-time-series.png',
+      imgPath: '/images/asset-liability-time-series.svg',
       description: '一目了然的儀表板，讓您掌握所有資產、負債和淨值變化',
     },
     {
       label: '資產分佈分析',
-      imgPath: '/images/asset-distribution.png',
+      imgPath: '/images/asset-distribution.svg',
       description: '視覺化的資產分佈圖表，幫助您優化資產配置',
     },
   ]
@@ -87,17 +87,17 @@ export default function Page() {
   const financialFeatures = [
     {
       title: '淨值趨勢分析',
-      imgPath: '/images/net-worth.png',
+      imgPath: '/images/net-worth.svg',
       description: '追蹤您的淨值變化趨勢，掌握財務成長情況',
     },
     {
       title: '資產負債追蹤',
-      imgPath: '/images/asset-liability-time-series.png',
+      imgPath: '/images/asset-liability-time-series.svg',
       description: '定期追蹤您的資產、負債和淨值變化，掌握財務全貌',
     },
     {
       title: '資產分佈分析',
-      imgPath: '/images/asset-distribution.png',
+      imgPath: '/images/asset-distribution.svg',
       description: '視覺化您的資產分佈，了解資產配置情況',
     },
   ]
@@ -270,7 +270,7 @@ export default function Page() {
                           src={screenshots[activeStep].imgPath}
                           alt={screenshots[activeStep].label}
                           fill
-                          style={{ objectFit: 'contain', padding: '8px' }}
+                          style={{ objectFit: 'contain', padding: '0' }}
                         />
                       </Box>
                     </Box>
@@ -431,7 +431,7 @@ export default function Page() {
                     sx={{
                       position: 'relative',
                       pt: '56.25%' /* 16:9 aspect ratio */,
-                      bgcolor: '#FFFFFF',
+                      bgcolor: landingTheme.palette.background.default,
                     }}
                   >
                     {/* 還原為原始版本，不使用 Device Mockup */}
@@ -451,7 +451,7 @@ export default function Page() {
                         src={feature.imgPath}
                         alt={`${feature.title}截圖`}
                         fill
-                        style={{ objectFit: 'contain' }}
+                        style={{ objectFit: 'contain', padding: 0 }}
                       />
                     </Box>
                   </Box>
@@ -839,7 +839,7 @@ export default function Page() {
             align="center"
             sx={{ mt: 4 }}
           >
-            © {new Date().getFullYear()} Chore Master. All rights reserved.
+            &copy; {new Date().getFullYear()} Chore Master. All rights reserved.
           </Typography>
         </Container>
       </Box>
