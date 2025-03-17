@@ -589,6 +589,10 @@ export default function Page() {
     legends,
   ])
 
+  const isChartUnavailable =
+    !areaChartOptions.series ||
+    areaChartOptions.series?.every((series) => series.visible === false)
+
   return (
     <React.Fragment>
       <ModuleFunction>
@@ -678,10 +682,7 @@ export default function Page() {
                 </Select>
               </FormControl>
             </Stack>
-            {!areaChartOptions.series ||
-            areaChartOptions.series?.every(
-              (series) => series.visible === false
-            ) ? (
+            {isChartUnavailable && (
               <Box
                 sx={{
                   display: 'flex',
@@ -694,12 +695,14 @@ export default function Page() {
                   目前沒有資料可以繪製
                 </PlaceholderTypography>
               </Box>
-            ) : (
-              <HighChartsCore
-                callback={setAreaChart}
-                options={areaChartOptions}
-              />
             )}
+            <HighChartsCore
+              callback={setAreaChart}
+              options={areaChartOptions}
+              style={{
+                display: isChartUnavailable ? 'none' : 'block',
+              }}
+            />
             {selectedChartType !== 'exchange_rate' && (
               <Stack sx={{ mt: 2 }}>
                 <Stack
