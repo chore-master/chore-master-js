@@ -14,6 +14,12 @@ const theme = createTheme({
           dark: '#3A6B8C',
           contrastText: '#FFFFFF',
         },
+        info: {
+          main: '#5D8AA8', // Same as primary
+          light: '#7FA8C9',
+          dark: '#3A6B8C',
+          contrastText: '#FFFFFF',
+        },
         secondary: {
           main: '#E57373', // Soft coral/pink
           light: '#FFB2B2',

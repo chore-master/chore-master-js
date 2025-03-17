@@ -276,7 +276,9 @@ export default function Page() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <NoWrapTableCell align="right">#</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>#</PlaceholderTypography>
+                  </NoWrapTableCell>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>數量精度</NoWrapTableCell>
                   <NoWrapTableCell>價格精度</NoWrapTableCell>
