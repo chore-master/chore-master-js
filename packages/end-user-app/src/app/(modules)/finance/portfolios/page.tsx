@@ -9,16 +9,10 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import {
-  CreatePortfolioFormInputs,
-  Portfolio,
-  UpdatePortfolioFormInputs,
-} from '@/types/finance'
+import { CreatePortfolioFormInputs, Portfolio } from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/DeleteOutlined'
-import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -48,9 +42,6 @@ export default function Page() {
   const [isCreatePortfolioDrawerOpen, setIsCreatePortfolioDrawerOpen] =
     React.useState(false)
   const createPortfolioForm = useForm<CreatePortfolioFormInputs>()
-  const [editingPortfolioReference, setEditingPortfolioReference] =
-    React.useState<string>()
-  const updatePortfolioForm = useForm<UpdatePortfolioFormInputs>()
 
   const fetchPortfolios = React.useCallback(async () => {
     setIsFetchingPortfolios(true)
@@ -90,52 +81,6 @@ export default function Page() {
       },
     })
   }
-
-  const handleSubmitUpdatePortfolioForm: SubmitHandler<
-    UpdatePortfolioFormInputs
-  > = async (data) => {
-    await choreMasterAPIAgent.patch(
-      `/v1/finance/portfolios/${editingPortfolioReference}`,
-      data,
-      {
-        onError: () => {
-          enqueueNotification(`Unable to update portfolio now.`, 'error')
-        },
-        onFail: ({ message }: any) => {
-          enqueueNotification(message, 'error')
-        },
-        onSuccess: () => {
-          updatePortfolioForm.reset()
-          setEditingPortfolioReference(undefined)
-          fetchPortfolios()
-        },
-      }
-    )
-  }
-
-  const deletePortfolio = React.useCallback(
-    async (portfolioReference: string) => {
-      const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
-      if (!isConfirmed) {
-        return
-      }
-      await choreMasterAPIAgent.delete(
-        `/v1/finance/portfolios/${portfolioReference}`,
-        {
-          onError: () => {
-            enqueueNotification(`Unable to delete portfolio now.`, 'error')
-          },
-          onFail: ({ message }: any) => {
-            enqueueNotification(message, 'error')
-          },
-          onSuccess: () => {
-            fetchPortfolios()
-          },
-        }
-      )
-    },
-    [enqueueNotification, fetchPortfolios]
-  )
 
   React.useEffect(() => {
     fetchPortfolios()
@@ -181,7 +126,6 @@ export default function Page() {
                   <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>描述</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody
@@ -206,28 +150,8 @@ export default function Page() {
                         label={portfolio.reference}
                         primaryKey
                         monospace
+                        href={`/finance/portfolios/${portfolio.reference}`}
                       />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          updatePortfolioForm.setValue('name', portfolio.name)
-                          updatePortfolioForm.setValue(
-                            'description',
-                            portfolio.description
-                          )
-                          setEditingPortfolioReference(portfolio.reference)
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => deletePortfolio(portfolio.reference)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
                     </NoWrapTableCell>
                   </TableRow>
                 ))}
@@ -302,68 +226,6 @@ export default function Page() {
               )}
             >
               新增
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
-
-      <Drawer
-        anchor="right"
-        open={editingPortfolioReference !== undefined}
-        onClose={() => setEditingPortfolioReference(undefined)}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯投資組合" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={updatePortfolioForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名稱"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="description"
-                control={updatePortfolioForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="描述"
-                    variant="filled"
-                    multiline
-                    rows={5}
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!updatePortfolioForm.formState.isValid}
-              onClick={updatePortfolioForm.handleSubmit(
-                handleSubmitUpdatePortfolioForm
-              )}
-            >
-              儲存
             </AutoLoadingButton>
           </Stack>
         </Box>
