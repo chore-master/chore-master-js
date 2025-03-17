@@ -431,7 +431,11 @@ export default function Page() {
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
           stickyTop
-          title={<DatetimeBlock isoText={balanceSheet?.balanced_time} />}
+          title={
+            <Typography variant="h5" color="primary">
+              <DatetimeBlock isoText={balanceSheet?.balanced_time} />
+            </Typography>
+          }
           actions={[
             <Tooltip key="refresh" title="立即重整">
               <span>
@@ -446,9 +450,7 @@ export default function Page() {
           ]}
         />
 
-        <ModuleFunctionHeader
-          title={<Typography variant="h6">結構組成</Typography>}
-        />
+        <ModuleFunctionHeader subtitle="結構組成" />
         <ModuleFunctionBody
           loading={
             isFetchingFeedOperators ||
@@ -520,7 +522,7 @@ export default function Page() {
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
-          title={<Typography variant="h6">明細</Typography>}
+          subtitle="明細"
           actions={[
             <Tooltip key="edit" title="編輯">
               <IconButton

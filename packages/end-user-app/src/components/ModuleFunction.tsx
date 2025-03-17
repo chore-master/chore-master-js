@@ -10,6 +10,7 @@ import Container from '@mui/material/Container'
 import LinearProgress from '@mui/material/LinearProgress'
 import Paper from '@mui/material/Paper'
 import { useColorScheme, useTheme } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Splitter, SplitterPanel } from 'primereact/splitter'
 import React, { ReactNode } from 'react'
@@ -167,12 +168,14 @@ export const ModuleContainer = ({
 export const ModuleFunctionHeader = ({
   children,
   title,
+  subtitle,
   actions,
   stickyTop,
   sx,
 }: Readonly<{
   children?: ReactNode
   title?: ReactNode
+  subtitle?: ReactNode
   actions?: ReactNode
   stickyTop?: boolean
   sx?: SxProps
@@ -194,7 +197,25 @@ export const ModuleFunctionHeader = ({
   }
   const childrenNode = (
     <CardHeader
-      title={title}
+      disableTypography
+      title={
+        typeof title === 'string' ? (
+          <Typography variant="h5" color="primary">
+            {title}
+          </Typography>
+        ) : (
+          title
+        )
+      }
+      subheader={
+        typeof subtitle === 'string' ? (
+          <Typography variant="h6" color="textSecondary">
+            {subtitle}
+          </Typography>
+        ) : (
+          subtitle
+        )
+      }
       action={actions ? <CardActions>{actions}</CardActions> : null}
       sx={{
         flexWrap: 'wrap',

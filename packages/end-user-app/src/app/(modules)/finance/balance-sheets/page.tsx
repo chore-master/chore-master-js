@@ -47,7 +47,6 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { areaChartOptionsTemplate } from './optionsTemplate'
@@ -613,9 +612,7 @@ export default function Page() {
           ]}
         />
 
-        <ModuleFunctionHeader
-          title={<Typography variant="h6">資金曲線</Typography>}
-        />
+        <ModuleFunctionHeader subtitle="資金曲線" />
         <ModuleFunctionBody
           loading={
             isFetchingFeedOperators ||
@@ -810,7 +807,7 @@ export default function Page() {
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
-          title={<Typography variant="h6">明細</Typography>}
+          subtitle="明細"
           actions={[
             <Button
               key="create"

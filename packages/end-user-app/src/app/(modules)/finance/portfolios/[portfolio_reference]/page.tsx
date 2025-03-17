@@ -167,6 +167,7 @@ export default function Page() {
               }}
             >
               <Tab label="總覽" value="overview" />
+              <Tab label="交易紀錄" value="ledger" />
               <Tab label="設定" value="settings" />
             </TabList>
           </Box>
@@ -190,9 +191,17 @@ export default function Page() {
         </ModuleFunction>
       </TabPanel>
 
+      <TabPanel value="ledger" sx={{ p: 0 }}>
+        <ModuleFunction>
+          <ModuleFunctionBody>
+            <PlaceholderTypography>目前沒有交易紀錄</PlaceholderTypography>
+          </ModuleFunctionBody>
+        </ModuleFunction>
+      </TabPanel>
+
       <TabPanel value="settings" sx={{ p: 0 }}>
         <ModuleFunction>
-          <ModuleFunctionHeader title="基本資訊" />
+          <ModuleFunctionHeader subtitle="基本資訊" />
           <ModuleFunctionBody loading={isFetchingPortfolio}>
             <Stack
               component="form"
@@ -253,7 +262,7 @@ export default function Page() {
         </ModuleFunction>
 
         <ModuleFunction>
-          <ModuleFunctionHeader title="進階" />
+          <ModuleFunctionHeader subtitle="進階" />
           <ModuleFunctionBody>
             <Stack
               component="form"
