@@ -762,7 +762,7 @@ export default function Page() {
             <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Image
-                  src="/icon.svg"
+                  src="/images/logo.svg"
                   alt="Chore Master Logo"
                   width={40}
                   height={40}

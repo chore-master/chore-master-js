@@ -10,6 +10,14 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Chore Master',
   description: 'Chore Master',
+  icons: {
+    icon: [
+      { url: '/images/logo.svg', sizes: '16x16', type: 'image/svg+xml' },
+      { url: '/images/logo.svg', sizes: '32x32', type: 'image/svg+xml' },
+    ],
+    shortcut: '/images/logo.svg',
+    apple: '/images/logo.svg',
+  },
 }
 
 export default function Layout({

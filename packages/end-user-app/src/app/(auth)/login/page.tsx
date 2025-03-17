@@ -121,7 +121,7 @@ export default function Page() {
             >
               <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
                 <Image
-                  src="/icon.svg"
+                  src="/images/logo.svg"
                   alt="Chore Master Logo"
                   width={40}
                   height={40}
