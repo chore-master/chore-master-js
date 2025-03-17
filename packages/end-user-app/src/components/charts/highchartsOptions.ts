@@ -327,7 +327,8 @@ const initialOptions = {
     width: null,
     height: null,
     borderColor: '#334eff',
-    backgroundColor: '#ffffff',
+    // backgroundColor: '#ffffff',
+    backgroundColor: '#fffdf5',
     plotBorderColor: '#cccccc',
   },
   title: {

@@ -171,7 +171,7 @@ export default function ModuleLayout({
         sx={{
           width: '100vw',
           height: '100vh',
-          background: 'hsl(0, 0%, 99%)',
+          background: '#f8f5e6',
         }}
       >
         <LinearProgress />
@@ -325,7 +325,7 @@ export default function ModuleLayout({
         <Stack
           sx={{
             flex: '1 0 0px',
-            background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+            background: mode === 'dark' ? 'black' : '#f8f5e6',
             minWidth: 320,
           }}
         >

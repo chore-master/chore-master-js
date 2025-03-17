@@ -390,23 +390,29 @@ export default function Page() {
             zones: [
               {
                 value: 0,
-                color: '#ff6968',
+                // color: '#ff6968',
+                color: 'rgb(229, 115, 115)',
                 fillColor: {
                   linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
                   stops: [
-                    [0, 'rgba(255, 105, 104, 0)'],
-                    [1, 'rgba(255, 105, 104, 0.3)'],
+                    [0, 'rgba(229, 115, 115, 0)'],
+                    [1, 'rgba(229, 115, 115, 0.3)'],
+                    // [0, 'rgba(255, 105, 104, 0)'],
+                    // [1, 'rgba(255, 105, 104, 0.3)'],
                   ],
                 },
                 threshold: Infinity,
               },
               {
-                color: '#94caae',
+                // color: '#94caae',
+                color: 'rgb(76, 175, 80)',
                 fillColor: {
                   linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
                   stops: [
-                    [0, 'rgba(34, 197, 94, 0.3)'],
-                    [1, 'rgba(34, 197, 94, 0)'],
+                    [0, 'rgba(76, 175, 80, 0.3)'],
+                    [1, 'rgba(76, 175, 80, 0)'],
+                    // [0, 'rgba(34, 197, 94, 0.3)'],
+                    // [1, 'rgba(34, 197, 94, 0)'],
                   ],
                 },
               },

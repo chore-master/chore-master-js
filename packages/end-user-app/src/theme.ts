@@ -4,35 +4,63 @@
 import { createTheme } from '@mui/material/styles'
 // import { zhTW } from '@mui/x-data-grid/locales'
 
-const theme = createTheme(
-  {
-    colorSchemes: {
-      light: true,
-      dark: true,
-    },
-    components: {
-      MuiListItemButton: {
-        defaultProps: {
-          disableTouchRipple: true,
+const theme = createTheme({
+  colorSchemes: {
+    light: {
+      palette: {
+        primary: {
+          main: '#5D8AA8', // Soft blue
+          light: '#7FA8C9',
+          dark: '#3A6B8C',
+          contrastText: '#FFFFFF',
+        },
+        secondary: {
+          main: '#E57373', // Soft coral/pink
+          light: '#FFB2B2',
+          dark: '#AF4448',
+          contrastText: '#FFFFFF',
+        },
+        background: {
+          // default: '#f8f5e6', // Warm light background
+          default: '#fffdf5', // Warm light background
+          paper: '#fffdf5', // Warm white paper
         },
       },
-      // MuiAppBar: {
-      //   styleOverrides: {
-      //     root: {
-      //       backgroundColor: 'white',
-      //       color: 'black',
-      //     },
-      //   },
-      // },
     },
-    palette: {
-      //   mode: 'dark',
-      //   primary: { main: 'rgb(102, 157, 246)' },
-      //   background: { paper: 'rgb(5, 30, 52)' },
+    dark: true,
+  },
+  components: {
+    MuiListItemButton: {
+      defaultProps: {
+        disableTouchRipple: true,
+      },
     },
-  }
-  // zhTW, // x-data-grid translations
-  // coreZhTW // core translations
-)
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 8,
+        },
+      },
+    },
+  },
+  typography: {
+    h4: {
+      fontWeight: 600,
+    },
+    h5: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 600,
+    },
+  },
+})
 
 export default theme

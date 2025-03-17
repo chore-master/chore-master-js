@@ -118,7 +118,8 @@ export const ModuleContainer = ({
   const commonStickySx = {
     position: 'sticky',
     zIndex: 999,
-    background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+    // background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+    background: mode === 'dark' ? 'black' : '#f8f5e6',
   }
   if (stickyTop) {
     return (
@@ -188,7 +189,8 @@ export const ModuleFunctionHeader = ({
   const commonStickySx = {
     position: 'sticky',
     zIndex: 999,
-    background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+    // background: mode === 'dark' ? 'black' : 'hsl(0, 0%, 99%)',
+    background: mode === 'dark' ? 'black' : '#f8f5e6',
   }
   const childrenNode = (
     <CardHeader
