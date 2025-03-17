@@ -314,7 +314,9 @@ export default function Page() {
 
         <ModuleFunctionBody>
           <Stack spacing={3} p={2}>
-            <Typography variant="h6">一般</Typography>
+            <Typography variant="h6" color="textSecondary">
+              一般
+            </Typography>
             <FormControl>
               <Controller
                 name="balanced_time"
@@ -355,7 +357,9 @@ export default function Page() {
           loading={isFetchingSettleableAssets || isFetchingAccounts}
         >
           <Stack spacing={3} p={2}>
-            <Typography variant="h6">帳目</Typography>
+            <Typography variant="h6" color="textSecondary">
+              帳目
+            </Typography>
           </Stack>
 
           <Grid container spacing={2} p={2} rowSpacing={1}>
@@ -420,7 +424,9 @@ export default function Page() {
               e.preventDefault()
             }}
           >
-            <Typography variant="h6">進階</Typography>
+            <Typography variant="h6" color="textSecondary">
+              進階
+            </Typography>
             <AutoLoadingButton
               variant="contained"
               color="error"
