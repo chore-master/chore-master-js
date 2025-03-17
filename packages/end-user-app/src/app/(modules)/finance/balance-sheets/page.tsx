@@ -672,7 +672,8 @@ export default function Page() {
                 </Select>
               </FormControl>
             </Stack>
-            {areaChartOptions.series?.every(
+            {!areaChartOptions.series ||
+            areaChartOptions.series?.every(
               (series) => series.visible === false
             ) ? (
               <Box
@@ -709,6 +710,7 @@ export default function Page() {
                       <Checkbox
                         size="small"
                         color="default"
+                        disabled={legends.length === 0}
                         checked={legends.every((legend) => legend.isVisible)}
                         indeterminate={
                           legends.some((legend) => legend.isVisible) &&
