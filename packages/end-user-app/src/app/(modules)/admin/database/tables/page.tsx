@@ -362,7 +362,11 @@ export default function Page() {
                               hover
                               selected={isSelected}
                             >
-                              <NoWrapTableCell>#{index + 1}</NoWrapTableCell>
+                              <NoWrapTableCell>
+                                <PlaceholderTypography>
+                                  #{index + 1}
+                                </PlaceholderTypography>
+                              </NoWrapTableCell>
                               <NoWrapTableCell>
                                 <Checkbox
                                   size="small"
