@@ -126,7 +126,7 @@ export default function Page() {
             component={Link}
             underline="hover"
             color="inherit"
-            href="/admin/users"
+            href="/finance/portfolios"
           >
             投資組合
           </MuiLink>
