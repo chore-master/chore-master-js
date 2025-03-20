@@ -8,6 +8,7 @@
     ```sh
     PORT=2000 yarn workspace @app/end-user-app dev
     ```
+
 3. To install a new package, run the following command.
 
     ```sh
