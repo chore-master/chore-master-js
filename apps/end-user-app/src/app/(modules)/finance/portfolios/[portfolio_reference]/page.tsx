@@ -198,10 +198,10 @@ export default function Page() {
           metadata,
         }: {
           data: LedgerEntry[]
-          metadata: { total_count: number }
+          metadata: any
         }) => {
           setLedgerEntries(data)
-          setLedgerEntriesCount(metadata.total_count)
+          setLedgerEntriesCount(metadata.offset_pagination.count)
         },
       }
     )
@@ -210,10 +210,15 @@ export default function Page() {
 
   const handleSubmitCreateLedgerEntryForm: SubmitHandler<
     CreateLedgerEntryFormInputs
-  > = async (data) => {
+  > = async ({ entry_time, ...data }) => {
     await choreMasterAPIAgent.post(
       `/v1/finance/portfolios/${portfolio_reference}/ledger_entries`,
-      data,
+      {
+        ...data,
+        entry_time: new Date(
+          timezone.getUTCTimestamp(entry_time)
+        ).toISOString(),
+      },
       {
         onError: () => {
           enqueueNotification(`Unable to create ledger entry now.`, 'error')
@@ -236,7 +241,7 @@ export default function Page() {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/portfolios/${portfolio_reference}/ledger-entries/${ledgerEntryReference}`,
+        `/v1/finance/portfolios/${portfolio_reference}/ledger_entries/${ledgerEntryReference}`,
         {
           onError: () => {
             enqueueNotification(`Unable to delete ledger entry now.`, 'error')
@@ -310,10 +315,27 @@ export default function Page() {
   }, [])
 
   React.useEffect(() => {
+    fetchLedgerEntries()
+  }, [])
+
+  React.useEffect(() => {
     if (instrumentInputValue.length > 0) {
       debouncedFetchInstruments({ search: instrumentInputValue })
     }
   }, [instrumentInputValue])
+
+  React.useEffect(() => {
+    const instrumentReferenceSet = ledgerEntries.reduce(
+      (acc: Set<string>, ledgerEntry) => {
+        acc.add(ledgerEntry.instrument_reference)
+        return acc
+      },
+      new Set<string>()
+    )
+    if (instrumentReferenceSet.size > 0) {
+      fetchInstruments({ references: Array.from(instrumentReferenceSet) })
+    }
+  }, [ledgerEntries])
 
   return (
     <TabContext value={tabValue}>
@@ -416,7 +438,7 @@ export default function Page() {
               </Button>,
             ]}
           />
-          <ModuleFunctionBody>
+          <ModuleFunctionBody loading={isFetchingLedgerEntries}>
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -462,7 +484,12 @@ export default function Page() {
                       </NoWrapTableCell>
                       <NoWrapTableCell>
                         <ReferenceBlock
-                          label={ledgerEntry.instrument_reference}
+                          label={
+                            instrumentReferenceToInstrumentMap[
+                              ledgerEntry.instrument_reference
+                            ]?.name
+                          }
+                          foreignValue
                         />
                       </NoWrapTableCell>
                       <NoWrapTableCell>{ledgerEntry.quantity}</NoWrapTableCell>
