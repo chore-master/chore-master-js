@@ -19,7 +19,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@module/utils/*": ["../utils/src/*"]
+      "@module/utils/*": ["../../packages/utils/src/*"]
     },
     "target": "ES2017"
   },
