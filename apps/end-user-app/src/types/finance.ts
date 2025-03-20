@@ -151,3 +151,31 @@ export interface UpdatePortfolioFormInputs {
   name?: string
   description?: string
 }
+
+// LedgerEntry
+
+export interface LedgerEntry {
+  reference: string
+  instrument_reference: string
+  entry_type: string
+  source_type: string
+  quantity: number
+  price: number
+  entry_time: string
+}
+
+export interface CreateLedgerEntryFormInputs {
+  instrument_reference: string
+  entry_type: string
+  quantity: number
+  price: number
+  entry_time: string
+}
+
+export interface UpdateLedgerEntryFormInputs {
+  instrument_reference: string
+  entry_type: string
+  quantity: number
+  price: number
+  entry_time: string
+}

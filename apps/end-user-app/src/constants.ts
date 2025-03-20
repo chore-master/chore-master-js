@@ -48,7 +48,7 @@ export const financeInstrumentAssetReferenceFields = [
   {
     name: 'settlement_asset_reference',
     label: '結算資產',
-    requiredByInstrumentTypes: ['FUTURE', 'DERIVATIVE'],
+    requiredByInstrumentTypes: ['EQUITY', 'FUTURE', 'DERIVATIVE'],
   },
   {
     name: 'underlying_asset_reference',
@@ -64,6 +64,52 @@ export const financeInstrumentAssetReferenceFields = [
     name: 'yielding_asset_reference',
     label: '收益資產',
     requiredByInstrumentTypes: ['EARNING'],
+  },
+] as const
+
+export const financeLedgerEntryEntryTypes = [
+  {
+    label: '買入',
+    value: 'BUY',
+  },
+  {
+    label: '賣出',
+    value: 'SELL',
+  },
+  {
+    label: '質押',
+    value: 'STAKE',
+  },
+  {
+    label: '解質押',
+    value: 'UNSTAKE',
+  },
+  {
+    label: '現金股息',
+    value: 'CASH_DIVIDEND',
+  },
+  {
+    label: '股票股息',
+    value: 'STOCK_DIVIDEND',
+  },
+  {
+    label: '資金費',
+    value: 'FUNDING_FEE',
+  },
+  {
+    label: '利息',
+    value: 'INTEREST',
+  },
+] as const
+
+export const financeLedgerEntrySourceTypes = [
+  {
+    label: '手動',
+    value: 'MANUAL',
+  },
+  {
+    label: '託管',
+    value: 'MANAGED',
   },
 ] as const
 
