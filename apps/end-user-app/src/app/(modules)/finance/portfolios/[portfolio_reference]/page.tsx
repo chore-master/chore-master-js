@@ -413,7 +413,7 @@ export default function Page() {
       <TabPanel value="ledger" sx={{ p: 0 }}>
         <ModuleFunction>
           <ModuleFunctionHeader
-            title="帳目"
+            subtitle="帳目"
             actions={[
               <Tooltip key="refresh" title="立即重整">
                 <span>
