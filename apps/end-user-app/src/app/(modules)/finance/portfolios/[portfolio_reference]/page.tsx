@@ -59,6 +59,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import { Decimal } from 'decimal.js'
 import { debounce } from 'lodash'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -210,11 +211,15 @@ export default function Page() {
 
   const handleSubmitCreateLedgerEntryForm: SubmitHandler<
     CreateLedgerEntryFormInputs
-  > = async ({ entry_time, ...data }) => {
+  > = async ({ quantity, price, entry_time, ...data }) => {
+    const instrument =
+      instrumentReferenceToInstrumentMap[data.instrument_reference]
     await choreMasterAPIAgent.post(
       `/v1/finance/portfolios/${portfolio_reference}/ledger_entries`,
       {
         ...data,
+        quantity: Number(quantity) * 10 ** instrument.quantity_decimals,
+        price: Number(price) * 10 ** instrument.price_decimals,
         entry_time: new Date(
           timezone.getUTCTimestamp(entry_time)
         ).toISOString(),
@@ -460,89 +465,107 @@ export default function Page() {
                   isLoading={isFetchingLedgerEntries}
                   isEmpty={ledgerEntries.length === 0}
                 >
-                  {ledgerEntries.map((ledgerEntry, index) => (
-                    <TableRow key={ledgerEntry.reference} hover>
-                      <NoWrapTableCell align="right">
-                        <PlaceholderTypography>
-                          {ledgerEntriesPage * ledgerEntriesRowsPerPage +
-                            index +
-                            1}
-                        </PlaceholderTypography>
-                      </NoWrapTableCell>
-                      <NoWrapTableCell>
-                        <DatetimeBlock isoText={ledgerEntry.entry_time} />
-                      </NoWrapTableCell>
-                      <NoWrapTableCell>
-                        <ReferenceBlock
-                          label={
-                            financeLedgerEntryEntryTypes.find(
-                              (entryType) =>
-                                entryType.value === ledgerEntry.entry_type
-                            )?.label
-                          }
-                        />
-                      </NoWrapTableCell>
-                      <NoWrapTableCell>
-                        <ReferenceBlock
-                          label={
-                            instrumentReferenceToInstrumentMap[
-                              ledgerEntry.instrument_reference
-                            ]?.name
-                          }
-                          foreignValue
-                        />
-                      </NoWrapTableCell>
-                      <NoWrapTableCell>{ledgerEntry.quantity}</NoWrapTableCell>
-                      <NoWrapTableCell>{ledgerEntry.price}</NoWrapTableCell>
-                      <NoWrapTableCell>
-                        <ReferenceBlock
-                          label={
-                            financeLedgerEntrySourceTypes.find(
-                              (sourceType) =>
-                                sourceType.value === ledgerEntry.source_type
-                            )?.label
-                          }
-                        />
-                      </NoWrapTableCell>
-                      <NoWrapTableCell>
-                        <ReferenceBlock
-                          label={ledgerEntry.reference}
-                          primaryKey
-                          monospace
-                        />
-                      </NoWrapTableCell>
-                      <NoWrapTableCell align="right">
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            updateLedgerEntryForm.reset({
-                              instrument_reference:
-                                ledgerEntry.instrument_reference,
-                              entry_type: ledgerEntry.entry_type,
-                              quantity: ledgerEntry.quantity,
-                              price: ledgerEntry.price,
-                              entry_time: timezone
-                                .getLocalString(ledgerEntry.entry_time)
-                                .slice(0, -5),
-                            })
-                            setEditingLedgerEntryReference(
-                              ledgerEntry.reference
+                  {ledgerEntries.map((ledgerEntry, index) => {
+                    const instrument =
+                      instrumentReferenceToInstrumentMap[
+                        ledgerEntry.instrument_reference
+                      ]
+                    const quantity =
+                      instrument.quantity_decimals === undefined
+                        ? 'N/A'
+                        : new Decimal(ledgerEntry.quantity)
+                            .dividedBy(
+                              new Decimal(10 ** instrument.quantity_decimals)
                             )
-                          }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            deleteLedgerEntry(ledgerEntry.reference)
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </NoWrapTableCell>
-                    </TableRow>
-                  ))}
+                            .toString()
+                    const price =
+                      instrument.price_decimals === undefined
+                        ? 'N/A'
+                        : new Decimal(ledgerEntry.price)
+                            .dividedBy(
+                              new Decimal(10 ** instrument.price_decimals)
+                            )
+                            .toString()
+                    return (
+                      <TableRow key={ledgerEntry.reference} hover>
+                        <NoWrapTableCell align="right">
+                          <PlaceholderTypography>
+                            {ledgerEntriesPage * ledgerEntriesRowsPerPage +
+                              index +
+                              1}
+                          </PlaceholderTypography>
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
+                          <DatetimeBlock isoText={ledgerEntry.entry_time} />
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
+                          <ReferenceBlock
+                            label={
+                              financeLedgerEntryEntryTypes.find(
+                                (entryType) =>
+                                  entryType.value === ledgerEntry.entry_type
+                              )?.label
+                            }
+                          />
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
+                          <ReferenceBlock
+                            label={instrument.name}
+                            foreignValue
+                          />
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>{quantity}</NoWrapTableCell>
+                        <NoWrapTableCell>{price}</NoWrapTableCell>
+                        <NoWrapTableCell>
+                          <ReferenceBlock
+                            label={
+                              financeLedgerEntrySourceTypes.find(
+                                (sourceType) =>
+                                  sourceType.value === ledgerEntry.source_type
+                              )?.label
+                            }
+                          />
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
+                          <ReferenceBlock
+                            label={ledgerEntry.reference}
+                            primaryKey
+                            monospace
+                          />
+                        </NoWrapTableCell>
+                        <NoWrapTableCell align="right">
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              updateLedgerEntryForm.reset({
+                                instrument_reference:
+                                  ledgerEntry.instrument_reference,
+                                entry_type: ledgerEntry.entry_type,
+                                quantity: ledgerEntry.quantity,
+                                price: ledgerEntry.price,
+                                entry_time: timezone
+                                  .getLocalString(ledgerEntry.entry_time)
+                                  .slice(0, -5),
+                              })
+                              setEditingLedgerEntryReference(
+                                ledgerEntry.reference
+                              )
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              deleteLedgerEntry(ledgerEntry.reference)
+                            }
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </NoWrapTableCell>
+                      </TableRow>
+                    )
+                  })}
                 </StatefulTableBody>
               </Table>
             </TableContainer>
