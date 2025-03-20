@@ -842,6 +842,7 @@ export default function Page() {
                     label="成交價格"
                     variant="filled"
                     type="number"
+                    helperText="按交易品種的結算資產計價"
                   />
                 )}
                 rules={{ required: '必填' }}
