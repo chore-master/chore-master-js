@@ -1,9 +1,12 @@
 import ThemeProvider from '@/components/ThemeProvider'
 import { TimezoneProvider } from '@/components/timezone'
+import { routing } from '@/i18n/routing'
 import { NotificationProvider } from '@/utils/notification'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
+import { NextIntlClientProvider, hasLocale } from 'next-intl'
 import { Inter } from 'next/font/google'
+import { notFound } from 'next/navigation'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,21 +23,30 @@ export const metadata: Metadata = {
   },
 }
 
-export default function Layout({
+export default async function Layout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode
+  params: Promise<{ locale: string }>
 }>) {
+  // Ensure that the incoming `locale` is valid
+  const { locale } = await params
+  if (!hasLocale(routing.locales, locale)) {
+    notFound()
+  }
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AppRouterCacheProvider>
-          <ThemeProvider>
-            <NotificationProvider>
-              <TimezoneProvider>{children}</TimezoneProvider>
-            </NotificationProvider>
-          </ThemeProvider>
-        </AppRouterCacheProvider>
+        <NextIntlClientProvider>
+          <AppRouterCacheProvider>
+            <ThemeProvider>
+              <NotificationProvider>
+                <TimezoneProvider>{children}</TimezoneProvider>
+              </NotificationProvider>
+            </ThemeProvider>
+          </AppRouterCacheProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

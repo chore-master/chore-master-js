@@ -61,6 +61,7 @@ import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
@@ -83,6 +84,7 @@ export default function ModuleLayout({
   children,
 }: ModuleLayoutProps) {
   const { enqueueNotification } = useNotification()
+  const t = useTranslations('components.ModuleLayout')
 
   const [isModulesDrawerOpen, setIsModulesDrawerOpen] =
     React.useState<boolean>(false)
@@ -495,7 +497,7 @@ export default function ModuleLayout({
             alignItems="center"
             justifyContent="space-between"
           >
-            <span>關於</span>
+            <span>{t('about')}</span>
             <IconButton
               onClick={() => {
                 setIsAboutDialogOpen(false)
