@@ -7,6 +7,6 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    router.push('/finance/balance-sheets')
+    router.replace('/finance/balance-sheets')
   }, [router])
 }

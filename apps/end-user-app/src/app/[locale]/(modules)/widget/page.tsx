@@ -7,6 +7,6 @@ export default function Page() {
   const router = useRouter()
 
   React.useEffect(() => {
-    router.push('/widget/t-account-pyramid')
+    router.replace('/widget/t-account-pyramid')
   }, [router])
 }

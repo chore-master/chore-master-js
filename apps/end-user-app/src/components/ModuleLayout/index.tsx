@@ -7,6 +7,7 @@ import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
+import { usePathname } from '@/i18n/navigation'
 import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
@@ -63,7 +64,7 @@ import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import './style.css'
 
@@ -164,6 +165,58 @@ export default function ModuleLayout({
     }
   }, [])
 
+  const sideNav = React.useMemo(
+    () => (
+      <Stack
+        sx={(theme) => ({
+          width: sideNavWidth,
+          height: '100%',
+          backgroundColor: theme.palette.background.default,
+        })}
+      >
+        <AppBar
+          position="sticky"
+          elevation={0}
+          sx={(theme) => ({
+            backgroundColor: theme.palette.background.default,
+          })}
+        >
+          <Toolbar disableGutters>
+            <Tooltip title={t('tooltips.toggleModule')}>
+              <IconButton
+                size="large"
+                color="default"
+                onClick={toggleModulesDrawer(true)}
+              >
+                <AppsIcon />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="h6" component="div" color="textPrimary">
+              {moduleName}
+            </Typography>
+            {isSideNavInMobileMode && (
+              <React.Fragment>
+                <Box sx={{ flexGrow: 1 }} />
+                <IconButton
+                  size="small"
+                  sx={{ mx: 1 }}
+                  onClick={() => {
+                    setIsMobileSideNavDrawerOpen(false)
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </React.Fragment>
+            )}
+          </Toolbar>
+          <Divider />
+        </AppBar>
+        <SideNavigationList pathname={pathname} navigations={navigations} />
+      </Stack>
+    ),
+    [pathname, navigations]
+  )
+
   if (
     loginRequired &&
     (!auth.currentUser || auth.currentUserSuccessLoadedCount === 0)
@@ -180,55 +233,6 @@ export default function ModuleLayout({
       </Box>
     )
   }
-
-  const sideNav = (
-    <Stack
-      sx={(theme) => ({
-        width: sideNavWidth,
-        height: '100%',
-        backgroundColor: theme.palette.background.default,
-      })}
-    >
-      <AppBar
-        position="sticky"
-        elevation={0}
-        sx={(theme) => ({
-          backgroundColor: theme.palette.background.default,
-        })}
-      >
-        <Toolbar disableGutters>
-          <Tooltip title={t('tooltips.toggleModule')}>
-            <IconButton
-              size="large"
-              color="default"
-              onClick={toggleModulesDrawer(true)}
-            >
-              <AppsIcon />
-            </IconButton>
-          </Tooltip>
-          <Typography variant="h6" component="div" color="textPrimary">
-            {moduleName}
-          </Typography>
-          {isSideNavInMobileMode && (
-            <React.Fragment>
-              <Box sx={{ flexGrow: 1 }} />
-              <IconButton
-                size="small"
-                sx={{ mx: 1 }}
-                onClick={() => {
-                  setIsMobileSideNavDrawerOpen(false)
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </React.Fragment>
-          )}
-        </Toolbar>
-        <Divider />
-      </AppBar>
-      <SideNavigationList pathname={pathname} navigations={navigations} />
-    </Stack>
-  )
 
   return (
     <React.Fragment>
