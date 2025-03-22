@@ -1,4 +1,5 @@
 import ModuleLayout from '@/components/ModuleLayout'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 export default function Layout({
@@ -6,10 +7,11 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const t = useTranslations('modules')
   return (
     <ModuleLayout
       loginRequired={false}
-      moduleName="小工具"
+      moduleName={t('widget.name')}
       navigations={[
         {
           type: 'link',

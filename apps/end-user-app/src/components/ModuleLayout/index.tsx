@@ -85,7 +85,7 @@ export default function ModuleLayout({
 }: ModuleLayoutProps) {
   const { enqueueNotification } = useNotification()
   const t = useTranslations('components.ModuleLayout')
-
+  const tModules = useTranslations('modules')
   const [isModulesDrawerOpen, setIsModulesDrawerOpen] =
     React.useState<boolean>(false)
   const [isNonMobileSideNavOpen, setIsNonMobileSideNavOpen] =
@@ -197,7 +197,7 @@ export default function ModuleLayout({
         })}
       >
         <Toolbar disableGutters>
-          <Tooltip title="切換模組">
+          <Tooltip title={t('toggleModule')}>
             <IconButton
               size="large"
               color="default"
@@ -241,7 +241,7 @@ export default function ModuleLayout({
                   <ListItemIcon>
                     <AdminPanelSettingsIcon />
                   </ListItemIcon>
-                  <ListItemText primary="管理控制台" />
+                  <ListItemText primary={tModules('admin.name')} />
                 </ListItemButton>
               </Link>
             </ListItem>
@@ -253,7 +253,7 @@ export default function ModuleLayout({
                   <ListItemIcon>
                     <AccountBalanceIcon />
                   </ListItemIcon>
-                  <ListItemText primary="金融" />
+                  <ListItemText primary={tModules('finance.name')} />
                 </ListItemButton>
               </Link>
             </ListItem>
@@ -265,7 +265,7 @@ export default function ModuleLayout({
                   <ListItemIcon>
                     <LanIcon />
                   </ListItemIcon>
-                  <ListItemText primary="整合" />
+                  <ListItemText primary={tModules('integration.name')} />
                 </ListItemButton>
               </Link>
             </ListItem>
@@ -277,7 +277,7 @@ export default function ModuleLayout({
                   <ListItemIcon>
                     <WidgetsIcon />
                   </ListItemIcon>
-                  <ListItemText primary="小工具" />
+                  <ListItemText primary={tModules('widget.name')} />
                 </ListItemButton>
               </Link>
             </ListItem>
@@ -289,7 +289,7 @@ export default function ModuleLayout({
                   <ListItemIcon>
                     <HelpIcon />
                   </ListItemIcon>
-                  <ListItemText primary="範例模組" />
+                  <ListItemText primary={tModules('example.name')} />
                 </ListItemButton>
               </Link>
             </ListItem>
@@ -339,7 +339,7 @@ export default function ModuleLayout({
             })}
           >
             <Toolbar disableGutters>
-              <Tooltip title="切換側邊欄">
+              <Tooltip title={t('toggleSidebar')}>
                 <IconButton
                   size="large"
                   color="default"
@@ -357,7 +357,7 @@ export default function ModuleLayout({
                 </IconButton>
               </Tooltip>
               <Box sx={{ flexGrow: 1 }} />
-              <Tooltip title="關於">
+              <Tooltip title={t('about')}>
                 <IconButton
                   onClick={() => {
                     fetchSystemInspect()
@@ -367,7 +367,7 @@ export default function ModuleLayout({
                   <InfoOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="設定">
+              <Tooltip title={t('settings')}>
                 <IconButton
                   onClick={() => {
                     setIsSettingsDialogOpen(true)
@@ -380,7 +380,7 @@ export default function ModuleLayout({
                 <Tooltip
                   title={
                     <React.Fragment>
-                      <span>使用者</span>
+                      <span>{t('user')}</span>
                       <br />
                       <span>{auth.currentUser.name}</span>
                     </React.Fragment>
@@ -401,7 +401,7 @@ export default function ModuleLayout({
                 </Tooltip>
               )}
               {!loginRequired && !auth.currentUser && (
-                <Tooltip title="登入">
+                <Tooltip title={t('login')}>
                   <span>
                     <IconButton
                       size="small"
@@ -463,7 +463,7 @@ export default function ModuleLayout({
                     <ListItemIcon>
                       <LogoutIcon fontSize="small" />
                     </ListItemIcon>
-                    登出目前裝置
+                    {t('logoutCurrentDevice')}
                   </MenuItem>
                 </Link>
                 <Divider />
@@ -472,7 +472,7 @@ export default function ModuleLayout({
                     <ListItemIcon>
                       <SwitchAccountIcon fontSize="small" />
                     </ListItemIcon>
-                    登入其他帳號
+                    {t('loginOtherAccount')}
                   </MenuItem>
                 </Link>
               </Menu>
@@ -619,7 +619,7 @@ export default function ModuleLayout({
             alignItems="center"
             justifyContent="space-between"
           >
-            <span>設定</span>
+            <span>{t('settings')}</span>
             <IconButton
               onClick={() => {
                 setIsSettingsDialogOpen(false)

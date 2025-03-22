@@ -1,7 +1,31 @@
 {
   "components": {
     "ModuleLayout": {
-      "about": "關於"
+      "toggleModule": "切換模組",
+      "toggleSidebar": "切換側邊欄",
+      "about": "關於",
+      "settings": "設定",
+      "user": "使用者",
+      "login": "登入",
+      "loginOtherAccount": "登入其他帳號",
+      "logoutCurrentDevice": "登出目前裝置"
+    }
+  },
+  "modules": {
+    "admin": {
+      "name": "管理控制台"
+    },
+    "finance": {
+      "name": "金融"
+    },
+    "integration": {
+      "name": "整合"
+    },
+    "widget": {
+      "name": "小工具"
+    },
+    "example": {
+      "name": "範例模組"
     }
   }
 }

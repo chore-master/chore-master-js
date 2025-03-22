@@ -2,6 +2,7 @@
 
 import ModuleLayout from '@/components/ModuleLayout'
 import { useAuth } from '@/utils/auth'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 export default function Layout({
@@ -10,10 +11,11 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   const auth = useAuth()
+  const t = useTranslations('modules')
   return (
     <ModuleLayout
       loginRequired
-      moduleName="整合"
+      moduleName={t('integration.name')}
       navigations={[
         {
           type: 'link',

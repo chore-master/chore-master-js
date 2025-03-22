@@ -1,7 +1,31 @@
 {
   "components": {
     "ModuleLayout": {
-      "about": "About"
+      "toggleModule": "Toggle Module",
+      "toggleSidebar": "Toggle Sidebar",
+      "about": "About",
+      "settings": "Settings",
+      "user": "User",
+      "login": "Login",
+      "logoutCurrentDevice": "Logout Current Device",
+      "loginOtherAccount": "Login Other Account"
+    }
+  },
+  "modules": {
+    "admin": {
+      "name": "Admin"
+    },
+    "finance": {
+      "name": "Finance"
+    },
+    "integration": {
+      "name": "Integration"
+    },
+    "widget": {
+      "name": "Widget"
+    },
+    "example": {
+      "name": "Example"
     }
   }
 }

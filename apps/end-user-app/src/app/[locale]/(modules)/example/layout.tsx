@@ -1,6 +1,7 @@
 import ModuleLayout from '@/components/ModuleLayout'
 import SplitscreenIcon from '@mui/icons-material/Splitscreen'
 import { grey } from '@mui/material/colors'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 export default function Layout({
@@ -8,10 +9,11 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const t = useTranslations('modules')
   return (
     <ModuleLayout
       loginRequired={false}
-      moduleName="範例模組"
+      moduleName={t('example.name')}
       navigations={[
         {
           type: 'collapsible',

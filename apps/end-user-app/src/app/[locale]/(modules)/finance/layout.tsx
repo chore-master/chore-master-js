@@ -6,6 +6,7 @@ import {
   SideNavigationLink,
 } from '@/components/SideNavigationList'
 import { useAuth } from '@/utils/auth'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 export default function Layout({
@@ -14,10 +15,11 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   const auth = useAuth()
+  const t = useTranslations('modules')
   return (
     <ModuleLayout
       loginRequired
-      moduleName="金融"
+      moduleName={t('finance.name')}
       navigations={[
         {
           type: 'collapsible',

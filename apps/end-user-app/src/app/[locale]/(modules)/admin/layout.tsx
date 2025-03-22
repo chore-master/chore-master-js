@@ -1,4 +1,5 @@
 import ModuleLayout from '@/components/ModuleLayout'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 export default function Layout({
@@ -6,10 +7,11 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const t = useTranslations('modules')
   return (
     <ModuleLayout
       loginRequired
-      moduleName="管理控制台"
+      moduleName={t('admin.name')}
       navigations={[
         {
           type: 'header',
