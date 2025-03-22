@@ -2,7 +2,7 @@
   "components": {
     "ModuleLayout": {
       "menu": {
-        "loginOtherAccount": "Login other account",
+        "loginOtherAccount": "Login another account",
         "logoutCurrentDevice": "Logout current device"
       },
       "tooltips": {
