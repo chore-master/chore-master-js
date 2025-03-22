@@ -211,15 +211,16 @@ export default function Page() {
 
   const handleSubmitCreateLedgerEntryForm: SubmitHandler<
     CreateLedgerEntryFormInputs
-  > = async ({ quantity, price, entry_time, ...data }) => {
+  > = async ({ quantity_change, fill_px, entry_time, ...data }) => {
     const instrument =
       instrumentReferenceToInstrumentMap[data.instrument_reference]
     await choreMasterAPIAgent.post(
       `/v1/finance/portfolios/${portfolio_reference}/ledger_entries`,
       {
         ...data,
-        quantity: Number(quantity) * 10 ** instrument.quantity_decimals,
-        price: Number(price) * 10 ** instrument.price_decimals,
+        quantity_change:
+          Number(quantity_change) * 10 ** instrument.quantity_decimals,
+        fill_px: Number(fill_px) * 10 ** instrument.px_decimals,
         entry_time: new Date(
           timezone.getUTCTimestamp(entry_time)
         ).toISOString(),
@@ -332,7 +333,9 @@ export default function Page() {
   React.useEffect(() => {
     const instrumentReferenceSet = ledgerEntries.reduce(
       (acc: Set<string>, ledgerEntry) => {
-        acc.add(ledgerEntry.instrument_reference)
+        if (ledgerEntry.instrument_reference) {
+          acc.add(ledgerEntry.instrument_reference)
+        }
         return acc
       },
       new Set<string>()
@@ -451,12 +454,15 @@ export default function Page() {
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>#</PlaceholderTypography>
                     </NoWrapTableCell>
+                    <NoWrapTableCell>來源</NoWrapTableCell>
                     <NoWrapTableCell>帳務時間</NoWrapTableCell>
                     <NoWrapTableCell>條目類型</NoWrapTableCell>
+                    <NoWrapTableCell>資產變動量</NoWrapTableCell>
+                    <NoWrapTableCell>變動資產</NoWrapTableCell>
                     <NoWrapTableCell>交易品種</NoWrapTableCell>
-                    <NoWrapTableCell>變動數量</NoWrapTableCell>
-                    <NoWrapTableCell>成交價格</NoWrapTableCell>
-                    <NoWrapTableCell>來源</NoWrapTableCell>
+                    <NoWrapTableCell>部位變動數量</NoWrapTableCell>
+                    <NoWrapTableCell>成交價格/費率</NoWrapTableCell>
+                    <NoWrapTableCell>備注</NoWrapTableCell>
                     <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                     <NoWrapTableCell align="right">操作</NoWrapTableCell>
                   </TableRow>
@@ -468,24 +474,20 @@ export default function Page() {
                   {ledgerEntries.map((ledgerEntry, index) => {
                     const instrument =
                       instrumentReferenceToInstrumentMap[
-                        ledgerEntry.instrument_reference
+                        ledgerEntry.instrument_reference ?? ''
                       ]
-                    const quantity =
-                      instrument.quantity_decimals === undefined
-                        ? 'N/A'
-                        : new Decimal(ledgerEntry.quantity)
-                            .dividedBy(
-                              new Decimal(10 ** instrument.quantity_decimals)
-                            )
-                            .toString()
-                    const price =
-                      instrument.price_decimals === undefined
-                        ? 'N/A'
-                        : new Decimal(ledgerEntry.price)
-                            .dividedBy(
-                              new Decimal(10 ** instrument.price_decimals)
-                            )
-                            .toString()
+                    const quantity_change = !ledgerEntry.quantity_change
+                      ? 'N/A'
+                      : new Decimal(ledgerEntry.quantity_change)
+                          .dividedBy(
+                            new Decimal(10 ** instrument.quantity_decimals)
+                          )
+                          .toString()
+                    const fill_px = !ledgerEntry.fill_px
+                      ? 'N/A'
+                      : new Decimal(ledgerEntry.fill_px)
+                          .dividedBy(new Decimal(10 ** instrument.px_decimals))
+                          .toString()
                     return (
                       <TableRow key={ledgerEntry.reference} hover>
                         <NoWrapTableCell align="right">
@@ -494,6 +496,16 @@ export default function Page() {
                               index +
                               1}
                           </PlaceholderTypography>
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
+                          <ReferenceBlock
+                            label={
+                              financeLedgerEntrySourceTypes.find(
+                                (sourceType) =>
+                                  sourceType.value === ledgerEntry.source_type
+                              )?.label
+                            }
+                          />
                         </NoWrapTableCell>
                         <NoWrapTableCell>
                           <DatetimeBlock isoText={ledgerEntry.entry_time} />
@@ -509,23 +521,20 @@ export default function Page() {
                           />
                         </NoWrapTableCell>
                         <NoWrapTableCell>
+                          {ledgerEntry.settlement_amount_change}
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
+                          {ledgerEntry.settlement_asset_reference}
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
                           <ReferenceBlock
                             label={instrument.name}
                             foreignValue
                           />
                         </NoWrapTableCell>
-                        <NoWrapTableCell>{quantity}</NoWrapTableCell>
-                        <NoWrapTableCell>{price}</NoWrapTableCell>
-                        <NoWrapTableCell>
-                          <ReferenceBlock
-                            label={
-                              financeLedgerEntrySourceTypes.find(
-                                (sourceType) =>
-                                  sourceType.value === ledgerEntry.source_type
-                              )?.label
-                            }
-                          />
-                        </NoWrapTableCell>
+                        <NoWrapTableCell>{quantity_change}</NoWrapTableCell>
+                        <NoWrapTableCell>{fill_px}</NoWrapTableCell>
+                        <NoWrapTableCell>{ledgerEntry.remark}</NoWrapTableCell>
                         <NoWrapTableCell>
                           <ReferenceBlock
                             label={ledgerEntry.reference}
@@ -539,10 +548,11 @@ export default function Page() {
                             onClick={() => {
                               updateLedgerEntryForm.reset({
                                 instrument_reference:
-                                  ledgerEntry.instrument_reference,
+                                  ledgerEntry.instrument_reference ?? '',
                                 entry_type: ledgerEntry.entry_type,
-                                quantity: ledgerEntry.quantity,
-                                price: ledgerEntry.price,
+                                quantity_change:
+                                  ledgerEntry.quantity_change ?? 0,
+                                fill_px: ledgerEntry.fill_px ?? 0,
                                 entry_time: timezone
                                   .getLocalString(ledgerEntry.entry_time)
                                   .slice(0, -5),
@@ -815,7 +825,7 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="quantity"
+                name="quantity_change"
                 control={createLedgerEntryForm.control}
                 defaultValue={0}
                 render={({ field }) => (
@@ -832,7 +842,7 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="price"
+                name="fill_px"
                 control={createLedgerEntryForm.control}
                 defaultValue={0}
                 render={({ field }) => (

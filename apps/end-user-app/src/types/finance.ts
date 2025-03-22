@@ -156,26 +156,32 @@ export interface UpdatePortfolioFormInputs {
 
 export interface LedgerEntry {
   reference: string
-  instrument_reference: string
-  entry_type: string
   source_type: string
-  quantity: number
-  price: number
   entry_time: string
+  entry_type: string
+  settlement_amount_change: number
+  settlement_asset_reference: string
+  instrument_reference: string | null
+  quantity_change: number | null
+  fill_px: number | null
+  remark: string | null
 }
 
 export interface CreateLedgerEntryFormInputs {
-  instrument_reference: string
-  entry_type: string
-  quantity: number
-  price: number
   entry_time: string
+  entry_type: string
+  settlement_amount_change: number
+  settlement_asset_reference: string
+  instrument_reference: string
+  quantity_change: number
+  fill_px: number
+  remark: string
 }
 
 export interface UpdateLedgerEntryFormInputs {
   instrument_reference: string
   entry_type: string
-  quantity: number
-  price: number
+  quantity_change: number
+  fill_px: number
   entry_time: string
 }
