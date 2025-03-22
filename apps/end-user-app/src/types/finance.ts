@@ -98,7 +98,7 @@ export interface Instrument {
   reference: string
   name: string
   quantity_decimals: number
-  price_decimals: number
+  px_decimals: number
   instrument_type: string
   base_asset_reference?: string
   quote_asset_reference?: string
@@ -111,7 +111,7 @@ export interface Instrument {
 export interface CreateInstrumentFormInputs {
   name: string
   quantity_decimals: number
-  price_decimals: number
+  px_decimals: number
   instrument_type: string
   base_asset_reference?: string
   quote_asset_reference?: string
@@ -124,7 +124,7 @@ export interface CreateInstrumentFormInputs {
 export interface UpdateInstrumentFormInputs {
   name?: string
   quantity_decimals?: number
-  price_decimals?: number
+  px_decimals?: number
   instrument_type?: string
   base_asset_reference?: string
   quote_asset_reference?: string

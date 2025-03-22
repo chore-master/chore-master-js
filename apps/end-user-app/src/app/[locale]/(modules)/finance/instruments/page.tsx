@@ -305,9 +305,7 @@ export default function Page() {
                     <NoWrapTableCell>
                       {instrument.quantity_decimals}
                     </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {instrument.price_decimals}
-                    </NoWrapTableCell>
+                    <NoWrapTableCell>{instrument.px_decimals}</NoWrapTableCell>
                     <NoWrapTableCell>
                       <ReferenceBlock
                         label={
@@ -424,7 +422,7 @@ export default function Page() {
             </FormControl>
             <FormControl>
               <Controller
-                name="price_decimals"
+                name="px_decimals"
                 control={createInstrumentForm.control}
                 defaultValue={0}
                 render={({ field }) => (

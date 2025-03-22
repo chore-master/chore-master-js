@@ -14,23 +14,19 @@ export const financeAccountEcosystemTypes = [
 export const financeInstrumentTypes = [
   {
     label: '股票',
-    value: 'EQUITY',
+    value: 'STOCK',
   },
   {
     label: '外匯',
-    value: 'FX',
-  },
-  {
-    label: '期貨',
-    value: 'FUTURE',
+    value: 'FOREX',
   },
   {
     label: '衍生品',
     value: 'DERIVATIVE',
   },
   {
-    label: '收益',
-    value: 'EARNING',
+    label: '借貸',
+    value: 'LENDING',
   },
 ] as const
 
