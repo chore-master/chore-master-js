@@ -1,22 +1,68 @@
 {
   "components": {
     "ModuleLayout": {
-      "toggleModule": "Toggle Module",
-      "toggleSidebar": "Toggle Sidebar",
-      "about": "About",
-      "settings": "Settings",
-      "user": "User",
-      "login": "Login",
-      "logoutCurrentDevice": "Logout Current Device",
-      "loginOtherAccount": "Login Other Account"
+      "menu": {
+        "loginOtherAccount": "Login other account",
+        "logoutCurrentDevice": "Logout current device"
+      },
+      "tooltips": {
+        "toggleModule": "Toggle Module",
+        "toggleSidebar": "Toggle Sidebar",
+        "about": "About",
+        "settings": "Settings",
+        "login": "Login",
+        "user": "User"
+      },
+      "dialogs": {
+        "about": {
+          "title": "About",
+          "systemInfo": "System Info",
+          "commitRevision": "Commit Revision",
+          "commitSHA": "Commit SHA",
+          "environment": "Environment",
+          "claim": "Claim",
+          "privacy": "Privacy",
+          "terms": "Terms"
+        },
+        "settings": {
+          "title": "Settings",
+          "contrast": "Contrast",
+          "light": "Light",
+          "dark": "Dark",
+          "timezone": "Timezone",
+          "appliedTimezone": "Applied timezone",
+          "previewCurrentTime": "Preview current time"
+        }
+      }
     }
   },
   "modules": {
     "admin": {
-      "name": "Admin"
+      "name": "Admin",
+      "navigations": {
+        "database": "Database",
+        "tables": "Tables",
+        "migrations": "Migrations",
+        "user": "User",
+        "users": "Users"
+      }
     },
     "finance": {
-      "name": "Finance"
+      "name": "Finance",
+      "navigations": {
+        "market": "Market",
+        "interestRateQuotation": "Interest Rate Quotation",
+        "ecosystem": "Ecosystem",
+        "flow": "Flow",
+        "myWealth": "My Wealth",
+        "assets": "Assets",
+        "accounts": "Accounts",
+        "balance": "Balance",
+        "myInvestment": "My Investment",
+        "instruments": "Instruments",
+        "portfolios": "Portfolios",
+        "others": "Others"
+      }
     },
     "integration": {
       "name": "Integration"

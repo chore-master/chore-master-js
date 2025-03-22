@@ -15,17 +15,17 @@ export default function Layout({
       navigations={[
         {
           type: 'header',
-          title: '資料庫',
+          title: t('admin.navigations.database'),
           navigations: [
             {
               type: 'link',
-              title: '資料表',
+              title: t('admin.navigations.tables'),
               href: '/admin/database/tables',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '遷徙管理',
+              title: t('admin.navigations.migrations'),
               href: '/admin/database/migrations',
               selectedWhenPartiallyMatched: true,
             },
@@ -33,11 +33,11 @@ export default function Layout({
         },
         {
           type: 'header',
-          title: '使用者',
+          title: t('admin.navigations.user'),
           navigations: [
             {
               type: 'link',
-              title: '使用者',
+              title: t('admin.navigations.users'),
               href: '/admin/users',
               selectedWhenPartiallyMatched: true,
             },

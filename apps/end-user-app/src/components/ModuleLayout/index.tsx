@@ -197,7 +197,7 @@ export default function ModuleLayout({
         })}
       >
         <Toolbar disableGutters>
-          <Tooltip title={t('toggleModule')}>
+          <Tooltip title={t('tooltips.toggleModule')}>
             <IconButton
               size="large"
               color="default"
@@ -339,7 +339,7 @@ export default function ModuleLayout({
             })}
           >
             <Toolbar disableGutters>
-              <Tooltip title={t('toggleSidebar')}>
+              <Tooltip title={t('tooltips.toggleSidebar')}>
                 <IconButton
                   size="large"
                   color="default"
@@ -357,7 +357,7 @@ export default function ModuleLayout({
                 </IconButton>
               </Tooltip>
               <Box sx={{ flexGrow: 1 }} />
-              <Tooltip title={t('about')}>
+              <Tooltip title={t('tooltips.about')}>
                 <IconButton
                   onClick={() => {
                     fetchSystemInspect()
@@ -367,7 +367,7 @@ export default function ModuleLayout({
                   <InfoOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title={t('settings')}>
+              <Tooltip title={t('tooltips.settings')}>
                 <IconButton
                   onClick={() => {
                     setIsSettingsDialogOpen(true)
@@ -380,7 +380,7 @@ export default function ModuleLayout({
                 <Tooltip
                   title={
                     <React.Fragment>
-                      <span>{t('user')}</span>
+                      <span>{t('tooltips.user')}</span>
                       <br />
                       <span>{auth.currentUser.name}</span>
                     </React.Fragment>
@@ -401,7 +401,7 @@ export default function ModuleLayout({
                 </Tooltip>
               )}
               {!loginRequired && !auth.currentUser && (
-                <Tooltip title={t('login')}>
+                <Tooltip title={t('tooltips.login')}>
                   <span>
                     <IconButton
                       size="small"
@@ -463,7 +463,7 @@ export default function ModuleLayout({
                     <ListItemIcon>
                       <LogoutIcon fontSize="small" />
                     </ListItemIcon>
-                    {t('logoutCurrentDevice')}
+                    {t('menu.logoutCurrentDevice')}
                   </MenuItem>
                 </Link>
                 <Divider />
@@ -472,7 +472,7 @@ export default function ModuleLayout({
                     <ListItemIcon>
                       <SwitchAccountIcon fontSize="small" />
                     </ListItemIcon>
-                    {t('loginOtherAccount')}
+                    {t('menu.loginOtherAccount')}
                   </MenuItem>
                 </Link>
               </Menu>
@@ -497,7 +497,7 @@ export default function ModuleLayout({
             alignItems="center"
             justifyContent="space-between"
           >
-            <span>{t('about')}</span>
+            <span>{t('dialogs.about.title')}</span>
             <IconButton
               onClick={() => {
                 setIsAboutDialogOpen(false)
@@ -513,14 +513,16 @@ export default function ModuleLayout({
               <ListItemIcon>
                 <DeviceHubIcon />
               </ListItemIcon>
-              <ListItemText primary="系統資訊" />
+              <ListItemText primary={t('dialogs.about.systemInfo')} />
             </ListItem>
             <ListItem disablePadding>
               <ListItemText
                 inset
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography variant="body2">發佈版本</Typography>
+                    <Typography variant="body2">
+                      {t('dialogs.about.commitRevision')}
+                    </Typography>
                     {systemInspect?.commit_revision ? (
                       <ReferenceBlock
                         label={systemInspect.commit_revision}
@@ -539,7 +541,9 @@ export default function ModuleLayout({
                 inset
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography variant="body2">提交版本</Typography>
+                    <Typography variant="body2">
+                      {t('dialogs.about.commitSHA')}
+                    </Typography>
                     {systemInspect?.commit_short_sha ? (
                       <ReferenceBlock
                         label={systemInspect.commit_short_sha}
@@ -558,7 +562,9 @@ export default function ModuleLayout({
                 inset
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography variant="body2">環境</Typography>
+                    <Typography variant="body2">
+                      {t('dialogs.about.environment')}
+                    </Typography>
                     {systemInspect?.env ? (
                       <ReferenceBlock label={systemInspect.env} primaryKey />
                     ) : (
@@ -572,7 +578,7 @@ export default function ModuleLayout({
               <ListItemIcon>
                 <PrivacyTipIcon />
               </ListItemIcon>
-              <ListItemText primary="聲明" />
+              <ListItemText primary={t('dialogs.about.claim')} />
             </ListItem>
             <ListItem disablePadding>
               <ListItemText
@@ -580,7 +586,9 @@ export default function ModuleLayout({
                 primary={
                   <MuiLink color="inherit" href="/privacy" target="_blank">
                     <Stack direction="row" spacing={0.5} alignItems="center">
-                      <Typography variant="body2">隱私權</Typography>
+                      <Typography variant="body2">
+                        {t('dialogs.about.privacy')}
+                      </Typography>
                       <LaunchIcon fontSize="small" />
                     </Stack>
                   </MuiLink>
@@ -593,7 +601,9 @@ export default function ModuleLayout({
                 primary={
                   <MuiLink color="inherit" href="/terms" target="_blank">
                     <Stack direction="row" spacing={0.5} alignItems="center">
-                      <Typography variant="body2">服務條款</Typography>
+                      <Typography variant="body2">
+                        {t('dialogs.about.terms')}
+                      </Typography>
                       <LaunchIcon fontSize="small" />
                     </Stack>
                   </MuiLink>
@@ -619,7 +629,7 @@ export default function ModuleLayout({
             alignItems="center"
             justifyContent="space-between"
           >
-            <span>{t('settings')}</span>
+            <span>{t('dialogs.settings.title')}</span>
             <IconButton
               onClick={() => {
                 setIsSettingsDialogOpen(false)
@@ -635,7 +645,7 @@ export default function ModuleLayout({
               <ListItemIcon>
                 <ContrastIcon />
               </ListItemIcon>
-              <ListItemText primary="對比" />
+              <ListItemText primary={t('dialogs.settings.contrast')} />
             </ListItem>
             <ListItem disablePadding>
               <ListItemText
@@ -656,13 +666,13 @@ export default function ModuleLayout({
                       <ToggleButton value="light">
                         <Stack direction="row" spacing={1} alignItems="center">
                           <LightModeIcon fontSize="small" />
-                          <span>淺色</span>
+                          <span>{t('dialogs.settings.light')}</span>
                         </Stack>
                       </ToggleButton>
                       <ToggleButton value="dark">
                         <Stack direction="row" spacing={1} alignItems="center">
                           <DarkModeIcon fontSize="small" />
-                          <span>深色</span>
+                          <span>{t('dialogs.settings.dark')}</span>
                         </Stack>
                       </ToggleButton>
                     </ToggleButtonGroup>
@@ -674,20 +684,20 @@ export default function ModuleLayout({
               <ListItemIcon>
                 <AccessTimeIcon />
               </ListItemIcon>
-              <ListItemText primary="時區" />
+              <ListItemText primary={t('dialogs.settings.timezone')} />
             </ListItem>
             <ListItem disablePadding>
               <ListItemText
                 inset
                 primary={
                   <React.Fragment>
-                    套用時區：UTC
+                    {t('dialogs.settings.appliedTimezone')}：UTC
                     {offsetInMinutesToTimedeltaString(timezone.offsetInMinutes)}
                   </React.Fragment>
                 }
                 secondary={
                   <React.Fragment>
-                    預覽目前時間：
+                    {t('dialogs.settings.previewCurrentTime')}：
                     <DatetimeBlock date={currentDate} realTime />
                   </React.Fragment>
                 }

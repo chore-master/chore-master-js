@@ -27,24 +27,24 @@ export default function Layout({
           getSelected: (isCollapsed: boolean, pathname: string) => {
             return isCollapsed && pathname.startsWith('/finance/market')
           },
-          title: '市場',
+          title: t('finance.navigations.market'),
           isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
           navigations: [
             {
               type: 'link',
-              title: '利率行情',
+              title: t('finance.navigations.interestRateQuotation'),
               href: '/finance/market/interest-rate-inspector',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '生態',
+              title: t('finance.navigations.ecosystem'),
               href: '/finance/market/ecosystem',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '流量',
+              title: t('finance.navigations.flow'),
               href: '/finance/market/flow',
               selectedWhenPartiallyMatched: true,
             },
@@ -65,24 +65,24 @@ export default function Layout({
               )
             )
           },
-          title: '我的資金',
+          title: t('finance.navigations.myWealth'),
           isVisible: auth.currentUserHasSomeOfRoles(['FREEMIUM']),
           navigations: [
             {
               type: 'link',
-              title: '資產',
+              title: t('finance.navigations.assets'),
               href: '/finance/assets',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '帳戶',
+              title: t('finance.navigations.accounts'),
               href: '/finance/accounts',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '結餘',
+              title: t('finance.navigations.balance'),
               href: '/finance/balance-sheets',
               selectedWhenPartiallyMatched: true,
             },
@@ -91,7 +91,7 @@ export default function Layout({
         {
           type: 'collapsible',
           isDefaultCollapsed: false,
-          title: '我的投資',
+          title: t('finance.navigations.myInvestment'),
           isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
           getSelected: (isCollapsed: boolean, pathname: string) => {
             return (
@@ -103,13 +103,13 @@ export default function Layout({
           navigations: [
             {
               type: 'link',
-              title: '交易品種',
+              title: t('finance.navigations.instruments'),
               href: '/finance/instruments',
               selectedWhenPartiallyMatched: true,
             },
             {
               type: 'link',
-              title: '投資組合',
+              title: t('finance.navigations.portfolios'),
               href: '/finance/portfolios',
               selectedWhenPartiallyMatched: true,
             },
@@ -122,7 +122,7 @@ export default function Layout({
         {
           type: 'collapsible',
           isDefaultCollapsed: true,
-          title: '其他',
+          title: t('finance.navigations.others'),
           isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
           navigations: [
             {
