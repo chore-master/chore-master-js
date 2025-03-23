@@ -590,7 +590,9 @@ export default function Page() {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => {
-                  createLedgerEntryForm.reset()
+                  createLedgerEntryForm.reset({
+                    parent_ledger_entry_reference: null,
+                  })
                   setIsCreateLedgerEntryDrawerOpen(true)
                 }}
               >
@@ -598,7 +600,13 @@ export default function Page() {
               </Button>,
             ]}
           />
-          <ModuleFunctionBody loading={isFetchingLedgerEntries}>
+          <ModuleFunctionBody
+            loading={
+              isFetchingLedgerEntries ||
+              isFetchingAssets ||
+              isFetchingInstruments
+            }
+          >
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -742,7 +750,9 @@ export default function Page() {
                               createLedgerEntryForm.reset({
                                 parent_ledger_entry_reference:
                                   ledgerEntry.reference,
-                                entry_time: ledgerEntry.entry_time,
+                                entry_time: timezone
+                                  .getLocalString(ledgerEntry.entry_time)
+                                  .slice(0, -5),
                               })
                               setIsCreateLedgerEntryDrawerOpen(true)
                             }}
