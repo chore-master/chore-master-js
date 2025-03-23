@@ -465,6 +465,11 @@ export default function Page() {
       (acc: Set<string>, ledgerEntry) => {
         if (ledgerEntry.settlement_asset_reference) {
           acc.add(ledgerEntry.settlement_asset_reference)
+          ledgerEntry.children_ledger_entries.forEach((childLedgerEntry) => {
+            if (childLedgerEntry.settlement_asset_reference) {
+              acc.add(childLedgerEntry.settlement_asset_reference)
+            }
+          })
         }
         return acc
       },
@@ -480,6 +485,11 @@ export default function Page() {
       (acc: Set<string>, ledgerEntry) => {
         if (ledgerEntry.instrument_reference) {
           acc.add(ledgerEntry.instrument_reference)
+          ledgerEntry.children_ledger_entries.forEach((childLedgerEntry) => {
+            if (childLedgerEntry.instrument_reference) {
+              acc.add(childLedgerEntry.instrument_reference)
+            }
+          })
         }
         return acc
       },
@@ -604,7 +614,8 @@ export default function Page() {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <NoWrapTableCell align="right">
+                    <NoWrapTableCell />
+                    <NoWrapTableCell>
                       <PlaceholderTypography>#</PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>帳務時間</NoWrapTableCell>

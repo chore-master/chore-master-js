@@ -1,5 +1,3 @@
-import React from 'react'
-
 import DatetimeBlock from '@/components/DatetimeBlock'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
@@ -16,11 +14,14 @@ import {
   UpdateLedgerEntryFormInputs,
 } from '@/types/finance'
 import AddIcon from '@mui/icons-material/Add'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import IconButton from '@mui/material/IconButton'
 import TableRow from '@mui/material/TableRow'
 import { Decimal } from 'decimal.js'
+import React from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 export default function LedgerEntryRow({
@@ -50,6 +51,8 @@ export default function LedgerEntryRow({
   createLedgerEntryForm: UseFormReturn<CreateLedgerEntryFormInputs>
   updateLedgerEntryForm: UseFormReturn<UpdateLedgerEntryFormInputs>
 }) {
+  const [isOpen, setIsOpen] = React.useState(false)
+  const baseIndex = ledgerEntriesPage * ledgerEntriesRowsPerPage + index + 1
   const settlement_asset =
     assetReferenceToAssetMap[ledgerEntry.settlement_asset_reference]
   let settlement_amount_change: number | undefined
@@ -78,10 +81,19 @@ export default function LedgerEntryRow({
   return (
     <React.Fragment>
       <TableRow hover>
-        <NoWrapTableCell align="right">
-          <PlaceholderTypography>
-            {ledgerEntriesPage * ledgerEntriesRowsPerPage + index + 1}
-          </PlaceholderTypography>
+        <NoWrapTableCell>
+          {ledgerEntry.children_ledger_entries.length > 0 && (
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
+            </IconButton>
+          )}
+        </NoWrapTableCell>
+        <NoWrapTableCell>
+          <PlaceholderTypography>{baseIndex}</PlaceholderTypography>
         </NoWrapTableCell>
         <NoWrapTableCell>
           <DatetimeBlock isoText={ledgerEntry.entry_time} />
@@ -183,6 +195,137 @@ export default function LedgerEntryRow({
           </IconButton>
         </NoWrapTableCell>
       </TableRow>
+      {isOpen &&
+        ledgerEntry.children_ledger_entries.map(
+          (childLedgerEntry, childIndex) => {
+            const settlement_asset =
+              assetReferenceToAssetMap[
+                childLedgerEntry.settlement_asset_reference
+              ]
+            let settlement_amount_change: number | undefined
+            if (settlement_asset) {
+              settlement_amount_change = new Decimal(
+                childLedgerEntry.settlement_amount_change
+              )
+                .dividedBy(new Decimal(10 ** settlement_asset.decimals))
+                .toNumber()
+            }
+            let instrument: Instrument | undefined
+            let quantity_change: number | undefined
+            let fill_px: number | undefined
+            if (childLedgerEntry.instrument_reference) {
+              instrument =
+                instrumentReferenceToInstrumentMap[
+                  childLedgerEntry.instrument_reference
+                ]
+              if (instrument) {
+                quantity_change = new Decimal(
+                  childLedgerEntry.quantity_change as number
+                )
+                  .dividedBy(new Decimal(10 ** instrument.quantity_decimals))
+                  .toNumber()
+
+                fill_px = new Decimal(childLedgerEntry.fill_px as number)
+                  .dividedBy(new Decimal(10 ** instrument.px_decimals))
+                  .toNumber()
+              }
+            }
+            return (
+              <TableRow key={childLedgerEntry.reference}>
+                <NoWrapTableCell />
+                <NoWrapTableCell>
+                  <PlaceholderTypography>
+                    {baseIndex} - {childIndex + 1}
+                  </PlaceholderTypography>
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  <PlaceholderTypography>
+                    <DatetimeBlock isoText={childLedgerEntry.entry_time} />
+                  </PlaceholderTypography>
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  <ReferenceBlock
+                    label={
+                      financeLedgerEntryEntryTypes.find(
+                        (entryType) =>
+                          entryType.value === childLedgerEntry.entry_type
+                      )?.label
+                    }
+                  />
+                </NoWrapTableCell>
+                <NoWrapTableCell>{settlement_amount_change}</NoWrapTableCell>
+                <NoWrapTableCell>
+                  <ReferenceBlock label={settlement_asset?.name} foreignValue />
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  <PlaceholderTypography>N/A</PlaceholderTypography>
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  <PlaceholderTypography>N/A</PlaceholderTypography>
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  <PlaceholderTypography>N/A</PlaceholderTypography>
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  {childLedgerEntry.remark || (
+                    <PlaceholderTypography>無</PlaceholderTypography>
+                  )}
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  <ReferenceBlock
+                    label={
+                      financeLedgerEntrySourceTypes.find(
+                        (sourceType) =>
+                          sourceType.value === childLedgerEntry.source_type
+                      )?.label
+                    }
+                  />
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  <ReferenceBlock
+                    label={childLedgerEntry.reference}
+                    primaryKey
+                    monospace
+                  />
+                </NoWrapTableCell>
+                <NoWrapTableCell align="right">
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      updateLedgerEntryForm.reset({
+                        parent_ledger_entry_reference:
+                          childLedgerEntry.parent_ledger_entry_reference,
+                        entry_time: timezone
+                          .getLocalString(childLedgerEntry.entry_time)
+                          .slice(0, -5),
+                        entry_type: childLedgerEntry.entry_type,
+                        settlement_amount_change: settlement_amount_change,
+                        settlement_asset_reference:
+                          childLedgerEntry.settlement_asset_reference,
+                        quantity_change: quantity_change,
+                        instrument_reference:
+                          childLedgerEntry.instrument_reference ?? '',
+                        fill_px: fill_px,
+                        remark: childLedgerEntry.remark ?? '',
+                      })
+                      setEditingLedgerEntryReference(childLedgerEntry.reference)
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() =>
+                      deleteLedgerEntry(childLedgerEntry.reference)
+                    }
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </NoWrapTableCell>
+              </TableRow>
+            )
+          }
+        )}
     </React.Fragment>
   )
 }

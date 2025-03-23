@@ -166,6 +166,7 @@ export interface LedgerEntry {
   fill_px: number | null
   remark: string | null
   parent_ledger_entry_reference: string | null
+  children_ledger_entries: LedgerEntry[]
 }
 
 export interface CreateLedgerEntryFormInputs {
