@@ -281,7 +281,7 @@ export default function Page() {
                   </NoWrapTableCell>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
                   <NoWrapTableCell>數量精度</NoWrapTableCell>
-                  <NoWrapTableCell>價格精度</NoWrapTableCell>
+                  <NoWrapTableCell>價格/費率精度</NoWrapTableCell>
                   <NoWrapTableCell>類型</NoWrapTableCell>
                   {financeInstrumentAssetReferenceFields.map(({ label }) => (
                     <NoWrapTableCell key={label}>{label}</NoWrapTableCell>
@@ -429,7 +429,7 @@ export default function Page() {
                   <TextField
                     {...field}
                     required
-                    label="價格精度"
+                    label="價格/費率精度"
                     variant="filled"
                     type="number"
                     helperText="建立後無法變更"

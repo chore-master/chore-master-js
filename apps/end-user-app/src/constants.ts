@@ -65,12 +65,12 @@ export const financeInstrumentAssetReferenceFields = [
 
 export const financeLedgerEntryEntryTypes = [
   {
-    label: '買入',
-    value: 'BUY',
+    label: '交易買入',
+    value: 'TRADE_BUY',
   },
   {
-    label: '賣出',
-    value: 'SELL',
+    label: '交易賣出',
+    value: 'TRADE_SELL',
   },
   {
     label: '質押',
@@ -89,12 +89,28 @@ export const financeLedgerEntryEntryTypes = [
     value: 'STOCK_DIVIDEND',
   },
   {
+    label: '獎勵',
+    value: 'REWARD',
+  },
+  {
     label: '資金費',
     value: 'FUNDING_FEE',
   },
   {
     label: '利息',
     value: 'INTEREST',
+  },
+  {
+    label: '交易手續費',
+    value: 'TRADE_FEE',
+  },
+  {
+    label: '稅',
+    value: 'TAX',
+  },
+  {
+    label: 'Gas 費用',
+    value: 'GAS_FEE',
   },
 ] as const
 

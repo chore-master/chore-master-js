@@ -172,10 +172,10 @@ export interface CreateLedgerEntryFormInputs {
   entry_type: string
   settlement_amount_change: number
   settlement_asset_reference: string
-  instrument_reference: string
-  quantity_change: number
-  fill_px: number
-  remark: string
+  quantity_change: number | null
+  instrument_reference: string | null
+  fill_px: number | null
+  remark: string | null
 }
 
 export interface UpdateLedgerEntryFormInputs {

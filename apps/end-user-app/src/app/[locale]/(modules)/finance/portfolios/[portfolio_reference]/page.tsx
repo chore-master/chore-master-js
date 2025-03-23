@@ -18,6 +18,7 @@ import {
   financeLedgerEntrySourceTypes,
 } from '@/constants'
 import {
+  Asset,
   CreateLedgerEntryFormInputs,
   Instrument,
   LedgerEntry,
@@ -99,6 +100,17 @@ export default function Page() {
     mode: 'all',
   })
 
+  // Assets
+  const [assets, setAssets] = React.useState<Asset[]>([])
+  const [assetInputValue, setAssetInputValue] = React.useState('')
+  const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
+  const assetReferenceToAssetMap = React.useMemo(() => {
+    return assets.reduce((acc: Record<string, Asset>, asset) => {
+      acc[asset.reference] = asset
+      return acc
+    }, {})
+  }, [assets])
+
   // Instruments
   const [instruments, setInstruments] = React.useState<Instrument[]>([])
   const [instrumentInputValue, setInstrumentInputValue] = React.useState('')
@@ -110,6 +122,8 @@ export default function Page() {
       return acc
     }, {})
   }, [instruments])
+
+  // Portfolio
 
   const fetchPortfolio = React.useCallback(async () => {
     setIsFetchingPortfolio(true)
@@ -179,6 +193,8 @@ export default function Page() {
     []
   )
 
+  // Ledger Entries
+
   const fetchLedgerEntries = React.useCallback(async () => {
     setIsFetchingLedgerEntries(true)
     await choreMasterAPIAgent.get(
@@ -211,20 +227,36 @@ export default function Page() {
 
   const handleSubmitCreateLedgerEntryForm: SubmitHandler<
     CreateLedgerEntryFormInputs
-  > = async ({ quantity_change, fill_px, entry_time, ...data }) => {
-    const instrument =
-      instrumentReferenceToInstrumentMap[data.instrument_reference]
+  > = async (data) => {
+    let body: CreateLedgerEntryFormInputs = {
+      entry_time: new Date(
+        timezone.getUTCTimestamp(data.entry_time)
+      ).toISOString(),
+      entry_type: data.entry_type,
+      settlement_amount_change: Number(data.settlement_amount_change),
+      settlement_asset_reference: data.settlement_asset_reference,
+      instrument_reference: null,
+      quantity_change: null,
+      fill_px: null,
+      remark: data.remark,
+    }
+
+    const asset = assetReferenceToAssetMap[data.settlement_asset_reference]
+    body.settlement_amount_change =
+      Number(data.settlement_amount_change) * 10 ** asset.decimals
+
+    if (data.quantity_change && data.instrument_reference) {
+      const instrument =
+        instrumentReferenceToInstrumentMap[data.instrument_reference]
+      body.instrument_reference = data.instrument_reference
+      body.quantity_change =
+        Number(data.quantity_change) * 10 ** instrument.quantity_decimals
+      body.fill_px = Number(data.fill_px) * 10 ** instrument.px_decimals
+    }
+
     await choreMasterAPIAgent.post(
       `/v1/finance/portfolios/${portfolio_reference}/ledger_entries`,
-      {
-        ...data,
-        quantity_change:
-          Number(quantity_change) * 10 ** instrument.quantity_decimals,
-        fill_px: Number(fill_px) * 10 ** instrument.px_decimals,
-        entry_time: new Date(
-          timezone.getUTCTimestamp(entry_time)
-        ).toISOString(),
-      },
+      body,
       {
         onError: () => {
           enqueueNotification(`Unable to create ledger entry now.`, 'error')
@@ -263,6 +295,8 @@ export default function Page() {
     },
     []
   )
+
+  // Instruments
 
   const fetchInstruments = React.useCallback(
     async ({
@@ -315,6 +349,59 @@ export default function Page() {
     debounce(fetchInstruments, 1500),
     [fetchInstruments]
   )
+
+  // Assets
+
+  const fetchAssets = React.useCallback(
+    async ({
+      search,
+      references,
+    }: {
+      search?: string
+      references?: string[]
+    }) => {
+      setIsFetchingAssets(true)
+      await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
+        params: { search, references },
+        onError: () => {
+          enqueueNotification(`Unable to fetch assets now.`, 'error')
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: async ({ data }: any) => {
+          setAssets((assets) => {
+            const assetReferenceToAssetMap = assets.reduce(
+              (acc: Record<string, Asset>, asset) => {
+                acc[asset.reference] = asset
+                return acc
+              },
+              {}
+            )
+            const newAssetReferenceToAssetMap = data.reduce(
+              (acc: Record<string, Asset>, asset: Asset) => {
+                if (!assetReferenceToAssetMap[asset.reference]) {
+                  acc[asset.reference] = asset
+                }
+                return acc
+              },
+              {}
+            )
+            const newAssets = Object.values<Asset>(newAssetReferenceToAssetMap)
+            return [...assets, ...newAssets]
+          })
+        },
+      })
+      setIsFetchingAssets(false)
+    },
+    [enqueueNotification]
+  )
+
+  const debouncedFetchAssets = React.useCallback(debounce(fetchAssets, 1500), [
+    fetchAssets,
+  ])
+
+  // Effects
 
   React.useEffect(() => {
     fetchPortfolio()
@@ -454,15 +541,15 @@ export default function Page() {
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>#</PlaceholderTypography>
                     </NoWrapTableCell>
-                    <NoWrapTableCell>來源</NoWrapTableCell>
                     <NoWrapTableCell>帳務時間</NoWrapTableCell>
                     <NoWrapTableCell>條目類型</NoWrapTableCell>
                     <NoWrapTableCell>資產變動量</NoWrapTableCell>
                     <NoWrapTableCell>變動資產</NoWrapTableCell>
+                    <NoWrapTableCell>部位變動量</NoWrapTableCell>
                     <NoWrapTableCell>交易品種</NoWrapTableCell>
-                    <NoWrapTableCell>部位變動數量</NoWrapTableCell>
                     <NoWrapTableCell>成交價格/費率</NoWrapTableCell>
                     <NoWrapTableCell>備注</NoWrapTableCell>
+                    <NoWrapTableCell>來源</NoWrapTableCell>
                     <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                     <NoWrapTableCell align="right">操作</NoWrapTableCell>
                   </TableRow>
@@ -498,16 +585,6 @@ export default function Page() {
                           </PlaceholderTypography>
                         </NoWrapTableCell>
                         <NoWrapTableCell>
-                          <ReferenceBlock
-                            label={
-                              financeLedgerEntrySourceTypes.find(
-                                (sourceType) =>
-                                  sourceType.value === ledgerEntry.source_type
-                              )?.label
-                            }
-                          />
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
                           <DatetimeBlock isoText={ledgerEntry.entry_time} />
                         </NoWrapTableCell>
                         <NoWrapTableCell>
@@ -524,17 +601,34 @@ export default function Page() {
                           {ledgerEntry.settlement_amount_change}
                         </NoWrapTableCell>
                         <NoWrapTableCell>
-                          {ledgerEntry.settlement_asset_reference}
+                          <ReferenceBlock
+                            label={
+                              assetReferenceToAssetMap[
+                                ledgerEntry.settlement_asset_reference
+                              ].name
+                            }
+                            foreignValue
+                          />
                         </NoWrapTableCell>
+                        <NoWrapTableCell>{quantity_change}</NoWrapTableCell>
                         <NoWrapTableCell>
                           <ReferenceBlock
                             label={instrument.name}
                             foreignValue
                           />
                         </NoWrapTableCell>
-                        <NoWrapTableCell>{quantity_change}</NoWrapTableCell>
                         <NoWrapTableCell>{fill_px}</NoWrapTableCell>
                         <NoWrapTableCell>{ledgerEntry.remark}</NoWrapTableCell>
+                        <NoWrapTableCell>
+                          <ReferenceBlock
+                            label={
+                              financeLedgerEntrySourceTypes.find(
+                                (sourceType) =>
+                                  sourceType.value === ledgerEntry.source_type
+                              )?.label
+                            }
+                          />
+                        </NoWrapTableCell>
                         <NoWrapTableCell>
                           <ReferenceBlock
                             label={ledgerEntry.reference}
@@ -753,6 +847,107 @@ export default function Page() {
               )}
               rules={{ required: '必填' }}
             />
+            <FormControl>
+              <Controller
+                name="settlement_amount_change"
+                control={createLedgerEntryForm.control}
+                defaultValue={0}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    required
+                    label="資產變動量"
+                    variant="filled"
+                    type="number"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <Controller
+                name="settlement_asset_reference"
+                control={createLedgerEntryForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    value={
+                      field.value ? assetReferenceToAssetMap[field.value] : null
+                    }
+                    onChange={(_event, value: Asset | null) => {
+                      field.onChange(value?.reference ?? '')
+                      setAssetInputValue('')
+                    }}
+                    onInputChange={(event, newInputValue) => {
+                      setAssetInputValue(newInputValue)
+                    }}
+                    onOpen={() => {
+                      if (assetInputValue.length === 0 && assets.length === 0) {
+                        fetchAssets({ search: assetInputValue })
+                      }
+                    }}
+                    isOptionEqualToValue={(option, value) =>
+                      option.reference === value.reference
+                    }
+                    getOptionLabel={(option) => option.name}
+                    filterOptions={(assets) => {
+                      const lowerCaseAssetInputValue =
+                        assetInputValue.toLowerCase()
+                      return assets.filter(
+                        (asset) =>
+                          asset.name
+                            .toLowerCase()
+                            .includes(lowerCaseAssetInputValue) ||
+                          asset.symbol
+                            .toLowerCase()
+                            .includes(lowerCaseAssetInputValue)
+                      )
+                    }}
+                    options={assets}
+                    autoHighlight
+                    loading={isFetchingAssets}
+                    loadingText="載入中..."
+                    noOptionsText="沒有符合的選項"
+                    renderOption={(props, option) => {
+                      const { key, ...optionProps } = props as {
+                        key: React.Key
+                      }
+                      return (
+                        <Box key={key} component="li" {...optionProps}>
+                          <ReferenceBlock label={option.name} foreignValue />
+                        </Box>
+                      )
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="變動資產"
+                        variant="filled"
+                        size="small"
+                        required
+                      />
+                    )}
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl>
+              <Controller
+                name="quantity_change"
+                control={createLedgerEntryForm.control}
+                defaultValue={0}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="部位變動量"
+                    variant="filled"
+                    type="number"
+                  />
+                )}
+              />
+            </FormControl>
             <FormControl fullWidth>
               <Controller
                 name="instrument_reference"
@@ -815,29 +1010,10 @@ export default function Page() {
                         label="交易品種"
                         variant="filled"
                         size="small"
-                        required
                       />
                     )}
                   />
                 )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="quantity_change"
-                control={createLedgerEntryForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="變動數量"
-                    variant="filled"
-                    type="number"
-                  />
-                )}
-                rules={{ required: '必填' }}
               />
             </FormControl>
             <FormControl>
@@ -848,14 +1024,28 @@ export default function Page() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    required
-                    label="成交價格"
+                    label="成交價格/費率"
                     variant="filled"
                     type="number"
                     helperText="按交易品種的結算資產計價"
                   />
                 )}
-                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl>
+              <Controller
+                name="remark"
+                control={createLedgerEntryForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="備註"
+                    variant="filled"
+                    multiline
+                    rows={5}
+                  />
+                )}
               />
             </FormControl>
             <AutoLoadingButton
