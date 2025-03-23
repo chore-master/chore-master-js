@@ -12,7 +12,6 @@ import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
-import WithRef from '@/components/WithRef'
 import {
   financeLedgerEntryEntryTypes,
   financeLedgerEntrySourceTypes,
@@ -28,7 +27,6 @@ import {
 } from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
-import { validateDatetimeField } from '@/utils/validation'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
@@ -36,22 +34,17 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Button from '@mui/material/Button/Button'
-import CardHeader from '@mui/material/CardHeader'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
-import InputLabel from '@mui/material/InputLabel'
 import MuiLink from '@mui/material/Link'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListSubheader from '@mui/material/ListSubheader'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Table from '@mui/material/Table'
@@ -66,6 +59,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import CreateLedgerEntryForm from './CreateLedgerEntryForm'
 
 export default function Page() {
   const [tabValue, setTabValue] = React.useState<string>('overview')
@@ -239,6 +233,7 @@ export default function Page() {
       quantity_change: null,
       fill_px: null,
       remark: data.remark,
+      parent_ledger_entry_reference: data.parent_ledger_entry_reference,
     }
 
     const asset = assetReferenceToAssetMap[data.settlement_asset_reference]
@@ -412,10 +407,31 @@ export default function Page() {
   }, [])
 
   React.useEffect(() => {
+    if (assetInputValue.length > 0) {
+      debouncedFetchAssets({ search: assetInputValue })
+    }
+  }, [assetInputValue])
+
+  React.useEffect(() => {
     if (instrumentInputValue.length > 0) {
       debouncedFetchInstruments({ search: instrumentInputValue })
     }
   }, [instrumentInputValue])
+
+  React.useEffect(() => {
+    const assetReferenceSet = ledgerEntries.reduce(
+      (acc: Set<string>, ledgerEntry) => {
+        if (ledgerEntry.settlement_asset_reference) {
+          acc.add(ledgerEntry.settlement_asset_reference)
+        }
+        return acc
+      },
+      new Set<string>()
+    )
+    if (assetReferenceSet.size > 0) {
+      fetchAssets({ references: Array.from(assetReferenceSet) })
+    }
+  }, [ledgerEntries])
 
   React.useEffect(() => {
     const instrumentReferenceSet = ledgerEntries.reduce(
@@ -559,22 +575,32 @@ export default function Page() {
                   isEmpty={ledgerEntries.length === 0}
                 >
                   {ledgerEntries.map((ledgerEntry, index) => {
-                    const instrument =
-                      instrumentReferenceToInstrumentMap[
-                        ledgerEntry.instrument_reference ?? ''
+                    const settlement_asset =
+                      assetReferenceToAssetMap[
+                        ledgerEntry.settlement_asset_reference
                       ]
-                    const quantity_change = !ledgerEntry.quantity_change
-                      ? 'N/A'
-                      : new Decimal(ledgerEntry.quantity_change)
+                    let instrument: Instrument | undefined
+                    let quantity_change: number | undefined
+                    let fill_px: number | undefined
+                    if (ledgerEntry.instrument_reference) {
+                      instrument =
+                        instrumentReferenceToInstrumentMap[
+                          ledgerEntry.instrument_reference
+                        ]
+                      if (instrument) {
+                        quantity_change = new Decimal(
+                          ledgerEntry.quantity_change as number
+                        )
                           .dividedBy(
                             new Decimal(10 ** instrument.quantity_decimals)
                           )
-                          .toString()
-                    const fill_px = !ledgerEntry.fill_px
-                      ? 'N/A'
-                      : new Decimal(ledgerEntry.fill_px)
+                          .toNumber()
+
+                        fill_px = new Decimal(ledgerEntry.fill_px as number)
                           .dividedBy(new Decimal(10 ** instrument.px_decimals))
-                          .toString()
+                          .toNumber()
+                      }
+                    }
                     return (
                       <TableRow key={ledgerEntry.reference} hover>
                         <NoWrapTableCell align="right">
@@ -602,22 +628,34 @@ export default function Page() {
                         </NoWrapTableCell>
                         <NoWrapTableCell>
                           <ReferenceBlock
-                            label={
-                              assetReferenceToAssetMap[
-                                ledgerEntry.settlement_asset_reference
-                              ].name
-                            }
+                            label={settlement_asset?.name}
                             foreignValue
                           />
                         </NoWrapTableCell>
-                        <NoWrapTableCell>{quantity_change}</NoWrapTableCell>
                         <NoWrapTableCell>
-                          <ReferenceBlock
-                            label={instrument.name}
-                            foreignValue
-                          />
+                          {quantity_change === undefined ? (
+                            <PlaceholderTypography>N/A</PlaceholderTypography>
+                          ) : (
+                            quantity_change
+                          )}
                         </NoWrapTableCell>
-                        <NoWrapTableCell>{fill_px}</NoWrapTableCell>
+                        <NoWrapTableCell>
+                          {instrument ? (
+                            <ReferenceBlock
+                              label={instrument.name}
+                              foreignValue
+                            />
+                          ) : (
+                            <PlaceholderTypography>N/A</PlaceholderTypography>
+                          )}
+                        </NoWrapTableCell>
+                        <NoWrapTableCell>
+                          {fill_px === undefined ? (
+                            <PlaceholderTypography>N/A</PlaceholderTypography>
+                          ) : (
+                            fill_px
+                          )}
+                        </NoWrapTableCell>
                         <NoWrapTableCell>
                           {ledgerEntry.remark ? (
                             <PlaceholderTypography>
@@ -645,6 +683,19 @@ export default function Page() {
                           />
                         </NoWrapTableCell>
                         <NoWrapTableCell align="right">
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              createLedgerEntryForm.reset({
+                                parent_ledger_entry_reference:
+                                  ledgerEntry.reference,
+                                entry_time: ledgerEntry.entry_time,
+                              })
+                              setIsCreateLedgerEntryDrawerOpen(true)
+                            }}
+                          >
+                            <AddIcon />
+                          </IconButton>
                           <IconButton
                             size="small"
                             onClick={() => {
@@ -786,287 +837,25 @@ export default function Page() {
         open={isCreateLedgerEntryDrawerOpen}
         onClose={() => setIsCreateLedgerEntryDrawerOpen(false)}
       >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增帳目" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <WithRef
-                render={(inputRef) => (
-                  <Controller
-                    name="entry_time"
-                    control={createLedgerEntryForm.control}
-                    defaultValue={timezone
-                      .getLocalDate(new Date())
-                      .toISOString()
-                      .slice(0, -5)}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        inputRef={inputRef}
-                        required
-                        label="帳務時間"
-                        variant="filled"
-                        type="datetime-local"
-                        slotProps={{
-                          htmlInput: {
-                            step: 1,
-                          },
-                        }}
-                        error={
-                          !!createLedgerEntryForm.formState.errors.entry_time
-                        }
-                        helperText={
-                          createLedgerEntryForm.formState.errors.entry_time
-                            ?.message
-                        }
-                      />
-                    )}
-                    rules={{
-                      validate: (value) =>
-                        validateDatetimeField(value, inputRef, true),
-                    }}
-                  />
-                )}
-              />
-            </FormControl>
-            <Controller
-              name="entry_type"
-              control={createLedgerEntryForm.control}
-              defaultValue={financeLedgerEntryEntryTypes[0].value}
-              render={({ field }) => (
-                <FormControl required fullWidth size="small" variant="filled">
-                  <InputLabel>條目類型</InputLabel>
-                  <Select {...field}>
-                    {financeLedgerEntryEntryTypes.map((entryType) => (
-                      <MenuItem key={entryType.value} value={entryType.value}>
-                        {entryType.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-              rules={{ required: '必填' }}
-            />
-            <FormControl>
-              <Controller
-                name="settlement_amount_change"
-                control={createLedgerEntryForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="資產變動量"
-                    variant="filled"
-                    type="number"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl fullWidth>
-              <Controller
-                name="settlement_asset_reference"
-                control={createLedgerEntryForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    value={
-                      field.value ? assetReferenceToAssetMap[field.value] : null
-                    }
-                    onChange={(_event, value: Asset | null) => {
-                      field.onChange(value?.reference ?? '')
-                      setAssetInputValue('')
-                    }}
-                    onInputChange={(event, newInputValue) => {
-                      setAssetInputValue(newInputValue)
-                    }}
-                    onOpen={() => {
-                      if (assetInputValue.length === 0 && assets.length === 0) {
-                        fetchAssets({ search: assetInputValue })
-                      }
-                    }}
-                    isOptionEqualToValue={(option, value) =>
-                      option.reference === value.reference
-                    }
-                    getOptionLabel={(option) => option.name}
-                    filterOptions={(assets) => {
-                      const lowerCaseAssetInputValue =
-                        assetInputValue.toLowerCase()
-                      return assets.filter(
-                        (asset) =>
-                          asset.name
-                            .toLowerCase()
-                            .includes(lowerCaseAssetInputValue) ||
-                          asset.symbol
-                            .toLowerCase()
-                            .includes(lowerCaseAssetInputValue)
-                      )
-                    }}
-                    options={assets}
-                    autoHighlight
-                    loading={isFetchingAssets}
-                    loadingText="載入中..."
-                    noOptionsText="沒有符合的選項"
-                    renderOption={(props, option) => {
-                      const { key, ...optionProps } = props as {
-                        key: React.Key
-                      }
-                      return (
-                        <Box key={key} component="li" {...optionProps}>
-                          <ReferenceBlock label={option.name} foreignValue />
-                        </Box>
-                      )
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="變動資產"
-                        variant="filled"
-                        size="small"
-                        required
-                      />
-                    )}
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="quantity_change"
-                control={createLedgerEntryForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="部位變動量"
-                    variant="filled"
-                    type="number"
-                  />
-                )}
-              />
-            </FormControl>
-            <FormControl fullWidth>
-              <Controller
-                name="instrument_reference"
-                control={createLedgerEntryForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    value={
-                      field.value
-                        ? instrumentReferenceToInstrumentMap[field.value]
-                        : null
-                    }
-                    onChange={(_event, value: Instrument | null) => {
-                      field.onChange(value?.reference ?? '')
-                      setInstrumentInputValue('')
-                    }}
-                    onInputChange={(event, newInputValue) => {
-                      setInstrumentInputValue(newInputValue)
-                    }}
-                    onOpen={() => {
-                      if (
-                        instrumentInputValue.length === 0 &&
-                        instruments.length === 0
-                      ) {
-                        fetchInstruments({ search: instrumentInputValue })
-                      }
-                    }}
-                    isOptionEqualToValue={(option, value) =>
-                      option.reference === value.reference
-                    }
-                    getOptionLabel={(option) => option.name}
-                    filterOptions={(instruments) => {
-                      const lowerCaseInstrumentInputValue =
-                        instrumentInputValue.toLowerCase()
-                      return instruments.filter((instrument) =>
-                        instrument.name
-                          .toLowerCase()
-                          .includes(lowerCaseInstrumentInputValue)
-                      )
-                    }}
-                    options={instruments}
-                    autoHighlight
-                    loading={isFetchingInstruments}
-                    loadingText="載入中..."
-                    noOptionsText="沒有符合的選項"
-                    renderOption={(props, option) => {
-                      const { key, ...optionProps } = props as {
-                        key: React.Key
-                      }
-                      return (
-                        <Box key={key} component="li" {...optionProps}>
-                          <ReferenceBlock label={option.name} foreignValue />
-                        </Box>
-                      )
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="交易品種"
-                        variant="filled"
-                        size="small"
-                      />
-                    )}
-                  />
-                )}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="fill_px"
-                control={createLedgerEntryForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="成交價格/費率"
-                    variant="filled"
-                    type="number"
-                  />
-                )}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="remark"
-                control={createLedgerEntryForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="備註"
-                    variant="filled"
-                    multiline
-                    rows={5}
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!createLedgerEntryForm.formState.isValid}
-              onClick={createLedgerEntryForm.handleSubmit(
-                handleSubmitCreateLedgerEntryForm
-              )}
-            >
-              新增
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
+        <CreateLedgerEntryForm
+          createLedgerEntryForm={createLedgerEntryForm}
+          timezone={timezone}
+          assetReferenceToAssetMap={assetReferenceToAssetMap}
+          instrumentReferenceToInstrumentMap={
+            instrumentReferenceToInstrumentMap
+          }
+          assets={assets}
+          instruments={instruments}
+          fetchAssets={fetchAssets}
+          fetchInstruments={fetchInstruments}
+          isFetchingAssets={isFetchingAssets}
+          isFetchingInstruments={isFetchingInstruments}
+          setAssetInputValue={setAssetInputValue}
+          setInstrumentInputValue={setInstrumentInputValue}
+          assetInputValue={assetInputValue}
+          instrumentInputValue={instrumentInputValue}
+          handleSubmitCreateLedgerEntryForm={handleSubmitCreateLedgerEntryForm}
+        />
       </Drawer>
     </TabContext>
   )

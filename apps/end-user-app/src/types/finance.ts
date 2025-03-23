@@ -165,6 +165,7 @@ export interface LedgerEntry {
   quantity_change: number | null
   fill_px: number | null
   remark: string | null
+  parent_ledger_entry_reference: string | null
 }
 
 export interface CreateLedgerEntryFormInputs {
@@ -176,6 +177,7 @@ export interface CreateLedgerEntryFormInputs {
   instrument_reference: string | null
   fill_px: number | null
   remark: string | null
+  parent_ledger_entry_reference: string | null
 }
 
 export interface UpdateLedgerEntryFormInputs {
