@@ -1,7 +1,6 @@
 'use client'
 
 import AutoLoadingButton from '@/components/AutoLoadingButton'
-import DatetimeBlock from '@/components/DatetimeBlock'
 import ModuleFunction, {
   ModuleContainer,
   ModuleFunctionBody,
@@ -12,10 +11,6 @@ import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
-import {
-  financeLedgerEntryEntryTypes,
-  financeLedgerEntrySourceTypes,
-} from '@/constants'
 import {
   Asset,
   CreateLedgerEntryFormInputs,
@@ -28,8 +23,6 @@ import {
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/DeleteOutlined'
-import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
@@ -53,13 +46,13 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
-import { Decimal } from 'decimal.js'
 import { debounce } from 'lodash'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import CreateLedgerEntryForm from './CreateLedgerEntryForm'
+import LedgerEntryRow from './LedgerEntryRow'
 import UpdateLedgerEntryForm from './UpdateLedgerEntryForm'
 
 export default function Page() {
@@ -631,173 +624,29 @@ export default function Page() {
                   isLoading={isFetchingLedgerEntries}
                   isEmpty={ledgerEntries.length === 0}
                 >
-                  {ledgerEntries.map((ledgerEntry, index) => {
-                    const settlement_asset =
-                      assetReferenceToAssetMap[
-                        ledgerEntry.settlement_asset_reference
-                      ]
-                    let settlement_amount_change: number | undefined
-                    if (settlement_asset) {
-                      settlement_amount_change = new Decimal(
-                        ledgerEntry.settlement_amount_change
-                      )
-                        .dividedBy(new Decimal(10 ** settlement_asset.decimals))
-                        .toNumber()
-                    }
-                    let instrument: Instrument | undefined
-                    let quantity_change: number | undefined
-                    let fill_px: number | undefined
-                    if (ledgerEntry.instrument_reference) {
-                      instrument =
-                        instrumentReferenceToInstrumentMap[
-                          ledgerEntry.instrument_reference
-                        ]
-                      if (instrument) {
-                        quantity_change = new Decimal(
-                          ledgerEntry.quantity_change as number
-                        )
-                          .dividedBy(
-                            new Decimal(10 ** instrument.quantity_decimals)
-                          )
-                          .toNumber()
-
-                        fill_px = new Decimal(ledgerEntry.fill_px as number)
-                          .dividedBy(new Decimal(10 ** instrument.px_decimals))
-                          .toNumber()
+                  {ledgerEntries.map((ledgerEntry, index) => (
+                    <LedgerEntryRow
+                      key={ledgerEntry.reference}
+                      ledgerEntry={ledgerEntry}
+                      index={index}
+                      ledgerEntriesPage={ledgerEntriesPage}
+                      ledgerEntriesRowsPerPage={ledgerEntriesRowsPerPage}
+                      timezone={timezone}
+                      assetReferenceToAssetMap={assetReferenceToAssetMap}
+                      instrumentReferenceToInstrumentMap={
+                        instrumentReferenceToInstrumentMap
                       }
-                    }
-                    return (
-                      <TableRow key={ledgerEntry.reference} hover>
-                        <NoWrapTableCell align="right">
-                          <PlaceholderTypography>
-                            {ledgerEntriesPage * ledgerEntriesRowsPerPage +
-                              index +
-                              1}
-                          </PlaceholderTypography>
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          <DatetimeBlock isoText={ledgerEntry.entry_time} />
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          <ReferenceBlock
-                            label={
-                              financeLedgerEntryEntryTypes.find(
-                                (entryType) =>
-                                  entryType.value === ledgerEntry.entry_type
-                              )?.label
-                            }
-                          />
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          {settlement_amount_change}
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          <ReferenceBlock
-                            label={settlement_asset?.name}
-                            foreignValue
-                          />
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          {quantity_change === undefined ? (
-                            <PlaceholderTypography>N/A</PlaceholderTypography>
-                          ) : (
-                            quantity_change
-                          )}
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          {instrument ? (
-                            <ReferenceBlock
-                              label={instrument.name}
-                              foreignValue
-                            />
-                          ) : (
-                            <PlaceholderTypography>N/A</PlaceholderTypography>
-                          )}
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          {fill_px === undefined ? (
-                            <PlaceholderTypography>N/A</PlaceholderTypography>
-                          ) : (
-                            fill_px
-                          )}
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          {ledgerEntry.remark || (
-                            <PlaceholderTypography>無</PlaceholderTypography>
-                          )}
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          <ReferenceBlock
-                            label={
-                              financeLedgerEntrySourceTypes.find(
-                                (sourceType) =>
-                                  sourceType.value === ledgerEntry.source_type
-                              )?.label
-                            }
-                          />
-                        </NoWrapTableCell>
-                        <NoWrapTableCell>
-                          <ReferenceBlock
-                            label={ledgerEntry.reference}
-                            primaryKey
-                            monospace
-                          />
-                        </NoWrapTableCell>
-                        <NoWrapTableCell align="right">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              createLedgerEntryForm.reset({
-                                parent_ledger_entry_reference:
-                                  ledgerEntry.reference,
-                                entry_time: timezone
-                                  .getLocalString(ledgerEntry.entry_time)
-                                  .slice(0, -5),
-                              })
-                              setIsCreateLedgerEntryDrawerOpen(true)
-                            }}
-                          >
-                            <AddIcon />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              updateLedgerEntryForm.reset({
-                                parent_ledger_entry_reference:
-                                  ledgerEntry.parent_ledger_entry_reference,
-                                entry_time: timezone
-                                  .getLocalString(ledgerEntry.entry_time)
-                                  .slice(0, -5),
-                                entry_type: ledgerEntry.entry_type,
-                                settlement_amount_change:
-                                  settlement_amount_change,
-                                settlement_asset_reference:
-                                  ledgerEntry.settlement_asset_reference,
-                                quantity_change: quantity_change,
-                                instrument_reference:
-                                  ledgerEntry.instrument_reference ?? '',
-                                fill_px: fill_px,
-                                remark: ledgerEntry.remark ?? '',
-                              })
-                              setEditingLedgerEntryReference(
-                                ledgerEntry.reference
-                              )
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() =>
-                              deleteLedgerEntry(ledgerEntry.reference)
-                            }
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </NoWrapTableCell>
-                      </TableRow>
-                    )
-                  })}
+                      setIsCreateLedgerEntryDrawerOpen={
+                        setIsCreateLedgerEntryDrawerOpen
+                      }
+                      setEditingLedgerEntryReference={
+                        setEditingLedgerEntryReference
+                      }
+                      deleteLedgerEntry={deleteLedgerEntry}
+                      createLedgerEntryForm={createLedgerEntryForm}
+                      updateLedgerEntryForm={updateLedgerEntryForm}
+                    />
+                  ))}
                 </StatefulTableBody>
               </Table>
             </TableContainer>
