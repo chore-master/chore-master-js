@@ -181,9 +181,13 @@ export interface CreateLedgerEntryFormInputs {
 }
 
 export interface UpdateLedgerEntryFormInputs {
-  instrument_reference: string
-  entry_type: string
-  quantity_change: number
-  fill_px: number
   entry_time: string
+  entry_type: string
+  settlement_amount_change: number
+  settlement_asset_reference: string
+  quantity_change: number | null
+  instrument_reference: string | null
+  fill_px: number | null
+  remark: string | null
+  parent_ledger_entry_reference: string | null
 }

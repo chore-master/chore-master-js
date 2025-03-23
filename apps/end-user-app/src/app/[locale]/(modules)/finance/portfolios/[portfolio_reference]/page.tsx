@@ -60,6 +60,7 @@ import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import CreateLedgerEntryForm from './CreateLedgerEntryForm'
+import UpdateLedgerEntryForm from './UpdateLedgerEntryForm'
 
 export default function Page() {
   const [tabValue, setTabValue] = React.useState<string>('overview')
@@ -262,6 +263,54 @@ export default function Page() {
         onSuccess: () => {
           fetchLedgerEntries()
           setIsCreateLedgerEntryDrawerOpen(false)
+        },
+      }
+    )
+  }
+
+  const handleSubmitUpdateLedgerEntryForm: SubmitHandler<
+    UpdateLedgerEntryFormInputs
+  > = async (data) => {
+    let body: UpdateLedgerEntryFormInputs = {
+      entry_time: new Date(
+        timezone.getUTCTimestamp(data.entry_time)
+      ).toISOString(),
+      entry_type: data.entry_type,
+      settlement_amount_change: Number(data.settlement_amount_change),
+      settlement_asset_reference: data.settlement_asset_reference,
+      instrument_reference: null,
+      quantity_change: null,
+      fill_px: null,
+      remark: data.remark,
+      parent_ledger_entry_reference: data.parent_ledger_entry_reference,
+    }
+
+    const asset = assetReferenceToAssetMap[data.settlement_asset_reference]
+    body.settlement_amount_change =
+      Number(data.settlement_amount_change) * 10 ** asset.decimals
+
+    if (data.quantity_change && data.instrument_reference) {
+      const instrument =
+        instrumentReferenceToInstrumentMap[data.instrument_reference]
+      body.instrument_reference = data.instrument_reference
+      body.quantity_change =
+        Number(data.quantity_change) * 10 ** instrument.quantity_decimals
+      body.fill_px = Number(data.fill_px) * 10 ** instrument.px_decimals
+    }
+
+    await choreMasterAPIAgent.patch(
+      `/v1/finance/portfolios/${portfolio_reference}/ledger_entries/${editingLedgerEntryReference}`,
+      body,
+      {
+        onError: () => {
+          enqueueNotification(`Unable to update ledger entry now.`, 'error')
+        },
+        onFail: ({ message }: { message: string }) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          fetchLedgerEntries()
+          setEditingLedgerEntryReference(null)
         },
       }
     )
@@ -665,11 +714,7 @@ export default function Page() {
                           )}
                         </NoWrapTableCell>
                         <NoWrapTableCell>
-                          {ledgerEntry.remark ? (
-                            <PlaceholderTypography>
-                              {ledgerEntry.remark}
-                            </PlaceholderTypography>
-                          ) : (
+                          {ledgerEntry.remark || (
                             <PlaceholderTypography>無</PlaceholderTypography>
                           )}
                         </NoWrapTableCell>
@@ -708,15 +753,19 @@ export default function Page() {
                             size="small"
                             onClick={() => {
                               updateLedgerEntryForm.reset({
-                                instrument_reference:
-                                  ledgerEntry.instrument_reference ?? '',
-                                entry_type: ledgerEntry.entry_type,
-                                quantity_change:
-                                  ledgerEntry.quantity_change ?? 0,
-                                fill_px: ledgerEntry.fill_px ?? 0,
                                 entry_time: timezone
                                   .getLocalString(ledgerEntry.entry_time)
                                   .slice(0, -5),
+                                entry_type: ledgerEntry.entry_type,
+                                settlement_amount_change:
+                                  settlement_amount_change,
+                                settlement_asset_reference:
+                                  ledgerEntry.settlement_asset_reference,
+                                quantity_change: quantity_change,
+                                instrument_reference:
+                                  ledgerEntry.instrument_reference ?? '',
+                                fill_px: fill_px,
+                                remark: ledgerEntry.remark ?? '',
                               })
                               setEditingLedgerEntryReference(
                                 ledgerEntry.reference
@@ -863,6 +912,32 @@ export default function Page() {
           assetInputValue={assetInputValue}
           instrumentInputValue={instrumentInputValue}
           handleSubmitCreateLedgerEntryForm={handleSubmitCreateLedgerEntryForm}
+        />
+      </Drawer>
+
+      <Drawer
+        anchor="right"
+        open={editingLedgerEntryReference !== null}
+        onClose={() => setEditingLedgerEntryReference(null)}
+      >
+        <UpdateLedgerEntryForm
+          updateLedgerEntryForm={updateLedgerEntryForm}
+          timezone={timezone}
+          assetReferenceToAssetMap={assetReferenceToAssetMap}
+          instrumentReferenceToInstrumentMap={
+            instrumentReferenceToInstrumentMap
+          }
+          assets={assets}
+          instruments={instruments}
+          fetchAssets={fetchAssets}
+          fetchInstruments={fetchInstruments}
+          isFetchingAssets={isFetchingAssets}
+          isFetchingInstruments={isFetchingInstruments}
+          setAssetInputValue={setAssetInputValue}
+          setInstrumentInputValue={setInstrumentInputValue}
+          assetInputValue={assetInputValue}
+          instrumentInputValue={instrumentInputValue}
+          handleSubmitUpdateLedgerEntryForm={handleSubmitUpdateLedgerEntryForm}
         />
       </Drawer>
     </TabContext>
