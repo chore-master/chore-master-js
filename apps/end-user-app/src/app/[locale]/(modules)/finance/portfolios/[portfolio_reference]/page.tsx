@@ -618,7 +618,15 @@ export default function Page() {
                           />
                         </NoWrapTableCell>
                         <NoWrapTableCell>{fill_px}</NoWrapTableCell>
-                        <NoWrapTableCell>{ledgerEntry.remark}</NoWrapTableCell>
+                        <NoWrapTableCell>
+                          {ledgerEntry.remark ? (
+                            <PlaceholderTypography>
+                              {ledgerEntry.remark}
+                            </PlaceholderTypography>
+                          ) : (
+                            <PlaceholderTypography>無</PlaceholderTypography>
+                          )}
+                        </NoWrapTableCell>
                         <NoWrapTableCell>
                           <ReferenceBlock
                             label={
@@ -1027,7 +1035,6 @@ export default function Page() {
                     label="成交價格/費率"
                     variant="filled"
                     type="number"
-                    helperText="按交易品種的結算資產計價"
                   />
                 )}
               />
