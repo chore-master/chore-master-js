@@ -579,6 +579,14 @@ export default function Page() {
                       assetReferenceToAssetMap[
                         ledgerEntry.settlement_asset_reference
                       ]
+                    let settlement_amount_change: number | undefined
+                    if (settlement_asset) {
+                      settlement_amount_change = new Decimal(
+                        ledgerEntry.settlement_amount_change
+                      )
+                        .dividedBy(new Decimal(10 ** settlement_asset.decimals))
+                        .toNumber()
+                    }
                     let instrument: Instrument | undefined
                     let quantity_change: number | undefined
                     let fill_px: number | undefined
@@ -624,7 +632,7 @@ export default function Page() {
                           />
                         </NoWrapTableCell>
                         <NoWrapTableCell>
-                          {ledgerEntry.settlement_amount_change}
+                          {settlement_amount_change}
                         </NoWrapTableCell>
                         <NoWrapTableCell>
                           <ReferenceBlock
