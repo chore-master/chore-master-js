@@ -67,50 +67,74 @@ export const financeLedgerEntryEntryTypes = [
   {
     label: '交易買入',
     value: 'TRADE_BUY',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '交易賣出',
     value: 'TRADE_SELL',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '質押',
     value: 'STAKE',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '解質押',
     value: 'UNSTAKE',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '現金股息',
     value: 'CASH_DIVIDEND',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '股票股息',
     value: 'STOCK_DIVIDEND',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '獎勵',
     value: 'REWARD',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '資金費',
     value: 'FUNDING_FEE',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '利息',
     value: 'INTEREST',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: false,
   },
   {
     label: '交易手續費',
     value: 'TRADE_FEE',
+    isAvailableForParentLedgerEntry: false,
+    isAvailableForChildLedgerEntry: true,
   },
   {
     label: '稅',
     value: 'TAX',
+    isAvailableForParentLedgerEntry: true,
+    isAvailableForChildLedgerEntry: true,
   },
   {
     label: 'Gas 費用',
     value: 'GAS_FEE',
+    isAvailableForParentLedgerEntry: false,
+    isAvailableForChildLedgerEntry: true,
   },
 ] as const
 

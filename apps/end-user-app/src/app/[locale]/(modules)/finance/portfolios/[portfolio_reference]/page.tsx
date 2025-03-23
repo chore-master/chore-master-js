@@ -763,6 +763,8 @@ export default function Page() {
                             size="small"
                             onClick={() => {
                               updateLedgerEntryForm.reset({
+                                parent_ledger_entry_reference:
+                                  ledgerEntry.parent_ledger_entry_reference,
                                 entry_time: timezone
                                   .getLocalString(ledgerEntry.entry_time)
                                   .slice(0, -5),

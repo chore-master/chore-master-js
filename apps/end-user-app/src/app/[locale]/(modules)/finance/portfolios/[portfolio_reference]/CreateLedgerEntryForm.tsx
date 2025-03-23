@@ -52,9 +52,16 @@ export default function CreateLedgerEntryForm({
   const isParentLedgerEntryExisted = !!createLedgerEntryForm.watch(
     'parent_ledger_entry_reference'
   )
+  const entryTypes = financeLedgerEntryEntryTypes.filter((entryType) =>
+    isParentLedgerEntryExisted
+      ? entryType.isAvailableForChildLedgerEntry
+      : entryType.isAvailableForParentLedgerEntry
+  )
   return (
     <Box sx={{ minWidth: 320 }}>
-      <CardHeader title="新增帳目" />
+      <CardHeader
+        title={isParentLedgerEntryExisted ? '新增子帳目' : '新增帳目'}
+      />
       <Stack
         component="form"
         spacing={3}
@@ -91,6 +98,7 @@ export default function CreateLedgerEntryForm({
                     helperText={
                       createLedgerEntryForm.formState.errors.entry_time?.message
                     }
+                    disabled={isParentLedgerEntryExisted}
                   />
                 )}
                 rules={{
@@ -104,12 +112,12 @@ export default function CreateLedgerEntryForm({
         <Controller
           name="entry_type"
           control={createLedgerEntryForm.control}
-          defaultValue={financeLedgerEntryEntryTypes[0].value}
+          defaultValue={entryTypes[0].value}
           render={({ field }) => (
             <FormControl required fullWidth size="small" variant="filled">
               <InputLabel>條目類型</InputLabel>
               <Select {...field}>
-                {financeLedgerEntryEntryTypes.map((entryType) => (
+                {entryTypes.map((entryType) => (
                   <MenuItem key={entryType.value} value={entryType.value}>
                     {entryType.label}
                   </MenuItem>
@@ -215,6 +223,7 @@ export default function CreateLedgerEntryForm({
                 label="部位變動量"
                 variant="filled"
                 type="number"
+                disabled={isParentLedgerEntryExisted}
               />
             )}
           />
@@ -283,6 +292,7 @@ export default function CreateLedgerEntryForm({
                     size="small"
                   />
                 )}
+                disabled={isParentLedgerEntryExisted}
               />
             )}
           />
@@ -298,6 +308,7 @@ export default function CreateLedgerEntryForm({
                 label="成交價格/費率"
                 variant="filled"
                 type="number"
+                disabled={isParentLedgerEntryExisted}
               />
             )}
           />
