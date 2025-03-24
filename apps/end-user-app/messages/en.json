@@ -31,7 +31,8 @@
           "dark": "Dark",
           "timezone": "Timezone",
           "appliedTimezone": "Applied timezone",
-          "previewCurrentTime": "Preview current time"
+          "previewCurrentTime": "Preview current time",
+          "language": "Language"
         }
       }
     }

@@ -7,7 +7,7 @@ import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
-import { usePathname } from '@/i18n/navigation'
+import { usePathname, useRouter } from '@/i18n/navigation'
 import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
@@ -24,6 +24,7 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub'
 import HelpIcon from '@mui/icons-material/Help'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import LanIcon from '@mui/icons-material/Lan'
+import LanguageIcon from '@mui/icons-material/Language'
 import LaunchIcon from '@mui/icons-material/Launch'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import LoginIcon from '@mui/icons-material/Login'
@@ -43,6 +44,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
+import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import LinearProgress from '@mui/material/LinearProgress'
 import MuiLink from '@mui/material/Link'
@@ -56,15 +58,16 @@ import MenuItem from '@mui/material/MenuItem'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
 import { useColorScheme } from '@mui/material/styles'
+import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTranslations } from 'next-intl'
+import { Locale, useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React from 'react'
 import './style.css'
 
@@ -84,6 +87,7 @@ export default function ModuleLayout({
   loginRequired = false,
   children,
 }: ModuleLayoutProps) {
+  const locale = useLocale()
   const { enqueueNotification } = useNotification()
   const t = useTranslations('components.ModuleLayout')
   const tModules = useTranslations('modules')
@@ -109,6 +113,8 @@ export default function ModuleLayout({
   )
   const router = useRouter()
   const pathname = usePathname()
+  const params = useParams()
+  const [isPending, startTransition] = React.useTransition()
   const auth = useAuth()
   const timezone = useTimezone()
   const [currentDate, setCurrentDate] = React.useState(new Date())
@@ -681,6 +687,41 @@ export default function ModuleLayout({
                       </ToggleButton>
                     </ToggleButtonGroup>
                   </React.Fragment>
+                }
+              />
+            </ListItem>
+            <ListItem disablePadding sx={{ mt: 2 }}>
+              <ListItemIcon>
+                <LanguageIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('dialogs.settings.language')} />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText
+                inset
+                primary={
+                  <FormControl>
+                    <TextField
+                      select
+                      variant="outlined"
+                      size="small"
+                      defaultValue={locale}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        const nextLocale = event.target.value as Locale
+                        startTransition(() => {
+                          router.replace(pathname, {
+                            ...params,
+                            locale: nextLocale,
+                          })
+                        })
+                      }}
+                    >
+                      <MenuItem value="en">English</MenuItem>
+                      <MenuItem value="zh">繁體中文</MenuItem>
+                    </TextField>
+                  </FormControl>
                 }
               />
             </ListItem>

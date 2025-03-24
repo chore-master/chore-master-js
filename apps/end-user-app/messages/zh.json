@@ -31,7 +31,8 @@
           "dark": "深色",
           "timezone": "時區",
           "appliedTimezone": "套用時區",
-          "previewCurrentTime": "預覽目前時間"
+          "previewCurrentTime": "預覽目前時間",
+          "language": "語言"
         }
       }
     }
