@@ -23,6 +23,7 @@ import MuiLink from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import Decimal from 'decimal.js'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
@@ -114,7 +115,7 @@ export default function Page() {
             const decimals = asset.decimals
             return {
               ...balance_entry,
-              amount: Number(amount) * 10 ** decimals,
+              amount: new Decimal(amount).times(10 ** decimals).toNumber(),
             }
           }
         ),

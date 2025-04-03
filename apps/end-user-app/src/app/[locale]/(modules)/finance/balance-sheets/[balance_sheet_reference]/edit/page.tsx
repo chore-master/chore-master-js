@@ -123,7 +123,7 @@ export default function Page() {
             const decimals = asset.decimals
             return {
               ...balance_entry,
-              amount: Number(amount) * 10 ** decimals,
+              amount: new Decimal(amount).times(10 ** decimals).toNumber(),
             }
           }
         ),
