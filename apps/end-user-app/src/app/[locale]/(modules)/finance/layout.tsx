@@ -103,12 +103,6 @@ export default function Layout({
           navigations: [
             {
               type: 'link',
-              title: t('finance.navigations.instruments'),
-              href: '/finance/instruments',
-              selectedWhenPartiallyMatched: true,
-            },
-            {
-              type: 'link',
               title: t('finance.navigations.portfolios'),
               href: '/finance/portfolios',
               selectedWhenPartiallyMatched: true,
