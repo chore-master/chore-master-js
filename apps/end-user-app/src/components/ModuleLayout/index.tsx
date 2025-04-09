@@ -670,7 +670,9 @@ export default function ModuleLayout({
                         event: React.MouseEvent<HTMLElement>,
                         newMode: string
                       ) => {
-                        setMode(newMode as 'light' | 'dark')
+                        if (newMode !== null) {
+                          setMode(newMode as 'light' | 'dark')
+                        }
                       }}
                     >
                       <ToggleButton value="light">
