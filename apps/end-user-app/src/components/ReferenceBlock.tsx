@@ -1,6 +1,8 @@
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import Chip from '@mui/material/Chip'
 import { SxProps } from '@mui/material/styles'
 import Link from 'next/link'
+import { ReactElement } from 'react'
 
 export default function ReferenceBlock({
   label,
@@ -10,6 +12,7 @@ export default function ReferenceBlock({
   sx,
   disabled = false,
   href,
+  icon,
 }: {
   label?: string
   primaryKey?: boolean
@@ -18,10 +21,12 @@ export default function ReferenceBlock({
   sx?: SxProps
   disabled?: boolean
   href?: string
+  icon?: ReactElement
 }) {
   const fontFamily = monospace ? 'monospace' : undefined
   const variant = primaryKey ? undefined : 'outlined'
   const color = foreignValue ? 'info' : undefined
+  const mergedIcon = icon ? icon : href ? <RemoveRedEyeIcon /> : undefined
   const children = (
     <Chip
       size="small"
@@ -30,6 +35,7 @@ export default function ReferenceBlock({
       variant={variant}
       color={color}
       disabled={disabled}
+      icon={mergedIcon}
     />
   )
   return href ? <Link href={href}>{children}</Link> : children
