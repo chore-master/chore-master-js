@@ -591,6 +591,17 @@ export default function Page() {
         <ModuleFunction>
           <ModuleFunctionBody loading={isFetchingPortfolio}>
             <List>
+              <ListSubheader>結算資產</ListSubheader>
+              <ListItem>
+                <ReferenceBlock
+                  label={
+                    assetReferenceToAssetMap[
+                      portfolio?.settlement_asset_reference as string
+                    ]?.name
+                  }
+                  foreignValue
+                />
+              </ListItem>
               <ListSubheader>說明</ListSubheader>
               <ListItem>
                 {portfolio?.description ? (
