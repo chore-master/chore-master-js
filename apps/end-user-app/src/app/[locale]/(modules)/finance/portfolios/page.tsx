@@ -9,11 +9,12 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
-import { CreatePortfolioFormInputs, Portfolio } from '@/types/finance'
+import { Asset, CreatePortfolioFormInputs, Portfolio } from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
@@ -43,6 +44,11 @@ export default function Page() {
     React.useState(false)
   const createPortfolioForm = useForm<CreatePortfolioFormInputs>()
 
+  // Asset
+  const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
+  const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
+    React.useState(false)
+
   const fetchPortfolios = React.useCallback(async () => {
     setIsFetchingPortfolios(true)
     await choreMasterAPIAgent.get('/v1/finance/portfolios', {
@@ -63,6 +69,25 @@ export default function Page() {
     })
     setIsFetchingPortfolios(false)
   }, [portfoliosPage, portfoliosRowsPerPage])
+
+  const fetchSettleableAssets = React.useCallback(async () => {
+    setIsFetchingSettleableAssets(true)
+    await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
+      params: {
+        is_settleable: true,
+      },
+      onError: () => {
+        enqueueNotification(`Unable to fetch settleable assets now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setSettleableAssets(data)
+      },
+    })
+    setIsFetchingSettleableAssets(false)
+  }, [enqueueNotification])
 
   const handleSubmitCreatePortfolioForm: SubmitHandler<
     CreatePortfolioFormInputs
@@ -85,6 +110,10 @@ export default function Page() {
   React.useEffect(() => {
     fetchPortfolios()
   }, [fetchPortfolios])
+
+  React.useEffect(() => {
+    fetchSettleableAssets()
+  }, [fetchSettleableAssets])
 
   return (
     <React.Fragment>
@@ -124,6 +153,7 @@ export default function Page() {
                     <PlaceholderTypography>#</PlaceholderTypography>
                   </NoWrapTableCell>
                   <NoWrapTableCell>名稱</NoWrapTableCell>
+                  <NoWrapTableCell>結算資產</NoWrapTableCell>
                   <NoWrapTableCell>描述</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                 </TableRow>
@@ -140,6 +170,18 @@ export default function Page() {
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{portfolio.name}</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      <ReferenceBlock
+                        label={
+                          settleableAssets.find(
+                            (asset) =>
+                              asset.reference ===
+                              portfolio.settlement_asset_reference
+                          )?.name
+                        }
+                        foreignValue
+                      />
+                    </NoWrapTableCell>
                     <NoWrapTableCell>
                       {portfolio.description || (
                         <PlaceholderTypography>無</PlaceholderTypography>
@@ -170,6 +212,7 @@ export default function Page() {
       </ModuleFunction>
 
       <Drawer
+        closeAfterTransition={false}
         anchor="right"
         open={isCreatePortfolioDrawerOpen}
         onClose={() => setIsCreatePortfolioDrawerOpen(false)}
@@ -196,6 +239,60 @@ export default function Page() {
                     required
                     label="名稱"
                     variant="filled"
+                  />
+                )}
+                rules={{ required: '必填' }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
+              <Controller
+                name="settlement_asset_reference"
+                control={createPortfolioForm.control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    value={
+                      settleableAssets.find(
+                        (asset) => asset.reference === field.value
+                      ) ?? null
+                    }
+                    onChange={(_event, value) => {
+                      field.onChange(value?.reference ?? '')
+                    }}
+                    // onOpen={() => {
+                    //   if (assets.length === 0) {
+                    //     fetchAssets()
+                    //   }
+                    // }}
+                    isOptionEqualToValue={(option, value) =>
+                      option.reference === value.reference
+                    }
+                    getOptionLabel={(option) => option.name}
+                    options={settleableAssets}
+                    autoHighlight
+                    loading={isFetchingSettleableAssets}
+                    // loadingText="載入中..."
+                    // noOptionsText="沒有符合的選項"
+                    renderOption={(props, option) => {
+                      const { key, ...optionProps } = props as {
+                        key: React.Key
+                      }
+                      return (
+                        <Box key={key} component="li" {...optionProps}>
+                          <ReferenceBlock label={option.name} foreignValue />
+                        </Box>
+                      )
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="結算資產"
+                        variant="filled"
+                        helperText="建立後無法變更"
+                        required
+                      />
+                    )}
                   />
                 )}
                 rules={{ required: '必填' }}

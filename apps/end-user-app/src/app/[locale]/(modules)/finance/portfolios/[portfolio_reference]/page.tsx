@@ -13,12 +13,13 @@ import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import {
   Asset,
-  CreateLedgerEntryFormInputs,
-  Instrument,
-  LedgerEntry,
+  CreateTransactionFormInputs,
+  CreateTransferFormInputs,
   Portfolio,
-  UpdateLedgerEntryFormInputs,
+  Transaction,
   UpdatePortfolioFormInputs,
+  UpdateTransactionFormInputs,
+  UpdateTransferFormInputs,
 } from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
@@ -46,14 +47,17 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import Decimal from 'decimal.js'
 import { debounce } from 'lodash'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
-import CreateLedgerEntryForm from './CreateLedgerEntryForm'
-import LedgerEntryRow from './LedgerEntryRow'
-import UpdateLedgerEntryForm from './UpdateLedgerEntryForm'
+import CreateTransactionForm from './CreateTransactionForm'
+import CreateTransferForm from './CreateTransferForm'
+import TransactionRow from './TransactionRow'
+import UpdateTransactionForm from './UpdateTransactionForm'
+import UpdateTransferForm from './UpdateTransferForm'
 
 export default function Page() {
   const [tabValue, setTabValue] = React.useState<string>('overview')
@@ -69,22 +73,36 @@ export default function Page() {
     mode: 'all',
   })
 
-  // Ledger Entries
-  const [ledgerEntries, setLedgerEntries] = React.useState<LedgerEntry[]>([])
-  const [ledgerEntriesCount, setLedgerEntriesCount] = React.useState(0)
-  const [ledgerEntriesPage, setLedgerEntriesPage] = React.useState(0)
-  const [ledgerEntriesRowsPerPage, setLedgerEntriesRowsPerPage] =
+  // Transactions
+  const [transactions, setTransactions] = React.useState<Transaction[]>([])
+  const [transactionsCount, setTransactionsCount] = React.useState(0)
+  const [transactionsPage, setTransactionsPage] = React.useState(0)
+  const [transactionsRowsPerPage, setTransactionsRowsPerPage] =
     React.useState(10)
-  const [isFetchingLedgerEntries, setIsFetchingLedgerEntries] =
+  const [isFetchingTransactions, setIsFetchingTransactions] =
     React.useState(false)
-  const createLedgerEntryForm = useForm<CreateLedgerEntryFormInputs>({
+  const createTransactionForm = useForm<CreateTransactionFormInputs>({
     mode: 'all',
   })
-  const [isCreateLedgerEntryDrawerOpen, setIsCreateLedgerEntryDrawerOpen] =
+  const [isCreateTransactionDrawerOpen, setIsCreateTransactionDrawerOpen] =
     React.useState(false)
-  const [editingLedgerEntryReference, setEditingLedgerEntryReference] =
+  const [editingTransactionReference, setEditingTransactionReference] =
     React.useState<string | null>(null)
-  const updateLedgerEntryForm = useForm<UpdateLedgerEntryFormInputs>({
+  const [focusedTransactionReference, setFocusedTransactionReference] =
+    React.useState<string | null>(null)
+  const updateTransactionForm = useForm<UpdateTransactionFormInputs>({
+    mode: 'all',
+  })
+
+  // Transfer
+  const createTransferForm = useForm<CreateTransferFormInputs>({
+    mode: 'all',
+  })
+  const [isCreateTransferDrawerOpen, setIsCreateTransferDrawerOpen] =
+    React.useState(false)
+  const [editingTransferReference, setEditingTransferReference] =
+    React.useState<string | null>(null)
+  const updateTransferForm = useForm<UpdateTransferFormInputs>({
     mode: 'all',
   })
 
@@ -98,18 +116,6 @@ export default function Page() {
       return acc
     }, {})
   }, [assets])
-
-  // Instruments
-  const [instruments, setInstruments] = React.useState<Instrument[]>([])
-  const [instrumentInputValue, setInstrumentInputValue] = React.useState('')
-  const [isFetchingInstruments, setIsFetchingInstruments] =
-    React.useState(false)
-  const instrumentReferenceToInstrumentMap = React.useMemo(() => {
-    return instruments.reduce((acc: Record<string, Instrument>, instrument) => {
-      acc[instrument.reference] = instrument
-      return acc
-    }, {})
-  }, [instruments])
 
   // Portfolio
 
@@ -181,19 +187,19 @@ export default function Page() {
     []
   )
 
-  // Ledger Entries
+  // Transactions
 
-  const fetchLedgerEntries = React.useCallback(async () => {
-    setIsFetchingLedgerEntries(true)
+  const fetchTransactions = React.useCallback(async () => {
+    setIsFetchingTransactions(true)
     await choreMasterAPIAgent.get(
-      `/v1/finance/portfolios/${portfolio_reference}/ledger_entries`,
+      `/v1/finance/portfolios/${portfolio_reference}/transactions`,
       {
         params: {
-          page: ledgerEntriesPage,
-          rows_per_page: ledgerEntriesRowsPerPage,
+          page: transactionsPage,
+          rows_per_page: transactionsRowsPerPage,
         },
         onError: () => {
-          enqueueNotification(`Unable to fetch ledger entries now.`, 'error')
+          enqueueNotification(`Unable to fetch transactions now.`, 'error')
         },
         onFail: ({ message }: { message: string }) => {
           enqueueNotification(message, 'error')
@@ -202,130 +208,94 @@ export default function Page() {
           data,
           metadata,
         }: {
-          data: LedgerEntry[]
+          data: Transaction[]
           metadata: any
         }) => {
-          setLedgerEntries(data)
-          setLedgerEntriesCount(metadata.offset_pagination.count)
+          setTransactions(data)
+          setTransactionsCount(metadata.offset_pagination.count)
         },
       }
     )
-    setIsFetchingLedgerEntries(false)
+    setIsFetchingTransactions(false)
   }, [])
 
-  const handleSubmitCreateLedgerEntryForm: SubmitHandler<
-    CreateLedgerEntryFormInputs
+  const handleSubmitCreateTransactionForm: SubmitHandler<
+    CreateTransactionFormInputs
   > = async (data) => {
-    let body: CreateLedgerEntryFormInputs = {
-      entry_time: new Date(
-        timezone.getUTCTimestamp(data.entry_time)
+    let body: CreateTransactionFormInputs = {
+      transacted_time: new Date(
+        timezone.getUTCTimestamp(data.transacted_time)
       ).toISOString(),
-      entry_type: data.entry_type,
-      settlement_amount_change: Number(data.settlement_amount_change),
-      settlement_asset_reference: data.settlement_asset_reference,
-      instrument_reference: null,
-      quantity_change: null,
-      fill_px: null,
+      chain_id: data.chain_id,
+      tx_hash: data.tx_hash,
       remark: data.remark,
-      parent_ledger_entry_reference: data.parent_ledger_entry_reference,
-    }
-
-    const asset = assetReferenceToAssetMap[data.settlement_asset_reference]
-    body.settlement_amount_change =
-      Number(data.settlement_amount_change) * 10 ** asset.decimals
-
-    if (data.quantity_change && data.instrument_reference) {
-      const instrument =
-        instrumentReferenceToInstrumentMap[data.instrument_reference]
-      body.instrument_reference = data.instrument_reference
-      body.quantity_change =
-        Number(data.quantity_change) * 10 ** instrument.quantity_decimals
-      body.fill_px = Number(data.fill_px) * 10 ** instrument.px_decimals
     }
 
     await choreMasterAPIAgent.post(
-      `/v1/finance/portfolios/${portfolio_reference}/ledger_entries`,
+      `/v1/finance/portfolios/${portfolio_reference}/transactions`,
       body,
       {
         onError: () => {
-          enqueueNotification(`Unable to create ledger entry now.`, 'error')
+          enqueueNotification(`Unable to create transaction now.`, 'error')
         },
         onFail: ({ message }: { message: string }) => {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          fetchLedgerEntries()
-          setIsCreateLedgerEntryDrawerOpen(false)
+          fetchTransactions()
+          setIsCreateTransactionDrawerOpen(false)
         },
       }
     )
   }
 
-  const handleSubmitUpdateLedgerEntryForm: SubmitHandler<
-    UpdateLedgerEntryFormInputs
+  const handleSubmitUpdateTransactionForm: SubmitHandler<
+    UpdateTransactionFormInputs
   > = async (data) => {
-    let body: UpdateLedgerEntryFormInputs = {
-      entry_time: new Date(
-        timezone.getUTCTimestamp(data.entry_time)
+    let body: UpdateTransactionFormInputs = {
+      transacted_time: new Date(
+        timezone.getUTCTimestamp(data.transacted_time)
       ).toISOString(),
-      entry_type: data.entry_type,
-      settlement_amount_change: Number(data.settlement_amount_change),
-      settlement_asset_reference: data.settlement_asset_reference,
-      instrument_reference: null,
-      quantity_change: null,
-      fill_px: null,
+      chain_id: data.chain_id,
+      tx_hash: data.tx_hash,
       remark: data.remark,
-      parent_ledger_entry_reference: data.parent_ledger_entry_reference,
-    }
-
-    const asset = assetReferenceToAssetMap[data.settlement_asset_reference]
-    body.settlement_amount_change =
-      Number(data.settlement_amount_change) * 10 ** asset.decimals
-
-    if (data.quantity_change && data.instrument_reference) {
-      const instrument =
-        instrumentReferenceToInstrumentMap[data.instrument_reference]
-      body.instrument_reference = data.instrument_reference
-      body.quantity_change =
-        Number(data.quantity_change) * 10 ** instrument.quantity_decimals
-      body.fill_px = Number(data.fill_px) * 10 ** instrument.px_decimals
     }
 
     await choreMasterAPIAgent.patch(
-      `/v1/finance/portfolios/${portfolio_reference}/ledger_entries/${editingLedgerEntryReference}`,
+      `/v1/finance/portfolios/${portfolio_reference}/transactions/${editingTransactionReference}`,
       body,
       {
         onError: () => {
-          enqueueNotification(`Unable to update ledger entry now.`, 'error')
+          enqueueNotification(`Unable to update transaction now.`, 'error')
         },
         onFail: ({ message }: { message: string }) => {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          fetchLedgerEntries()
-          setEditingLedgerEntryReference(null)
+          fetchTransactions()
+          setEditingTransactionReference(null)
         },
       }
     )
   }
 
-  const deleteLedgerEntry = React.useCallback(
-    async (ledgerEntryReference: string) => {
+  const deleteTransaction = React.useCallback(
+    async (transactionReference: string) => {
       const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
       if (!isConfirmed) {
         return
       }
       await choreMasterAPIAgent.delete(
-        `/v1/finance/portfolios/${portfolio_reference}/ledger_entries/${ledgerEntryReference}`,
+        `/v1/finance/portfolios/${portfolio_reference}/transactions/${transactionReference}`,
         {
           onError: () => {
-            enqueueNotification(`Unable to delete ledger entry now.`, 'error')
+            enqueueNotification(`Unable to delete transaction now.`, 'error')
           },
           onFail: ({ message }: { message: string }) => {
             enqueueNotification(message, 'error')
           },
           onSuccess: () => {
-            fetchLedgerEntries()
+            fetchTransactions()
           },
         }
       )
@@ -333,58 +303,136 @@ export default function Page() {
     []
   )
 
-  // Instruments
+  // Transfers
 
-  const fetchInstruments = React.useCallback(
-    async ({
-      search,
-      references,
-    }: {
-      search?: string
-      references?: string[]
-    }) => {
-      setIsFetchingInstruments(true)
-      await choreMasterAPIAgent.get('/v1/finance/users/me/instruments', {
-        params: { search, references },
+  const handleSubmitCreateTransferForm: SubmitHandler<
+    CreateTransferFormInputs
+  > = async (data) => {
+    let body: CreateTransferFormInputs = {
+      flow_type: data.flow_type,
+      asset_amount_change: data.asset_amount_change,
+      asset_reference: data.asset_reference,
+      settlement_asset_amount_change: data.settlement_asset_amount_change,
+      remark: data.remark,
+    }
+
+    const asset = assetReferenceToAssetMap[data.asset_reference]
+    body.asset_amount_change = new Decimal(data.asset_amount_change)
+      .times(10 ** asset.decimals)
+      .toNumber()
+
+    if (data.settlement_asset_amount_change) {
+      const settlementAsset =
+        assetReferenceToAssetMap[
+          portfolio?.settlement_asset_reference as string
+        ]
+      if (!settlementAsset) {
+        enqueueNotification(
+          `Unable to find settlement asset ${portfolio?.settlement_asset_reference}`,
+          'error'
+        )
+        return
+      }
+      body.settlement_asset_amount_change = new Decimal(
+        data.settlement_asset_amount_change
+      )
+        .times(10 ** settlementAsset.decimals)
+        .toNumber()
+    }
+
+    await choreMasterAPIAgent.post(
+      `/v1/finance/portfolios/${portfolio_reference}/transactions/${focusedTransactionReference}/transfers`,
+      body,
+      {
         onError: () => {
-          enqueueNotification(`Unable to fetch instruments now.`, 'error')
+          enqueueNotification(`Unable to create transfer now.`, 'error')
         },
-        onFail: ({ message }: any) => {
+        onFail: ({ message }: { message: string }) => {
           enqueueNotification(message, 'error')
         },
-        onSuccess: async ({ data }: any) => {
-          setInstruments((instruments) => {
-            const instrumentReferenceToInstrumentMap = instruments.reduce(
-              (acc: Record<string, Instrument>, instrument) => {
-                acc[instrument.reference] = instrument
-                return acc
-              },
-              {}
-            )
-            const newInstrumentReferenceToInstrumentMap = data.reduce(
-              (acc: Record<string, Instrument>, instrument: Instrument) => {
-                if (!instrumentReferenceToInstrumentMap[instrument.reference]) {
-                  acc[instrument.reference] = instrument
-                }
-                return acc
-              },
-              {}
-            )
-            const newInstruments = Object.values<Instrument>(
-              newInstrumentReferenceToInstrumentMap
-            )
-            return [...instruments, ...newInstruments]
-          })
+        onSuccess: () => {
+          fetchTransactions()
+          setIsCreateTransferDrawerOpen(false)
         },
-      })
-      setIsFetchingInstruments(false)
-    },
-    [enqueueNotification]
-  )
+      }
+    )
+  }
 
-  const debouncedFetchInstruments = React.useCallback(
-    debounce(fetchInstruments, 1500),
-    [fetchInstruments]
+  const handleSubmitUpdateTransferForm: SubmitHandler<
+    UpdateTransferFormInputs
+  > = async (data) => {
+    let body: UpdateTransferFormInputs = {
+      flow_type: data.flow_type,
+      asset_amount_change: data.asset_amount_change,
+      asset_reference: data.asset_reference,
+      settlement_asset_amount_change: data.settlement_asset_amount_change,
+      remark: data.remark,
+    }
+
+    const asset = assetReferenceToAssetMap[data.asset_reference]
+    body.asset_amount_change = new Decimal(data.asset_amount_change)
+      .times(10 ** asset.decimals)
+      .toNumber()
+
+    if (data.settlement_asset_amount_change) {
+      const settlementAsset =
+        assetReferenceToAssetMap[
+          portfolio?.settlement_asset_reference as string
+        ]
+      if (!settlementAsset) {
+        enqueueNotification(
+          `Unable to find settlement asset ${portfolio?.settlement_asset_reference}`,
+          'error'
+        )
+        return
+      }
+      body.settlement_asset_amount_change = new Decimal(
+        data.settlement_asset_amount_change
+      )
+        .times(10 ** settlementAsset.decimals)
+        .toNumber()
+    }
+
+    await choreMasterAPIAgent.patch(
+      `/v1/finance/portfolios/${portfolio_reference}/transactions/${focusedTransactionReference}/transfers/${editingTransferReference}`,
+      body,
+      {
+        onError: () => {
+          enqueueNotification(`Unable to update transfer now.`, 'error')
+        },
+        onFail: ({ message }: { message: string }) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          fetchTransactions()
+          setEditingTransferReference(null)
+        },
+      }
+    )
+  }
+
+  const deleteTransfer = React.useCallback(
+    async (transactionReference: string, transferReference: string) => {
+      const isConfirmed = confirm('此操作執行後無法復原，確定要繼續嗎？')
+      if (!isConfirmed) {
+        return
+      }
+      await choreMasterAPIAgent.delete(
+        `/v1/finance/portfolios/${portfolio_reference}/transactions/${transactionReference}/transfers/${transferReference}`,
+        {
+          onError: () => {
+            enqueueNotification(`Unable to delete transfer now.`, 'error')
+          },
+          onFail: ({ message }: { message: string }) => {
+            enqueueNotification(message, 'error')
+          },
+          onSuccess: () => {
+            fetchTransactions()
+          },
+        }
+      )
+    },
+    []
   )
 
   // Assets
@@ -445,7 +493,7 @@ export default function Page() {
   }, [])
 
   React.useEffect(() => {
-    fetchLedgerEntries()
+    fetchTransactions()
   }, [])
 
   React.useEffect(() => {
@@ -454,23 +502,26 @@ export default function Page() {
     }
   }, [assetInputValue])
 
-  React.useEffect(() => {
-    if (instrumentInputValue.length > 0) {
-      debouncedFetchInstruments({ search: instrumentInputValue })
-    }
-  }, [instrumentInputValue])
+  // React.useEffect(() => {
+  //   if (instrumentInputValue.length > 0) {
+  //     debouncedFetchInstruments({ search: instrumentInputValue })
+  //   }
+  // }, [instrumentInputValue])
 
   React.useEffect(() => {
-    const assetReferenceSet = ledgerEntries.reduce(
-      (acc: Set<string>, ledgerEntry) => {
-        if (ledgerEntry.settlement_asset_reference) {
-          acc.add(ledgerEntry.settlement_asset_reference)
-          ledgerEntry.children_ledger_entries.forEach((childLedgerEntry) => {
-            if (childLedgerEntry.settlement_asset_reference) {
-              acc.add(childLedgerEntry.settlement_asset_reference)
-            }
-          })
-        }
+    if (portfolio) {
+      fetchAssets({ references: [portfolio.settlement_asset_reference] })
+    }
+  }, [portfolio])
+
+  React.useEffect(() => {
+    const assetReferenceSet = transactions.reduce(
+      (acc: Set<string>, transaction) => {
+        transaction.transfers.forEach((transfer) => {
+          if (transfer.asset_reference) {
+            acc.add(transfer.asset_reference)
+          }
+        })
         return acc
       },
       new Set<string>()
@@ -478,27 +529,7 @@ export default function Page() {
     if (assetReferenceSet.size > 0) {
       fetchAssets({ references: Array.from(assetReferenceSet) })
     }
-  }, [ledgerEntries])
-
-  React.useEffect(() => {
-    const instrumentReferenceSet = ledgerEntries.reduce(
-      (acc: Set<string>, ledgerEntry) => {
-        if (ledgerEntry.instrument_reference) {
-          acc.add(ledgerEntry.instrument_reference)
-          ledgerEntry.children_ledger_entries.forEach((childLedgerEntry) => {
-            if (childLedgerEntry.instrument_reference) {
-              acc.add(childLedgerEntry.instrument_reference)
-            }
-          })
-        }
-        return acc
-      },
-      new Set<string>()
-    )
-    if (instrumentReferenceSet.size > 0) {
-      fetchInstruments({ references: Array.from(instrumentReferenceSet) })
-    }
-  }, [ledgerEntries])
+  }, [transactions])
 
   return (
     <TabContext value={tabValue}>
@@ -581,8 +612,8 @@ export default function Page() {
               <Tooltip key="refresh" title="立即重整">
                 <span>
                   <IconButton
-                    onClick={fetchLedgerEntries}
-                    disabled={isFetchingLedgerEntries}
+                    onClick={fetchTransactions}
+                    disabled={isFetchingTransactions}
                   >
                     <RefreshIcon />
                   </IconButton>
@@ -593,10 +624,8 @@ export default function Page() {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => {
-                  createLedgerEntryForm.reset({
-                    parent_ledger_entry_reference: null,
-                  })
-                  setIsCreateLedgerEntryDrawerOpen(true)
+                  createTransactionForm.reset({})
+                  setIsCreateTransactionDrawerOpen(true)
                 }}
               >
                 新增
@@ -605,9 +634,10 @@ export default function Page() {
           />
           <ModuleFunctionBody
             loading={
-              isFetchingLedgerEntries ||
-              isFetchingAssets ||
-              isFetchingInstruments
+              isFetchingTransactions ||
+              (!isCreateTransferDrawerOpen &&
+                !editingTransferReference &&
+                isFetchingAssets)
             }
           >
             <TableContainer>
@@ -618,55 +648,58 @@ export default function Page() {
                     <NoWrapTableCell>
                       <PlaceholderTypography>#</PlaceholderTypography>
                     </NoWrapTableCell>
-                    <NoWrapTableCell>帳務時間</NoWrapTableCell>
-                    <NoWrapTableCell>條目類型</NoWrapTableCell>
-                    <NoWrapTableCell>資產變動量</NoWrapTableCell>
-                    <NoWrapTableCell>變動資產</NoWrapTableCell>
-                    <NoWrapTableCell>部位變動量</NoWrapTableCell>
-                    <NoWrapTableCell>交易品種</NoWrapTableCell>
-                    <NoWrapTableCell>成交價格/費率</NoWrapTableCell>
+                    <NoWrapTableCell>交易時間</NoWrapTableCell>
+                    <NoWrapTableCell align="right">
+                      結算資產變動
+                    </NoWrapTableCell>
+                    <NoWrapTableCell align="right">變動明細</NoWrapTableCell>
                     <NoWrapTableCell>備注</NoWrapTableCell>
-                    <NoWrapTableCell>來源</NoWrapTableCell>
+                    <NoWrapTableCell>區塊鏈 ID</NoWrapTableCell>
+                    <NoWrapTableCell>區塊鏈交易 Hash</NoWrapTableCell>
                     <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                     <NoWrapTableCell align="right">操作</NoWrapTableCell>
                   </TableRow>
                 </TableHead>
                 <StatefulTableBody
-                  isLoading={isFetchingLedgerEntries}
-                  isEmpty={ledgerEntries.length === 0}
+                  isLoading={isFetchingTransactions}
+                  isEmpty={transactions.length === 0}
                 >
-                  {ledgerEntries.map((ledgerEntry, index) => (
-                    <LedgerEntryRow
-                      key={ledgerEntry.reference}
-                      ledgerEntry={ledgerEntry}
+                  {transactions.map((transaction, index) => (
+                    <TransactionRow
+                      key={transaction.reference}
+                      portfolio={portfolio}
+                      transaction={transaction}
                       index={index}
-                      ledgerEntriesPage={ledgerEntriesPage}
-                      ledgerEntriesRowsPerPage={ledgerEntriesRowsPerPage}
+                      transactionsPage={transactionsPage}
+                      transactionsRowsPerPage={transactionsRowsPerPage}
                       timezone={timezone}
                       assetReferenceToAssetMap={assetReferenceToAssetMap}
-                      instrumentReferenceToInstrumentMap={
-                        instrumentReferenceToInstrumentMap
+                      updateTransactionForm={updateTransactionForm}
+                      createTransferForm={createTransferForm}
+                      updateTransferForm={updateTransferForm}
+                      setEditingTransactionReference={
+                        setEditingTransactionReference
                       }
-                      setIsCreateLedgerEntryDrawerOpen={
-                        setIsCreateLedgerEntryDrawerOpen
+                      setFocusedTransactionReference={
+                        setFocusedTransactionReference
                       }
-                      setEditingLedgerEntryReference={
-                        setEditingLedgerEntryReference
+                      setIsCreateTransferDrawerOpen={
+                        setIsCreateTransferDrawerOpen
                       }
-                      deleteLedgerEntry={deleteLedgerEntry}
-                      createLedgerEntryForm={createLedgerEntryForm}
-                      updateLedgerEntryForm={updateLedgerEntryForm}
+                      setEditingTransferReference={setEditingTransferReference}
+                      deleteTransaction={deleteTransaction}
+                      deleteTransfer={deleteTransfer}
                     />
                   ))}
                 </StatefulTableBody>
               </Table>
             </TableContainer>
             <TablePagination
-              count={ledgerEntriesCount}
-              page={ledgerEntriesPage}
-              rowsPerPage={ledgerEntriesRowsPerPage}
-              setPage={setLedgerEntriesPage}
-              setRowsPerPage={setLedgerEntriesRowsPerPage}
+              count={transactionsCount}
+              page={transactionsPage}
+              rowsPerPage={transactionsRowsPerPage}
+              setPage={setTransactionsPage}
+              setRowsPerPage={setTransactionsRowsPerPage}
               rowsPerPageOptions={[10, 20]}
             />
           </ModuleFunctionBody>
@@ -762,54 +795,66 @@ export default function Page() {
       </TabPanel>
 
       <Drawer
+        closeAfterTransition={false}
         anchor="right"
-        open={isCreateLedgerEntryDrawerOpen}
-        onClose={() => setIsCreateLedgerEntryDrawerOpen(false)}
+        open={isCreateTransactionDrawerOpen}
+        onClose={() => setIsCreateTransactionDrawerOpen(false)}
       >
-        <CreateLedgerEntryForm
-          createLedgerEntryForm={createLedgerEntryForm}
+        <CreateTransactionForm
+          createTransactionForm={createTransactionForm}
           timezone={timezone}
-          assetReferenceToAssetMap={assetReferenceToAssetMap}
-          instrumentReferenceToInstrumentMap={
-            instrumentReferenceToInstrumentMap
-          }
-          assets={assets}
-          instruments={instruments}
-          fetchAssets={fetchAssets}
-          fetchInstruments={fetchInstruments}
-          isFetchingAssets={isFetchingAssets}
-          isFetchingInstruments={isFetchingInstruments}
-          setAssetInputValue={setAssetInputValue}
-          setInstrumentInputValue={setInstrumentInputValue}
-          assetInputValue={assetInputValue}
-          instrumentInputValue={instrumentInputValue}
-          handleSubmitCreateLedgerEntryForm={handleSubmitCreateLedgerEntryForm}
+          handleSubmitCreateTransactionForm={handleSubmitCreateTransactionForm}
         />
       </Drawer>
 
       <Drawer
+        closeAfterTransition={false}
         anchor="right"
-        open={editingLedgerEntryReference !== null}
-        onClose={() => setEditingLedgerEntryReference(null)}
+        open={editingTransactionReference !== null}
+        onClose={() => setEditingTransactionReference(null)}
       >
-        <UpdateLedgerEntryForm
-          updateLedgerEntryForm={updateLedgerEntryForm}
+        <UpdateTransactionForm
+          updateTransactionForm={updateTransactionForm}
           timezone={timezone}
-          assetReferenceToAssetMap={assetReferenceToAssetMap}
-          instrumentReferenceToInstrumentMap={
-            instrumentReferenceToInstrumentMap
-          }
-          assets={assets}
-          instruments={instruments}
-          fetchAssets={fetchAssets}
-          fetchInstruments={fetchInstruments}
-          isFetchingAssets={isFetchingAssets}
-          isFetchingInstruments={isFetchingInstruments}
-          setAssetInputValue={setAssetInputValue}
-          setInstrumentInputValue={setInstrumentInputValue}
+          handleSubmitUpdateTransactionForm={handleSubmitUpdateTransactionForm}
+        />
+      </Drawer>
+
+      <Drawer
+        closeAfterTransition={false}
+        anchor="right"
+        open={isCreateTransferDrawerOpen}
+        onClose={() => setIsCreateTransferDrawerOpen(false)}
+      >
+        <CreateTransferForm
+          portfolio={portfolio}
+          createTransferForm={createTransferForm}
           assetInputValue={assetInputValue}
-          instrumentInputValue={instrumentInputValue}
-          handleSubmitUpdateLedgerEntryForm={handleSubmitUpdateLedgerEntryForm}
+          isFetchingAssets={isFetchingAssets}
+          assets={assets}
+          assetReferenceToAssetMap={assetReferenceToAssetMap}
+          setAssetInputValue={setAssetInputValue}
+          fetchAssets={fetchAssets}
+          handleSubmitCreateTransferForm={handleSubmitCreateTransferForm}
+        />
+      </Drawer>
+
+      <Drawer
+        closeAfterTransition={false}
+        anchor="right"
+        open={editingTransferReference !== null}
+        onClose={() => setEditingTransferReference(null)}
+      >
+        <UpdateTransferForm
+          portfolio={portfolio}
+          updateTransferForm={updateTransferForm}
+          assetInputValue={assetInputValue}
+          isFetchingAssets={isFetchingAssets}
+          assets={assets}
+          assetReferenceToAssetMap={assetReferenceToAssetMap}
+          setAssetInputValue={setAssetInputValue}
+          fetchAssets={fetchAssets}
+          handleSubmitUpdateTransferForm={handleSubmitUpdateTransferForm}
         />
       </Drawer>
     </TabContext>

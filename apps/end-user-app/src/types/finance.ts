@@ -139,11 +139,13 @@ export interface UpdateInstrumentFormInputs {
 export interface Portfolio {
   reference: string
   name: string
+  settlement_asset_reference: string
   description?: string
 }
 
 export interface CreatePortfolioFormInputs {
   name: string
+  settlement_asset_reference: string
   description?: string
 }
 
@@ -152,43 +154,54 @@ export interface UpdatePortfolioFormInputs {
   description?: string
 }
 
-// LedgerEntry
+// Transaction
 
-export interface LedgerEntry {
+export interface Transaction {
   reference: string
-  source_type: string
-  entry_time: string
-  entry_type: string
-  settlement_amount_change: number
-  settlement_asset_reference: string
-  instrument_reference: string | null
-  quantity_change: number | null
-  fill_px: number | null
+  transacted_time: string
+  chain_id: string | null
+  tx_hash: string | null
   remark: string | null
-  parent_ledger_entry_reference: string | null
-  children_ledger_entries: LedgerEntry[]
+  transfers: Transfer[]
 }
 
-export interface CreateLedgerEntryFormInputs {
-  entry_time: string
-  entry_type: string
-  settlement_amount_change: number
-  settlement_asset_reference: string
-  quantity_change: number | null
-  instrument_reference: string | null
-  fill_px: number | null
+export interface CreateTransactionFormInputs {
+  transacted_time: string
+  chain_id: string | null
+  tx_hash: string | null
   remark: string | null
-  parent_ledger_entry_reference: string | null
 }
 
-export interface UpdateLedgerEntryFormInputs {
-  entry_time: string
-  entry_type: string
-  settlement_amount_change: number
-  settlement_asset_reference: string
-  quantity_change: number | null
-  instrument_reference: string | null
-  fill_px: number | null
+export interface UpdateTransactionFormInputs {
+  transacted_time: string
+  chain_id: string | null
+  tx_hash: string | null
   remark: string | null
-  parent_ledger_entry_reference: string | null
+}
+
+// Transfer
+
+export interface Transfer {
+  reference: string
+  flow_type: string
+  asset_amount_change: number
+  asset_reference: string
+  settlement_asset_amount_change: number | null
+  remark: string | null
+}
+
+export interface CreateTransferFormInputs {
+  flow_type: string
+  asset_amount_change: number
+  asset_reference: string
+  settlement_asset_amount_change: number | null
+  remark: string | null
+}
+
+export interface UpdateTransferFormInputs {
+  flow_type: string
+  asset_amount_change: number
+  asset_reference: string
+  settlement_asset_amount_change: number | null
+  remark: string | null
 }

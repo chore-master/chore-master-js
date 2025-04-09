@@ -11,143 +11,165 @@ export const financeAccountEcosystemTypes = [
   },
 ]
 
-export const financeInstrumentTypes = [
-  {
-    label: '股票',
-    value: 'STOCK',
-  },
-  {
-    label: '外匯',
-    value: 'FOREX',
-  },
-  {
-    label: '衍生品',
-    value: 'DERIVATIVE',
-  },
-  {
-    label: '借貸',
-    value: 'LENDING',
-  },
-] as const
+// export const financeInstrumentTypes = [
+//   {
+//     label: '股票',
+//     value: 'STOCK',
+//   },
+//   {
+//     label: '外匯',
+//     value: 'FOREX',
+//   },
+//   {
+//     label: '衍生品',
+//     value: 'DERIVATIVE',
+//   },
+//   {
+//     label: '借貸',
+//     value: 'LENDING',
+//   },
+// ] as const
 
-export const financeInstrumentAssetReferenceFields = [
-  {
-    name: 'base_asset_reference',
-    label: '基礎資產',
-    requiredByInstrumentTypes: ['FX'],
-  },
-  {
-    name: 'quote_asset_reference',
-    label: '報價資產',
-    requiredByInstrumentTypes: ['FX', 'FUTURE', 'DERIVATIVE'],
-  },
-  {
-    name: 'settlement_asset_reference',
-    label: '結算資產',
-    requiredByInstrumentTypes: ['EQUITY', 'FUTURE', 'DERIVATIVE'],
-  },
-  {
-    name: 'underlying_asset_reference',
-    label: '標的資產',
-    requiredByInstrumentTypes: ['FUTURE', 'DERIVATIVE'],
-  },
-  {
-    name: 'staking_asset_reference',
-    label: '質押資產',
-    requiredByInstrumentTypes: ['EARNING'],
-  },
-  {
-    name: 'yielding_asset_reference',
-    label: '收益資產',
-    requiredByInstrumentTypes: ['EARNING'],
-  },
-] as const
+// export const financeInstrumentAssetReferenceFields = [
+//   {
+//     name: 'base_asset_reference',
+//     label: '基礎資產',
+//     requiredByInstrumentTypes: ['FX'],
+//   },
+//   {
+//     name: 'quote_asset_reference',
+//     label: '報價資產',
+//     requiredByInstrumentTypes: ['FX', 'FUTURE', 'DERIVATIVE'],
+//   },
+//   {
+//     name: 'settlement_asset_reference',
+//     label: '結算資產',
+//     requiredByInstrumentTypes: ['EQUITY', 'FUTURE', 'DERIVATIVE'],
+//   },
+//   {
+//     name: 'underlying_asset_reference',
+//     label: '標的資產',
+//     requiredByInstrumentTypes: ['FUTURE', 'DERIVATIVE'],
+//   },
+//   {
+//     name: 'staking_asset_reference',
+//     label: '質押資產',
+//     requiredByInstrumentTypes: ['EARNING'],
+//   },
+//   {
+//     name: 'yielding_asset_reference',
+//     label: '收益資產',
+//     requiredByInstrumentTypes: ['EARNING'],
+//   },
+// ] as const
 
-export const financeLedgerEntryEntryTypes = [
+export const financeTransferFlowTypes = [
   {
-    label: '交易買入',
-    value: 'TRADE_BUY',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
+    label: '成本',
+    value: 'COST',
   },
-  {
-    label: '交易賣出',
-    value: 'TRADE_SELL',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '質押',
-    value: 'STAKE',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '解質押',
-    value: 'UNSTAKE',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '現金股息',
-    value: 'CASH_DIVIDEND',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '股票股息',
-    value: 'STOCK_DIVIDEND',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '獎勵',
-    value: 'REWARD',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '資金費',
-    value: 'FUNDING_FEE',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '利息',
-    value: 'INTEREST',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: false,
-  },
-  {
-    label: '交易手續費',
-    value: 'TRADE_FEE',
-    isAvailableForParentLedgerEntry: false,
-    isAvailableForChildLedgerEntry: true,
-  },
-  {
-    label: '稅',
-    value: 'TAX',
-    isAvailableForParentLedgerEntry: true,
-    isAvailableForChildLedgerEntry: true,
-  },
-  {
-    label: 'Gas 費用',
-    value: 'GAS_FEE',
-    isAvailableForParentLedgerEntry: false,
-    isAvailableForChildLedgerEntry: true,
-  },
-] as const
 
-export const financeLedgerEntrySourceTypes = [
   {
-    label: '手動',
-    value: 'MANUAL',
+    label: '開銷',
+    value: 'EXPENSE',
   },
+
   {
-    label: '託管',
-    value: 'MANAGED',
+    label: '收入',
+    value: 'REVENUE',
   },
-] as const
+
+  {
+    label: '更動部位',
+    value: 'UPDATE_POSITION',
+  },
+]
+
+// export const financeLedgerEntryEntryTypes = [
+//   {
+//     label: '交易買入',
+//     value: 'TRADE_BUY',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '交易賣出',
+//     value: 'TRADE_SELL',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '質押',
+//     value: 'STAKE',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '解質押',
+//     value: 'UNSTAKE',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '現金股息',
+//     value: 'CASH_DIVIDEND',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '股票股息',
+//     value: 'STOCK_DIVIDEND',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '獎勵',
+//     value: 'REWARD',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '資金費',
+//     value: 'FUNDING_FEE',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '利息',
+//     value: 'INTEREST',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: false,
+//   },
+//   {
+//     label: '交易手續費',
+//     value: 'TRADE_FEE',
+//     isAvailableForParentLedgerEntry: false,
+//     isAvailableForChildLedgerEntry: true,
+//   },
+//   {
+//     label: '稅',
+//     value: 'TAX',
+//     isAvailableForParentLedgerEntry: true,
+//     isAvailableForChildLedgerEntry: true,
+//   },
+//   {
+//     label: 'Gas 費用',
+//     value: 'GAS_FEE',
+//     isAvailableForParentLedgerEntry: false,
+//     isAvailableForChildLedgerEntry: true,
+//   },
+// ] as const
+
+// export const financeLedgerEntrySourceTypes = [
+//   {
+//     label: '手動',
+//     value: 'MANUAL',
+//   },
+//   {
+//     label: '託管',
+//     value: 'MANAGED',
+//   },
+// ] as const
 
 export const colors10 = [
   '#2caffe',
