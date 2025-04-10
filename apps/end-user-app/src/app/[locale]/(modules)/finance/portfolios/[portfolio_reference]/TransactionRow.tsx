@@ -108,17 +108,17 @@ export default function TransactionRow({
           <PlaceholderTypography>N/A</PlaceholderTypography>
         </NoWrapTableCell>
         <NoWrapTableCell>
+          {transaction.remark || (
+            <PlaceholderTypography>無</PlaceholderTypography>
+          )}
+        </NoWrapTableCell>
+        <NoWrapTableCell>
           {transaction.chain_id || (
             <PlaceholderTypography>無</PlaceholderTypography>
           )}
         </NoWrapTableCell>
         <NoWrapTableCell>
           {transaction.tx_hash || (
-            <PlaceholderTypography>無</PlaceholderTypography>
-          )}
-        </NoWrapTableCell>
-        <NoWrapTableCell>
-          {transaction.remark || (
             <PlaceholderTypography>無</PlaceholderTypography>
           )}
         </NoWrapTableCell>
