@@ -67,6 +67,18 @@ export default function TransactionRow({
   const settlementAsset =
     assetReferenceToAssetMap[portfolio?.settlement_asset_reference as string]
 
+  const transactionSettlementAssetAmountChange = settlementAsset
+    ? new Decimal(
+        transaction.transfers.reduce(
+          (acc, transfer) =>
+            acc + (transfer.settlement_asset_amount_change ?? 0),
+          0
+        )
+      )
+        .dividedBy(new Decimal(10 ** settlementAsset.decimals))
+        .toNumber()
+    : undefined
+
   React.useEffect(() => {
     if (transaction.transfers.length === 0) {
       setIsOpen(false)
@@ -102,7 +114,21 @@ export default function TransactionRow({
           <DatetimeBlock isoText={transaction.transacted_time} />
         </NoWrapTableCell>
         <NoWrapTableCell align="right">
-          <PlaceholderTypography>N/A</PlaceholderTypography>
+          {transactionSettlementAssetAmountChange ? (
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              justifyContent="flex-end"
+            >
+              <PlaceholderTypography>
+                {transactionSettlementAssetAmountChange}
+              </PlaceholderTypography>
+              <ReferenceBlock label={settlementAsset?.name} foreignValue />
+            </Stack>
+          ) : (
+            <PlaceholderTypography>N/A</PlaceholderTypography>
+          )}
         </NoWrapTableCell>
         <NoWrapTableCell align="right">
           <PlaceholderTypography>N/A</PlaceholderTypography>
