@@ -214,7 +214,7 @@ export default function UpdateTransferForm({
             handleSubmitUpdateTransferForm
           )}
         >
-          新增
+          更新
         </AutoLoadingButton>
       </Stack>
     </Box>

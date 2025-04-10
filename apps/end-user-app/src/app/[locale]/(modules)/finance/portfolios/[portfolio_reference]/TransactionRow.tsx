@@ -27,6 +27,7 @@ export default function TransactionRow({
   portfolio,
   transaction,
   index,
+  transactionsCount,
   transactionsPage,
   transactionsRowsPerPage,
   timezone,
@@ -44,6 +45,7 @@ export default function TransactionRow({
   portfolio: Portfolio | null
   transaction: Transaction
   index: number
+  transactionsCount: number
   transactionsPage: number
   transactionsRowsPerPage: number
   timezone: any
@@ -89,9 +91,11 @@ export default function TransactionRow({
             {isOpen ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
           </IconButton>
         </NoWrapTableCell>
-        <NoWrapTableCell>
+        <NoWrapTableCell align="right">
           <PlaceholderTypography>
-            {transactionsPage * transactionsRowsPerPage - index + 2}
+            {transactionsCount -
+              transactionsPage * transactionsRowsPerPage -
+              index}
           </PlaceholderTypography>
         </NoWrapTableCell>
         <NoWrapTableCell>
@@ -252,6 +256,7 @@ export default function TransactionRow({
                         settlementAssetAmountChange,
                       remark: transfer.remark,
                     })
+                    setFocusedTransactionReference(transaction.reference)
                     setEditingTransferReference(transfer.reference)
                   }}
                 >
@@ -259,9 +264,10 @@ export default function TransactionRow({
                 </IconButton>
                 <IconButton
                   size="small"
-                  onClick={() =>
+                  onClick={() => {
+                    setFocusedTransactionReference(transaction.reference)
                     deleteTransfer(transaction.reference, transfer.reference)
-                  }
+                  }}
                 >
                   <DeleteIcon />
                 </IconButton>

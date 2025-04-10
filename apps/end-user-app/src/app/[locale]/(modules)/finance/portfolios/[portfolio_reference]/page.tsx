@@ -195,8 +195,8 @@ export default function Page() {
       `/v1/finance/portfolios/${portfolio_reference}/transactions`,
       {
         params: {
-          page: transactionsPage,
-          rows_per_page: transactionsRowsPerPage,
+          offset: transactionsPage * transactionsRowsPerPage,
+          limit: transactionsRowsPerPage,
         },
         onError: () => {
           enqueueNotification(`Unable to fetch transactions now.`, 'error')
@@ -217,7 +217,7 @@ export default function Page() {
       }
     )
     setIsFetchingTransactions(false)
-  }, [])
+  }, [transactionsPage, transactionsRowsPerPage])
 
   const handleSubmitCreateTransactionForm: SubmitHandler<
     CreateTransactionFormInputs
@@ -494,19 +494,13 @@ export default function Page() {
 
   React.useEffect(() => {
     fetchTransactions()
-  }, [])
+  }, [fetchTransactions])
 
   React.useEffect(() => {
     if (assetInputValue.length > 0) {
       debouncedFetchAssets({ search: assetInputValue })
     }
   }, [assetInputValue])
-
-  // React.useEffect(() => {
-  //   if (instrumentInputValue.length > 0) {
-  //     debouncedFetchInstruments({ search: instrumentInputValue })
-  //   }
-  // }, [instrumentInputValue])
 
   React.useEffect(() => {
     if (portfolio) {
@@ -656,7 +650,7 @@ export default function Page() {
                 <TableHead>
                   <TableRow>
                     <NoWrapTableCell />
-                    <NoWrapTableCell>
+                    <NoWrapTableCell align="right">
                       <PlaceholderTypography>#</PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>交易時間</NoWrapTableCell>
@@ -681,6 +675,7 @@ export default function Page() {
                       portfolio={portfolio}
                       transaction={transaction}
                       index={index}
+                      transactionsCount={transactionsCount}
                       transactionsPage={transactionsPage}
                       transactionsRowsPerPage={transactionsRowsPerPage}
                       timezone={timezone}
