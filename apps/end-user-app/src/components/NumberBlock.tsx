@@ -6,15 +6,21 @@ export default function NumberBlock({
   hasSign = false,
   value,
   fallbackValue = 0,
+  fixedDecimals,
 }: Readonly<{
   hasCommas?: boolean
   hasSign?: boolean
   value: number | string | undefined
   fallbackValue?: number
+  fixedDecimals?: number
 }>) {
   const decimal = new Decimal(value ?? fallbackValue)
 
-  let valueString = decimal.toString()
+  // Apply fixed decimals if specified
+  let valueString =
+    fixedDecimals !== undefined
+      ? decimal.toFixed(fixedDecimals)
+      : decimal.toString()
 
   // Add commas for thousands separators if requested
   if (hasCommas) {
@@ -28,8 +34,5 @@ export default function NumberBlock({
     valueString = '+' + valueString
   }
 
-  // const valueString = new Decimal(value ?? fallbackValue)
-  //   .dividedBy(new Decimal(10 ** decimals))
-  //   .toString()
   return <React.Fragment>{valueString}</React.Fragment>
 }

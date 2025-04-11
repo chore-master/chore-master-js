@@ -126,6 +126,7 @@ export default function TransactionRow({
               <PlaceholderTypography>
                 <NumberBlock
                   value={transactionSettlementAssetAmountChange}
+                  fixedDecimals={settlementAsset?.decimals}
                   hasCommas
                   hasSign
                 />
@@ -134,6 +135,7 @@ export default function TransactionRow({
               <Typography variant="body2">
                 <NumberBlock
                   value={transactionSettlementAssetAmountChange}
+                  fixedDecimals={settlementAsset?.decimals}
                   hasCommas
                   hasSign
                 />
@@ -253,6 +255,7 @@ export default function TransactionRow({
                   <span>
                     <NumberBlock
                       value={settlementAssetAmountChange}
+                      fixedDecimals={settlementAsset?.decimals}
                       hasCommas
                       hasSign
                     />
@@ -261,7 +264,12 @@ export default function TransactionRow({
                 </Stack>
               </NoWrapTableCell>
               <NoWrapTableCell align="right">
-                <NumberBlock value={assetAmountChange} hasCommas hasSign />
+                <NumberBlock
+                  value={assetAmountChange}
+                  fixedDecimals={asset.decimals}
+                  hasCommas
+                  hasSign
+                />
               </NoWrapTableCell>
               <NoWrapTableCell>
                 <ReferenceBlock label={asset.name} foreignValue />
