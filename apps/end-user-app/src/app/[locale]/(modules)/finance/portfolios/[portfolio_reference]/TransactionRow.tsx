@@ -1,4 +1,5 @@
 import DatetimeBlock from '@/components/DatetimeBlock'
+import NumberBlock from '@/components/NumberBlock'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell } from '@/components/Table'
@@ -19,6 +20,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import { Decimal } from 'decimal.js'
 import React from 'react'
 import { UseFormReturn } from 'react-hook-form'
@@ -114,24 +116,46 @@ export default function TransactionRow({
           <DatetimeBlock isoText={transaction.transacted_time} />
         </NoWrapTableCell>
         <NoWrapTableCell align="right">
-          {transactionSettlementAssetAmountChange ? (
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              justifyContent="flex-end"
-            >
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            justifyContent="flex-end"
+          >
+            {isOpen ? (
               <PlaceholderTypography>
-                {transactionSettlementAssetAmountChange}
+                <NumberBlock
+                  value={transactionSettlementAssetAmountChange}
+                  hasCommas
+                  hasSign
+                />
               </PlaceholderTypography>
-              <ReferenceBlock label={settlementAsset?.name} foreignValue />
-            </Stack>
-          ) : (
-            <PlaceholderTypography>N/A</PlaceholderTypography>
-          )}
+            ) : (
+              <Typography variant="body2">
+                <NumberBlock
+                  value={transactionSettlementAssetAmountChange}
+                  hasCommas
+                  hasSign
+                />
+              </Typography>
+            )}
+            <ReferenceBlock
+              label={settlementAsset?.name}
+              foreignValue
+              disabled={isOpen}
+            />
+          </Stack>
         </NoWrapTableCell>
-        <NoWrapTableCell align="right">
-          <PlaceholderTypography>N/A</PlaceholderTypography>
+        <NoWrapTableCell colSpan={3}>
+          {isOpen ? (
+            <PlaceholderTypography>
+              {transaction.transfers.length} 筆
+            </PlaceholderTypography>
+          ) : (
+            <Typography variant="body2">
+              {transaction.transfers.length} 筆
+            </Typography>
+          )}
         </NoWrapTableCell>
         <NoWrapTableCell>
           {transaction.remark || (
@@ -219,49 +243,42 @@ export default function TransactionRow({
               <NoWrapTableCell />
               <NoWrapTableCell />
               <NoWrapTableCell />
-              <NoWrapTableCell>
+              <NoWrapTableCell align="right">
                 <Stack
                   direction="row"
                   spacing={1}
                   alignItems="center"
                   justifyContent="flex-end"
                 >
-                  {settlementAssetAmountChange ? (
-                    <span>{settlementAssetAmountChange}</span>
-                  ) : (
-                    <PlaceholderTypography>0</PlaceholderTypography>
-                  )}
+                  <span>
+                    <NumberBlock
+                      value={settlementAssetAmountChange}
+                      hasCommas
+                      hasSign
+                    />
+                  </span>
                   <ReferenceBlock label={settlementAsset?.name} foreignValue />
                 </Stack>
               </NoWrapTableCell>
-              <NoWrapTableCell>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  alignItems="center"
-                  justifyContent="flex-end"
-                >
-                  <ReferenceBlock
-                    label={
-                      financeTransferFlowTypes.find(
-                        (flowType) => flowType.value === transfer.flow_type
-                      )?.label
-                    }
-                  />
-                  <span>{assetAmountChange}</span>
-                  <ReferenceBlock label={asset.name} foreignValue />
-                </Stack>
+              <NoWrapTableCell align="right">
+                <NumberBlock value={assetAmountChange} hasCommas hasSign />
               </NoWrapTableCell>
               <NoWrapTableCell>
+                <ReferenceBlock label={asset.name} foreignValue />
+              </NoWrapTableCell>
+              <NoWrapTableCell>
+                <ReferenceBlock
+                  label={
+                    financeTransferFlowTypes.find(
+                      (flowType) => flowType.value === transfer.flow_type
+                    )?.label
+                  }
+                />
+              </NoWrapTableCell>
+              <NoWrapTableCell colSpan={3}>
                 {transfer.remark || (
                   <PlaceholderTypography>無</PlaceholderTypography>
                 )}
-              </NoWrapTableCell>
-              <NoWrapTableCell>
-                <PlaceholderTypography>N/A</PlaceholderTypography>
-              </NoWrapTableCell>
-              <NoWrapTableCell>
-                <PlaceholderTypography>N/A</PlaceholderTypography>
               </NoWrapTableCell>
               <NoWrapTableCell>
                 <ReferenceBlock

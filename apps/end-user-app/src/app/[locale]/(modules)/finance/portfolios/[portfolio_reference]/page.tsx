@@ -657,7 +657,7 @@ export default function Page() {
                     <NoWrapTableCell align="right">
                       結算資產變動
                     </NoWrapTableCell>
-                    <NoWrapTableCell align="right">變動明細</NoWrapTableCell>
+                    <NoWrapTableCell colSpan={3}>變動明細</NoWrapTableCell>
                     <NoWrapTableCell>備註</NoWrapTableCell>
                     <NoWrapTableCell>區塊鏈 ID</NoWrapTableCell>
                     <NoWrapTableCell>區塊鏈交易 Hash</NoWrapTableCell>
