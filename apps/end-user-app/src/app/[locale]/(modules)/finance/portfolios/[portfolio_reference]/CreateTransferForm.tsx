@@ -82,7 +82,7 @@ export default function CreateTransferForm({
           <Controller
             name="asset_amount_change"
             control={createTransferForm.control}
-            defaultValue="0"
+            defaultValue=""
             render={({ field }) => (
               <TextField
                 {...field}
@@ -168,7 +168,7 @@ export default function CreateTransferForm({
           <Controller
             name="settlement_asset_amount_change"
             control={createTransferForm.control}
-            defaultValue="0"
+            defaultValue=""
             render={({ field }) => (
               <TextField
                 {...field}

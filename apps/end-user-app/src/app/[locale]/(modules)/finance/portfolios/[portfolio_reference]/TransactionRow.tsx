@@ -185,9 +185,9 @@ export default function TransactionRow({
             onClick={() => {
               createTransferForm.reset({
                 flow_type: '',
-                asset_amount_change: '0',
+                asset_amount_change: '',
                 asset_reference: '',
-                settlement_asset_amount_change: '0',
+                settlement_asset_amount_change: '',
                 remark: '',
               })
               setFocusedTransactionReference(transaction.reference)
