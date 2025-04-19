@@ -319,7 +319,7 @@ export default function Page() {
     const asset = assetReferenceToAssetMap[data.asset_reference]
     body.asset_amount_change = new Decimal(data.asset_amount_change)
       .times(10 ** asset.decimals)
-      .toNumber()
+      .toFixed()
 
     if (data.settlement_asset_amount_change) {
       const settlementAsset =
@@ -337,7 +337,7 @@ export default function Page() {
         data.settlement_asset_amount_change
       )
         .times(10 ** settlementAsset.decimals)
-        .toNumber()
+        .toFixed()
     }
 
     await choreMasterAPIAgent.post(
@@ -372,7 +372,7 @@ export default function Page() {
     const asset = assetReferenceToAssetMap[data.asset_reference]
     body.asset_amount_change = new Decimal(data.asset_amount_change)
       .times(10 ** asset.decimals)
-      .toNumber()
+      .toFixed()
 
     if (data.settlement_asset_amount_change) {
       const settlementAsset =
@@ -390,7 +390,7 @@ export default function Page() {
         data.settlement_asset_amount_change
       )
         .times(10 ** settlementAsset.decimals)
-        .toNumber()
+        .toFixed()
     }
 
     await choreMasterAPIAgent.patch(

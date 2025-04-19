@@ -62,7 +62,7 @@ export default function UpdateTransferForm({
                   if (value === 'UPDATE_POSITION') {
                     updateTransferForm.setValue(
                       'settlement_asset_amount_change',
-                      0
+                      '0'
                     )
                   }
                   field.onChange(value)
@@ -82,7 +82,7 @@ export default function UpdateTransferForm({
           <Controller
             name="asset_amount_change"
             control={updateTransferForm.control}
-            defaultValue={0}
+            defaultValue="0"
             render={({ field }) => (
               <TextField
                 {...field}
@@ -168,7 +168,7 @@ export default function UpdateTransferForm({
           <Controller
             name="settlement_asset_amount_change"
             control={updateTransferForm.control}
-            defaultValue={0}
+            defaultValue="0"
             render={({ field }) => (
               <TextField
                 {...field}

@@ -73,8 +73,10 @@ export default function TransactionRow({
     ? new Decimal(
         transaction.transfers.reduce(
           (acc, transfer) =>
-            acc + (transfer.settlement_asset_amount_change ?? 0),
-          0
+            acc.plus(
+              new Decimal(transfer.settlement_asset_amount_change ?? '0')
+            ),
+          new Decimal(0)
         )
       )
         .dividedBy(new Decimal(10 ** settlementAsset.decimals))
@@ -183,9 +185,9 @@ export default function TransactionRow({
             onClick={() => {
               createTransferForm.reset({
                 flow_type: '',
-                asset_amount_change: 0,
+                asset_amount_change: '0',
                 asset_reference: '',
-                settlement_asset_amount_change: 0,
+                settlement_asset_amount_change: '0',
                 remark: '',
               })
               setFocusedTransactionReference(transaction.reference)
@@ -221,19 +223,19 @@ export default function TransactionRow({
       {isOpen &&
         transaction.transfers.map((transfer) => {
           const asset = assetReferenceToAssetMap[transfer.asset_reference]
-          let settlementAssetAmountChange: number | undefined
-          let assetAmountChange: number | undefined
+          let settlementAssetAmountChange: string | undefined
+          let assetAmountChange: string | undefined
           if (transfer.settlement_asset_amount_change && settlementAsset) {
             settlementAssetAmountChange = new Decimal(
               transfer.settlement_asset_amount_change
             )
               .dividedBy(new Decimal(10 ** settlementAsset.decimals))
-              .toNumber()
+              .toFixed()
           }
           if (asset) {
             assetAmountChange = new Decimal(transfer.asset_amount_change)
               .dividedBy(new Decimal(10 ** asset.decimals))
-              .toNumber()
+              .toFixed()
           }
           return (
             <TableRow

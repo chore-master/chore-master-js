@@ -184,24 +184,24 @@ export interface UpdateTransactionFormInputs {
 export interface Transfer {
   reference: string
   flow_type: string
-  asset_amount_change: number
+  asset_amount_change: string
   asset_reference: string
-  settlement_asset_amount_change: number | null
+  settlement_asset_amount_change: string | null
   remark: string | null
 }
 
 export interface CreateTransferFormInputs {
   flow_type: string
-  asset_amount_change: number
+  asset_amount_change: string
   asset_reference: string
-  settlement_asset_amount_change: number | null
+  settlement_asset_amount_change: string | null
   remark: string | null
 }
 
 export interface UpdateTransferFormInputs {
   flow_type: string
-  asset_amount_change: number
+  asset_amount_change: string
   asset_reference: string
-  settlement_asset_amount_change: number | null
+  settlement_asset_amount_change: string | null
   remark: string | null
 }
