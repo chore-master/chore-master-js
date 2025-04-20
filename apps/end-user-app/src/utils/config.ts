@@ -15,7 +15,7 @@ export default function getConfig() {
     HOST = 'https://dev.chore-master.app'
     CHORE_MASTER_API_HOST = 'https://dev-api.chore-master.app'
   } else if (ENV_NAME === EnvEnum.PRODUCTION) {
-    HOST = 'https://chore-master.app'
+    HOST = 'https://www.chore-master.app'
     CHORE_MASTER_API_HOST = 'https://api.chore-master.app'
   }
 
