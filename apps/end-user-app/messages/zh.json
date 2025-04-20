@@ -1,0 +1,77 @@
+{
+  "components": {
+    "ModuleLayout": {
+      "menu": {
+        "loginOtherAccount": "登入其他帳號",
+        "logoutCurrentDevice": "登出目前裝置"
+      },
+      "tooltips": {
+        "toggleModule": "切換模組",
+        "toggleSidebar": "切換側邊欄",
+        "about": "關於",
+        "settings": "設定",
+        "login": "登入",
+        "user": "使用者"
+      },
+      "dialogs": {
+        "about": {
+          "title": "關於",
+          "systemInfo": "系統資訊",
+          "commitRevision": "發佈版本",
+          "commitSHA": "提交版本",
+          "environment": "環境",
+          "claim": "聲明",
+          "privacy": "隱私權",
+          "terms": "服務條款"
+        },
+        "settings": {
+          "title": "設定",
+          "contrast": "對比",
+          "light": "淺色",
+          "dark": "深色",
+          "timezone": "時區",
+          "appliedTimezone": "套用時區",
+          "previewCurrentTime": "預覽目前時間",
+          "language": "語言"
+        }
+      }
+    }
+  },
+  "modules": {
+    "admin": {
+      "name": "管理控制台",
+      "navigations": {
+        "database": "資料庫",
+        "tables": "資料表",
+        "migrations": "遷徙",
+        "user": "使用者",
+        "users": "使用者"
+      }
+    },
+    "finance": {
+      "name": "金融",
+      "navigations": {
+        "market": "市場",
+        "interestRateQuotation": "利率行情",
+        "ecosystem": "生態",
+        "flow": "流量",
+        "myWealth": "我的資金",
+        "assets": "資產",
+        "accounts": "帳戶",
+        "balance": "餘額",
+        "myInvestment": "我的投資",
+        "portfolios": "投資組合",
+        "others": "其他"
+      }
+    },
+    "integration": {
+      "name": "整合"
+    },
+    "widget": {
+      "name": "小工具"
+    },
+    "example": {
+      "name": "範例模組"
+    }
+  }
+}
