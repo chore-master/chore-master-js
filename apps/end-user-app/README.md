@@ -35,7 +35,7 @@ sudo docker compose -f ./deployments/docker-compose.local.yml -p chore_master_en
 - Hosting > Environment variables
 
     - AMPLIFY_DIFF_DEPLOY=false
-    - AMPLIFY_MONOREPO_APP_ROOT=packages/end-user-app
+    - AMPLIFY_MONOREPO_APP_ROOT=apps/end-user-app
 
 - Hosting > Build settings
 
@@ -58,5 +58,5 @@ sudo docker compose -f ./deployments/docker-compose.local.yml -p chore_master_en
             paths:
             - .next/cache/**/*
             - node_modules/**/*
-        appRoot: packages/end-user-app
+        appRoot: apps/end-user-app
     ```
