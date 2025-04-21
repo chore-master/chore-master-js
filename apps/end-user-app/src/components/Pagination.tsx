@@ -1,22 +1,21 @@
 import TablePaginationActions from '@/components/TablePaginationActions'
+import { OffsetPagination } from '@/types/global'
 import MuiTablePagination from '@mui/material/TablePagination'
 
 export const TablePagination = ({
-  count,
-  page,
-  rowsPerPage,
-  setPage,
-  setRowsPerPage,
-  rowsPerPageOptions = [10, 50, 100],
+  offsetPagination,
   ...props
 }: {
-  count: number
-  page: number
-  rowsPerPage: number
-  setPage: (page: number) => void
-  setRowsPerPage: (rowsPerPage: number) => void
-  rowsPerPageOptions?: number[]
+  offsetPagination: OffsetPagination
 }) => {
+  const rowsPerPageOptions = offsetPagination.rowsPerPageOptions.includes(
+    offsetPagination.rowsPerPage
+  )
+    ? offsetPagination.rowsPerPageOptions
+    : [
+        ...offsetPagination.rowsPerPageOptions,
+        offsetPagination.rowsPerPage,
+      ].sort((a, b) => a - b)
   return (
     <MuiTablePagination
       component="div"
@@ -27,19 +26,19 @@ export const TablePagination = ({
         } 筆`
       }
       rowsPerPageOptions={rowsPerPageOptions}
-      count={count}
-      rowsPerPage={rowsPerPage}
-      page={page}
+      count={offsetPagination.count}
+      rowsPerPage={offsetPagination.rowsPerPage}
+      page={offsetPagination.page}
       onPageChange={(
         event: React.MouseEvent<HTMLButtonElement> | null,
         newPage: number
       ) => {
-        setPage(newPage)
+        offsetPagination.setPage(newPage)
       }}
       onRowsPerPageChange={(
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       ) => {
-        setRowsPerPage(parseInt(event.target.value, 10))
+        offsetPagination.setRowsPerPage(parseInt(event.target.value, 10))
       }}
       ActionsComponent={TablePaginationActions}
       {...props}

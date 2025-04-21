@@ -70,7 +70,7 @@ export default function Page() {
       },
     })
     setIsFetchingPortfolios(false)
-  }, [portfoliosPagination.offset])
+  }, [portfoliosPagination.offset, portfoliosPagination.rowsPerPage])
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -202,14 +202,7 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            count={portfoliosPagination.count}
-            page={portfoliosPagination.page}
-            rowsPerPage={portfoliosPagination.rowsPerPage}
-            setPage={portfoliosPagination.setPage}
-            setRowsPerPage={portfoliosPagination.setRowsPerPage}
-            rowsPerPageOptions={portfoliosPagination.rowsPerPageOptions}
-          />
+          <TablePagination offsetPagination={portfoliosPagination} />
         </ModuleFunctionBody>
       </ModuleFunction>
 
