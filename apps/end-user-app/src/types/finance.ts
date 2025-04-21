@@ -18,7 +18,6 @@ export interface CreateAssetFormInputs {
 export interface UpdateAssetFormInputs {
   name: string
   symbol: string
-  decimals: number
   is_settleable: boolean
 }
 

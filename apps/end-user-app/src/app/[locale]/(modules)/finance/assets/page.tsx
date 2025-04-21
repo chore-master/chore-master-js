@@ -227,7 +227,6 @@ export default function Page() {
                         onClick={() => {
                           updateAssetForm.setValue('name', asset.name)
                           updateAssetForm.setValue('symbol', asset.symbol)
-                          updateAssetForm.setValue('decimals', asset.decimals)
                           updateAssetForm.setValue(
                             'is_settleable',
                             asset.is_settleable
@@ -320,6 +319,7 @@ export default function Page() {
                     label="精度"
                     variant="filled"
                     type="number"
+                    helperText="建立後無法變更"
                   />
                 )}
                 rules={{ required: '必填' }}
@@ -394,23 +394,6 @@ export default function Page() {
                     required
                     label="代號"
                     variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="decimals"
-                control={updateAssetForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="精度"
-                    variant="filled"
-                    type="number"
                   />
                 )}
                 rules={{ required: '必填' }}
