@@ -38,7 +38,16 @@ export const TablePagination = ({
       onRowsPerPageChange={(
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       ) => {
-        offsetPagination.setRowsPerPage(parseInt(event.target.value, 10))
+        const newRowsPerPage = parseInt(event.target.value, 10)
+        offsetPagination.setPagination({
+          page: Math.floor(
+            Math.max(
+              Math.min(offsetPagination.offset, offsetPagination.count - 2),
+              0
+            ) / newRowsPerPage
+          ),
+          rowsPerPage: newRowsPerPage,
+        })
       }}
       ActionsComponent={TablePaginationActions}
       {...props}

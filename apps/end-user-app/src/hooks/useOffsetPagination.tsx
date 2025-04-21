@@ -65,6 +65,17 @@ export function useOffsetPagination({
     [searchParams, rowsPerPageKey, pathname, router]
   )
 
+  const setPagination = React.useCallback(
+    (pagination: { page: number; rowsPerPage: number }) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(pageKey, `${pagination.page}`)
+      params.set(rowsPerPageKey, `${pagination.rowsPerPage}`)
+      const url = `${pathname}?${params.toString()}`
+      router.replace(url, { scroll: false })
+    },
+    [searchParams, pageKey, rowsPerPageKey, pathname, router]
+  )
+
   return {
     page: _pagination.page,
     rowsPerPage: _pagination.rowsPerPage,
@@ -74,5 +85,6 @@ export function useOffsetPagination({
     setCount: _setCount,
     setPage,
     setRowsPerPage,
+    setPagination,
   } as OffsetPagination
 }

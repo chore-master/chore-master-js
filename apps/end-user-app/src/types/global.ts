@@ -31,6 +31,7 @@ export interface OffsetPagination {
   count: number
   rowsPerPageOptions: number[]
   offset: number
+  setPagination: (pagination: { page: number; rowsPerPage: number }) => void
   setCount: (count: number) => void
   setPage: (page: number) => void
   setRowsPerPage: (rowsPerPage: number) => void
