@@ -37,10 +37,7 @@ export default function Page() {
 
   // Portfolios
   const [portfolios, setPortfolios] = React.useState<Portfolio[]>([])
-  const portfoliosPagination = useOffsetPagination({
-    pageKey: 'page',
-    rowsPerPageKey: 'rowsPerPage',
-  })
+  const portfoliosPagination = useOffsetPagination({})
   const [isFetchingPortfolios, setIsFetchingPortfolios] = React.useState(false)
   const [isCreatePortfolioDrawerOpen, setIsCreatePortfolioDrawerOpen] =
     React.useState(false)

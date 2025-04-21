@@ -36,10 +36,7 @@ export default function Page() {
 
   // User
   const [users, setUsers] = React.useState<UserSummary[]>([])
-  const usersPagination = useOffsetPagination({
-    pageKey: 'page',
-    rowsPerPageKey: 'rowsPerPage',
-  })
+  const usersPagination = useOffsetPagination({})
   const [isFetchingUsers, setIsFetchingUsers] = React.useState(false)
   const [isCreateUserDrawerOpen, setIsCreateUserDrawerOpen] =
     React.useState(false)

@@ -79,10 +79,7 @@ export default function Page() {
 
   // Transactions
   const [transactions, setTransactions] = React.useState<Transaction[]>([])
-  const transactionsPagination = useOffsetPagination({
-    pageKey: 'page',
-    rowsPerPageKey: 'rowsPerPage',
-  })
+  const transactionsPagination = useOffsetPagination({})
   const [isFetchingTransactions, setIsFetchingTransactions] =
     React.useState(false)
   const createTransactionForm = useForm<CreateTransactionFormInputs>({

@@ -46,10 +46,7 @@ export default function Page() {
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
-  const assetsPagination = useOffsetPagination({
-    pageKey: 'page',
-    rowsPerPageKey: 'rowsPerPage',
-  })
+  const assetsPagination = useOffsetPagination({})
   const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
   const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
     React.useState(false)

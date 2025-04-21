@@ -54,10 +54,7 @@ export default function Page() {
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
-  const accountsPagination = useOffsetPagination({
-    pageKey: 'page',
-    rowsPerPageKey: 'rowsPerPage',
-  })
+  const accountsPagination = useOffsetPagination({})
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)

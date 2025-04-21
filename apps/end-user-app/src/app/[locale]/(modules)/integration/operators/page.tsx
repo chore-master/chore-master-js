@@ -52,10 +52,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const [operators, setOperators] = React.useState<Operator[]>([])
-  const operatorsPagination = useOffsetPagination({
-    pageKey: 'page',
-    rowsPerPageKey: 'rowsPerPage',
-  })
+  const operatorsPagination = useOffsetPagination({})
   const [isFetchingOperators, setIsFetchingOperators] = React.useState(false)
   const [isCreateOperatorDrawerOpen, setIsCreateOperatorDrawerOpen] =
     React.useState(false)

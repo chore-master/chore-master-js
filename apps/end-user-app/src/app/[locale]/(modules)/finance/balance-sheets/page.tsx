@@ -100,8 +100,6 @@ export default function Page() {
       balance_entries: [],
     })
   const balanceSheetsPagination = useOffsetPagination({
-    pageKey: 'page',
-    rowsPerPageKey: 'rowsPerPage',
     defaultRowsPerPage: 5,
     rowsPerPageOptions: [5, 10],
   })

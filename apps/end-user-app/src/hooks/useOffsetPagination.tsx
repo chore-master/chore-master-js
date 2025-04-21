@@ -4,14 +4,14 @@ import { useSearchParams } from 'next/navigation'
 import React from 'react'
 
 export function useOffsetPagination({
-  pageKey,
-  rowsPerPageKey,
+  pageKey = 'page',
+  rowsPerPageKey = 'rowsPerPage',
   defaultRowsPerPage = 10,
   defaultPage = 0,
   rowsPerPageOptions = [10, 20, 50, 100],
 }: {
-  pageKey: string
-  rowsPerPageKey: string
+  pageKey?: string
+  rowsPerPageKey?: string
   defaultRowsPerPage?: number
   defaultPage?: number
   rowsPerPageOptions?: number[]
