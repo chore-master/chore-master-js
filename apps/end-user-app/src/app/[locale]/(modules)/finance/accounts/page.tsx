@@ -12,7 +12,6 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
-import { financeAccountEcosystemTypes } from '@/constants'
 import type {
   Account,
   Asset,
@@ -33,9 +32,6 @@ import CardHeader from '@mui/material/CardHeader'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableContainer from '@mui/material/TableContainer'
@@ -246,7 +242,6 @@ export default function Page() {
                   </NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
-                  <NoWrapTableCell>生態系</NoWrapTableCell>
                   <NoWrapTableCell>開戶時間</NoWrapTableCell>
                   <NoWrapTableCell>關戶時間</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
@@ -278,16 +273,6 @@ export default function Page() {
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
-                      <ReferenceBlock
-                        label={
-                          financeAccountEcosystemTypes.find(
-                            (ecosystemType) =>
-                              ecosystemType.value === account.ecosystem_type
-                          )?.label
-                        }
-                      />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
                       <DatetimeBlock isoText={account.opened_time} />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
@@ -309,10 +294,6 @@ export default function Page() {
                         size="small"
                         onClick={() => {
                           updateAccountForm.setValue('name', account.name)
-                          updateAccountForm.setValue(
-                            'ecosystem_type',
-                            account.ecosystem_type
-                          )
                           updateAccountForm.setValue(
                             'opened_time',
                             timezone
@@ -387,27 +368,6 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Controller
-              name="ecosystem_type"
-              control={createAccountForm.control}
-              defaultValue={financeAccountEcosystemTypes[0].value}
-              render={({ field }) => (
-                <FormControl required fullWidth size="small" variant="filled">
-                  <InputLabel>生態系</InputLabel>
-                  <Select {...field}>
-                    {financeAccountEcosystemTypes.map((ecosystemType) => (
-                      <MenuItem
-                        key={ecosystemType.value}
-                        value={ecosystemType.value}
-                      >
-                        {ecosystemType.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-              rules={{ required: '必填' }}
-            />
             <FormControl>
               <WithRef
                 render={(inputRef) => (
@@ -569,7 +529,7 @@ export default function Page() {
               <Controller
                 name="name"
                 control={updateAccountForm.control}
-                defaultValue={financeAccountEcosystemTypes[0].value}
+                defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
@@ -581,27 +541,6 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Controller
-              name="ecosystem_type"
-              control={updateAccountForm.control}
-              defaultValue=""
-              render={({ field }) => (
-                <FormControl required fullWidth size="small" variant="filled">
-                  <InputLabel>生態系</InputLabel>
-                  <Select {...field}>
-                    {financeAccountEcosystemTypes.map((ecosystemType) => (
-                      <MenuItem
-                        key={ecosystemType.value}
-                        value={ecosystemType.value}
-                      >
-                        {ecosystemType.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-              rules={{ required: '必填' }}
-            />
             <FormControl>
               <WithRef
                 render={(inputRef) => (
