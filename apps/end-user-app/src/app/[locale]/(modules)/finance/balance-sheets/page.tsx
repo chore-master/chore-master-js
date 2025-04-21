@@ -13,6 +13,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { colors20, INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
   Account,
   Asset,
@@ -98,10 +99,12 @@ export default function Page() {
       balance_sheets: [],
       balance_entries: [],
     })
-  const [balanceSheetsCount, setBalanceSheetsCount] = React.useState(0)
-  const [balanceSheetsPage, setBalanceSheetsPage] = React.useState(0)
-  const [balanceSheetsRowsPerPage, setBalanceSheetsRowsPerPage] =
-    React.useState(5)
+  const balanceSheetsPagination = useOffsetPagination({
+    pageKey: 'page',
+    rowsPerPageKey: 'rowsPerPage',
+    defaultRowsPerPage: 5,
+    rowsPerPageOptions: [5, 10],
+  })
   const [isFetchingBalanceSheetsSeries, setIsFetchingBalanceSheetsSeries] =
     React.useState(false)
 
@@ -169,8 +172,8 @@ export default function Page() {
       '/v1/finance/users/me/balance_sheets/series',
       {
         params: {
-          offset: balanceSheetsPage * balanceSheetsRowsPerPage,
-          limit: balanceSheetsRowsPerPage,
+          offset: balanceSheetsPagination.offset,
+          limit: balanceSheetsPagination.rowsPerPage,
         },
         onError: () => {
           enqueueNotification(
@@ -183,12 +186,12 @@ export default function Page() {
         },
         onSuccess: async ({ data, metadata }: any) => {
           setBalanceSheetsSeries(data)
-          setBalanceSheetsCount(metadata.offset_pagination.count)
+          balanceSheetsPagination.setCount(metadata.offset_pagination.count)
         },
       }
     )
     setIsFetchingBalanceSheetsSeries(false)
-  }, [balanceSheetsPage, balanceSheetsRowsPerPage, enqueueNotification])
+  }, [balanceSheetsPagination.offset, balanceSheetsPagination.rowsPerPage])
 
   const fetchPrices = React.useCallback(
     async (
@@ -843,9 +846,7 @@ export default function Page() {
                     <TableRow key={balanceSheet.reference} hover>
                       <NoWrapTableCell align="right">
                         <PlaceholderTypography>
-                          {balanceSheetsPage * balanceSheetsRowsPerPage +
-                            index +
-                            1}
+                          {balanceSheetsPagination.offset + index + 1}
                         </PlaceholderTypography>
                       </NoWrapTableCell>
                       <NoWrapTableCell>
@@ -883,14 +884,7 @@ export default function Page() {
       <ModuleContainer stickyBottom>
         <Divider />
         <Paper elevation={0}>
-          <TablePagination
-            count={balanceSheetsCount}
-            page={balanceSheetsPage}
-            rowsPerPage={balanceSheetsRowsPerPage}
-            setPage={setBalanceSheetsPage}
-            setRowsPerPage={setBalanceSheetsRowsPerPage}
-            rowsPerPageOptions={[5, 10]}
-          />
+          <TablePagination offsetPagination={balanceSheetsPagination} />
         </Paper>
       </ModuleContainer>
     </React.Fragment>

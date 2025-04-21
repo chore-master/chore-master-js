@@ -12,6 +12,7 @@ import {
   UpdateTransactionFormInputs,
   UpdateTransferFormInputs,
 } from '@/types/finance'
+import { OffsetPagination } from '@/types/global'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -29,9 +30,7 @@ export default function TransactionRow({
   portfolio,
   transaction,
   index,
-  transactionsCount,
-  transactionsPage,
-  transactionsRowsPerPage,
+  transactionsPagination,
   timezone,
   assetReferenceToAssetMap,
   updateTransactionForm,
@@ -47,9 +46,7 @@ export default function TransactionRow({
   portfolio: Portfolio | null
   transaction: Transaction
   index: number
-  transactionsCount: number
-  transactionsPage: number
-  transactionsRowsPerPage: number
+  transactionsPagination: OffsetPagination
   timezone: any
   assetReferenceToAssetMap: Record<string, Asset>
   updateTransactionForm: UseFormReturn<UpdateTransactionFormInputs>
@@ -109,8 +106,8 @@ export default function TransactionRow({
         </NoWrapTableCell>
         <NoWrapTableCell align="right">
           <PlaceholderTypography>
-            {transactionsCount -
-              transactionsPage * transactionsRowsPerPage -
+            {transactionsPagination.count -
+              transactionsPagination.offset -
               index}
           </PlaceholderTypography>
         </NoWrapTableCell>

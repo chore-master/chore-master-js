@@ -12,6 +12,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
   Account,
   Asset,
@@ -53,9 +54,10 @@ export default function Page() {
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
-  const [accountsCount, setAccountsCount] = React.useState(0)
-  const [accountsPage, setAccountsPage] = React.useState(0)
-  const [accountsRowsPerPage, setAccountsRowsPerPage] = React.useState(10)
+  const accountsPagination = useOffsetPagination({
+    pageKey: 'page',
+    rowsPerPageKey: 'rowsPerPage',
+  })
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
@@ -87,8 +89,8 @@ export default function Page() {
     setIsFetchingAccounts(true)
     await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
       params: {
-        offset: accountsPage * accountsRowsPerPage,
-        limit: accountsRowsPerPage,
+        offset: accountsPagination.offset,
+        limit: accountsPagination.rowsPerPage,
       },
       onError: () => {
         enqueueNotification(`Unable to fetch accounts now.`, 'error')
@@ -104,11 +106,11 @@ export default function Page() {
         metadata: any
       }) => {
         setAccounts(data)
-        setAccountsCount(metadata.offset_pagination.count)
+        accountsPagination.setCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingAccounts(false)
-  }, [accountsPage, accountsRowsPerPage])
+  }, [accountsPagination.offset, accountsPagination.rowsPerPage])
 
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
@@ -256,7 +258,7 @@ export default function Page() {
                   <TableRow key={account.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {accountsPage * accountsRowsPerPage + index + 1}
+                        {accountsPagination.offset + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{account.name}</NoWrapTableCell>
@@ -325,14 +327,7 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            count={accountsCount}
-            page={accountsPage}
-            rowsPerPage={accountsRowsPerPage}
-            setPage={setAccountsPage}
-            setRowsPerPage={setAccountsRowsPerPage}
-            rowsPerPageOptions={[10, 20]}
-          />
+          <TablePagination offsetPagination={accountsPagination} />
         </ModuleFunctionBody>
       </ModuleFunction>
 

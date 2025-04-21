@@ -11,6 +11,7 @@ import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { integrationOperatorDiscriminators } from '@/constants'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
   CreateOperatorFormInputs,
   Operator,
@@ -51,9 +52,10 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const [operators, setOperators] = React.useState<Operator[]>([])
-  const [operatorsCount, setOperatorsCount] = React.useState(0)
-  const [operatorsPage, setOperatorsPage] = React.useState(0)
-  const [operatorsRowsPerPage, setOperatorsRowsPerPage] = React.useState(10)
+  const operatorsPagination = useOffsetPagination({
+    pageKey: 'page',
+    rowsPerPageKey: 'rowsPerPage',
+  })
   const [isFetchingOperators, setIsFetchingOperators] = React.useState(false)
   const [isCreateOperatorDrawerOpen, setIsCreateOperatorDrawerOpen] =
     React.useState(false)
@@ -66,8 +68,8 @@ export default function Page() {
     setIsFetchingOperators(true)
     await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
       params: {
-        offset: operatorsPage * operatorsRowsPerPage,
-        limit: operatorsRowsPerPage,
+        offset: operatorsPagination.offset,
+        limit: operatorsPagination.rowsPerPage,
       },
       onError: () => {
         enqueueNotification(`Unable to fetch operators now.`, 'error')
@@ -83,7 +85,7 @@ export default function Page() {
         metadata: any
       }) => {
         setOperators(data)
-        setOperatorsCount(metadata.offset_pagination.count)
+        operatorsPagination.setCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingOperators(false)
@@ -209,7 +211,7 @@ export default function Page() {
                   <TableRow key={operator.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {operatorsPage * operatorsRowsPerPage + index + 1}
+                        {operatorsPagination.offset + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{operator.name}</NoWrapTableCell>
@@ -257,14 +259,7 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            count={operatorsCount}
-            page={operatorsPage}
-            rowsPerPage={operatorsRowsPerPage}
-            setPage={setOperatorsPage}
-            setRowsPerPage={setOperatorsRowsPerPage}
-            rowsPerPageOptions={[10, 20]}
-          />
+          <TablePagination offsetPagination={operatorsPagination} />
         </ModuleFunctionBody>
 
         <ModuleFunctionBody>
