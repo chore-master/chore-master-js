@@ -1,7 +1,7 @@
 {
-  "name": "chore-master-web",
+  "name": "chore-master-js",
   "version": "1.0.0",
-  "repository": "git@github.com:chore-master/chore-master-web.git",
+  "repository": "git@github.com:chore-master/chore-master-js.git",
   "author": "gocreating <gocreating@gmail.com>",
   "license": "MIT",
   "devDependencies": {
