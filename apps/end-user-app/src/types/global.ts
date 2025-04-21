@@ -22,3 +22,16 @@ export interface CurrentUser {
     }
   }[]
 }
+
+// Pagination
+
+export interface OffsetPagination {
+  page: number
+  rowsPerPage: number
+  count: number
+  rowsPerPageOptions: number[]
+  offset: number
+  setCount: (count: number) => void
+  setPage: (page: number) => void
+  setRowsPerPage: (rowsPerPage: number) => void
+}

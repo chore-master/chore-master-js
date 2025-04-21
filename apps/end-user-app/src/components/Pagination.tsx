@@ -40,7 +40,6 @@ export const TablePagination = ({
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       ) => {
         setRowsPerPage(parseInt(event.target.value, 10))
-        setPage(0)
       }}
       ActionsComponent={TablePaginationActions}
       {...props}
