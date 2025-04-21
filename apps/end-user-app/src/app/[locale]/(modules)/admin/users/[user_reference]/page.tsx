@@ -9,6 +9,7 @@ import ModuleFunction, {
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import { useTab } from '@/hooks/useTab'
 import type { UpdateUserFormInputs, UserDetail } from '@/types/admin'
 import type { Role } from '@/types/identity'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -41,7 +42,9 @@ import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
-  const [tabValue, setTabValue] = React.useState<string>('overview')
+  const tab = useTab({
+    defaultValue: 'overview',
+  })
   const { enqueueNotification } = useNotification()
   const { user_reference }: { user_reference: string } = useParams()
   const router = useRouter()
@@ -187,7 +190,7 @@ export default function Page() {
   }, [])
 
   return (
-    <TabContext value={tabValue}>
+    <TabContext value={tab.value}>
       <Box sx={{ p: 2 }}>
         <Breadcrumbs>
           <MuiLink
@@ -232,7 +235,7 @@ export default function Page() {
               variant="scrollable"
               scrollButtons={false}
               onChange={(event: React.SyntheticEvent, newValue: string) => {
-                setTabValue(newValue)
+                tab.setValue(newValue)
               }}
             >
               <Tab label="總覽" value="overview" />

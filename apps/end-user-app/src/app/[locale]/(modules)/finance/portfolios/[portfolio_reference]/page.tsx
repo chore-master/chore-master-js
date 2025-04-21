@@ -12,6 +12,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
+import { useTab } from '@/hooks/useTab'
 import {
   Asset,
   CreateTransactionFormInputs,
@@ -61,7 +62,9 @@ import UpdateTransactionForm from './UpdateTransactionForm'
 import UpdateTransferForm from './UpdateTransferForm'
 
 export default function Page() {
-  const [tabValue, setTabValue] = React.useState<string>('overview')
+  const tab = useTab({
+    defaultValue: 'overview',
+  })
   const { enqueueNotification } = useNotification()
   const { portfolio_reference }: { portfolio_reference: string } = useParams()
   const router = useRouter()
@@ -527,7 +530,7 @@ export default function Page() {
   }, [transactions])
 
   return (
-    <TabContext value={tabValue}>
+    <TabContext value={tab.value}>
       <Box sx={{ p: 2 }}>
         <Breadcrumbs>
           <MuiLink
@@ -571,7 +574,7 @@ export default function Page() {
               variant="scrollable"
               scrollButtons={false}
               onChange={(event: React.SyntheticEvent, newValue: string) => {
-                setTabValue(newValue)
+                tab.setValue(newValue)
               }}
             >
               <Tab label="總覽" value="overview" />
