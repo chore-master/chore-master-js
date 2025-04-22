@@ -60,3 +60,43 @@ sudo docker compose -f ./deployments/docker-compose.local.yml -p chore_master_en
             - node_modules/**/*
         appRoot: apps/end-user-app
     ```
+
+- (Update Repo)
+
+    1. Grant AWS IAM permission
+
+        ```json
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "VisualEditor0",
+                    "Effect": "Allow",
+                    "Action": "amplify:*",
+                    "Resource": "*"
+                }
+            ]
+        }
+        ```
+
+    2. Verify permission
+
+        ```sh
+        aws amplify list-apps --profile cp-personal
+        ```
+
+    3. Generate Github classic access token
+
+        Go to this page <https://github.com/settings/tokens> and generate a new CLASSIC token with all permissions.
+
+    4. Update repo
+
+        ```sh
+        aws amplify update-app \
+            --profile cp-personal \
+            --app-id d2uzwu7db42hmg \
+            --repository https://github.com/chore-master/chore-master-js \
+            --access-token ghp_...
+        ```
+
+    5. Delete github token
