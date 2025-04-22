@@ -9,6 +9,7 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
   Asset,
   CreateAssetFormInputs,
@@ -45,9 +46,7 @@ export default function Page() {
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
-  const [assetsCount, setAssetsCount] = React.useState(0)
-  const [assetsPage, setAssetsPage] = React.useState(0)
-  const [assetsRowsPerPage, setAssetsRowsPerPage] = React.useState(10)
+  const assetsPagination = useOffsetPagination({})
   const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
   const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
     React.useState(false)
@@ -60,8 +59,8 @@ export default function Page() {
     setIsFetchingAssets(true)
     await choreMasterAPIAgent.get('/v1/finance/users/me/assets', {
       params: {
-        offset: assetsPage * assetsRowsPerPage,
-        limit: assetsRowsPerPage,
+        offset: assetsPagination.offset,
+        limit: assetsPagination.rowsPerPage,
       },
       onError: () => {
         enqueueNotification(`Unable to fetch assets now.`, 'error')
@@ -77,11 +76,11 @@ export default function Page() {
         metadata: any
       }) => {
         setAssets(data)
-        setAssetsCount(metadata.offset_pagination.count)
+        assetsPagination.setCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingAssets(false)
-  }, [assetsPage, assetsRowsPerPage])
+  }, [assetsPagination.offset, assetsPagination.rowsPerPage])
 
   const handleSubmitCreateAssetForm: SubmitHandler<
     CreateAssetFormInputs
@@ -201,7 +200,7 @@ export default function Page() {
                   <TableRow key={asset.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {assetsPage * assetsRowsPerPage + index + 1}
+                        {assetsPagination.offset + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{asset.name}</NoWrapTableCell>
@@ -227,7 +226,6 @@ export default function Page() {
                         onClick={() => {
                           updateAssetForm.setValue('name', asset.name)
                           updateAssetForm.setValue('symbol', asset.symbol)
-                          updateAssetForm.setValue('decimals', asset.decimals)
                           updateAssetForm.setValue(
                             'is_settleable',
                             asset.is_settleable
@@ -249,14 +247,7 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            count={assetsCount}
-            page={assetsPage}
-            rowsPerPage={assetsRowsPerPage}
-            setPage={setAssetsPage}
-            setRowsPerPage={setAssetsRowsPerPage}
-            rowsPerPageOptions={[10, 20]}
-          />
+          <TablePagination offsetPagination={assetsPagination} />
         </ModuleFunctionBody>
       </ModuleFunction>
 
@@ -320,6 +311,7 @@ export default function Page() {
                     label="精度"
                     variant="filled"
                     type="number"
+                    helperText="建立後無法變更"
                   />
                 )}
                 rules={{ required: '必填' }}
@@ -394,23 +386,6 @@ export default function Page() {
                     required
                     label="代號"
                     variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="decimals"
-                control={updateAssetForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="精度"
-                    variant="filled"
-                    type="number"
                   />
                 )}
                 rules={{ required: '必填' }}

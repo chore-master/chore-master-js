@@ -12,7 +12,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
-import { financeAccountEcosystemTypes } from '@/constants'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
   Account,
   Asset,
@@ -33,9 +33,6 @@ import CardHeader from '@mui/material/CardHeader'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableContainer from '@mui/material/TableContainer'
@@ -57,9 +54,7 @@ export default function Page() {
 
   // Account
   const [accounts, setAccounts] = React.useState<Account[]>([])
-  const [accountsCount, setAccountsCount] = React.useState(0)
-  const [accountsPage, setAccountsPage] = React.useState(0)
-  const [accountsRowsPerPage, setAccountsRowsPerPage] = React.useState(10)
+  const accountsPagination = useOffsetPagination({})
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
   const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
     React.useState(false)
@@ -91,8 +86,8 @@ export default function Page() {
     setIsFetchingAccounts(true)
     await choreMasterAPIAgent.get('/v1/finance/users/me/accounts', {
       params: {
-        offset: accountsPage * accountsRowsPerPage,
-        limit: accountsRowsPerPage,
+        offset: accountsPagination.offset,
+        limit: accountsPagination.rowsPerPage,
       },
       onError: () => {
         enqueueNotification(`Unable to fetch accounts now.`, 'error')
@@ -108,11 +103,11 @@ export default function Page() {
         metadata: any
       }) => {
         setAccounts(data)
-        setAccountsCount(metadata.offset_pagination.count)
+        accountsPagination.setCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingAccounts(false)
-  }, [accountsPage, accountsRowsPerPage])
+  }, [accountsPagination.offset, accountsPagination.rowsPerPage])
 
   const handleSubmitCreateAccountForm: SubmitHandler<
     CreateAccountFormInputs
@@ -246,7 +241,6 @@ export default function Page() {
                   </NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>結算資產</NoWrapTableCell>
-                  <NoWrapTableCell>生態系</NoWrapTableCell>
                   <NoWrapTableCell>開戶時間</NoWrapTableCell>
                   <NoWrapTableCell>關戶時間</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
@@ -261,7 +255,7 @@ export default function Page() {
                   <TableRow key={account.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {accountsPage * accountsRowsPerPage + index + 1}
+                        {accountsPagination.offset + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{account.name}</NoWrapTableCell>
@@ -275,16 +269,6 @@ export default function Page() {
                           )?.name
                         }
                         foreignValue
-                      />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      <ReferenceBlock
-                        label={
-                          financeAccountEcosystemTypes.find(
-                            (ecosystemType) =>
-                              ecosystemType.value === account.ecosystem_type
-                          )?.label
-                        }
                       />
                     </NoWrapTableCell>
                     <NoWrapTableCell>
@@ -309,10 +293,6 @@ export default function Page() {
                         size="small"
                         onClick={() => {
                           updateAccountForm.setValue('name', account.name)
-                          updateAccountForm.setValue(
-                            'ecosystem_type',
-                            account.ecosystem_type
-                          )
                           updateAccountForm.setValue(
                             'opened_time',
                             timezone
@@ -344,14 +324,7 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            count={accountsCount}
-            page={accountsPage}
-            rowsPerPage={accountsRowsPerPage}
-            setPage={setAccountsPage}
-            setRowsPerPage={setAccountsRowsPerPage}
-            rowsPerPageOptions={[10, 20]}
-          />
+          <TablePagination offsetPagination={accountsPagination} />
         </ModuleFunctionBody>
       </ModuleFunction>
 
@@ -387,27 +360,6 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Controller
-              name="ecosystem_type"
-              control={createAccountForm.control}
-              defaultValue={financeAccountEcosystemTypes[0].value}
-              render={({ field }) => (
-                <FormControl required fullWidth size="small" variant="filled">
-                  <InputLabel>生態系</InputLabel>
-                  <Select {...field}>
-                    {financeAccountEcosystemTypes.map((ecosystemType) => (
-                      <MenuItem
-                        key={ecosystemType.value}
-                        value={ecosystemType.value}
-                      >
-                        {ecosystemType.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-              rules={{ required: '必填' }}
-            />
             <FormControl>
               <WithRef
                 render={(inputRef) => (
@@ -569,7 +521,7 @@ export default function Page() {
               <Controller
                 name="name"
                 control={updateAccountForm.control}
-                defaultValue={financeAccountEcosystemTypes[0].value}
+                defaultValue=""
                 render={({ field }) => (
                   <TextField
                     {...field}
@@ -581,27 +533,6 @@ export default function Page() {
                 rules={{ required: '必填' }}
               />
             </FormControl>
-            <Controller
-              name="ecosystem_type"
-              control={updateAccountForm.control}
-              defaultValue=""
-              render={({ field }) => (
-                <FormControl required fullWidth size="small" variant="filled">
-                  <InputLabel>生態系</InputLabel>
-                  <Select {...field}>
-                    {financeAccountEcosystemTypes.map((ecosystemType) => (
-                      <MenuItem
-                        key={ecosystemType.value}
-                        value={ecosystemType.value}
-                      >
-                        {ecosystemType.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-              rules={{ required: '必填' }}
-            />
             <FormControl>
               <WithRef
                 render={(inputRef) => (

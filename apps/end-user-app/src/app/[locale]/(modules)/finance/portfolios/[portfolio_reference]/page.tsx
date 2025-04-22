@@ -11,6 +11,8 @@ import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
+import { useTab } from '@/hooks/useTab'
 import {
   Asset,
   CreateTransactionFormInputs,
@@ -60,7 +62,9 @@ import UpdateTransactionForm from './UpdateTransactionForm'
 import UpdateTransferForm from './UpdateTransferForm'
 
 export default function Page() {
-  const [tabValue, setTabValue] = React.useState<string>('overview')
+  const tab = useTab({
+    defaultValue: 'overview',
+  })
   const { enqueueNotification } = useNotification()
   const { portfolio_reference }: { portfolio_reference: string } = useParams()
   const router = useRouter()
@@ -75,10 +79,7 @@ export default function Page() {
 
   // Transactions
   const [transactions, setTransactions] = React.useState<Transaction[]>([])
-  const [transactionsCount, setTransactionsCount] = React.useState(0)
-  const [transactionsPage, setTransactionsPage] = React.useState(0)
-  const [transactionsRowsPerPage, setTransactionsRowsPerPage] =
-    React.useState(10)
+  const transactionsPagination = useOffsetPagination({})
   const [isFetchingTransactions, setIsFetchingTransactions] =
     React.useState(false)
   const createTransactionForm = useForm<CreateTransactionFormInputs>({
@@ -195,8 +196,8 @@ export default function Page() {
       `/v1/finance/portfolios/${portfolio_reference}/transactions`,
       {
         params: {
-          offset: transactionsPage * transactionsRowsPerPage,
-          limit: transactionsRowsPerPage,
+          offset: transactionsPagination.offset,
+          limit: transactionsPagination.rowsPerPage,
         },
         onError: () => {
           enqueueNotification(`Unable to fetch transactions now.`, 'error')
@@ -212,12 +213,12 @@ export default function Page() {
           metadata: any
         }) => {
           setTransactions(data)
-          setTransactionsCount(metadata.offset_pagination.count)
+          transactionsPagination.setCount(metadata.offset_pagination.count)
         },
       }
     )
     setIsFetchingTransactions(false)
-  }, [transactionsPage, transactionsRowsPerPage])
+  }, [transactionsPagination.offset, transactionsPagination.rowsPerPage])
 
   const handleSubmitCreateTransactionForm: SubmitHandler<
     CreateTransactionFormInputs
@@ -526,7 +527,7 @@ export default function Page() {
   }, [transactions])
 
   return (
-    <TabContext value={tabValue}>
+    <TabContext value={tab.value}>
       <Box sx={{ p: 2 }}>
         <Breadcrumbs>
           <MuiLink
@@ -570,7 +571,7 @@ export default function Page() {
               variant="scrollable"
               scrollButtons={false}
               onChange={(event: React.SyntheticEvent, newValue: string) => {
-                setTabValue(newValue)
+                tab.setValue(newValue)
               }}
             >
               <Tab label="總覽" value="overview" />
@@ -675,9 +676,7 @@ export default function Page() {
                       portfolio={portfolio}
                       transaction={transaction}
                       index={index}
-                      transactionsCount={transactionsCount}
-                      transactionsPage={transactionsPage}
-                      transactionsRowsPerPage={transactionsRowsPerPage}
+                      transactionsPagination={transactionsPagination}
                       timezone={timezone}
                       assetReferenceToAssetMap={assetReferenceToAssetMap}
                       updateTransactionForm={updateTransactionForm}
@@ -700,14 +699,7 @@ export default function Page() {
                 </StatefulTableBody>
               </Table>
             </TableContainer>
-            <TablePagination
-              count={transactionsCount}
-              page={transactionsPage}
-              rowsPerPage={transactionsRowsPerPage}
-              setPage={setTransactionsPage}
-              setRowsPerPage={setTransactionsRowsPerPage}
-              rowsPerPageOptions={[10, 20]}
-            />
+            <TablePagination offsetPagination={transactionsPagination} />
           </ModuleFunctionBody>
         </ModuleFunction>
       </TabPanel>

@@ -158,12 +158,15 @@ export default function Page() {
                         variant="outlined"
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <PersonOutlineIcon color="primary" />
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            autoComplete: 'off',
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <PersonOutlineIcon color="primary" />
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}
@@ -184,12 +187,15 @@ export default function Page() {
                         type="password"
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <LockOutlinedIcon color="primary" />
-                            </InputAdornment>
-                          ),
+                        slotProps={{
+                          input: {
+                            autoComplete: 'off',
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LockOutlinedIcon color="primary" />
+                              </InputAdornment>
+                            ),
+                          },
                         }}
                       />
                     )}

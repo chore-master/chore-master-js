@@ -9,6 +9,7 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type { CreateUserFormInputs, UserSummary } from '@/types/admin'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
@@ -27,19 +28,15 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
-import { useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
-  const router = useRouter()
 
   // User
   const [users, setUsers] = React.useState<UserSummary[]>([])
-  const [usersCount, setUsersCount] = React.useState(0)
-  const [usersPage, setUsersPage] = React.useState(0)
-  const [usersRowsPerPage, setUsersRowsPerPage] = React.useState(10)
+  const usersPagination = useOffsetPagination({})
   const [isFetchingUsers, setIsFetchingUsers] = React.useState(false)
   const [isCreateUserDrawerOpen, setIsCreateUserDrawerOpen] =
     React.useState(false)
@@ -49,8 +46,8 @@ export default function Page() {
     setIsFetchingUsers(true)
     await choreMasterAPIAgent.get('/v1/admin/users', {
       params: {
-        offset: usersPage * usersRowsPerPage,
-        limit: usersRowsPerPage,
+        offset: usersPagination.offset,
+        limit: usersPagination.rowsPerPage,
       },
       onError: () => {
         enqueueNotification(`Unable to fetch users now.`, 'error')
@@ -66,11 +63,11 @@ export default function Page() {
         metadata: any
       }) => {
         setUsers(data)
-        setUsersCount(metadata.offset_pagination.count)
+        usersPagination.setCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingUsers(false)
-  }, [usersPage, usersRowsPerPage])
+  }, [usersPagination.offset, usersPagination.rowsPerPage])
 
   const handleSubmitCreateUserForm: SubmitHandler<
     CreateUserFormInputs
@@ -149,7 +146,7 @@ export default function Page() {
                   <TableRow key={user.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {usersPage * usersRowsPerPage + index + 1}
+                        {usersPagination.offset + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{user.name}</NoWrapTableCell>
@@ -167,14 +164,7 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            count={usersCount}
-            page={usersPage}
-            rowsPerPage={usersRowsPerPage}
-            setPage={setUsersPage}
-            setRowsPerPage={setUsersRowsPerPage}
-            rowsPerPageOptions={[10, 20]}
-          />
+          <TablePagination offsetPagination={usersPagination} />
         </ModuleFunctionBody>
       </ModuleFunction>
 
