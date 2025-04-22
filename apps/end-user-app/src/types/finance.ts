@@ -85,50 +85,8 @@ export interface BalanceEntry {
   reference?: string
   balance_sheet_reference?: string
   account_reference: string
-  amount: number
+  amount: string
 }
-
-// Instrument
-
-// export interface Instrument {
-//   reference: string
-//   name: string
-//   quantity_decimals: number
-//   px_decimals: number
-//   instrument_type: string
-//   base_asset_reference?: string
-//   quote_asset_reference?: string
-//   settlement_asset_reference?: string
-//   underlying_asset_reference?: string
-//   staking_asset_reference?: string
-//   yielding_asset_reference?: string
-// }
-
-// export interface CreateInstrumentFormInputs {
-//   name: string
-//   quantity_decimals: number
-//   px_decimals: number
-//   instrument_type: string
-//   base_asset_reference?: string
-//   quote_asset_reference?: string
-//   settlement_asset_reference?: string
-//   underlying_asset_reference?: string
-//   staking_asset_reference?: string
-//   yielding_asset_reference?: string
-// }
-
-// export interface UpdateInstrumentFormInputs {
-//   name?: string
-//   quantity_decimals?: number
-//   px_decimals?: number
-//   instrument_type?: string
-//   base_asset_reference?: string
-//   quote_asset_reference?: string
-//   settlement_asset_reference?: string
-//   underlying_asset_reference?: string
-//   staking_asset_reference?: string
-//   yielding_asset_reference?: string
-// }
 
 // Portfolio
 

@@ -115,7 +115,7 @@ export default function Page() {
             const decimals = asset.decimals
             return {
               ...balance_entry,
-              amount: new Decimal(amount).times(10 ** decimals).toNumber(),
+              amount: new Decimal(amount).times(10 ** decimals).toFixed(),
             }
           }
         ),

@@ -6,6 +6,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import NumberBlock from '@/components/NumberBlock'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
@@ -318,8 +319,10 @@ export default function Page() {
           accountSettlementAssetSymbol,
           selectedSettleableAssetSymbol
         )
-        const value =
-          (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) * price
+        const value = new Decimal(balanceEntry.amount)
+          .dividedBy(10 ** accountSettlementAsset.decimals)
+          .times(price)
+          .toNumber()
         return {
           name: account.name,
           y: value,
@@ -575,8 +578,8 @@ export default function Page() {
                     decimals === undefined
                       ? 'N/A'
                       : new Decimal(balanceEntry.amount)
-                          .dividedBy(new Decimal(10 ** decimals))
-                          .toString()
+                          .dividedBy(10 ** decimals)
+                          .toFixed()
                   return (
                     <TableRow key={balanceEntry.reference} hover>
                       <NoWrapTableCell align="right">
@@ -587,7 +590,17 @@ export default function Page() {
                       <NoWrapTableCell>
                         <ReferenceBlock label={account?.name} foreignValue />
                       </NoWrapTableCell>
-                      <NoWrapTableCell align="right">{amount}</NoWrapTableCell>
+                      <NoWrapTableCell align="right">
+                        {decimals == undefined ? (
+                          amount
+                        ) : (
+                          <NumberBlock
+                            value={amount}
+                            fixedDecimals={decimals}
+                            hasCommas
+                          />
+                        )}
+                      </NoWrapTableCell>
                       <NoWrapTableCell>
                         <ReferenceBlock
                           label={settleableAsset?.name}

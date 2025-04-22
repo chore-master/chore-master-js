@@ -48,6 +48,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
+import { Decimal } from 'decimal.js'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { areaChartOptionsTemplate } from './optionsTemplate'
@@ -372,8 +373,10 @@ export default function Page() {
 
               return (
                 acc +
-                (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
-                  price
+                new Decimal(balanceEntry.amount)
+                  .dividedBy(10 ** accountSettlementAsset.decimals)
+                  .times(price)
+                  .toNumber()
               )
             }, 0)
           return [
@@ -448,8 +451,10 @@ export default function Page() {
               return [
                 new Date(`${balanceSheet.balanced_time}Z`).getTime() +
                   timezone.offsetInMinutes * 60 * 1000,
-                (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
-                  price,
+                new Decimal(balanceEntry.amount)
+                  .dividedBy(10 ** accountSettlementAsset.decimals)
+                  .times(price)
+                  .toNumber(),
               ]
             })
             return {
@@ -491,8 +496,10 @@ export default function Page() {
               return [
                 new Date(`${balanceSheet.balanced_time}Z`).getTime() +
                   timezone.offsetInMinutes * 60 * 1000,
-                (balanceEntry.amount / 10 ** accountSettlementAsset.decimals) *
-                  price,
+                new Decimal(balanceEntry.amount)
+                  .dividedBy(10 ** accountSettlementAsset.decimals)
+                  .times(price)
+                  .toNumber(),
               ]
             })
             return [
