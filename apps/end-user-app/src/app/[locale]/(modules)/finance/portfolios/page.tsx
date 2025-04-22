@@ -9,6 +9,7 @@ import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
+import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import { Asset, CreatePortfolioFormInputs, Portfolio } from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
@@ -36,9 +37,7 @@ export default function Page() {
 
   // Portfolios
   const [portfolios, setPortfolios] = React.useState<Portfolio[]>([])
-  const [portfoliosCount, setPortfoliosCount] = React.useState(0)
-  const [portfoliosPage, setPortfoliosPage] = React.useState(0)
-  const [portfoliosRowsPerPage, setPortfoliosRowsPerPage] = React.useState(10)
+  const portfoliosPagination = useOffsetPagination({})
   const [isFetchingPortfolios, setIsFetchingPortfolios] = React.useState(false)
   const [isCreatePortfolioDrawerOpen, setIsCreatePortfolioDrawerOpen] =
     React.useState(false)
@@ -53,8 +52,8 @@ export default function Page() {
     setIsFetchingPortfolios(true)
     await choreMasterAPIAgent.get('/v1/finance/portfolios', {
       params: {
-        offset: portfoliosPage * portfoliosRowsPerPage,
-        limit: portfoliosRowsPerPage,
+        offset: portfoliosPagination.offset,
+        limit: portfoliosPagination.rowsPerPage,
       },
       onError: () => {
         enqueueNotification(`Unable to fetch portfolios now.`, 'error')
@@ -64,11 +63,11 @@ export default function Page() {
       },
       onSuccess: async ({ data, metadata }: any) => {
         setPortfolios(data)
-        setPortfoliosCount(metadata.offset_pagination.count)
+        portfoliosPagination.setCount(metadata.offset_pagination.count)
       },
     })
     setIsFetchingPortfolios(false)
-  }, [portfoliosPage, portfoliosRowsPerPage])
+  }, [portfoliosPagination.offset, portfoliosPagination.rowsPerPage])
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -166,7 +165,7 @@ export default function Page() {
                   <TableRow key={portfolio.reference} hover>
                     <NoWrapTableCell align="right">
                       <PlaceholderTypography>
-                        {portfoliosPage * portfoliosRowsPerPage + index + 1}
+                        {portfoliosPagination.offset + index + 1}
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{portfolio.name}</NoWrapTableCell>
@@ -200,14 +199,7 @@ export default function Page() {
               </StatefulTableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            count={portfoliosCount}
-            page={portfoliosPage}
-            rowsPerPage={portfoliosRowsPerPage}
-            setPage={setPortfoliosPage}
-            setRowsPerPage={setPortfoliosRowsPerPage}
-            rowsPerPageOptions={[10, 20]}
-          />
+          <TablePagination offsetPagination={portfoliosPagination} />
         </ModuleFunctionBody>
       </ModuleFunction>
 

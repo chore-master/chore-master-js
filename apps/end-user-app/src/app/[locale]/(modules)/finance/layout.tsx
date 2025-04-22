@@ -92,7 +92,7 @@ export default function Layout({
           type: 'collapsible',
           isDefaultCollapsed: false,
           title: t('finance.navigations.myInvestment'),
-          isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
+          isVisible: auth.currentUserHasSomeOfRoles(['FREEMIUM']),
           getSelected: (isCollapsed: boolean, pathname: string) => {
             return (
               isCollapsed &&

@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { useTab } from '@/hooks/useTab'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
@@ -14,9 +15,12 @@ import Typography from '@mui/material/Typography'
 import React from 'react'
 
 export default function Page() {
-  const [tabValue, setTabValue] = React.useState<string>('tab1')
+  const tab = useTab({
+    defaultValue: 'tab1',
+  })
+
   return (
-    <TabContext value={tabValue}>
+    <TabContext value={tab.value}>
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader title="頁籤" />
       </ModuleFunction>
@@ -28,7 +32,7 @@ export default function Page() {
               variant="scrollable"
               scrollButtons={false}
               onChange={(event: React.SyntheticEvent, newValue: string) => {
-                setTabValue(newValue)
+                tab.setValue(newValue)
               }}
             >
               <Tab label="Tab 1" value="tab1" />
