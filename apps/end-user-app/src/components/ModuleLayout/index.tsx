@@ -7,6 +7,7 @@ import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
+import { mobileBreakpoint, sideNavWidth } from '@/constants'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -77,9 +78,6 @@ export interface ModuleLayoutProps {
   readonly loginRequired?: boolean
   readonly children: React.ReactNode
 }
-
-const sideNavWidth = 240
-const mobileBreakpoint = 320
 
 export default function ModuleLayout({
   moduleName,
