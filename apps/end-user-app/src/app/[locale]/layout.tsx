@@ -1,6 +1,7 @@
 import ThemeProvider from '@/components/ThemeProvider'
 import { TimezoneProvider } from '@/components/timezone'
 import { routing } from '@/i18n/routing'
+import { ModuleLayoutProvider } from '@/utils/moduleLayout'
 import { NotificationProvider } from '@/utils/notification'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
@@ -42,7 +43,9 @@ export default async function Layout({
           <AppRouterCacheProvider>
             <ThemeProvider>
               <NotificationProvider>
-                <TimezoneProvider>{children}</TimezoneProvider>
+                <TimezoneProvider>
+                  <ModuleLayoutProvider>{children}</ModuleLayoutProvider>
+                </TimezoneProvider>
               </NotificationProvider>
             </ThemeProvider>
           </AppRouterCacheProvider>
