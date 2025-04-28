@@ -7,7 +7,6 @@ import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import Container from '@mui/material/Container'
-import Drawer from '@mui/material/Drawer'
 import LinearProgress from '@mui/material/LinearProgress'
 import Paper from '@mui/material/Paper'
 import { useColorScheme, useTheme } from '@mui/material/styles'
@@ -90,39 +89,6 @@ export const ModuleSplitterPanel = ({
       <SplitterPanel size={size} style={style} {...props}>
         <Box sx={{ height: '100%' }}>{children}</Box>
       </SplitterPanel>
-    )
-  }
-}
-
-export const ModuleDrawerPanel = ({
-  open,
-  onClose,
-  anchor,
-  sx,
-  children,
-}: Readonly<{
-  open: boolean
-  onClose: () => void
-  anchor?: 'left' | 'right'
-  sx?: SxProps
-  children?: ReactNode
-}>) => {
-  const theme = useTheme()
-  const isUpSm = useMediaQuery(theme.breakpoints.up('md'))
-
-  if (isUpSm) {
-    if (open) {
-      return (
-        <Paper elevation={0} sx={{ height: '100%', ...sx }}>
-          {children}
-        </Paper>
-      )
-    }
-  } else {
-    return (
-      <Drawer open={open} onClose={onClose} anchor={anchor}>
-        <Box sx={sx}>{children}</Box>
-      </Drawer>
     )
   }
 }

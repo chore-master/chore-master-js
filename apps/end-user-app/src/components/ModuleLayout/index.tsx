@@ -7,7 +7,7 @@ import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
 import { useTimezone } from '@/components/timezone'
-import { mobileBreakpoint, sideNavWidth } from '@/constants'
+import { minSidePanelWidth, mobileBreakpoint, sideNavWidth } from '@/constants'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -36,7 +36,6 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import SwitchAccountIcon from '@mui/icons-material/SwitchAccount'
-import VisibilityOffSharpIcon from '@mui/icons-material/VisibilityOffSharp'
 import WidgetsIcon from '@mui/icons-material/Widgets'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
@@ -60,7 +59,7 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
-import { useColorScheme } from '@mui/material/styles'
+import { useColorScheme, useTheme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
@@ -92,6 +91,8 @@ export default function ModuleLayout({
   const { enqueueNotification } = useNotification()
   const t = useTranslations('components.ModuleLayout')
   const tModules = useTranslations('modules')
+  const theme = useTheme()
+  const isUpMd = useMediaQuery(theme.breakpoints.up('md'))
   const [isModulesDrawerOpen, setIsModulesDrawerOpen] =
     React.useState<boolean>(false)
   const [isNonMobileSideNavOpen, setIsNonMobileSideNavOpen] =
@@ -321,7 +322,7 @@ export default function ModuleLayout({
             overflow: 'auto',
             flexGrow: 1,
           }}
-          size={85}
+          size={80}
         >
           {isSideNavInMobileMode && (
             <Drawer
@@ -518,8 +519,11 @@ export default function ModuleLayout({
         <SplitterPanel
           style={{
             overflow: 'auto',
-            display: moduleLayout.isSidePanelOpen ? undefined : 'none',
+            display:
+              isUpMd && moduleLayout.isSidePanelOpen ? undefined : 'none',
+            minWidth: minSidePanelWidth,
           }}
+          size={20}
         >
           <Divider orientation="vertical" flexItem />
           <Stack
@@ -534,54 +538,22 @@ export default function ModuleLayout({
               // flexGrow: 1,
             })}
           >
-            <AppBar
-              position="sticky"
-              elevation={0}
-              sx={(theme) => ({
-                position: 'sticky',
-                top: 0,
-                backgroundColor: theme.palette.background.default,
-              })}
-            >
-              <Toolbar disableGutters>
-                <IconButton
-                  onClick={() => {
-                    moduleLayout.setIsSidePanelOpen(false)
-                  }}
-                >
-                  <VisibilityOffSharpIcon fontSize="small" />
-                </IconButton>
-                <Typography
-                  variant="caption"
-                  component="div"
-                  color="textPrimary"
-                >
-                  Title
-                </Typography>
-              </Toolbar>
-              <Divider />
-            </AppBar>
-            <List>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-              <ListItem>test</ListItem>
-            </List>
+            {moduleLayout.activeSidePanel?.content}
           </Stack>
         </SplitterPanel>
       </Splitter>
+
+      <Drawer
+        // closeAfterTransition={false}
+        open={!isUpMd && moduleLayout.isSidePanelOpen}
+        // variant="persistent"
+        anchor="right"
+        // onClose={() => {
+        //   moduleLayout.closeSidePanel()
+        // }}
+      >
+        {moduleLayout.activeSidePanel?.content}
+      </Drawer>
 
       <Dialog
         closeAfterTransition={false}
