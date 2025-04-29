@@ -49,8 +49,6 @@ export default function Page() {
   const [assets, setAssets] = React.useState<Asset[]>([])
   const assetsPagination = useOffsetPagination({})
   const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
-  const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
-    React.useState(false)
   const createAssetForm = useForm<CreateAssetFormInputs>()
   const [editingAssetReference, setEditingAssetReference] =
     React.useState<string>()
@@ -94,8 +92,8 @@ export default function Page() {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
+        moduleLayout.closeSidePanel()
         createAssetForm.reset()
-        setIsCreateAssetDrawerOpen(false)
         fetchAssets()
       },
     })
@@ -115,6 +113,7 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
+          moduleLayout.closeSidePanel()
           updateAssetForm.reset()
           setEditingAssetReference(undefined)
           fetchAssets()
