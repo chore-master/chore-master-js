@@ -5,6 +5,7 @@ import { usePrevious } from 'react-use'
 
 export interface SidePanel {
   id: string
+  // getContent: () => React.ReactNode
   content: React.ReactNode
 }
 
@@ -14,6 +15,9 @@ interface ModuleLayoutContextType {
   registerSidePanel: (panel: SidePanel) => void
   openSidePanel: (panelId: string) => void
   closeSidePanel: () => void
+  activePanelId: string | null
+  portalContainerRef: React.RefObject<HTMLDivElement> | null
+  setPortalContainerRef: (ref: React.RefObject<HTMLDivElement>) => void
 }
 
 const ModuleLayoutContext = React.createContext<ModuleLayoutContextType>({
@@ -22,9 +26,14 @@ const ModuleLayoutContext = React.createContext<ModuleLayoutContextType>({
   registerSidePanel: () => {},
   openSidePanel: () => {},
   closeSidePanel: () => {},
+  activePanelId: null,
+  portalContainerRef: null,
+  setPortalContainerRef: () => {},
 })
 
 export const ModuleLayoutProvider = (props: any) => {
+  const [portalContainerRef, setPortalContainerRef] =
+    React.useState<React.RefObject<HTMLDivElement> | null>(null)
   const [activePanelId, setActivePanelId] = React.useState<string | undefined>()
   // 為了避免關閉 Drawer 時畫面閃爍且無法流暢動畫，必須保留關閉前的 content
   const previousActivePanelId = usePrevious(activePanelId)
@@ -55,6 +64,9 @@ export const ModuleLayoutProvider = (props: any) => {
         registerSidePanel,
         openSidePanel,
         closeSidePanel,
+        activePanelId,
+        portalContainerRef,
+        setPortalContainerRef,
       }}
       {...props}
     />
@@ -69,5 +81,8 @@ export const useModuleLayout = () => {
     registerSidePanel: moduleLayoutContext.registerSidePanel,
     openSidePanel: moduleLayoutContext.openSidePanel,
     closeSidePanel: moduleLayoutContext.closeSidePanel,
+    activePanelId: moduleLayoutContext.activePanelId,
+    portalContainerRef: moduleLayoutContext.portalContainerRef,
+    setPortalContainerRef: moduleLayoutContext.setPortalContainerRef,
   }
 }

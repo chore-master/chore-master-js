@@ -6,6 +6,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
+import SidePanelWrapper from '@/components/SidePanelWrapper'
 import { useTimezone } from '@/components/timezone'
 import { minSidePanelWidth, mobileBreakpoint, sideNavWidth } from '@/constants'
 import { usePathname, useRouter } from '@/i18n/navigation'
@@ -121,6 +122,7 @@ export default function ModuleLayout({
   const timezone = useTimezone()
   const moduleLayout = useModuleLayout()
   const [currentDate, setCurrentDate] = React.useState(new Date())
+  const drawerPanelRef = React.useRef<HTMLDivElement | null>(null)
 
   const isMenuOpen = Boolean(anchorEl)
 
@@ -225,6 +227,12 @@ export default function ModuleLayout({
     ),
     [pathname, navigations]
   )
+
+  React.useEffect(() => {
+    if (!isUpMd) {
+      moduleLayout.setPortalContainerRef(drawerPanelRef)
+    }
+  }, [isUpMd])
 
   if (
     loginRequired &&
@@ -525,34 +533,30 @@ export default function ModuleLayout({
           }}
           size={20}
         >
-          <Divider orientation="vertical" flexItem />
-          <Stack
-            sx={(theme) => ({
-              // minWidth: sideNavWidth,
-              backgroundColor: theme.palette.background.default,
-              overflowX: 'auto',
-              // position: 'sticky',
-              // top: 0,
-              // height: 'calc(100vh - var(--scrollbar-width))',
-              height: '100vh',
-              // flexGrow: 1,
-            })}
-          >
-            {moduleLayout.activeSidePanel?.content}
-          </Stack>
+          <SidePanelWrapper />
         </SplitterPanel>
       </Splitter>
 
       <Drawer
         // closeAfterTransition={false}
-        open={!isUpMd && moduleLayout.isSidePanelOpen}
-        // variant="persistent"
+        // open={!isUpMd && moduleLayout.isSidePanelOpen}
+        open
+        // hideBackdrop={!(isUpMd || !moduleLayout.isSidePanelOpen)}
+        //   open={moduleLayout.isSidePanelOpen}
+        variant="persistent"
+        // variant="permanent"
         anchor="right"
+        elevation={16}
         // onClose={() => {
         //   moduleLayout.closeSidePanel()
         // }}
+        // slotProps={{
+        //   paper: {
+        //     ref: drawerPanelRef,
+        //   },
+        // }}
       >
-        {moduleLayout.activeSidePanel?.content}
+        <div ref={drawerPanelRef}>{moduleLayout.activeSidePanel?.content}</div>
       </Drawer>
 
       <Dialog

@@ -8,6 +8,7 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import SidePanel from '@/components/SidePanel'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
@@ -150,215 +151,6 @@ export default function Page() {
     fetchAssets()
   }, [fetchAssets])
 
-  React.useEffect(() => {
-    moduleLayout.registerSidePanel({
-      id: 'createAsset',
-      content: (
-        <React.Fragment>
-          {/* <AppBar
-            position="sticky"
-            elevation={0}
-            sx={(theme) => ({
-              position: 'sticky',
-              top: 0,
-              backgroundColor: theme.palette.background.default,
-            })}
-          >
-            <Toolbar disableGutters>
-              <IconButton
-                onClick={() => {
-                  moduleLayout.closeSidePanel()
-                }}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-              <Typography fontWeight="bold" component="div" color="textPrimary">
-                新增資產
-              </Typography>
-            </Toolbar>
-            <Divider />
-          </AppBar> */}
-          <CardHeader
-            title="新增資產"
-            action={
-              <IconButton onClick={() => moduleLayout.closeSidePanel()}>
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            }
-          />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={createAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名稱"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="symbol"
-                control={createAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="代號"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="decimals"
-                control={createAssetForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="精度"
-                    variant="filled"
-                    type="number"
-                    helperText="建立後無法變更"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={createAssetForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!createAssetForm.formState.isValid}
-              onClick={createAssetForm.handleSubmit(
-                handleSubmitCreateAssetForm
-              )}
-            >
-              新增
-            </AutoLoadingButton>
-          </Stack>
-        </React.Fragment>
-      ),
-    })
-
-    moduleLayout.registerSidePanel({
-      id: 'editAsset',
-      content: (
-        <React.Fragment>
-          <CardHeader
-            title="編輯資產"
-            action={
-              <IconButton
-                onClick={() => {
-                  moduleLayout.closeSidePanel()
-                }}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            }
-          />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={updateAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名稱"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="symbol"
-                control={updateAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="代號"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={updateAssetForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!updateAssetForm.formState.isValid}
-              onClick={updateAssetForm.handleSubmit(
-                handleSubmitUpdateAssetForm
-              )}
-            >
-              儲存
-            </AutoLoadingButton>
-          </Stack>
-        </React.Fragment>
-      ),
-    })
-  }, [])
-
   return (
     <ModuleFunction>
       <ModuleFunctionHeader
@@ -458,6 +250,179 @@ export default function Page() {
         </TableContainer>
         <TablePagination offsetPagination={assetsPagination} />
       </ModuleFunctionBody>
+
+      <SidePanel id="createAsset">
+        {/* <AppBar
+            position="sticky"
+            elevation={0}
+            sx={(theme) => ({
+              position: 'sticky',
+              top: 0,
+              backgroundColor: theme.palette.background.default,
+            })}
+          >
+            <Toolbar disableGutters>
+              <IconButton
+                onClick={() => {
+                  moduleLayout.closeSidePanel()
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+              <Typography fontWeight="bold" component="div" color="textPrimary">
+                新增資產
+              </Typography>
+            </Toolbar>
+            <Divider />
+          </AppBar> */}
+        <CardHeader
+          title="新增資產"
+          action={
+            <IconButton onClick={() => moduleLayout.closeSidePanel()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
+              control={createAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="名稱" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="symbol"
+              control={createAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="代號" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="decimals"
+              control={createAssetForm.control}
+              defaultValue={0}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  required
+                  label="精度"
+                  variant="filled"
+                  type="number"
+                  helperText="建立後無法變更"
+                />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="is_settleable"
+              control={createAssetForm.control}
+              defaultValue={false}
+              render={({ field }) => (
+                <FormControlLabel
+                  label="可結算"
+                  control={<Checkbox {...field} checked={field.value} />}
+                />
+              )}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!createAssetForm.formState.isValid}
+            onClick={createAssetForm.handleSubmit(handleSubmitCreateAssetForm)}
+          >
+            新增
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
+
+      <SidePanel id="editAsset">
+        <CardHeader
+          title="編輯資產"
+          action={
+            <IconButton
+              onClick={() => {
+                moduleLayout.closeSidePanel()
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
+              control={updateAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="名稱" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="symbol"
+              control={updateAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="代號" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="is_settleable"
+              control={updateAssetForm.control}
+              defaultValue={false}
+              render={({ field }) => (
+                <FormControlLabel
+                  label="可結算"
+                  control={<Checkbox {...field} checked={field.value} />}
+                />
+              )}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!updateAssetForm.formState.isValid}
+            onClick={updateAssetForm.handleSubmit(handleSubmitUpdateAssetForm)}
+          >
+            儲存
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
     </ModuleFunction>
   )
 }
