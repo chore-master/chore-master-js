@@ -1,12 +1,15 @@
 import AutoLoadingButton from '@/components/AutoLoadingButton'
+import { useSidePanel } from '@/components/SidePanel'
 import WithRef from '@/components/WithRef'
 import { CreateTransactionFormInputs } from '@/types/finance'
 import { validateDatetimeField } from '@/utils/validation'
-import Box from '@mui/material/Box'
+import CloseIcon from '@mui/icons-material/Close'
 import CardHeader from '@mui/material/CardHeader'
 import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
+import React from 'react'
 import { Controller, SubmitHandler, UseFormReturn } from 'react-hook-form'
 
 export default function CreateTransactionForm({
@@ -18,9 +21,17 @@ export default function CreateTransactionForm({
   timezone: any
   handleSubmitCreateTransactionForm: SubmitHandler<CreateTransactionFormInputs>
 }) {
+  const sidePanel = useSidePanel()
   return (
-    <Box sx={{ minWidth: 320 }}>
-      <CardHeader title="新增交易" />
+    <React.Fragment>
+      <CardHeader
+        title="新增交易"
+        action={
+          <IconButton onClick={() => sidePanel.close()}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
       <Stack
         component="form"
         spacing={3}
@@ -111,6 +122,6 @@ export default function CreateTransactionForm({
           新增
         </AutoLoadingButton>
       </Stack>
-    </Box>
+    </React.Fragment>
   )
 }

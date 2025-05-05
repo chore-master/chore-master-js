@@ -2,6 +2,7 @@ import DatetimeBlock from '@/components/DatetimeBlock'
 import NumberBlock from '@/components/NumberBlock'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell } from '@/components/Table'
 import { financeTransferFlowTypes } from '@/constants'
 import {
@@ -38,7 +39,6 @@ export default function TransactionRow({
   updateTransferForm,
   setEditingTransactionReference,
   setFocusedTransactionReference,
-  setIsCreateTransferDrawerOpen,
   setEditingTransferReference,
   deleteTransaction,
   deleteTransfer,
@@ -54,7 +54,6 @@ export default function TransactionRow({
   updateTransferForm: UseFormReturn<UpdateTransferFormInputs>
   setEditingTransactionReference: (reference: string) => void
   setFocusedTransactionReference: (reference: string) => void
-  setIsCreateTransferDrawerOpen: (isOpen: boolean) => void
   setEditingTransferReference: (reference: string) => void
   deleteTransaction: (transactionReference: string) => void
   deleteTransfer: (
@@ -62,6 +61,7 @@ export default function TransactionRow({
     transferReference: string
   ) => void
 }) {
+  const sidePanel = useSidePanel()
   const [isOpen, setIsOpen] = React.useState(false)
   const settlementAsset =
     assetReferenceToAssetMap[portfolio?.settlement_asset_reference as string]
@@ -188,7 +188,7 @@ export default function TransactionRow({
                 remark: '',
               })
               setFocusedTransactionReference(transaction.reference)
-              setIsCreateTransferDrawerOpen(true)
+              sidePanel.open('createTransfer')
             }}
           >
             <AddIcon />
@@ -205,6 +205,7 @@ export default function TransactionRow({
                 remark: transaction.remark,
               })
               setEditingTransactionReference(transaction.reference)
+              sidePanel.open('updateTransaction')
             }}
           >
             <EditIcon />
@@ -308,6 +309,7 @@ export default function TransactionRow({
                     })
                     setFocusedTransactionReference(transaction.reference)
                     setEditingTransferReference(transfer.reference)
+                    sidePanel.open('updateTransfer')
                   }}
                 >
                   <EditIcon />

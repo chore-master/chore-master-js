@@ -9,6 +9,7 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import SidePanel, { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
@@ -33,7 +34,6 @@ import TabPanel from '@mui/lab/TabPanel'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Button from '@mui/material/Button/Button'
-import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import MuiLink from '@mui/material/Link'
@@ -67,6 +67,7 @@ export default function Page() {
   })
   const { enqueueNotification } = useNotification()
   const { portfolio_reference }: { portfolio_reference: string } = useParams()
+  const sidePanel = useSidePanel()
   const router = useRouter()
   const timezone = useTimezone()
 
@@ -85,8 +86,6 @@ export default function Page() {
   const createTransactionForm = useForm<CreateTransactionFormInputs>({
     mode: 'all',
   })
-  const [isCreateTransactionDrawerOpen, setIsCreateTransactionDrawerOpen] =
-    React.useState(false)
   const [editingTransactionReference, setEditingTransactionReference] =
     React.useState<string | null>(null)
   const [focusedTransactionReference, setFocusedTransactionReference] =
@@ -99,8 +98,6 @@ export default function Page() {
   const createTransferForm = useForm<CreateTransferFormInputs>({
     mode: 'all',
   })
-  const [isCreateTransferDrawerOpen, setIsCreateTransferDrawerOpen] =
-    React.useState(false)
   const [editingTransferReference, setEditingTransferReference] =
     React.useState<string | null>(null)
   const updateTransferForm = useForm<UpdateTransferFormInputs>({
@@ -243,8 +240,8 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
+          sidePanel.close()
           fetchTransactions()
-          setIsCreateTransactionDrawerOpen(false)
         },
       }
     )
@@ -273,8 +270,9 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          fetchTransactions()
           setEditingTransactionReference(null)
+          sidePanel.close()
+          fetchTransactions()
         },
       }
     )
@@ -352,8 +350,8 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
+          sidePanel.close()
           fetchTransactions()
-          setIsCreateTransferDrawerOpen(false)
         },
       }
     )
@@ -405,8 +403,9 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          fetchTransactions()
           setEditingTransferReference(null)
+          sidePanel.close()
+          fetchTransactions()
         },
       }
     )
@@ -631,7 +630,7 @@ export default function Page() {
                 startIcon={<AddIcon />}
                 onClick={() => {
                   createTransactionForm.reset({})
-                  setIsCreateTransactionDrawerOpen(true)
+                  sidePanel.open('createTransaction')
                 }}
               >
                 新增
@@ -641,7 +640,7 @@ export default function Page() {
           <ModuleFunctionBody
             loading={
               isFetchingTransactions ||
-              (!isCreateTransferDrawerOpen &&
+              (sidePanel.activeId !== 'createTransfer' &&
                 !editingTransferReference &&
                 isFetchingAssets)
             }
@@ -687,9 +686,6 @@ export default function Page() {
                       }
                       setFocusedTransactionReference={
                         setFocusedTransactionReference
-                      }
-                      setIsCreateTransferDrawerOpen={
-                        setIsCreateTransferDrawerOpen
                       }
                       setEditingTransferReference={setEditingTransferReference}
                       deleteTransaction={deleteTransaction}
@@ -792,38 +788,23 @@ export default function Page() {
         </ModuleFunction>
       </TabPanel>
 
-      <Drawer
-        closeAfterTransition={false}
-        anchor="right"
-        open={isCreateTransactionDrawerOpen}
-        onClose={() => setIsCreateTransactionDrawerOpen(false)}
-      >
+      <SidePanel id="createTransaction">
         <CreateTransactionForm
           createTransactionForm={createTransactionForm}
           timezone={timezone}
           handleSubmitCreateTransactionForm={handleSubmitCreateTransactionForm}
         />
-      </Drawer>
+      </SidePanel>
 
-      <Drawer
-        closeAfterTransition={false}
-        anchor="right"
-        open={editingTransactionReference !== null}
-        onClose={() => setEditingTransactionReference(null)}
-      >
+      <SidePanel id="updateTransaction">
         <UpdateTransactionForm
           updateTransactionForm={updateTransactionForm}
           timezone={timezone}
           handleSubmitUpdateTransactionForm={handleSubmitUpdateTransactionForm}
         />
-      </Drawer>
+      </SidePanel>
 
-      <Drawer
-        closeAfterTransition={false}
-        anchor="right"
-        open={isCreateTransferDrawerOpen}
-        onClose={() => setIsCreateTransferDrawerOpen(false)}
-      >
+      <SidePanel id="createTransfer">
         <CreateTransferForm
           portfolio={portfolio}
           createTransferForm={createTransferForm}
@@ -835,14 +816,9 @@ export default function Page() {
           fetchAssets={fetchAssets}
           handleSubmitCreateTransferForm={handleSubmitCreateTransferForm}
         />
-      </Drawer>
+      </SidePanel>
 
-      <Drawer
-        closeAfterTransition={false}
-        anchor="right"
-        open={editingTransferReference !== null}
-        onClose={() => setEditingTransferReference(null)}
-      >
+      <SidePanel id="updateTransfer">
         <UpdateTransferForm
           portfolio={portfolio}
           updateTransferForm={updateTransferForm}
@@ -854,7 +830,7 @@ export default function Page() {
           fetchAssets={fetchAssets}
           handleSubmitUpdateTransferForm={handleSubmitUpdateTransferForm}
         />
-      </Drawer>
+      </SidePanel>
     </TabContext>
   )
 }
