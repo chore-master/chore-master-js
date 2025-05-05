@@ -8,6 +8,7 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import SidePanel, { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
@@ -20,14 +21,13 @@ import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
+import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
 import Checkbox from '@mui/material/Checkbox'
-import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
@@ -43,13 +43,12 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
+  const sidePanel = useSidePanel()
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
   const assetsPagination = useOffsetPagination({})
   const [isFetchingAssets, setIsFetchingAssets] = React.useState(false)
-  const [isCreateAssetDrawerOpen, setIsCreateAssetDrawerOpen] =
-    React.useState(false)
   const createAssetForm = useForm<CreateAssetFormInputs>()
   const [editingAssetReference, setEditingAssetReference] =
     React.useState<string>()
@@ -93,8 +92,8 @@ export default function Page() {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
+        sidePanel.close()
         createAssetForm.reset()
-        setIsCreateAssetDrawerOpen(false)
         fetchAssets()
       },
     })
@@ -114,6 +113,7 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
+          sidePanel.close()
           updateAssetForm.reset()
           setEditingAssetReference(undefined)
           fetchAssets()
@@ -151,271 +151,277 @@ export default function Page() {
   }, [fetchAssets])
 
   return (
-    <React.Fragment>
-      <ModuleFunction>
-        <ModuleFunctionHeader
-          title="資產"
-          actions={[
-            <Tooltip key="refresh" title="立即重整">
-              <span>
-                <IconButton onClick={fetchAssets} disabled={isFetchingAssets}>
-                  <RefreshIcon />
-                </IconButton>
-              </span>
-            </Tooltip>,
-            <Button
-              key="create"
-              variant="contained"
-              startIcon={<AddIcon />}
+    <ModuleFunction>
+      <ModuleFunctionHeader
+        title="資產"
+        actions={[
+          <Tooltip key="refresh" title="立即重整">
+            <span>
+              <IconButton onClick={fetchAssets} disabled={isFetchingAssets}>
+                <RefreshIcon />
+              </IconButton>
+            </span>
+          </Tooltip>,
+          <Button
+            key="create"
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => {
+              createAssetForm.reset()
+              sidePanel.open('createAsset')
+            }}
+          >
+            新增
+          </Button>,
+        ]}
+      />
+      <ModuleFunctionBody loading={isFetchingAssets}>
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <NoWrapTableCell align="right">
+                  <PlaceholderTypography>#</PlaceholderTypography>
+                </NoWrapTableCell>
+                <NoWrapTableCell>名稱</NoWrapTableCell>
+                <NoWrapTableCell>代號</NoWrapTableCell>
+                <NoWrapTableCell>精度</NoWrapTableCell>
+                <NoWrapTableCell>可結算</NoWrapTableCell>
+                <NoWrapTableCell>系統識別碼</NoWrapTableCell>
+                <NoWrapTableCell align="right">操作</NoWrapTableCell>
+              </TableRow>
+            </TableHead>
+            <StatefulTableBody
+              isLoading={isFetchingAssets}
+              isEmpty={assets.length === 0}
+            >
+              {assets.map((asset, index) => (
+                <TableRow key={asset.reference} hover>
+                  <NoWrapTableCell align="right">
+                    <PlaceholderTypography>
+                      {assetsPagination.offset + index + 1}
+                    </PlaceholderTypography>
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>{asset.name}</NoWrapTableCell>
+                  <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
+                  <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {asset.is_settleable ? (
+                      <CheckBoxIcon color="disabled" />
+                    ) : (
+                      <CheckBoxOutlineBlankIcon color="disabled" />
+                    )}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    <ReferenceBlock
+                      label={asset.reference}
+                      primaryKey
+                      monospace
+                    />
+                  </NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        updateAssetForm.setValue('name', asset.name)
+                        updateAssetForm.setValue('symbol', asset.symbol)
+                        updateAssetForm.setValue(
+                          'is_settleable',
+                          asset.is_settleable
+                        )
+                        setEditingAssetReference(asset.reference)
+                        sidePanel.open('editAsset')
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => deleteAsset(asset.reference)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </NoWrapTableCell>
+                </TableRow>
+              ))}
+            </StatefulTableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination offsetPagination={assetsPagination} />
+      </ModuleFunctionBody>
+
+      <SidePanel id="createAsset">
+        {/* <AppBar
+            position="sticky"
+            elevation={0}
+            sx={(theme) => ({
+              position: 'sticky',
+              top: 0,
+              backgroundColor: theme.palette.background.default,
+            })}
+          >
+            <Toolbar disableGutters>
+              <IconButton
+                onClick={() => {
+                  moduleLayout.close()
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+              <Typography fontWeight="bold" component="div" color="textPrimary">
+                新增資產
+              </Typography>
+            </Toolbar>
+            <Divider />
+          </AppBar> */}
+        <CardHeader
+          title="新增資產"
+          action={
+            <IconButton onClick={() => sidePanel.close()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
+              control={createAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="名稱" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="symbol"
+              control={createAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="代號" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="decimals"
+              control={createAssetForm.control}
+              defaultValue={0}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  required
+                  label="精度"
+                  variant="filled"
+                  type="number"
+                  helperText="建立後無法變更"
+                />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="is_settleable"
+              control={createAssetForm.control}
+              defaultValue={false}
+              render={({ field }) => (
+                <FormControlLabel
+                  label="可結算"
+                  control={<Checkbox {...field} checked={field.value} />}
+                />
+              )}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!createAssetForm.formState.isValid}
+            onClick={createAssetForm.handleSubmit(handleSubmitCreateAssetForm)}
+          >
+            新增
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
+
+      <SidePanel id="editAsset">
+        <CardHeader
+          title="編輯資產"
+          action={
+            <IconButton
               onClick={() => {
-                createAssetForm.reset()
-                setIsCreateAssetDrawerOpen(true)
+                sidePanel.close()
               }}
             >
-              新增
-            </Button>,
-          ]}
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
         />
-        <ModuleFunctionBody loading={isFetchingAssets}>
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <NoWrapTableCell align="right">
-                    <PlaceholderTypography>#</PlaceholderTypography>
-                  </NoWrapTableCell>
-                  <NoWrapTableCell>名稱</NoWrapTableCell>
-                  <NoWrapTableCell>代號</NoWrapTableCell>
-                  <NoWrapTableCell>精度</NoWrapTableCell>
-                  <NoWrapTableCell>可結算</NoWrapTableCell>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
-                </TableRow>
-              </TableHead>
-              <StatefulTableBody
-                isLoading={isFetchingAssets}
-                isEmpty={assets.length === 0}
-              >
-                {assets.map((asset, index) => (
-                  <TableRow key={asset.reference} hover>
-                    <NoWrapTableCell align="right">
-                      <PlaceholderTypography>
-                        {assetsPagination.offset + index + 1}
-                      </PlaceholderTypography>
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>{asset.name}</NoWrapTableCell>
-                    <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
-                    <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
-                    <NoWrapTableCell>
-                      {asset.is_settleable ? (
-                        <CheckBoxIcon color="disabled" />
-                      ) : (
-                        <CheckBoxOutlineBlankIcon color="disabled" />
-                      )}
-                    </NoWrapTableCell>
-                    <NoWrapTableCell>
-                      <ReferenceBlock
-                        label={asset.reference}
-                        primaryKey
-                        monospace
-                      />
-                    </NoWrapTableCell>
-                    <NoWrapTableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          updateAssetForm.setValue('name', asset.name)
-                          updateAssetForm.setValue('symbol', asset.symbol)
-                          updateAssetForm.setValue(
-                            'is_settleable',
-                            asset.is_settleable
-                          )
-                          setEditingAssetReference(asset.reference)
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => deleteAsset(asset.reference)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </NoWrapTableCell>
-                  </TableRow>
-                ))}
-              </StatefulTableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination offsetPagination={assetsPagination} />
-        </ModuleFunctionBody>
-      </ModuleFunction>
-
-      <Drawer
-        anchor="right"
-        open={isCreateAssetDrawerOpen}
-        onClose={() => setIsCreateAssetDrawerOpen(false)}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增資產" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={createAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名稱"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="symbol"
-                control={createAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="代號"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="decimals"
-                control={createAssetForm.control}
-                defaultValue={0}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="精度"
-                    variant="filled"
-                    type="number"
-                    helperText="建立後無法變更"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={createAssetForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              onClick={createAssetForm.handleSubmit(
-                handleSubmitCreateAssetForm
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
+              control={updateAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="名稱" variant="filled" />
               )}
-            >
-              新增
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
-
-      <Drawer
-        anchor="right"
-        open={editingAssetReference !== undefined}
-        onClose={() => setEditingAssetReference(undefined)}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯資產" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={updateAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名稱"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="symbol"
-                control={updateAssetForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="代號"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="is_settleable"
-                control={updateAssetForm.control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <FormControlLabel
-                    label="可結算"
-                    control={<Checkbox {...field} checked={field.value} />}
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              onClick={updateAssetForm.handleSubmit(
-                handleSubmitUpdateAssetForm
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="symbol"
+              control={updateAssetForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="代號" variant="filled" />
               )}
-            >
-              儲存
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
-    </React.Fragment>
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="is_settleable"
+              control={updateAssetForm.control}
+              defaultValue={false}
+              render={({ field }) => (
+                <FormControlLabel
+                  label="可結算"
+                  control={<Checkbox {...field} checked={field.value} />}
+                />
+              )}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!updateAssetForm.formState.isValid}
+            onClick={updateAssetForm.handleSubmit(handleSubmitUpdateAssetForm)}
+          >
+            儲存
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
+    </ModuleFunction>
   )
 }

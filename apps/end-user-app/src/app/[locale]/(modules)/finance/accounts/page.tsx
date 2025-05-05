@@ -9,6 +9,7 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import SidePanel, { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
@@ -23,6 +24,7 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { validateDatetimeField } from '@/utils/validation'
 import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -30,7 +32,6 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
@@ -46,6 +47,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
+  const sidePanel = useSidePanel()
 
   // Asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
@@ -56,8 +58,6 @@ export default function Page() {
   const [accounts, setAccounts] = React.useState<Account[]>([])
   const accountsPagination = useOffsetPagination({})
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
-  const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
-    React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>({ mode: 'all' })
   const [editingAccountReference, setEditingAccountReference] =
     React.useState<string>()
@@ -131,8 +131,8 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
+          sidePanel.close()
           createAccountForm.reset()
-          setIsCreateAccountDrawerOpen(false)
           fetchAccounts()
         },
       }
@@ -163,6 +163,7 @@ export default function Page() {
         onSuccess: () => {
           updateAccountForm.reset()
           setEditingAccountReference(undefined)
+          sidePanel.close()
           fetchAccounts()
         },
       }
@@ -223,7 +224,7 @@ export default function Page() {
               startIcon={<AddIcon />}
               onClick={() => {
                 createAccountForm.reset()
-                setIsCreateAccountDrawerOpen(true)
+                sidePanel.open('createAccount')
               }}
             >
               新增
@@ -308,6 +309,7 @@ export default function Page() {
                               : ''
                           )
                           setEditingAccountReference(account.reference)
+                          sidePanel.open('editAccount')
                         }}
                       >
                         <EditIcon />
@@ -328,293 +330,281 @@ export default function Page() {
         </ModuleFunctionBody>
       </ModuleFunction>
 
-      <Drawer
-        anchor="right"
-        open={isCreateAccountDrawerOpen}
-        onClose={() => setIsCreateAccountDrawerOpen(false)}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增帳戶" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={createAccountForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名字"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <WithRef
-                render={(inputRef) => (
-                  <Controller
-                    name="opened_time"
-                    control={createAccountForm.control}
-                    defaultValue={timezone
-                      .getLocalDate(new Date())
-                      .toISOString()
-                      .slice(0, -5)}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        inputRef={inputRef}
-                        required
-                        label="開戶時間"
-                        variant="filled"
-                        type="datetime-local"
-                        slotProps={{
-                          htmlInput: {
-                            step: 1,
-                          },
-                        }}
-                        error={!!createAccountForm.formState.errors.opened_time}
-                        helperText={
-                          createAccountForm.formState.errors.opened_time
-                            ?.message
-                        }
-                      />
-                    )}
-                    rules={{
-                      validate: (value) =>
-                        validateDatetimeField(value, inputRef, true),
-                    }}
-                  />
-                )}
-              />
-            </FormControl>
-            <FormControl>
-              <WithRef
-                render={(inputRef) => (
-                  <Controller
-                    name="closed_time"
-                    control={createAccountForm.control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        inputRef={inputRef}
-                        label="關戶時間"
-                        variant="filled"
-                        type="datetime-local"
-                        slotProps={{
-                          htmlInput: {
-                            step: 1,
-                          },
-                        }}
-                        error={!!createAccountForm.formState.errors.closed_time}
-                        helperText={
-                          createAccountForm.formState.errors.closed_time
-                            ?.message
-                        }
-                      />
-                    )}
-                    rules={{
-                      validate: (value) =>
-                        validateDatetimeField(value, inputRef, false),
-                    }}
-                  />
-                )}
-              />
-            </FormControl>
-            <FormControl fullWidth>
-              <Controller
-                name="settlement_asset_reference"
-                control={createAccountForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    value={
-                      settleableAssets.find(
-                        (asset) => asset.reference === field.value
-                      ) ?? null
-                    }
-                    onChange={(_event, value) => {
-                      field.onChange(value?.reference ?? '')
-                    }}
-                    // onOpen={() => {
-                    //   if (assets.length === 0) {
-                    //     fetchAssets()
-                    //   }
-                    // }}
-                    isOptionEqualToValue={(option, value) =>
-                      option.reference === value.reference
-                    }
-                    getOptionLabel={(option) => option.name}
-                    options={settleableAssets}
-                    autoHighlight
-                    loading={isFetchingSettleableAssets}
-                    // loadingText="載入中..."
-                    // noOptionsText="沒有符合的選項"
-                    renderOption={(props, option) => {
-                      const { key, ...optionProps } = props as {
-                        key: React.Key
+      <SidePanel id="createAccount">
+        <CardHeader
+          title="新增帳戶"
+          action={
+            <IconButton onClick={() => sidePanel.close()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
+              control={createAccountForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="名字" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <WithRef
+              render={(inputRef) => (
+                <Controller
+                  name="opened_time"
+                  control={createAccountForm.control}
+                  defaultValue={timezone
+                    .getLocalDate(new Date())
+                    .toISOString()
+                    .slice(0, -5)}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      inputRef={inputRef}
+                      required
+                      label="開戶時間"
+                      variant="filled"
+                      type="datetime-local"
+                      slotProps={{
+                        htmlInput: {
+                          step: 1,
+                        },
+                      }}
+                      error={!!createAccountForm.formState.errors.opened_time}
+                      helperText={
+                        createAccountForm.formState.errors.opened_time?.message
                       }
-                      return (
-                        <Box key={key} component="li" {...optionProps}>
-                          <ReferenceBlock label={option.name} foreignValue />
-                        </Box>
-                      )
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="結算資產"
-                        variant="filled"
-                        size="small"
-                        helperText="建立後無法變更"
-                        required
-                      />
-                    )}
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!createAccountForm.formState.isValid}
-              onClick={createAccountForm.handleSubmit(
-                handleSubmitCreateAccountForm
+                    />
+                  )}
+                  rules={{
+                    validate: (value) =>
+                      validateDatetimeField(value, inputRef, true),
+                  }}
+                />
               )}
-            >
-              新增
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
-
-      <Drawer
-        anchor="right"
-        open={editingAccountReference !== undefined}
-        onClose={() => setEditingAccountReference(undefined)}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯帳戶" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
+            />
+          </FormControl>
+          <FormControl>
+            <WithRef
+              render={(inputRef) => (
+                <Controller
+                  name="closed_time"
+                  control={createAccountForm.control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      inputRef={inputRef}
+                      label="關戶時間"
+                      variant="filled"
+                      type="datetime-local"
+                      slotProps={{
+                        htmlInput: {
+                          step: 1,
+                        },
+                      }}
+                      error={!!createAccountForm.formState.errors.closed_time}
+                      helperText={
+                        createAccountForm.formState.errors.closed_time?.message
+                      }
+                    />
+                  )}
+                  rules={{
+                    validate: (value) =>
+                      validateDatetimeField(value, inputRef, false),
+                  }}
+                />
+              )}
+            />
+          </FormControl>
+          <FormControl fullWidth>
+            <Controller
+              name="settlement_asset_reference"
+              control={createAccountForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <Autocomplete
+                  {...field}
+                  value={
+                    settleableAssets.find(
+                      (asset) => asset.reference === field.value
+                    ) ?? null
+                  }
+                  onChange={(_event, value) => {
+                    field.onChange(value?.reference ?? '')
+                  }}
+                  // onOpen={() => {
+                  //   if (assets.length === 0) {
+                  //     fetchAssets()
+                  //   }
+                  // }}
+                  isOptionEqualToValue={(option, value) =>
+                    option.reference === value.reference
+                  }
+                  getOptionLabel={(option) => option.name}
+                  options={settleableAssets}
+                  autoHighlight
+                  loading={isFetchingSettleableAssets}
+                  // loadingText="載入中..."
+                  // noOptionsText="沒有符合的選項"
+                  renderOption={(props, option) => {
+                    const { key, ...optionProps } = props as {
+                      key: React.Key
+                    }
+                    return (
+                      <Box key={key} component="li" {...optionProps}>
+                        <ReferenceBlock label={option.name} foreignValue />
+                      </Box>
+                    )
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="結算資產"
+                      variant="filled"
+                      size="small"
+                      helperText="建立後無法變更"
+                      required
+                    />
+                  )}
+                />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!createAccountForm.formState.isValid}
+            onClick={createAccountForm.handleSubmit(
+              handleSubmitCreateAccountForm
+            )}
           >
-            <FormControl>
-              <Controller
-                name="name"
-                control={updateAccountForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名字"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <WithRef
-                render={(inputRef) => (
-                  <Controller
-                    name="opened_time"
-                    control={updateAccountForm.control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        inputRef={inputRef}
-                        required
-                        label="開戶時間"
-                        variant="filled"
-                        type="datetime-local"
-                        slotProps={{
-                          htmlInput: {
-                            step: 1,
-                          },
-                        }}
-                        error={!!updateAccountForm.formState.errors.opened_time}
-                        helperText={
-                          updateAccountForm.formState.errors.opened_time
-                            ?.message
-                        }
-                      />
-                    )}
-                    rules={{
-                      validate: (value) =>
-                        validateDatetimeField(value, inputRef, true),
-                    }}
-                  />
-                )}
-              />
-            </FormControl>
-            <FormControl>
-              <WithRef
-                render={(inputRef) => (
-                  <Controller
-                    name="closed_time"
-                    control={updateAccountForm.control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        inputRef={inputRef}
-                        label="關戶時間"
-                        variant="filled"
-                        type="datetime-local"
-                        slotProps={{
-                          htmlInput: {
-                            step: 1,
-                          },
-                        }}
-                        error={!!updateAccountForm.formState.errors.closed_time}
-                        helperText={
-                          updateAccountForm.formState.errors.closed_time
-                            ?.message
-                        }
-                      />
-                    )}
-                    rules={{
-                      validate: (value) =>
-                        validateDatetimeField(value, inputRef, false),
-                    }}
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!updateAccountForm.formState.isValid}
-              onClick={updateAccountForm.handleSubmit(
-                handleSubmitUpdateAccountForm
+            新增
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
+
+      <SidePanel id="editAccount">
+        <CardHeader
+          title="編輯帳戶"
+          action={
+            <IconButton onClick={() => sidePanel.close()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
+              control={updateAccountForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="名字" variant="filled" />
               )}
-            >
-              儲存
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <WithRef
+              render={(inputRef) => (
+                <Controller
+                  name="opened_time"
+                  control={updateAccountForm.control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      inputRef={inputRef}
+                      required
+                      label="開戶時間"
+                      variant="filled"
+                      type="datetime-local"
+                      slotProps={{
+                        htmlInput: {
+                          step: 1,
+                        },
+                      }}
+                      error={!!updateAccountForm.formState.errors.opened_time}
+                      helperText={
+                        updateAccountForm.formState.errors.opened_time?.message
+                      }
+                    />
+                  )}
+                  rules={{
+                    validate: (value) =>
+                      validateDatetimeField(value, inputRef, true),
+                  }}
+                />
+              )}
+            />
+          </FormControl>
+          <FormControl>
+            <WithRef
+              render={(inputRef) => (
+                <Controller
+                  name="closed_time"
+                  control={updateAccountForm.control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      inputRef={inputRef}
+                      label="關戶時間"
+                      variant="filled"
+                      type="datetime-local"
+                      slotProps={{
+                        htmlInput: {
+                          step: 1,
+                        },
+                      }}
+                      error={!!updateAccountForm.formState.errors.closed_time}
+                      helperText={
+                        updateAccountForm.formState.errors.closed_time?.message
+                      }
+                    />
+                  )}
+                  rules={{
+                    validate: (value) =>
+                      validateDatetimeField(value, inputRef, false),
+                  }}
+                />
+              )}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!updateAccountForm.formState.isValid}
+            onClick={updateAccountForm.handleSubmit(
+              handleSubmitUpdateAccountForm
+            )}
+          >
+            儲存
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
     </React.Fragment>
   )
 }

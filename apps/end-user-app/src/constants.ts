@@ -1,3 +1,7 @@
+export const sideNavWidth = 240
+export const minSidePanelWidth = 160
+export const mobileBreakpoint = 320
+
 export const integrationOperatorDiscriminators = [
   'oanda_feed',
   'yahoo_finance_feed',

@@ -100,3 +100,7 @@ sudo docker compose -f ./deployments/docker-compose.local.yml -p chore_master_en
         ```
 
     5. Delete github token
+
+    6. Reconnect repo
+
+        Goto amplify's app > `App settings` > `Branch settings` > `Reconnect Repository`

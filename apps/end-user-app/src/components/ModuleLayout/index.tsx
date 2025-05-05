@@ -6,7 +6,9 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
+import { useSidePanel } from '@/components/SidePanel'
 import { useTimezone } from '@/components/timezone'
+import { minSidePanelWidth, mobileBreakpoint, sideNavWidth } from '@/constants'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -57,7 +59,7 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
-import { useColorScheme } from '@mui/material/styles'
+import { useColorScheme, useTheme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
@@ -68,6 +70,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { Locale, useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { Splitter, SplitterPanel } from 'primereact/splitter'
 import React from 'react'
 import './style.css'
 
@@ -77,9 +80,6 @@ export interface ModuleLayoutProps {
   readonly loginRequired?: boolean
   readonly children: React.ReactNode
 }
-
-const sideNavWidth = 240
-const mobileBreakpoint = 320
 
 export default function ModuleLayout({
   moduleName,
@@ -91,6 +91,8 @@ export default function ModuleLayout({
   const { enqueueNotification } = useNotification()
   const t = useTranslations('components.ModuleLayout')
   const tModules = useTranslations('modules')
+  const theme = useTheme()
+  const isUpMd = useMediaQuery(theme.breakpoints.up('md'))
   const [isModulesDrawerOpen, setIsModulesDrawerOpen] =
     React.useState<boolean>(false)
   const [isNonMobileSideNavOpen, setIsNonMobileSideNavOpen] =
@@ -117,7 +119,10 @@ export default function ModuleLayout({
   const [isPending, startTransition] = React.useTransition()
   const auth = useAuth()
   const timezone = useTimezone()
+  const sidePanel = useSidePanel()
   const [currentDate, setCurrentDate] = React.useState(new Date())
+  const splitterPanelRef = React.useRef<HTMLDivElement | null>(null)
+  const drawerPanelRef = React.useRef<HTMLDivElement | null>(null)
 
   const isMenuOpen = Boolean(anchorEl)
 
@@ -223,6 +228,14 @@ export default function ModuleLayout({
     [pathname, navigations]
   )
 
+  React.useEffect(() => {
+    if (isUpMd) {
+      sidePanel.setPortalContainer(splitterPanelRef.current)
+    } else {
+      sidePanel.setPortalContainer(drawerPanelRef?.current)
+    }
+  }, [isUpMd, splitterPanelRef.current, drawerPanelRef.current])
+
   if (
     loginRequired &&
     (!auth.currentUser || auth.currentUserSuccessLoadedCount === 0)
@@ -307,191 +320,245 @@ export default function ModuleLayout({
         </List>
       </Drawer>
 
-      <Stack direction="row">
-        {isSideNavInMobileMode && (
-          <Drawer
-            open={isMobileSideNavDrawerOpen}
-            onClose={() => {
-              setIsMobileSideNavDrawerOpen(false)
+      <Splitter
+        layout="horizontal"
+        style={{ display: 'flex', flexDirection: 'row', height: '100%' }}
+        gutterSize={sidePanel.isActive ? 4 : 0}
+      >
+        <SplitterPanel
+          style={{
+            display: 'flex',
+            height: '100vh',
+            overflow: 'auto',
+            flexGrow: 1,
+          }}
+          size={80}
+        >
+          {isSideNavInMobileMode && (
+            <Drawer
+              open={isMobileSideNavDrawerOpen}
+              onClose={() => {
+                setIsMobileSideNavDrawerOpen(false)
+              }}
+            >
+              {sideNav}
+            </Drawer>
+          )}
+
+          <Collapse
+            orientation="horizontal"
+            in={isSideNavInMobileMode ? false : isNonMobileSideNavOpen}
+            sx={{
+              overflowX: 'hidden',
+              position: 'sticky',
+              top: 0,
+              height: '100vh',
             }}
           >
             {sideNav}
-          </Drawer>
-        )}
+          </Collapse>
 
-        <Collapse
-          orientation="horizontal"
-          in={isSideNavInMobileMode ? false : isNonMobileSideNavOpen}
-          sx={{
-            overflowX: 'hidden',
-            position: 'sticky',
-            top: 0,
-            height: '100vh',
-          }}
-        >
-          {sideNav}
-        </Collapse>
+          {!isSideNavInMobileMode && (
+            <Divider orientation="vertical" flexItem />
+          )}
 
-        {!isSideNavInMobileMode && <Divider orientation="vertical" flexItem />}
-
-        <Stack
-          sx={{
-            flex: '1 0 0px',
-            background: mode === 'dark' ? 'black' : '#f8f5e6',
-            minWidth: 320,
-          }}
-        >
-          <AppBar
-            position="sticky"
-            elevation={0}
-            sx={(theme) => ({
-              backgroundColor: theme.palette.background.default,
-            })}
+          <Stack
+            sx={{
+              flex: '1 0 0px',
+              background: mode === 'dark' ? 'black' : '#f8f5e6',
+              minWidth: 320,
+              overflow: 'auto',
+            }}
           >
-            <Toolbar disableGutters>
-              <Tooltip title={t('tooltips.toggleSidebar')}>
-                <IconButton
-                  size="large"
-                  color="default"
-                  onClick={() => {
-                    if (isSideNavInMobileMode) {
-                      setIsMobileSideNavDrawerOpen((open) => !open)
-                    } else {
-                      setIsNonMobileSideNavOpen((open) => !open)
+            <AppBar
+              position="sticky"
+              elevation={0}
+              sx={(theme) => ({
+                backgroundColor: theme.palette.background.default,
+              })}
+            >
+              <Toolbar disableGutters>
+                <Tooltip title={t('tooltips.toggleSidebar')}>
+                  <IconButton
+                    size="large"
+                    color="default"
+                    onClick={() => {
+                      if (isSideNavInMobileMode) {
+                        setIsMobileSideNavDrawerOpen((open) => !open)
+                      } else {
+                        setIsNonMobileSideNavOpen((open) => !open)
+                      }
+                    }}
+                  >
+                    {isSideNavInMobileMode && <MenuIcon />}
+                    {!isSideNavInMobileMode &&
+                      (isNonMobileSideNavOpen ? (
+                        <MenuOpenIcon />
+                      ) : (
+                        <MenuIcon />
+                      ))}
+                  </IconButton>
+                </Tooltip>
+                <Box sx={{ flexGrow: 1 }} />
+                <Tooltip title={t('tooltips.about')}>
+                  <IconButton
+                    onClick={() => {
+                      fetchSystemInspect()
+                      setIsAboutDialogOpen(true)
+                    }}
+                  >
+                    <InfoOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={t('tooltips.settings')}>
+                  <IconButton
+                    onClick={() => {
+                      setIsSettingsDialogOpen(true)
+                    }}
+                  >
+                    <SettingsOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+                {auth.currentUser && (
+                  <Tooltip
+                    title={
+                      <React.Fragment>
+                        <span>{t('tooltips.user')}</span>
+                        <br />
+                        <span>{auth.currentUser.name}</span>
+                      </React.Fragment>
                     }
-                  }}
-                >
-                  {isSideNavInMobileMode && <MenuIcon />}
-                  {!isSideNavInMobileMode &&
-                    (isNonMobileSideNavOpen ? <MenuOpenIcon /> : <MenuIcon />)}
-                </IconButton>
-              </Tooltip>
-              <Box sx={{ flexGrow: 1 }} />
-              <Tooltip title={t('tooltips.about')}>
-                <IconButton
-                  onClick={() => {
-                    fetchSystemInspect()
-                    setIsAboutDialogOpen(true)
-                  }}
-                >
-                  <InfoOutlinedIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={t('tooltips.settings')}>
-                <IconButton
-                  onClick={() => {
-                    setIsSettingsDialogOpen(true)
-                  }}
-                >
-                  <SettingsOutlinedIcon />
-                </IconButton>
-              </Tooltip>
-              {auth.currentUser && (
-                <Tooltip
-                  title={
-                    <React.Fragment>
-                      <span>{t('tooltips.user')}</span>
-                      <br />
-                      <span>{auth.currentUser.name}</span>
-                    </React.Fragment>
-                  }
-                >
-                  <span>
-                    <IconButton
-                      size="small"
-                      sx={{ mx: 1 }}
-                      disabled={auth.isLoadingCurrentUser}
-                      onClick={handleAvatarClick}
-                    >
-                      <Avatar sx={{ width: 32, height: 32 }}>
-                        {auth.currentUser.name.substring(0, 1).toUpperCase()}
-                      </Avatar>
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              )}
-              {!loginRequired && !auth.currentUser && (
-                <Tooltip title={t('tooltips.login')}>
-                  <span>
-                    <IconButton
-                      size="small"
-                      sx={{ mx: 1 }}
-                      disabled={auth.isLoadingCurrentUser}
-                      onClick={() => {
-                        router.push('/login')
-                      }}
-                    >
-                      <LoginIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              )}
+                  >
+                    <span>
+                      <IconButton
+                        size="small"
+                        sx={{ mx: 1 }}
+                        disabled={auth.isLoadingCurrentUser}
+                        onClick={handleAvatarClick}
+                      >
+                        <Avatar sx={{ width: 32, height: 32 }}>
+                          {auth.currentUser.name.substring(0, 1).toUpperCase()}
+                        </Avatar>
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
+                {!loginRequired && !auth.currentUser && (
+                  <Tooltip title={t('tooltips.login')}>
+                    <span>
+                      <IconButton
+                        size="small"
+                        sx={{ mx: 1 }}
+                        disabled={auth.isLoadingCurrentUser}
+                        onClick={() => {
+                          router.push('/login')
+                        }}
+                      >
+                        <LoginIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
 
-              <Menu
-                anchorEl={anchorEl}
-                id="account-menu"
-                open={isMenuOpen}
-                onClose={handleCloseMenu}
-                onClick={handleCloseMenu}
-                PaperProps={{
-                  elevation: 0,
-                  sx: {
-                    overflow: 'visible',
-                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                    mt: 1.5,
-                    '& .MuiAvatar-root': {
-                      width: 32,
-                      height: 32,
-                      ml: -0.5,
-                      mr: 1,
+                <Menu
+                  anchorEl={anchorEl}
+                  id="account-menu"
+                  open={isMenuOpen}
+                  onClose={handleCloseMenu}
+                  onClick={handleCloseMenu}
+                  PaperProps={{
+                    elevation: 0,
+                    sx: {
+                      overflow: 'visible',
+                      filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                      mt: 1.5,
+                      '& .MuiAvatar-root': {
+                        width: 32,
+                        height: 32,
+                        ml: -0.5,
+                        mr: 1,
+                      },
+                      '&::before': {
+                        content: '""',
+                        display: 'block',
+                        position: 'absolute',
+                        top: 0,
+                        right: 14,
+                        width: 10,
+                        height: 10,
+                        bgcolor: 'background.paper',
+                        transform: 'translateY(-50%) rotate(45deg)',
+                        zIndex: 0,
+                      },
                     },
-                    '&::before': {
-                      content: '""',
-                      display: 'block',
-                      position: 'absolute',
-                      top: 0,
-                      right: 14,
-                      width: 10,
-                      height: 10,
-                      bgcolor: 'background.paper',
-                      transform: 'translateY(-50%) rotate(45deg)',
-                      zIndex: 0,
-                    },
-                  },
-                }}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              >
-                {/* <Link href="/iam" passHref legacyBehavior>
+                  }}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                >
+                  {/* <Link href="/iam" passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseMenu}>
                     <Avatar /> 帳戶中心
                   </MenuItem>
                 </Link>
                 <Divider /> */}
-                <Link href="/logout" passHref legacyBehavior>
-                  <MenuItem component="a" onClick={handleCloseMenu}>
-                    <ListItemIcon>
-                      <LogoutIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t('menu.logoutCurrentDevice')}
-                  </MenuItem>
-                </Link>
-                <Divider />
-                <Link href="/login" passHref legacyBehavior>
-                  <MenuItem component="a" onClick={handleCloseMenu}>
-                    <ListItemIcon>
-                      <SwitchAccountIcon fontSize="small" />
-                    </ListItemIcon>
-                    {t('menu.loginOtherAccount')}
-                  </MenuItem>
-                </Link>
-              </Menu>
-            </Toolbar>
-            <Divider />
-          </AppBar>
-          {children}
-        </Stack>
-      </Stack>
+                  <Link href="/logout" passHref legacyBehavior>
+                    <MenuItem component="a" onClick={handleCloseMenu}>
+                      <ListItemIcon>
+                        <LogoutIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t('menu.logoutCurrentDevice')}
+                    </MenuItem>
+                  </Link>
+                  <Divider />
+                  <Link href="/login" passHref legacyBehavior>
+                    <MenuItem component="a" onClick={handleCloseMenu}>
+                      <ListItemIcon>
+                        <SwitchAccountIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t('menu.loginOtherAccount')}
+                    </MenuItem>
+                  </Link>
+                </Menu>
+              </Toolbar>
+              <Divider />
+            </AppBar>
+            {children}
+          </Stack>
+        </SplitterPanel>
+
+        <SplitterPanel
+          style={{
+            overflow: 'auto',
+            display: isUpMd && sidePanel.isActive ? undefined : 'none',
+            minWidth: minSidePanelWidth,
+          }}
+          size={20}
+        >
+          <Divider orientation="vertical" flexItem />
+          <Stack
+            ref={splitterPanelRef}
+            sx={(theme) => ({
+              // minWidth: sideNavWidth,
+              backgroundColor: theme.palette.background.default,
+              overflowX: 'auto',
+              // position: 'sticky',
+              // top: 0,
+              // height: 'calc(100vh - var(--scrollbar-width))',
+              height: '100vh',
+              // flexGrow: 1,
+            })}
+          />
+        </SplitterPanel>
+      </Splitter>
+
+      <Drawer
+        closeAfterTransition={false}
+        open={!isUpMd && sidePanel.isActive}
+        anchor="right"
+        PaperProps={{
+          ref: drawerPanelRef,
+        }}
+      />
 
       <Dialog
         closeAfterTransition={false}

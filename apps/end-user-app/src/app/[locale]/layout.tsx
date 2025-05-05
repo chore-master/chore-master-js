@@ -1,3 +1,4 @@
+import { SidePanelProvider } from '@/components/SidePanel'
 import ThemeProvider from '@/components/ThemeProvider'
 import { TimezoneProvider } from '@/components/timezone'
 import { routing } from '@/i18n/routing'
@@ -42,7 +43,9 @@ export default async function Layout({
           <AppRouterCacheProvider>
             <ThemeProvider>
               <NotificationProvider>
-                <TimezoneProvider>{children}</TimezoneProvider>
+                <TimezoneProvider>
+                  <SidePanelProvider>{children}</SidePanelProvider>
+                </TimezoneProvider>
               </NotificationProvider>
             </ThemeProvider>
           </AppRouterCacheProvider>
