@@ -4,16 +4,18 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 interface SidePanelContextType {
-  activePanelId: string | null
+  activeId: string | null
   portalContainer: HTMLElement | null | undefined
+  isActive: boolean
   open: (panelId: string) => void
   close: () => void
   setPortalContainer: (ref: HTMLElement | null | undefined) => void
 }
 
 const SidePanelContext = React.createContext<SidePanelContextType>({
-  activePanelId: null,
+  activeId: null,
   portalContainer: null,
+  isActive: false,
   open: () => {},
   close: () => {},
   setPortalContainer: () => {},
@@ -22,21 +24,22 @@ const SidePanelContext = React.createContext<SidePanelContextType>({
 export const SidePanelProvider = (props: any) => {
   const [portalContainer, setPortalContainer] =
     React.useState<HTMLElement | null>(null)
-  const [activePanelId, setActivePanelId] = React.useState<string | undefined>()
+  const [activeId, setActiveId] = React.useState<string | null>(null)
 
   const open = (panelId: string) => {
-    setActivePanelId(panelId)
+    setActiveId(panelId)
   }
 
   const close = () => {
-    setActivePanelId(undefined)
+    setActiveId(null)
   }
 
   return (
     <SidePanelContext.Provider
       value={{
-        activePanelId,
+        activeId,
         portalContainer,
+        isActive: activeId !== null,
         open,
         close,
         setPortalContainer,
@@ -48,13 +51,7 @@ export const SidePanelProvider = (props: any) => {
 
 export const useSidePanel = () => {
   const ctx = React.useContext(SidePanelContext)
-  return {
-    activePanelId: ctx.activePanelId,
-    portalContainer: ctx.portalContainer,
-    open: ctx.open,
-    close: ctx.close,
-    setPortalContainer: ctx.setPortalContainer,
-  }
+  return ctx
 }
 
 export default function SidePanel({
@@ -70,7 +67,7 @@ export default function SidePanel({
     return null
   }
 
-  const isActive = sidePanel.activePanelId === id
+  const isActive = sidePanel.activeId === id
   if (!isActive) {
     return null
   }

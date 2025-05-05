@@ -323,7 +323,7 @@ export default function ModuleLayout({
       <Splitter
         layout="horizontal"
         style={{ display: 'flex', flexDirection: 'row', height: '100%' }}
-        gutterSize={sidePanel.activePanelId ? 4 : 0}
+        gutterSize={sidePanel.isActive ? 4 : 0}
       >
         <SplitterPanel
           style={{
@@ -529,7 +529,7 @@ export default function ModuleLayout({
         <SplitterPanel
           style={{
             overflow: 'auto',
-            display: isUpMd && sidePanel.activePanelId ? undefined : 'none',
+            display: isUpMd && sidePanel.isActive ? undefined : 'none',
             minWidth: minSidePanelWidth,
           }}
           size={20}
@@ -553,30 +553,12 @@ export default function ModuleLayout({
 
       <Drawer
         // closeAfterTransition={false}
-        // open={!isUpMd && sidePanel.isSidePanelOpen}
-        // ref={drawerPanelRef}
-        open
-        // hideBackdrop={false}
-        // hideBackdrop={!(isUpMd || !sidePanel.isSidePanelOpen)}
-        //   open={sidePanel.isSidePanelOpen}
-        // variant="persistent"
-        variant="permanent"
+        open={!isUpMd && sidePanel.isActive}
         anchor="right"
-        // onClose={() => {
-        //   sidePanel.closeSidePanel()
-        // }}
-        // slotProps={{
-        //   root: {
-        //     ref: drawerPanelRef,
-        //   },
-        // }}
-        // ModalProps={{
-        //   // component: (props) => <div ref={drawerPanelRef} {...props} />,
-        //   disableScrollLock: true,
-        // }}
-      >
-        <div ref={drawerPanelRef} />
-      </Drawer>
+        PaperProps={{
+          ref: drawerPanelRef,
+        }}
+      />
 
       <Dialog
         closeAfterTransition={false}
