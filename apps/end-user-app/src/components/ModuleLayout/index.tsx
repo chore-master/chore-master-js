@@ -552,7 +552,7 @@ export default function ModuleLayout({
       </Splitter>
 
       <Drawer
-        // closeAfterTransition={false}
+        closeAfterTransition={false}
         open={!isUpMd && sidePanel.isActive}
         anchor="right"
         PaperProps={{
