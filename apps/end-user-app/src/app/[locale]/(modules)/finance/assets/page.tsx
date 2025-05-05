@@ -8,7 +8,7 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
-import SidePanel from '@/components/SidePanel'
+import SidePanel, { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type {
@@ -17,7 +17,6 @@ import type {
   UpdateAssetFormInputs,
 } from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
-import { useModuleLayout } from '@/utils/moduleLayout'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
@@ -44,7 +43,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
-  const moduleLayout = useModuleLayout()
+  const sidePanel = useSidePanel()
 
   // Asset
   const [assets, setAssets] = React.useState<Asset[]>([])
@@ -93,7 +92,7 @@ export default function Page() {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
-        moduleLayout.closeSidePanel()
+        sidePanel.close()
         createAssetForm.reset()
         fetchAssets()
       },
@@ -114,7 +113,7 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          moduleLayout.closeSidePanel()
+          sidePanel.close()
           updateAssetForm.reset()
           setEditingAssetReference(undefined)
           fetchAssets()
@@ -169,7 +168,7 @@ export default function Page() {
             startIcon={<AddIcon />}
             onClick={() => {
               createAssetForm.reset()
-              moduleLayout.openSidePanel('createAsset')
+              sidePanel.open('createAsset')
             }}
           >
             新增
@@ -231,7 +230,7 @@ export default function Page() {
                           asset.is_settleable
                         )
                         setEditingAssetReference(asset.reference)
-                        moduleLayout.openSidePanel('editAsset')
+                        sidePanel.open('editAsset')
                       }}
                     >
                       <EditIcon />
@@ -264,7 +263,7 @@ export default function Page() {
             <Toolbar disableGutters>
               <IconButton
                 onClick={() => {
-                  moduleLayout.closeSidePanel()
+                  moduleLayout.close()
                 }}
               >
                 <CloseIcon fontSize="small" />
@@ -278,7 +277,7 @@ export default function Page() {
         <CardHeader
           title="新增資產"
           action={
-            <IconButton onClick={() => moduleLayout.closeSidePanel()}>
+            <IconButton onClick={() => sidePanel.close()}>
               <CloseIcon fontSize="small" />
             </IconButton>
           }
@@ -362,7 +361,7 @@ export default function Page() {
           action={
             <IconButton
               onClick={() => {
-                moduleLayout.closeSidePanel()
+                sidePanel.close()
               }}
             >
               <CloseIcon fontSize="small" />

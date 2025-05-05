@@ -1,7 +1,7 @@
+import { SidePanelProvider } from '@/components/SidePanel'
 import ThemeProvider from '@/components/ThemeProvider'
 import { TimezoneProvider } from '@/components/timezone'
 import { routing } from '@/i18n/routing'
-import { ModuleLayoutProvider } from '@/utils/moduleLayout'
 import { NotificationProvider } from '@/utils/notification'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
@@ -44,7 +44,7 @@ export default async function Layout({
             <ThemeProvider>
               <NotificationProvider>
                 <TimezoneProvider>
-                  <ModuleLayoutProvider>{children}</ModuleLayoutProvider>
+                  <SidePanelProvider>{children}</SidePanelProvider>
                 </TimezoneProvider>
               </NotificationProvider>
             </ThemeProvider>

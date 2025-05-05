@@ -6,7 +6,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import SideNavigationList, {
   SideNavigation,
 } from '@/components/SideNavigationList'
-import SidePanelWrapper from '@/components/SidePanelWrapper'
+import { useSidePanel } from '@/components/SidePanel'
 import { useTimezone } from '@/components/timezone'
 import { minSidePanelWidth, mobileBreakpoint, sideNavWidth } from '@/constants'
 import { usePathname, useRouter } from '@/i18n/navigation'
@@ -14,7 +14,6 @@ import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
 import { offsetInMinutesToTimedeltaString } from '@/utils/datetime'
-import { useModuleLayout } from '@/utils/moduleLayout'
 import { useNotification } from '@/utils/notification'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
@@ -120,8 +119,9 @@ export default function ModuleLayout({
   const [isPending, startTransition] = React.useTransition()
   const auth = useAuth()
   const timezone = useTimezone()
-  const moduleLayout = useModuleLayout()
+  const sidePanel = useSidePanel()
   const [currentDate, setCurrentDate] = React.useState(new Date())
+  const splitterPanelRef = React.useRef<HTMLDivElement | null>(null)
   const drawerPanelRef = React.useRef<HTMLDivElement | null>(null)
 
   const isMenuOpen = Boolean(anchorEl)
@@ -229,10 +229,12 @@ export default function ModuleLayout({
   )
 
   React.useEffect(() => {
-    if (!isUpMd) {
-      moduleLayout.setPortalContainerRef(drawerPanelRef)
+    if (isUpMd) {
+      sidePanel.setPortalContainer(splitterPanelRef.current)
+    } else {
+      sidePanel.setPortalContainer(drawerPanelRef?.current)
     }
-  }, [isUpMd])
+  }, [isUpMd, splitterPanelRef.current, drawerPanelRef.current])
 
   if (
     loginRequired &&
@@ -321,7 +323,7 @@ export default function ModuleLayout({
       <Splitter
         layout="horizontal"
         style={{ display: 'flex', flexDirection: 'row', height: '100%' }}
-        gutterSize={moduleLayout.isSidePanelOpen ? 4 : 0}
+        gutterSize={sidePanel.activePanelId ? 4 : 0}
       >
         <SplitterPanel
           style={{
@@ -527,36 +529,53 @@ export default function ModuleLayout({
         <SplitterPanel
           style={{
             overflow: 'auto',
-            display:
-              isUpMd && moduleLayout.isSidePanelOpen ? undefined : 'none',
+            display: isUpMd && sidePanel.activePanelId ? undefined : 'none',
             minWidth: minSidePanelWidth,
           }}
           size={20}
         >
-          <SidePanelWrapper />
+          <Divider orientation="vertical" flexItem />
+          <Stack
+            ref={splitterPanelRef}
+            sx={(theme) => ({
+              // minWidth: sideNavWidth,
+              backgroundColor: theme.palette.background.default,
+              overflowX: 'auto',
+              // position: 'sticky',
+              // top: 0,
+              // height: 'calc(100vh - var(--scrollbar-width))',
+              height: '100vh',
+              // flexGrow: 1,
+            })}
+          />
         </SplitterPanel>
       </Splitter>
 
       <Drawer
         // closeAfterTransition={false}
-        // open={!isUpMd && moduleLayout.isSidePanelOpen}
+        // open={!isUpMd && sidePanel.isSidePanelOpen}
+        // ref={drawerPanelRef}
         open
-        // hideBackdrop={!(isUpMd || !moduleLayout.isSidePanelOpen)}
-        //   open={moduleLayout.isSidePanelOpen}
-        variant="persistent"
-        // variant="permanent"
+        // hideBackdrop={false}
+        // hideBackdrop={!(isUpMd || !sidePanel.isSidePanelOpen)}
+        //   open={sidePanel.isSidePanelOpen}
+        // variant="persistent"
+        variant="permanent"
         anchor="right"
-        elevation={16}
         // onClose={() => {
-        //   moduleLayout.closeSidePanel()
+        //   sidePanel.closeSidePanel()
         // }}
         // slotProps={{
-        //   paper: {
+        //   root: {
         //     ref: drawerPanelRef,
         //   },
         // }}
+        // ModalProps={{
+        //   // component: (props) => <div ref={drawerPanelRef} {...props} />,
+        //   disableScrollLock: true,
+        // }}
       >
-        <div ref={drawerPanelRef}>{moduleLayout.activeSidePanel?.content}</div>
+        <div ref={drawerPanelRef} />
       </Drawer>
 
       <Dialog
