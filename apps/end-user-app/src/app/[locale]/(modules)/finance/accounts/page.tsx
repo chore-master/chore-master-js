@@ -58,8 +58,6 @@ export default function Page() {
   const [accounts, setAccounts] = React.useState<Account[]>([])
   const accountsPagination = useOffsetPagination({})
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
-  const [isCreateAccountDrawerOpen, setIsCreateAccountDrawerOpen] =
-    React.useState(false)
   const createAccountForm = useForm<CreateAccountFormInputs>({ mode: 'all' })
   const [editingAccountReference, setEditingAccountReference] =
     React.useState<string>()
