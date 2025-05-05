@@ -8,17 +8,17 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import SidePanel, { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import type { CreateUserFormInputs, UserSummary } from '@/types/admin'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
@@ -33,13 +33,12 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
+  const sidePanel = useSidePanel()
 
   // User
   const [users, setUsers] = React.useState<UserSummary[]>([])
   const usersPagination = useOffsetPagination({})
   const [isFetchingUsers, setIsFetchingUsers] = React.useState(false)
-  const [isCreateUserDrawerOpen, setIsCreateUserDrawerOpen] =
-    React.useState(false)
   const createUserForm = useForm<CreateUserFormInputs>({ mode: 'all' })
 
   const fetchUsers = React.useCallback(async () => {
@@ -86,8 +85,8 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
+          sidePanel.close()
           createUserForm.reset()
-          setIsCreateUserDrawerOpen(false)
           fetchUsers()
         },
       }
@@ -117,7 +116,7 @@ export default function Page() {
               startIcon={<AddIcon />}
               onClick={() => {
                 createUserForm.reset()
-                setIsCreateUserDrawerOpen(true)
+                sidePanel.open('createUser')
               }}
             >
               新增
@@ -168,96 +167,87 @@ export default function Page() {
         </ModuleFunctionBody>
       </ModuleFunction>
 
-      <Drawer
-        anchor="right"
-        open={isCreateUserDrawerOpen}
-        onClose={() => setIsCreateUserDrawerOpen(false)}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增使用者" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
+      <SidePanel id="createUser">
+        <CardHeader
+          title="新增使用者"
+          action={
+            <IconButton onClick={() => sidePanel.close()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
+              control={createUserForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="名字" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="username"
+              control={createUserForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  required
+                  label="使用者名稱"
+                  variant="filled"
+                />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="password"
+              control={createUserForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField {...field} required label="密碼" variant="filled" />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <FormControl>
+            <Controller
+              name="reference"
+              control={createUserForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="系統識別碼"
+                  variant="filled"
+                  helperText="建立後無法變更"
+                />
+              )}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!createUserForm.formState.isValid}
+            onClick={createUserForm.handleSubmit(handleSubmitCreateUserForm)}
           >
-            <FormControl>
-              <Controller
-                name="name"
-                control={createUserForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名字"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="username"
-                control={createUserForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="使用者名稱"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="password"
-                control={createUserForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="密碼"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <FormControl>
-              <Controller
-                name="reference"
-                control={createUserForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="系統識別碼"
-                    variant="filled"
-                    helperText="建立後無法變更"
-                  />
-                )}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!createUserForm.formState.isValid}
-              onClick={createUserForm.handleSubmit(handleSubmitCreateUserForm)}
-            >
-              新增
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
+            新增
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
     </React.Fragment>
   )
 }

@@ -15,6 +15,7 @@ import { Asset, CreatePortfolioFormInputs, Portfolio } from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
@@ -203,7 +204,14 @@ export default function Page() {
       </ModuleFunction>
 
       <SidePanel id="createPortfolio">
-        <CardHeader title="新增投資組合" />
+        <CardHeader
+          title="新增投資組合"
+          action={
+            <IconButton onClick={() => sidePanel.close()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
         <Stack
           component="form"
           spacing={3}
