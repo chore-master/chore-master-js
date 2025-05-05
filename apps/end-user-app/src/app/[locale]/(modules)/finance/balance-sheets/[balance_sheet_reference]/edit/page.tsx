@@ -123,7 +123,7 @@ export default function Page() {
             const decimals = asset.decimals
             return {
               ...balance_entry,
-              amount: new Decimal(amount).times(10 ** decimals).toNumber(),
+              amount: new Decimal(amount).times(10 ** decimals).toFixed(),
             }
           }
         ),
@@ -250,9 +250,7 @@ export default function Page() {
           const decimals = asset.decimals
           return {
             account_reference: balance_entry.account_reference,
-            amount: new Decimal(amount)
-              .dividedBy(new Decimal(10 ** decimals))
-              .toString(),
+            amount: new Decimal(amount).dividedBy(10 ** decimals).toFixed(),
           }
         })
       )
