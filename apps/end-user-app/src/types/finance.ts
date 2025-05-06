@@ -45,6 +45,12 @@ export interface UpdatePriceFormInputs {
   confirmed_time: string
 }
 
+export interface QueryFeedOperatorFormInputs {
+  operator_reference: string
+  gte_confirmed_time: string
+  lt_confirmed_time: string
+}
+
 // Account
 
 export interface Account {
