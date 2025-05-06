@@ -14,6 +14,7 @@ import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
+import { Link } from '@/i18n/navigation'
 import type {
   Asset,
   CreatePriceFormInputs,
@@ -264,6 +265,13 @@ export default function Page() {
               </IconButton>
             </span>
           </Tooltip>,
+          <Button
+            key="refill"
+            component={Link}
+            href="/finance/market/prices/refill"
+          >
+            批次回補
+          </Button>,
           <Button
             key="create"
             variant="contained"
