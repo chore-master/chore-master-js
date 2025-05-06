@@ -285,8 +285,8 @@ export default function Page() {
                 <NoWrapTableCell align="right">
                   <PlaceholderTypography>#</PlaceholderTypography>
                 </NoWrapTableCell>
-                <NoWrapTableCell>本幣資產</NoWrapTableCell>
                 <NoWrapTableCell>外幣資產</NoWrapTableCell>
+                <NoWrapTableCell>本幣資產</NoWrapTableCell>
                 <NoWrapTableCell>價格</NoWrapTableCell>
                 <NoWrapTableCell>收定時間</NoWrapTableCell>
                 <NoWrapTableCell>系統識別碼</NoWrapTableCell>
