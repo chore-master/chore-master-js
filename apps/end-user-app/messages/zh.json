@@ -52,16 +52,17 @@
       "name": "金融",
       "navigations": {
         "market": "市場",
-        "interestRateQuotation": "利率行情",
-        "ecosystem": "生態",
-        "flow": "流量",
+        "prices": "價格",
         "myWealth": "我的資金",
         "assets": "資產",
         "accounts": "帳戶",
         "balance": "餘額",
         "myInvestment": "我的投資",
         "portfolios": "投資組合",
-        "others": "其他"
+        "others": "其他",
+        "interestRateQuotation": "利率行情",
+        "ecosystem": "生態",
+        "flow": "流量"
       }
     },
     "integration": {

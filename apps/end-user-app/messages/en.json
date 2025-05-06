@@ -52,16 +52,17 @@
       "name": "Finance",
       "navigations": {
         "market": "Market",
-        "interestRateQuotation": "Interest Rate Quotation",
-        "ecosystem": "Ecosystem",
-        "flow": "Flow",
+        "prices": "Prices",
         "myWealth": "My Wealth",
         "assets": "Assets",
         "accounts": "Accounts",
         "balance": "Balance",
         "myInvestment": "My Investment",
         "portfolios": "Portfolios",
-        "others": "Others"
+        "others": "Others",
+        "interestRateQuotation": "Interest Rate Quotation",
+        "ecosystem": "Ecosystem",
+        "flow": "Flow"
       }
     },
     "integration": {
