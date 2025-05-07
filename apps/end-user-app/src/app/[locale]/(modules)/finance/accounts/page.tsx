@@ -312,13 +312,13 @@ export default function Page() {
                           sidePanel.open('editAccount')
                         }}
                       >
-                        <EditIcon />
+                        <EditIcon fontSize="inherit" />
                       </IconButton>
                       <IconButton
                         size="small"
                         onClick={() => deleteAccount(account.reference)}
                       >
-                        <DeleteIcon />
+                        <DeleteIcon fontSize="inherit" />
                       </IconButton>
                     </NoWrapTableCell>
                   </TableRow>

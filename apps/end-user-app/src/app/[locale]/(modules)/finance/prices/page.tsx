@@ -440,13 +440,13 @@ export default function Page() {
                         sidePanel.open('editPrice')
                       }}
                     >
-                      <EditIcon />
+                      <EditIcon fontSize="inherit" />
                     </IconButton>
                     <IconButton
                       size="small"
                       onClick={() => deletePrice(price.reference)}
                     >
-                      <DeleteIcon />
+                      <DeleteIcon fontSize="inherit" />
                     </IconButton>
                   </NoWrapTableCell>
                 </TableRow>

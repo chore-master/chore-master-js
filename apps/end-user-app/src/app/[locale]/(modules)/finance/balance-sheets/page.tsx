@@ -821,7 +821,7 @@ export default function Page() {
                             )
                           }}
                         >
-                          <EditIcon />
+                          <EditIcon fontSize="inherit" />
                         </IconButton>
                       </NoWrapTableCell>
                     </TableRow>

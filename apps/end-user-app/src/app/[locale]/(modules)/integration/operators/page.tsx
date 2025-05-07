@@ -247,13 +247,13 @@ export default function Page() {
                           sidePanel.open('editOperator')
                         }}
                       >
-                        <EditIcon />
+                        <EditIcon fontSize="inherit" />
                       </IconButton>
                       <IconButton
                         size="small"
                         onClick={() => void deleteOperator(operator.reference)}
                       >
-                        <DeleteIcon />
+                        <DeleteIcon fontSize="inherit" />
                       </IconButton>
                     </NoWrapTableCell>
                   </TableRow>

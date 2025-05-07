@@ -233,13 +233,13 @@ export default function Page() {
                         sidePanel.open('editAsset')
                       }}
                     >
-                      <EditIcon />
+                      <EditIcon fontSize="inherit" />
                     </IconButton>
                     <IconButton
                       size="small"
                       onClick={() => deleteAsset(asset.reference)}
                     >
-                      <DeleteIcon />
+                      <DeleteIcon fontSize="inherit" />
                     </IconButton>
                   </NoWrapTableCell>
                 </TableRow>

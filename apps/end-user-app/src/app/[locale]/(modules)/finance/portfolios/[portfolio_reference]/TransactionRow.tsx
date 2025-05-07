@@ -101,7 +101,11 @@ export default function TransactionRow({
             disabled={transaction.transfers.length === 0}
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
+            {isOpen ? (
+              <ArrowDropDownIcon fontSize="inherit" />
+            ) : (
+              <ArrowRightIcon fontSize="inherit" />
+            )}
           </IconButton>
         </NoWrapTableCell>
         <NoWrapTableCell align="right">
@@ -191,7 +195,7 @@ export default function TransactionRow({
               sidePanel.open('createTransfer')
             }}
           >
-            <AddIcon />
+            <AddIcon fontSize="inherit" />
           </IconButton>
           <IconButton
             size="small"
@@ -208,13 +212,13 @@ export default function TransactionRow({
               sidePanel.open('updateTransaction')
             }}
           >
-            <EditIcon />
+            <EditIcon fontSize="inherit" />
           </IconButton>
           <IconButton
             size="small"
             onClick={() => deleteTransaction(transaction.reference)}
           >
-            <DeleteIcon />
+            <DeleteIcon fontSize="inherit" />
           </IconButton>
         </NoWrapTableCell>
       </TableRow>
@@ -312,7 +316,7 @@ export default function TransactionRow({
                     sidePanel.open('updateTransfer')
                   }}
                 >
-                  <EditIcon />
+                  <EditIcon fontSize="inherit" />
                 </IconButton>
                 <IconButton
                   size="small"
@@ -321,7 +325,7 @@ export default function TransactionRow({
                     deleteTransfer(transaction.reference, transfer.reference)
                   }}
                 >
-                  <DeleteIcon />
+                  <DeleteIcon fontSize="inherit" />
                 </IconButton>
               </NoWrapTableCell>
             </TableRow>
