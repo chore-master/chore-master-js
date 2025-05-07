@@ -26,10 +26,15 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { validateDatetimeField } from '@/utils/validation'
 import AddIcon from '@mui/icons-material/Add'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import Accordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -155,7 +160,22 @@ export default function Page() {
   const handleSubmitAutoFillPriceForm: SubmitHandler<
     AutoFillPriceFormInputs
   > = async (data) => {
-    console.log(data)
+    await choreMasterAPIAgent.patch(
+      `/v1/finance/users/me/prices/auto-fill`,
+      data,
+      {
+        onError: () => {
+          enqueueNotification(`Unable to auto fill price now.`, 'error')
+        },
+        onFail: ({ message }: any) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          sidePanel.close()
+          fetchPrices()
+        },
+      }
+    )
   }
 
   React.useEffect(() => {
@@ -905,10 +925,22 @@ export default function Page() {
             e.preventDefault()
           }}
         >
-          <Typography>
-            回補精靈根據您在 Chore Master
-            所使用到的時間戳、貨幣對，以及您所選擇的價格來源自動撈取歷史價格。價格來源不一定隨時可用，請您見諒。
-          </Typography>
+          <Accordion>
+            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+              <Stack spacing={1} direction="row" alignItems="center">
+                <InfoOutlinedIcon fontSize="small" />
+                <Typography>說明</Typography>
+              </Stack>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                回補精靈根據您在 Chore Master
+                所使用到的時間戳、貨幣對，以及整合的價格來源，自動撈取最高精確至每日的歷史價格。視
+                Chore Master
+                及價格來源伺服器系統負載情況，本功能不一定隨時可用，請使用者見諒。
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
           <Controller
             name="operator_reference"
             control={autoFillPriceForm.control}
