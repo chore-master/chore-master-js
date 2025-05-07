@@ -33,7 +33,7 @@ export default function Layout({
             {
               type: 'link',
               title: t('finance.navigations.prices'),
-              href: '/finance/market/prices',
+              href: '/finance/prices',
               selectedWhenPartiallyMatched: true,
             },
           ],
