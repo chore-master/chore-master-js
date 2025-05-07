@@ -12,8 +12,12 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
-import type { Account, Asset, BalanceSheetDetail } from '@/types/finance'
-import type { Operator } from '@/types/integration'
+import type {
+  Account,
+  Asset,
+  BalanceSheetDetail,
+  MarkPrice,
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { getSyntheticPrice } from '@/utils/price'
@@ -62,13 +66,6 @@ export default function Page() {
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
 
-  // Feed operator
-  const [feedOperators, setFeedOperators] = React.useState<Operator[]>([])
-  const [isFetchingFeedOperators, setIsFetchingFeedOperators] =
-    React.useState(false)
-  const [selectedFeedOperatorReference, setSelectedFeedOperatorReference] =
-    React.useState('')
-
   // Settleable asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
   const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
@@ -89,8 +86,8 @@ export default function Page() {
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
 
   // Prices
-  const [prices, setPrices] = React.useState<any>([])
-  const [isFetchingPrices, setIsFetchingPrices] = React.useState(false)
+  const [markPrices, setMarkPrices] = React.useState<MarkPrice[]>([])
+  const [isFetchingMarkPrices, setIsFetchingMarkPrices] = React.useState(false)
 
   // Chart
   const [pieChartOptions, setPieChartOptions] =
@@ -98,25 +95,6 @@ export default function Page() {
   const [selectedChartType, setSelectedChartType] = React.useState(
     chartTypes[0].value
   )
-
-  const fetchFeedOperators = React.useCallback(async () => {
-    setIsFetchingFeedOperators(true)
-    await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
-      params: {
-        discriminators: ['oanda_feed', 'yahoo_finance_feed'],
-      },
-      onError: () => {
-        enqueueNotification(`Unable to fetch feed operators now.`, 'error')
-      },
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data }: any) => {
-        setFeedOperators(data)
-      },
-    })
-    setIsFetchingFeedOperators(false)
-  }, [enqueueNotification])
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -179,40 +157,38 @@ export default function Page() {
     [enqueueNotification]
   )
 
-  const fetchPrices = React.useCallback(
+  const fetchMarkPrices = React.useCallback(
     async (
-      feedOperatorReference: string,
-      datetimes: string[],
-      instrumentSymbols: string[]
+      queryDatetimes: string[],
+      queryPairs: {
+        base_asset_reference: string
+        quote_asset_reference: string
+      }[]
     ) => {
-      setIsFetchingPrices(true)
+      setIsFetchingMarkPrices(true)
       await choreMasterAPIAgent.post(
-        `/v1/integration/users/me/operators/${feedOperatorReference}/feed/fetch_prices`,
+        `/v1/finance/users/me/query-mark-prices`,
         {
-          target_datetimes: datetimes,
-          target_interval: '1d',
-          instrument_symbols: instrumentSymbols,
+          query_datetimes: queryDatetimes,
+          query_pairs: queryPairs,
+          max_allowed_timedelta_ms: 1000 * 60 * 60 * 24 * 3,
         },
         {
           onError: () => {
-            enqueueNotification(`Unable to fetch prices now.`, 'error')
+            enqueueNotification(`Unable to fetch mark prices now.`, 'error')
           },
           onFail: ({ message }: any) => {
             enqueueNotification(message, 'error')
           },
           onSuccess: async ({ data }: any) => {
-            setPrices(data)
+            setMarkPrices(data)
           },
         }
       )
-      setIsFetchingPrices(false)
+      setIsFetchingMarkPrices(false)
     },
     [enqueueNotification]
   )
-
-  React.useEffect(() => {
-    fetchFeedOperators()
-  }, [fetchFeedOperators])
 
   React.useEffect(() => {
     fetchSettleableAssets()
@@ -221,15 +197,6 @@ export default function Page() {
   React.useEffect(() => {
     fetchBalanceSheet()
   }, [fetchBalanceSheet])
-
-  React.useEffect(() => {
-    const feedOperator = feedOperators.find(
-      (operator) => operator.reference === selectedFeedOperatorReference
-    )
-    if (!feedOperator) {
-      setSelectedFeedOperatorReference(feedOperators[0]?.reference || '')
-    }
-  }, [feedOperators, selectedFeedOperatorReference])
 
   React.useEffect(() => {
     const settleableAsset = settleableAssets.find(
@@ -252,45 +219,40 @@ export default function Page() {
   }, [balanceSheet, fetchAccounts])
 
   React.useEffect(() => {
-    if (
-      balanceSheet &&
-      selectedFeedOperatorReference &&
-      settleableAssets.length > 0
-    ) {
+    if (balanceSheet && settleableAssets.length > 0) {
       const datetimes = [balanceSheet.balanced_time]
-      const baseAssetIndex = settleableAssets.findIndex(
+      const baseAsset = settleableAssets.find(
         (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
       )
-      if (baseAssetIndex === -1) {
+      if (!baseAsset) {
         enqueueNotification(
           `Intermediate asset ${INTERMEDIATE_ASSET_SYMBOL} not found.`,
           'error'
         )
         return
       }
-      const instrumentSymbols = settleableAssets
+      const queryPairs = settleableAssets
         .filter((asset) => asset.symbol !== INTERMEDIATE_ASSET_SYMBOL)
-        .map(
-          (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
-        )
-      fetchPrices(selectedFeedOperatorReference, datetimes, instrumentSymbols)
+        .map((quoteAsset) => ({
+          base_asset_reference: baseAsset.reference,
+          quote_asset_reference: quoteAsset.reference,
+        }))
+      fetchMarkPrices(datetimes, queryPairs)
     }
-  }, [
-    balanceSheet,
-    selectedFeedOperatorReference,
-    settleableAssets,
-    fetchPrices,
-    enqueueNotification,
-  ])
+  }, [balanceSheet, settleableAssets, fetchMarkPrices, enqueueNotification])
 
   React.useEffect(() => {
     if (
       selectedSettleableAssetReference &&
       balanceSheet &&
-      prices.length > 0 &&
+      markPrices.length > 0 &&
       accounts.length > 0 &&
       settleableAssets.length > 0
     ) {
+      const intermediateAssetReference =
+        settleableAssets.find(
+          (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
+        )?.reference || ''
       const accountReferenceToAccountMap: Record<string, Account> =
         accounts.reduce((acc: any, account: Account) => {
           acc[account.reference] = account
@@ -311,13 +273,14 @@ export default function Page() {
           accountReferenceToAccountMap[balanceEntry.account_reference]
         const accountSettlementAsset =
           assetReferenceToSettleableAssetMap[account.settlement_asset_reference]
-        const accountSettlementAssetSymbol = accountSettlementAsset.symbol
         const price = getSyntheticPrice(
-          prices.filter(
-            (price: any) => price.target_datetime === balanceSheet.balanced_time
+          markPrices.filter(
+            (markPrice: MarkPrice) =>
+              markPrice.query_datetime === balanceSheet.balanced_time
           ),
-          accountSettlementAssetSymbol,
-          selectedSettleableAssetSymbol
+          account.settlement_asset_reference,
+          selectedSettleableAssetReference,
+          intermediateAssetReference
         )
         const value = new Decimal(balanceEntry.amount)
           .dividedBy(10 ** accountSettlementAsset.decimals)
@@ -404,7 +367,7 @@ export default function Page() {
     balanceSheet,
     selectedSettleableAssetReference,
     selectedChartType,
-    prices,
+    markPrices,
     accounts,
     settleableAssets,
   ])
@@ -456,10 +419,9 @@ export default function Page() {
         <ModuleFunctionHeader subtitle="結構組成" />
         <ModuleFunctionBody
           loading={
-            isFetchingFeedOperators ||
             isFetchingSettleableAssets ||
             isFetchingBalanceSheet ||
-            isFetchingPrices
+            isFetchingMarkPrices
           }
         >
           <Box sx={{ minWidth: 480 }}>
@@ -496,25 +458,6 @@ export default function Page() {
                   {settleableAssets.map((asset) => (
                     <MenuItem key={asset.reference} value={asset.reference}>
                       {asset.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl variant="standard">
-                <InputLabel>報價來源</InputLabel>
-                <Select
-                  value={selectedFeedOperatorReference}
-                  onChange={(event: SelectChangeEvent) => {
-                    setSelectedFeedOperatorReference(event.target.value)
-                  }}
-                  autoWidth
-                >
-                  {feedOperators.map((operator) => (
-                    <MenuItem
-                      key={operator.reference}
-                      value={operator.reference}
-                    >
-                      {operator.name}
                     </MenuItem>
                   ))}
                 </Select>

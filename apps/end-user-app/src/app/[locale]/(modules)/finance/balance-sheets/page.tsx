@@ -262,12 +262,11 @@ export default function Page() {
   }, [balanceSheetsSeries])
 
   React.useEffect(() => {
-    const intermediateAssetReference =
-      settleableAssets.find(
-        (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
-      )?.reference || ''
-
     if (markPrices.length > 0 && selectedSettleableAssetReference) {
+      const intermediateAssetReference =
+        settleableAssets.find(
+          (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
+        )?.reference || ''
       const accounts = balanceSheetsSeries.accounts || []
       const balanceSheets = balanceSheetsSeries.balance_sheets || []
       const balanceEntries = balanceSheetsSeries.balance_entries || []
