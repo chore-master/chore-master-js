@@ -361,7 +361,7 @@ export default function Page() {
           </Button>,
         ]}
       />
-      <ModuleFunctionBody loading={isFetchingPrices}>
+      <ModuleFunctionBody loading={isFetchingPrices || isFetchingAssets}>
         <TableContainer>
           <Table size="small">
             <TableHead>
