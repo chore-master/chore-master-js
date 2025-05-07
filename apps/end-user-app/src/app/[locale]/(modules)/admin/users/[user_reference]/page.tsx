@@ -415,7 +415,7 @@ export default function Page() {
                             <PlaceholderTypography>N/A</PlaceholderTypography>
                           )}
                         </NoWrapTableCell>
-                        <NoWrapTableCell align="right">
+                        <NoWrapTableCell align="right" padding="checkbox">
                           <Checkbox
                             size="small"
                             disabled={isFetchingUser || isFetchingRoles}
