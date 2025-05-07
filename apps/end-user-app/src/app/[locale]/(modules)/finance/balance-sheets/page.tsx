@@ -297,10 +297,6 @@ export default function Page() {
         return acc
       }, {})
 
-      const selectedSettleableAsset = settleableAssets.find(
-        (asset) => asset.reference === selectedSettleableAssetReference
-      )
-
       let series: Highcharts.SeriesOptionsType[] = []
       // each series must specify id to prevent bugs during switching `selectedChartType`s
       if (selectedChartType === 'net_value_areaspline') {
@@ -339,7 +335,7 @@ export default function Page() {
                 acc +
                 new Decimal(balanceEntry.amount)
                   .dividedBy(10 ** accountSettlementAsset.decimals)
-                  .times(price)
+                  .times(price || 0)
                   .toNumber()
               )
             }, 0)
@@ -419,7 +415,7 @@ export default function Page() {
                   timezone.offsetInMinutes * 60 * 1000,
                 new Decimal(balanceEntry.amount)
                   .dividedBy(10 ** accountSettlementAsset.decimals)
-                  .times(price)
+                  .times(price || 0)
                   .toNumber(),
               ]
             })
@@ -466,7 +462,7 @@ export default function Page() {
                   timezone.offsetInMinutes * 60 * 1000,
                 new Decimal(balanceEntry.amount)
                   .dividedBy(10 ** accountSettlementAsset.decimals)
-                  .times(price)
+                  .times(price || 0)
                   .toNumber(),
               ]
             })

@@ -183,7 +183,8 @@ export default function Page() {
     if (feedOperators.length > 0 && !values.operator_reference) {
       autoFillPriceForm.setValue(
         'operator_reference',
-        feedOperators[0]?.reference || ''
+        feedOperators[0]?.reference || '',
+        { shouldValidate: true }
       )
     }
   }, [feedOperators])

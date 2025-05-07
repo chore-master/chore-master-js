@@ -284,7 +284,7 @@ export default function Page() {
         )
         const value = new Decimal(balanceEntry.amount)
           .dividedBy(10 ** accountSettlementAsset.decimals)
-          .times(price)
+          .times(price || 0)
           .toNumber()
         return {
           name: account.name,
