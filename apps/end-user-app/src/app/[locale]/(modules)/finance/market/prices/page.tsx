@@ -14,13 +14,14 @@ import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import WithRef from '@/components/WithRef'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
-import { Link } from '@/i18n/navigation'
 import type {
   Asset,
+  AutoFillPriceFormInputs,
   CreatePriceFormInputs,
   Price,
   UpdatePriceFormInputs,
 } from '@/types/finance'
+import { Operator } from '@/types/integration'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { validateDatetimeField } from '@/utils/validation'
@@ -35,6 +36,9 @@ import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableContainer from '@mui/material/TableContainer'
@@ -42,6 +46,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import { debounce } from 'lodash'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
@@ -61,6 +66,12 @@ export default function Page() {
       return acc
     }, {})
   }, [assets])
+
+  // Feed operator
+  const autoFillPriceForm = useForm<AutoFillPriceFormInputs>()
+  const [feedOperators, setFeedOperators] = React.useState<Operator[]>([])
+  const [isFetchingFeedOperators, setIsFetchingFeedOperators] =
+    React.useState(false)
 
   // Price
   const [prices, setPrices] = React.useState<Price[]>([])
@@ -121,6 +132,41 @@ export default function Page() {
   const debouncedFetchAssets = React.useCallback(debounce(fetchAssets, 1500), [
     fetchAssets,
   ])
+
+  // Auto fill
+
+  const fetchFeedOperators = React.useCallback(async () => {
+    setIsFetchingFeedOperators(true)
+    await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
+      params: {},
+      onError: () => {
+        enqueueNotification(`Unable to fetch feed operators now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: any) => {
+        setFeedOperators(data)
+      },
+    })
+    setIsFetchingFeedOperators(false)
+  }, [enqueueNotification])
+
+  const handleSubmitAutoFillPriceForm: SubmitHandler<
+    AutoFillPriceFormInputs
+  > = async (data) => {
+    console.log(data)
+  }
+
+  React.useEffect(() => {
+    const values = autoFillPriceForm.getValues()
+    if (feedOperators.length > 0 && !values.operator_reference) {
+      autoFillPriceForm.setValue(
+        'operator_reference',
+        feedOperators[0]?.reference || ''
+      )
+    }
+  }, [feedOperators])
 
   // Price
 
@@ -265,13 +311,22 @@ export default function Page() {
               </IconButton>
             </span>
           </Tooltip>,
-          <Button
+          // <Button
+          //   key="refill"
+          //   component={Link}
+          //   href="/finance/market/prices/refill"
+          // >
+          //   批次回補
+          // </Button>,
+          <AutoLoadingButton
             key="refill"
-            component={Link}
-            href="/finance/market/prices/refill"
+            onClick={async () => {
+              await fetchFeedOperators()
+              sidePanel.open('refillPrice')
+            }}
           >
-            批次回補
-          </Button>,
+            回補精靈
+          </AutoLoadingButton>,
           <Button
             key="create"
             variant="contained"
@@ -823,6 +878,74 @@ export default function Page() {
             onClick={updatePriceForm.handleSubmit(handleSubmitUpdatePriceForm)}
           >
             儲存
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
+
+      <SidePanel id="refillPrice">
+        <CardHeader
+          title="回補精靈"
+          action={
+            <IconButton
+              onClick={() => {
+                sidePanel.close()
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          useFlexGap
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <Typography>
+            回補精靈根據您在 Chore Master
+            所使用到的時間戳、貨幣對，以及您所選擇的價格來源自動撈取歷史價格。價格來源不一定隨時可用，請您見諒。
+          </Typography>
+          <Controller
+            name="operator_reference"
+            control={autoFillPriceForm.control}
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl required variant="standard">
+                <InputLabel>價格來源</InputLabel>
+                <Select
+                  {...field}
+                  onChange={(event: SelectChangeEvent) => {
+                    const value = event.target.value
+                    field.onChange(value)
+                  }}
+                  autoWidth
+                >
+                  {feedOperators.map((operator) => (
+                    <MenuItem
+                      key={operator.reference}
+                      value={operator.reference}
+                    >
+                      {operator.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+            rules={{ required: '必填' }}
+          />
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!autoFillPriceForm.formState.isValid}
+            onClick={autoFillPriceForm.handleSubmit(
+              handleSubmitAutoFillPriceForm
+            )}
+          >
+            回補
           </AutoLoadingButton>
         </Stack>
       </SidePanel>
