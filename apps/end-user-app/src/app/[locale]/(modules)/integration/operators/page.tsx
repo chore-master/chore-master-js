@@ -9,6 +9,7 @@ import ModuleFunction, {
 import { TablePagination } from '@/components/Pagination'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import SidePanel, { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { integrationOperatorDiscriminators } from '@/constants'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
@@ -21,6 +22,7 @@ import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
@@ -28,10 +30,8 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
-import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
@@ -51,6 +51,9 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
+  const sidePanel = useSidePanel()
+
+  // Operators
   const [operators, setOperators] = React.useState<Operator[]>([])
   const operatorsPagination = useOffsetPagination({})
   const [isFetchingOperators, setIsFetchingOperators] = React.useState(false)
@@ -99,9 +102,9 @@ export default function Page() {
         enqueueNotification(message, 'error')
       },
       onSuccess: () => {
+        sidePanel.close()
         createOperatorForm.reset()
         fetchOperators()
-        setIsCreateOperatorDrawerOpen(false)
       },
     })
   }
@@ -120,9 +123,10 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
+          sidePanel.close()
           updateOperatorForm.reset()
-          fetchOperators()
           setEditingOperatorReference(undefined)
+          fetchOperators()
         },
       }
     )
@@ -178,7 +182,7 @@ export default function Page() {
               startIcon={<AddIcon />}
               onClick={() => {
                 createOperatorForm.reset()
-                setIsCreateOperatorDrawerOpen(true)
+                sidePanel.open('createOperator')
               }}
             >
               新增
@@ -240,6 +244,7 @@ export default function Page() {
                             JSON.stringify(operator.value)
                           )
                           setEditingOperatorReference(operator.reference)
+                          sidePanel.open('editOperator')
                         }}
                       >
                         <EditIcon />
@@ -292,179 +297,177 @@ export default function Page() {
         </ModuleFunctionBody>
       </ModuleFunction>
 
-      <Drawer
-        anchor="right"
-        open={isCreateOperatorDrawerOpen}
-        onClose={() => {
-          setIsCreateOperatorDrawerOpen(false)
-        }}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="新增運算器" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={createOperatorForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名稱"
-                    variant="filled"
-                    size="small"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
+      <SidePanel id="createOperator">
+        <CardHeader
+          title="新增運算器"
+          action={
+            <IconButton onClick={() => sidePanel.close()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
             <Controller
-              name="discriminator"
+              name="name"
               control={createOperatorForm.control}
               defaultValue=""
               render={({ field }) => (
-                <FormControl required fullWidth size="small" variant="filled">
-                  <InputLabel>鑑別器</InputLabel>
-                  <Select {...field}>
-                    {integrationOperatorDiscriminators.map((discriminator) => (
-                      <MenuItem key={discriminator} value={discriminator}>
-                        {discriminator}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <TextField
+                  {...field}
+                  required
+                  label="名稱"
+                  variant="filled"
+                  size="small"
+                />
               )}
               rules={{ required: '必填' }}
             />
-            <FormControl>
-              <Controller
-                name="value"
-                control={createOperatorForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    multiline
-                    minRows={3}
-                    maxRows={20}
-                    size="small"
-                    label="值"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!createOperatorForm.formState.isValid}
-              onClick={createOperatorForm.handleSubmit(
-                handleSubmitCreateOperatorForm
-              )}
-            >
-              新增
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
-
-      <Drawer
-        anchor="right"
-        open={!!editingOperatorReference}
-        onClose={() => {
-          setEditingOperatorReference(undefined)
-        }}
-      >
-        <Box sx={{ minWidth: 320 }}>
-          <CardHeader title="編輯運算器" />
-          <Stack
-            component="form"
-            spacing={3}
-            p={2}
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.preventDefault()
-            }}
-          >
-            <FormControl>
-              <Controller
-                name="name"
-                control={updateOperatorForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    label="名稱"
-                    variant="filled"
-                    size="small"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
+          </FormControl>
+          <Controller
+            name="discriminator"
+            control={createOperatorForm.control}
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl required fullWidth size="small" variant="filled">
+                <InputLabel>鑑別器</InputLabel>
+                <Select {...field}>
+                  {integrationOperatorDiscriminators.map((discriminator) => (
+                    <MenuItem key={discriminator} value={discriminator}>
+                      {discriminator}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+            rules={{ required: '必填' }}
+          />
+          <FormControl>
             <Controller
-              name="discriminator"
+              name="value"
+              control={createOperatorForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  required
+                  multiline
+                  minRows={3}
+                  maxRows={20}
+                  size="small"
+                  label="值"
+                  variant="filled"
+                />
+              )}
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!createOperatorForm.formState.isValid}
+            onClick={createOperatorForm.handleSubmit(
+              handleSubmitCreateOperatorForm
+            )}
+          >
+            新增
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
+
+      <SidePanel id="editOperator">
+        <CardHeader
+          title="編輯運算器"
+          action={
+            <IconButton onClick={() => sidePanel.close()}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Stack
+          component="form"
+          spacing={3}
+          p={2}
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <FormControl>
+            <Controller
+              name="name"
               control={updateOperatorForm.control}
               defaultValue=""
               render={({ field }) => (
-                <FormControl required fullWidth size="small" variant="filled">
-                  <InputLabel>鑑別器</InputLabel>
-                  <Select {...field}>
-                    {integrationOperatorDiscriminators.map((discriminator) => (
-                      <MenuItem key={discriminator} value={discriminator}>
-                        {discriminator}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <TextField
+                  {...field}
+                  required
+                  label="名稱"
+                  variant="filled"
+                  size="small"
+                />
               )}
               rules={{ required: '必填' }}
             />
-            <FormControl>
-              <Controller
-                name="value"
-                control={updateOperatorForm.control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    required
-                    multiline
-                    minRows={3}
-                    maxRows={20}
-                    size="small"
-                    label="值"
-                    variant="filled"
-                  />
-                )}
-                rules={{ required: '必填' }}
-              />
-            </FormControl>
-            <AutoLoadingButton
-              type="submit"
-              variant="contained"
-              disabled={!updateOperatorForm.formState.isValid}
-              onClick={updateOperatorForm.handleSubmit(
-                handleSubmitUpdateOperatorForm
+          </FormControl>
+          <Controller
+            name="discriminator"
+            control={updateOperatorForm.control}
+            defaultValue=""
+            render={({ field }) => (
+              <FormControl required fullWidth size="small" variant="filled">
+                <InputLabel>鑑別器</InputLabel>
+                <Select {...field}>
+                  {integrationOperatorDiscriminators.map((discriminator) => (
+                    <MenuItem key={discriminator} value={discriminator}>
+                      {discriminator}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+            rules={{ required: '必填' }}
+          />
+          <FormControl>
+            <Controller
+              name="value"
+              control={updateOperatorForm.control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  required
+                  multiline
+                  minRows={3}
+                  maxRows={20}
+                  size="small"
+                  label="值"
+                  variant="filled"
+                />
               )}
-            >
-              儲存
-            </AutoLoadingButton>
-          </Stack>
-        </Box>
-      </Drawer>
+              rules={{ required: '必填' }}
+            />
+          </FormControl>
+          <AutoLoadingButton
+            type="submit"
+            variant="contained"
+            disabled={!updateOperatorForm.formState.isValid}
+            onClick={updateOperatorForm.handleSubmit(
+              handleSubmitUpdateOperatorForm
+            )}
+          >
+            儲存
+          </AutoLoadingButton>
+        </Stack>
+      </SidePanel>
     </React.Fragment>
   )
 }
