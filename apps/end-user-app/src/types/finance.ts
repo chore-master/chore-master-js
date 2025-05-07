@@ -45,6 +45,16 @@ export interface UpdatePriceFormInputs {
   confirmed_time: string
 }
 
+export interface MarkPrice {
+  query_datetime: string
+  mark_price: {
+    base_asset_reference: string
+    quote_asset_reference: string
+    value: string
+    confirmed_time: string
+  }
+}
+
 // export interface QueryFeedOperatorFormInputs {
 //   operator_reference: string
 //   gte_confirmed_time: string

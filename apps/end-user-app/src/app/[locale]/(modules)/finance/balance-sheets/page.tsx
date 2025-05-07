@@ -20,8 +20,8 @@ import type {
   BalanceEntry,
   BalanceSheetSeries,
   BalanceSheetSummary,
+  MarkPrice,
 } from '@/types/finance'
-import type { Operator } from '@/types/integration'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { getSyntheticPrice } from '@/utils/price'
@@ -77,13 +77,6 @@ export default function Page() {
   const router = useRouter()
   const timezone = useTimezone()
 
-  // Feed operator
-  const [feedOperators, setFeedOperators] = React.useState<Operator[]>([])
-  const [isFetchingFeedOperators, setIsFetchingFeedOperators] =
-    React.useState(false)
-  const [selectedFeedOperatorReference, setSelectedFeedOperatorReference] =
-    React.useState('')
-
   // Settleable asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
   const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
@@ -108,8 +101,8 @@ export default function Page() {
     React.useState(false)
 
   // Prices
-  const [prices, setPrices] = React.useState<any>([])
-  const [isFetchingPrices, setIsFetchingPrices] = React.useState(false)
+  const [markPrices, setMarkPrices] = React.useState<MarkPrice[]>([])
+  const [isFetchingMarkPrices, setIsFetchingMarkPrices] = React.useState(false)
 
   // Chart
   const [areaChartOptions, setAreaChartOptions] =
@@ -126,25 +119,6 @@ export default function Page() {
   const [selectedChartType, setSelectedChartType] = React.useState(
     chartTypes[0].value
   )
-
-  const fetchFeedOperators = React.useCallback(async () => {
-    setIsFetchingFeedOperators(true)
-    await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
-      params: {
-        discriminators: ['oanda_feed', 'yahoo_finance_feed'],
-      },
-      onError: () => {
-        enqueueNotification(`Unable to fetch feed operators now.`, 'error')
-      },
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data }: any) => {
-        setFeedOperators(data)
-      },
-    })
-    setIsFetchingFeedOperators(false)
-  }, [enqueueNotification])
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -192,40 +166,38 @@ export default function Page() {
     setIsFetchingBalanceSheetsSeries(false)
   }, [balanceSheetsPagination.offset, balanceSheetsPagination.rowsPerPage])
 
-  const fetchPrices = React.useCallback(
+  const fetchMarkPrices = React.useCallback(
     async (
-      feedOperatorReference: string,
-      datetimes: string[],
-      instrumentSymbols: string[]
+      queryDatetimes: string[],
+      queryPairs: {
+        base_asset_reference: string
+        quote_asset_reference: string
+      }[]
     ) => {
-      setIsFetchingPrices(true)
+      setIsFetchingMarkPrices(true)
       await choreMasterAPIAgent.post(
-        `/v1/integration/users/me/operators/${feedOperatorReference}/feed/fetch_prices`,
+        `/v1/finance/users/me/query-mark-prices`,
         {
-          target_datetimes: datetimes,
-          target_interval: '1d',
-          instrument_symbols: instrumentSymbols,
+          query_datetimes: queryDatetimes,
+          query_pairs: queryPairs,
+          max_allowed_timedelta_ms: 1000 * 60 * 60 * 24 * 3,
         },
         {
           onError: () => {
-            enqueueNotification(`Unable to fetch prices now.`, 'error')
+            enqueueNotification(`Unable to fetch mark prices now.`, 'error')
           },
           onFail: ({ message }: any) => {
             enqueueNotification(message, 'error')
           },
           onSuccess: async ({ data }: any) => {
-            setPrices(data)
+            setMarkPrices(data)
           },
         }
       )
-      setIsFetchingPrices(false)
+      setIsFetchingMarkPrices(false)
     },
     [enqueueNotification]
   )
-
-  React.useEffect(() => {
-    fetchFeedOperators()
-  }, [fetchFeedOperators])
 
   React.useEffect(() => {
     fetchSettleableAssets()
@@ -234,15 +206,6 @@ export default function Page() {
   React.useEffect(() => {
     fetchBalanceSheetsSeries()
   }, [fetchBalanceSheetsSeries])
-
-  React.useEffect(() => {
-    const feedOperator = feedOperators.find(
-      (operator) => operator.reference === selectedFeedOperatorReference
-    )
-    if (!feedOperator) {
-      setSelectedFeedOperatorReference(feedOperators[0]?.reference || '')
-    }
-  }, [feedOperators, selectedFeedOperatorReference])
 
   React.useEffect(() => {
     const settleableAsset = settleableAssets.find(
@@ -256,36 +219,32 @@ export default function Page() {
   React.useEffect(() => {
     const balanceSheets: BalanceSheetSummary[] =
       balanceSheetsSeries?.balance_sheets || []
-    if (
-      selectedFeedOperatorReference &&
-      balanceSheets.length > 0 &&
-      settleableAssets.length > 0
-    ) {
+    if (balanceSheets.length > 0 && settleableAssets.length > 0) {
       const datetimes = balanceSheets.map(
         (balanceSheet) => balanceSheet.balanced_time
       )
-      const baseAssetIndex = settleableAssets.findIndex(
+      const baseAsset = settleableAssets.find(
         (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
       )
-      if (baseAssetIndex === -1) {
+      if (!baseAsset) {
         enqueueNotification(
           `Intermediate asset ${INTERMEDIATE_ASSET_SYMBOL} not found.`,
           'error'
         )
         return
       }
-      const instrumentSymbols = settleableAssets
+      const queryPairs = settleableAssets
         .filter((asset) => asset.symbol !== INTERMEDIATE_ASSET_SYMBOL)
-        .map(
-          (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
-        )
-      fetchPrices(selectedFeedOperatorReference, datetimes, instrumentSymbols)
+        .map((quoteAsset) => ({
+          base_asset_reference: baseAsset.reference,
+          quote_asset_reference: quoteAsset.reference,
+        }))
+      fetchMarkPrices(datetimes, queryPairs)
     }
   }, [
-    selectedFeedOperatorReference,
     balanceSheetsSeries,
     settleableAssets,
-    fetchPrices,
+    fetchMarkPrices,
     enqueueNotification,
   ])
 
@@ -303,7 +262,12 @@ export default function Page() {
   }, [balanceSheetsSeries])
 
   React.useEffect(() => {
-    if (prices.length > 0 && selectedSettleableAssetReference) {
+    const intermediateAssetReference =
+      settleableAssets.find(
+        (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
+      )?.reference || ''
+
+    if (markPrices.length > 0 && selectedSettleableAssetReference) {
       const accounts = balanceSheetsSeries.accounts || []
       const balanceSheets = balanceSheetsSeries.balance_sheets || []
       const balanceEntries = balanceSheetsSeries.balance_entries || []
@@ -337,7 +301,6 @@ export default function Page() {
       const selectedSettleableAsset = settleableAssets.find(
         (asset) => asset.reference === selectedSettleableAssetReference
       )
-      const selectedSettleableAssetSymbol = selectedSettleableAsset?.symbol
 
       let series: Highcharts.SeriesOptionsType[] = []
       // each series must specify id to prevent bugs during switching `selectedChartType`s
@@ -361,14 +324,16 @@ export default function Page() {
                 (asset) =>
                   asset.reference === account.settlement_asset_reference
               ) as Asset
-              const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+              const accountSettlementAssetReference =
+                accountSettlementAsset.reference
               const price = getSyntheticPrice(
-                prices.filter(
-                  (price: any) =>
-                    price.target_datetime === balanceSheet.balanced_time
+                markPrices.filter(
+                  (markPrice: MarkPrice) =>
+                    markPrice.query_datetime === balanceSheet.balanced_time
                 ),
-                accountSettlementAssetSymbol as string,
-                selectedSettleableAssetSymbol as string
+                accountSettlementAssetReference,
+                selectedSettleableAssetReference,
+                intermediateAssetReference
               )
 
               return (
@@ -430,7 +395,8 @@ export default function Page() {
             const accountSettlementAsset = settleableAssets.find(
               (asset) => asset.reference === account.settlement_asset_reference
             ) as Asset
-            const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+            const accountSettlementAssetReference =
+              accountSettlementAsset.reference
             const legend = legends.find(
               (legend: any) => legend.seriesId === account.reference
             )
@@ -440,12 +406,13 @@ export default function Page() {
                   balanceEntry.balance_sheet_reference as string
                 ]
               const price = getSyntheticPrice(
-                prices.filter(
-                  (price: any) =>
-                    price.target_datetime === balanceSheet.balanced_time
+                markPrices.filter(
+                  (markPrice: MarkPrice) =>
+                    markPrice.query_datetime === balanceSheet.balanced_time
                 ),
-                accountSettlementAssetSymbol as string,
-                selectedSettleableAssetSymbol as string
+                accountSettlementAssetReference,
+                selectedSettleableAssetReference,
+                intermediateAssetReference
               )
 
               return [
@@ -475,7 +442,8 @@ export default function Page() {
             const accountSettlementAsset = settleableAssets.find(
               (asset) => asset.reference === account.settlement_asset_reference
             ) as Asset
-            const accountSettlementAssetSymbol = accountSettlementAsset.symbol
+            const accountSettlementAssetReference =
+              accountSettlementAsset.reference
             const legend = legends.find(
               (legend: any) => legend.seriesId === account.reference
             )
@@ -485,12 +453,13 @@ export default function Page() {
                   balanceEntry.balance_sheet_reference as string
                 ]
               const price = getSyntheticPrice(
-                prices.filter(
-                  (price: any) =>
-                    price.target_datetime === balanceSheet.balanced_time
+                markPrices.filter(
+                  (markPrice: MarkPrice) =>
+                    markPrice.query_datetime === balanceSheet.balanced_time
                 ),
-                accountSettlementAssetSymbol as string,
-                selectedSettleableAssetSymbol as string
+                accountSettlementAssetReference,
+                selectedSettleableAssetReference,
+                intermediateAssetReference
               )
 
               return [
@@ -541,21 +510,22 @@ export default function Page() {
           acc.add(account.settlement_asset_reference)
           return acc
         }, new Set())
-        const quoteAssetSymbol = settleableAssets.find(
+        const quoteAsset = settleableAssets.find(
           (asset) => asset.reference === selectedSettleableAssetReference
-        )?.symbol as string
+        )
         series = Array.from(baseAssetReferenceSet).map((baseAssetReference) => {
-          const baseAssetSymbol = settleableAssets.find(
+          const baseAsset = settleableAssets.find(
             (asset) => asset.reference === baseAssetReference
-          )?.symbol as string
+          )
           const datapoints = balanceSheets.map((balanceSheet) => {
             const price = getSyntheticPrice(
-              prices.filter(
-                (price: any) =>
-                  price.target_datetime === balanceSheet.balanced_time
+              markPrices.filter(
+                (markPrice: MarkPrice) =>
+                  markPrice.query_datetime === balanceSheet.balanced_time
               ),
-              baseAssetSymbol,
-              quoteAssetSymbol
+              baseAssetReference,
+              quoteAsset?.reference || '',
+              intermediateAssetReference
             )
             return [
               new Date(`${balanceSheet.balanced_time}Z`).getTime() +
@@ -564,9 +534,9 @@ export default function Page() {
             ]
           })
           return {
-            id: `exchange_rate_${baseAssetSymbol}_${quoteAssetSymbol}`,
+            id: `exchange_rate_${baseAsset?.symbol}_${quoteAsset?.symbol}`,
             type: 'line',
-            name: `${baseAssetSymbol}/${quoteAssetSymbol}`,
+            name: `${baseAsset?.symbol}/${quoteAsset?.symbol}`,
             data: datapoints.sort((a: any, b: any) => a[0] - b[0]),
           }
         }) as Highcharts.SeriesOptionsType[]
@@ -591,7 +561,7 @@ export default function Page() {
     balanceSheetsSeries,
     selectedChartType,
     selectedSettleableAssetReference,
-    prices,
+    markPrices,
     settleableAssets,
     legends,
   ])
@@ -623,16 +593,16 @@ export default function Page() {
         <ModuleFunctionHeader subtitle="資金曲線" />
         <ModuleFunctionBody
           loading={
-            isFetchingFeedOperators ||
             isFetchingSettleableAssets ||
             isFetchingBalanceSheetsSeries ||
-            isFetchingPrices
+            isFetchingMarkPrices
           }
         >
           <Box sx={{ minWidth: 640 }}>
             <Stack
               direction="row"
               spacing={2}
+              useFlexGap
               sx={{ p: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
               <FormControl variant="standard">
@@ -663,25 +633,6 @@ export default function Page() {
                   {settleableAssets.map((asset) => (
                     <MenuItem key={asset.reference} value={asset.reference}>
                       {asset.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl variant="standard">
-                <InputLabel>報價來源</InputLabel>
-                <Select
-                  value={selectedFeedOperatorReference}
-                  onChange={(event: SelectChangeEvent) => {
-                    setSelectedFeedOperatorReference(event.target.value)
-                  }}
-                  autoWidth
-                >
-                  {feedOperators.map((operator) => (
-                    <MenuItem
-                      key={operator.reference}
-                      value={operator.reference}
-                    >
-                      {operator.name}
                     </MenuItem>
                   ))}
                 </Select>
