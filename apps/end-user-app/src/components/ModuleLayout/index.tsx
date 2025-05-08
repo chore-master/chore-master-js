@@ -824,6 +824,10 @@ export default function ModuleLayout({
                   <Slider
                     size="small"
                     valueLabelDisplay="auto"
+                    valueLabelFormat={(value) =>
+                      `UTC${offsetInMinutesToTimedeltaString(value)}`
+                    }
+                    track={false}
                     step={30}
                     min={-600}
                     max={540}
@@ -836,6 +840,12 @@ export default function ModuleLayout({
                       })
                     )}
                     value={timezone.offsetInMinutes}
+                    // onChangeCommitted={(
+                    //   event: React.SyntheticEvent | Event,
+                    //   value: number | number[]
+                    // ) => {
+                    //   timezone.setOffsetInMinutes(value as number)
+                    // }}
                     onChange={(event: Event, newValue: number | number[]) => {
                       timezone.setOffsetInMinutes(newValue as number)
                     }}
