@@ -191,7 +191,7 @@ export default function Page() {
         />
         <ModuleFunctionBody loading={isFetchingOperators}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <NoWrapTableCell align="right">
@@ -273,7 +273,7 @@ export default function Page() {
               </Stack>
             </AccordionSummary>
             <TableContainer component={AccordionDetails}>
-              <Table>
+              <Table size="small">
                 <TableHead>
                   <TableRow>
                     <NoWrapTableCell>鑑別器</NoWrapTableCell>
@@ -282,7 +282,7 @@ export default function Page() {
                 </TableHead>
                 <TableBody>
                   <TableRow>
-                    <NoWrapTableCell>coingecko_feed</NoWrapTableCell>
+                    <NoWrapTableCell>yahoo_finance_feed</NoWrapTableCell>
                     <NoWrapTableCell>
                       <CodeBlock
                         language="json"
