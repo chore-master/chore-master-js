@@ -37,6 +37,9 @@
       }
     }
   },
+  "global": {
+    "refresh": "立即重整"
+  },
   "modules": {
     "admin": {
       "name": "管理控制台",
@@ -56,13 +59,58 @@
         "myWealth": "我的資金",
         "assets": "資產",
         "accounts": "帳戶",
-        "balance": "餘額",
+        "balance": "結餘",
         "myInvestment": "我的投資",
         "portfolios": "投資組合",
         "others": "其他",
         "interestRateQuotation": "利率行情",
         "ecosystem": "生態",
         "flow": "流量"
+      },
+      "pages": {
+        "balanceSheets": {
+          "titles": {
+            "balance": "結餘"
+          },
+          "subtitles": {
+            "equityCurve": "資金曲線",
+            "details": "明細"
+          },
+          "dropdowns": {
+            "dimension": "維度",
+            "settlementAsset": "結算資產"
+          },
+          "dropdownItems": {
+            "netWorth": "淨值",
+            "netWorthBreakdown": "淨值組成",
+            "assetsAndLiabilitiesBreakdown": "資產負債組成",
+            "exchangeRate": "參考匯率"
+          },
+          "placeholders": {
+            "noData": "目前沒有資料可以繪製"
+          },
+          "checkboxes": {
+            "selectAll": "全選"
+          },
+          "buttons": {
+            "create": "新增"
+          },
+          "tables": {
+            "headers": {
+              "settledTime": "結算時間",
+              "reference": "系統識別碼",
+              "action": "操作"
+            }
+          },
+          "pages": {
+            "balanceSheetReference": {
+              "pages": {
+                "edit": {}
+              }
+            },
+            "new": {}
+          }
+        }
       }
     },
     "integration": {

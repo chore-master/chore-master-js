@@ -37,6 +37,9 @@
       }
     }
   },
+  "global": {
+    "refresh": "Refresh"
+  },
   "modules": {
     "admin": {
       "name": "Admin",
@@ -63,6 +66,51 @@
         "interestRateQuotation": "Interest Rate Quotation",
         "ecosystem": "Ecosystem",
         "flow": "Flow"
+      },
+      "pages": {
+        "balanceSheets": {
+          "titles": {
+            "balance": "Balance"
+          },
+          "subtitles": {
+            "equityCurve": "Equity Curve",
+            "details": "Details"
+          },
+          "dropdowns": {
+            "dimension": "Dimension",
+            "settlementAsset": "Settlement Asset"
+          },
+          "dropdownItems": {
+            "netWorth": "Net Worth",
+            "netWorthBreakdown": "Net Worth Breakdown",
+            "assetsAndLiabilitiesBreakdown": "Assets and Liabilities Breakdown",
+            "exchangeRate": "Exchange Rate"
+          },
+          "placeholders": {
+            "noData": "No data to plot"
+          },
+          "checkboxes": {
+            "selectAll": "Select All"
+          },
+          "buttons": {
+            "create": "Create"
+          },
+          "tables": {
+            "headers": {
+              "settledTime": "Settled Time",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "pages": {
+            "balanceSheetReference": {
+              "pages": {
+                "edit": {}
+              }
+            },
+            "new": {}
+          }
+        }
       }
     },
     "integration": {

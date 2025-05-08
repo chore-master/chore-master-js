@@ -49,25 +49,26 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import { Decimal } from 'decimal.js'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { areaChartOptionsTemplate } from './optionsTemplate'
 
 const chartTypes = [
   {
-    label: '淨值',
+    translationKey: 'netWorth',
     value: 'net_value_areaspline',
   },
   {
-    label: '淨值組成',
+    translationKey: 'netWorthBreakdown',
     value: 'net_value_area',
   },
   {
-    label: '資產負債組成',
+    translationKey: 'assetsAndLiabilitiesBreakdown',
     value: 'assets_and_liabilities_area',
   },
   {
-    label: '參考匯率',
+    translationKey: 'exchangeRate',
     value: 'exchange_rate',
   },
 ]
@@ -76,7 +77,8 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const router = useRouter()
   const timezone = useTimezone()
-
+  const t = useTranslations('modules.finance.pages.balanceSheets')
+  const tGlobal = useTranslations('global')
   // Settleable asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
   const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
@@ -570,9 +572,9 @@ export default function Page() {
       <ModuleFunction>
         <ModuleFunctionHeader
           stickyTop
-          title="結餘"
+          title={t('titles.balance')}
           actions={[
-            <Tooltip key="refresh" title="立即重整">
+            <Tooltip key="refresh" title={tGlobal('refresh')}>
               <span>
                 <IconButton
                   onClick={fetchBalanceSheetsSeries}
@@ -585,7 +587,7 @@ export default function Page() {
           ]}
         />
 
-        <ModuleFunctionHeader subtitle="資金曲線" />
+        <ModuleFunctionHeader subtitle={t('subtitles.equityCurve')} />
         <ModuleFunctionBody
           loading={
             isFetchingSettleableAssets ||
@@ -601,7 +603,7 @@ export default function Page() {
               sx={{ p: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
               <FormControl variant="standard">
-                <InputLabel>檢視維度</InputLabel>
+                <InputLabel>{t('dropdowns.dimension')}</InputLabel>
                 <Select
                   value={selectedChartType}
                   onChange={(event: SelectChangeEvent) => {
@@ -611,13 +613,13 @@ export default function Page() {
                 >
                   {chartTypes.map((chartType) => (
                     <MenuItem key={chartType.value} value={chartType.value}>
-                      {chartType.label}
+                      {t(`dropdownItems.${chartType.translationKey}`)}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <FormControl variant="standard">
-                <InputLabel>結算資產</InputLabel>
+                <InputLabel>{t('dropdowns.settlementAsset')}</InputLabel>
                 <Select
                   value={selectedSettleableAssetReference}
                   onChange={(event: SelectChangeEvent) => {
@@ -643,7 +645,7 @@ export default function Page() {
                 }}
               >
                 <PlaceholderTypography>
-                  目前沒有資料可以繪製
+                  {t('placeholders.noData')}
                 </PlaceholderTypography>
               </Box>
             )}
@@ -664,7 +666,7 @@ export default function Page() {
                   }}
                 >
                   <FormControlLabel
-                    label="全選"
+                    label={t('checkboxes.selectAll')}
                     sx={{ m: 0 }}
                     control={
                       <Checkbox
@@ -761,7 +763,7 @@ export default function Page() {
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
-          subtitle="明細"
+          subtitle={t('subtitles.details')}
           actions={[
             <Button
               key="create"
@@ -771,7 +773,7 @@ export default function Page() {
                 router.push(`/finance/balance-sheets/new`)
               }}
             >
-              新增
+              {t('buttons.create')}
             </Button>,
           ]}
         />
@@ -783,9 +785,15 @@ export default function Page() {
                   <NoWrapTableCell align="right">
                     <PlaceholderTypography>#</PlaceholderTypography>
                   </NoWrapTableCell>
-                  <NoWrapTableCell>結算時間</NoWrapTableCell>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.settledTime')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.reference')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    {t('tables.headers.action')}
+                  </NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody
