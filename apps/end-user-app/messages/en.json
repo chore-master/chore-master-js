@@ -35,6 +35,23 @@
           "language": "Language"
         }
       }
+    },
+    "DatetimeBlock": {
+      "timeDelta": "{value, plural, =0 {{unit}} other {# {unit} {suffix}}}",
+      "units": {
+        "now": "now",
+        "second": "{value, plural, =1 {second} other {seconds}}",
+        "minute": "{value, plural, =1 {minute} other {minutes}}",
+        "hour": "{value, plural, =1 {hour} other {hours}}",
+        "day": "{value, plural, =1 {day} other {days}}",
+        "month": "{value, plural, =1 {month} other {months}}",
+        "year": "{value, plural, =1 {year} other {years}}"
+      },
+      "suffixes": {
+        "before": "ago",
+        "after": "later",
+        "": ""
+      }
     }
   },
   "global": {

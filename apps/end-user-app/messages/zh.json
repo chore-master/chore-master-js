@@ -35,6 +35,23 @@
           "language": "語言"
         }
       }
+    },
+    "DatetimeBlock": {
+      "timeDelta": "{value, plural, =0 {{unit}} other {# {unit}{suffix}}}",
+      "units": {
+        "now": "現在",
+        "second": "秒",
+        "minute": "分鐘",
+        "hour": "小時",
+        "day": "天",
+        "month": "個月",
+        "year": "年"
+      },
+      "suffixes": {
+        "before": "前",
+        "after": "後",
+        "": ""
+      }
     }
   },
   "global": {

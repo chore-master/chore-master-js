@@ -79,6 +79,7 @@ export default function Page() {
   const timezone = useTimezone()
   const t = useTranslations('modules.finance.pages.balanceSheets')
   const tGlobal = useTranslations('global')
+
   // Settleable asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
   const [isFetchingSettleableAssets, setIsFetchingSettleableAssets] =
@@ -351,7 +352,7 @@ export default function Page() {
           {
             id: 'net_value_areaspline',
             type: 'areaspline',
-            name: '淨值',
+            name: t('dropdownItems.netWorth'),
             zones: [
               {
                 value: 0,
