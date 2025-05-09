@@ -87,6 +87,7 @@
             "storage": "儲存格"
           },
           "typographies": {
+            "noQuota": "目前沒有配額資訊",
             "used": "已使用",
             "limit": "配額上限",
             "utilizationRate": "使用率"

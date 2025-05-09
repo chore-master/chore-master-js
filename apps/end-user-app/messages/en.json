@@ -87,6 +87,7 @@
             "storage": "Storage"
           },
           "typographies": {
+            "noQuota": "No quota information",
             "used": "Used",
             "limit": "Limit",
             "utilizationRate": "Utilization Rate"

@@ -4,6 +4,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import PlaceholderTypography from '@/components/PlaceholderTypography'
 import { Quota } from '@/types/trace'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
@@ -63,30 +64,36 @@ export default function Page() {
         />
         <ModuleFunctionBody loading={isFetchingQuotas}>
           <Stack spacing={2} sx={{ p: 2, flexGrow: 1 }}>
-            {quotas.map((quota) => (
-              <Stack key={quota.reference} spacing={1}>
-                <Typography variant="h6">{t('subtitles.storage')}</Typography>
-                <Typography variant="body1">
-                  {`${t('typographies.used')} ${quota.used} / ${t(
-                    'typographies.limit'
-                  )} ${quota.limit}`}
-                </Typography>
-                <Typography variant="body1">
-                  {`${t('typographies.utilizationRate')} ${(
-                    (quota.used / quota.limit) *
-                    100
-                  ).toFixed(2)}%`}
-                </Typography>
-                <LinearProgress
-                  value={(quota.used / quota.limit) * 100}
-                  variant="determinate"
-                  sx={{
-                    height: 10,
-                    borderRadius: 5,
-                  }}
-                />
-              </Stack>
-            ))}
+            {quotas.length === 0 ? (
+              <PlaceholderTypography>
+                {t('typographies.noQuota')}
+              </PlaceholderTypography>
+            ) : (
+              quotas.map((quota) => (
+                <Stack key={quota.reference} spacing={1}>
+                  <Typography variant="h6">{t('subtitles.storage')}</Typography>
+                  <Typography variant="body1">
+                    {`${t('typographies.used')} ${quota.used} / ${t(
+                      'typographies.limit'
+                    )} ${quota.limit}`}
+                  </Typography>
+                  <Typography variant="body1">
+                    {`${t('typographies.utilizationRate')} ${(
+                      (quota.used / quota.limit) *
+                      100
+                    ).toFixed(2)}%`}
+                  </Typography>
+                  <LinearProgress
+                    value={(quota.used / quota.limit) * 100}
+                    variant="determinate"
+                    sx={{
+                      height: 10,
+                      borderRadius: 5,
+                    }}
+                  />
+                </Stack>
+              ))
+            )}
           </Stack>
         </ModuleFunctionBody>
       </ModuleFunction>
