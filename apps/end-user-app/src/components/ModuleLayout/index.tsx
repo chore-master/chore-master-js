@@ -17,6 +17,7 @@ import { offsetInMinutesToTimedeltaString } from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
+import AccountBoxIcon from '@mui/icons-material/AccountBox'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import AppsIcon from '@mui/icons-material/Apps'
 import CloseIcon from '@mui/icons-material/Close'
@@ -501,6 +502,15 @@ export default function ModuleLayout({
                   </MenuItem>
                 </Link>
                 <Divider /> */}
+                  <Link href="/profile" passHref legacyBehavior>
+                    <MenuItem component="a" onClick={handleCloseMenu}>
+                      <ListItemIcon>
+                        <AccountBoxIcon fontSize="small" />
+                      </ListItemIcon>
+                      {t('menu.profile')}
+                    </MenuItem>
+                  </Link>
+                  <Divider />
                   <Link href="/logout" passHref legacyBehavior>
                     <MenuItem component="a" onClick={handleCloseMenu}>
                       <ListItemIcon>
@@ -509,7 +519,6 @@ export default function ModuleLayout({
                       {t('menu.logoutCurrentDevice')}
                     </MenuItem>
                   </Link>
-                  <Divider />
                   <Link href="/login" passHref legacyBehavior>
                     <MenuItem component="a" onClick={handleCloseMenu}>
                       <ListItemIcon>

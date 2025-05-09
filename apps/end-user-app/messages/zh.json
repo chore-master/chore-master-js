@@ -2,6 +2,7 @@
   "components": {
     "ModuleLayout": {
       "menu": {
+        "profile": "帳號中心",
         "loginOtherAccount": "登入其他帳號",
         "logoutCurrentDevice": "登出目前裝置"
       },
@@ -70,6 +71,12 @@
         "migrations": "遷徙",
         "user": "使用者",
         "users": "使用者"
+      }
+    },
+    "profile": {
+      "name": "帳號中心",
+      "navigations": {
+        "quota": "配額"
       }
     },
     "finance": {

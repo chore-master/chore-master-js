@@ -2,6 +2,7 @@
   "components": {
     "ModuleLayout": {
       "menu": {
+        "profile": "Profile",
         "loginOtherAccount": "Login another account",
         "logoutCurrentDevice": "Logout current device"
       },

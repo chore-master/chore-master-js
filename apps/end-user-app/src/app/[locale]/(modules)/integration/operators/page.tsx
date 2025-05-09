@@ -57,8 +57,6 @@ export default function Page() {
   const [operators, setOperators] = React.useState<Operator[]>([])
   const operatorsPagination = useOffsetPagination({})
   const [isFetchingOperators, setIsFetchingOperators] = React.useState(false)
-  const [isCreateOperatorDrawerOpen, setIsCreateOperatorDrawerOpen] =
-    React.useState(false)
   const [editingOperatorReference, setEditingOperatorReference] =
     React.useState<string>()
   const createOperatorForm = useForm<CreateOperatorFormInputs>()
