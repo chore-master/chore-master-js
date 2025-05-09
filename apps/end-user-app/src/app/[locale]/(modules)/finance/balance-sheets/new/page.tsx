@@ -24,6 +24,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Decimal from 'decimal.js'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
@@ -38,6 +39,8 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
   const router = useRouter()
+  const t = useTranslations('modules.finance.pages.balanceSheets.pages.new')
+  const tGlobal = useTranslations('global')
 
   // Asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
@@ -192,16 +195,18 @@ export default function Page() {
             color="inherit"
             href="/finance/balance-sheets"
           >
-            結餘
+            {t('breadcrumbs.balance')}
           </MuiLink>
-          <Typography color="text.primary">新增</Typography>
+          <Typography color="text.primary">
+            {t('breadcrumbs.create')}
+          </Typography>
         </Breadcrumbs>
       </Box>
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
           stickyTop
-          title="新增結餘"
+          title={t('titles.createBalance')}
           actions={[
             <AutoLoadingButton
               key="create"
@@ -212,7 +217,7 @@ export default function Page() {
               disabled={!createBalanceSheetForm.formState.isValid}
               startIcon={<AddIcon />}
             >
-              新增
+              {t('buttons.create')}
             </AutoLoadingButton>,
           ]}
         />
@@ -220,7 +225,7 @@ export default function Page() {
         <ModuleFunctionBody>
           <Stack spacing={3} p={2}>
             <Typography variant="h6" color="textSecondary">
-              一般
+              {t('subtitles.general')}
             </Typography>
             <FormControl>
               <Controller
@@ -231,7 +236,7 @@ export default function Page() {
                   <TextField
                     {...field}
                     required
-                    label="結算時間"
+                    label={t('labels.settledTime')}
                     variant="filled"
                     type="datetime-local"
                     slotProps={{
@@ -263,7 +268,7 @@ export default function Page() {
         >
           <Stack spacing={3} p={2}>
             <Typography variant="h6" color="textSecondary">
-              帳目
+              {t('subtitles.entries')}
             </Typography>
           </Stack>
 
@@ -293,7 +298,7 @@ export default function Page() {
                               <TextField
                                 {...field}
                                 required
-                                label="數量"
+                                label={t('labels.amount')}
                                 variant="filled"
                                 type="number"
                                 size="small"

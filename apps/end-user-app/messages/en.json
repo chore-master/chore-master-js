@@ -276,12 +276,31 @@
             }
           },
           "pages": {
+            "new": {
+              "breadcrumbs": {
+                "balance": "Balance",
+                "create": "Create"
+              },
+              "titles": {
+                "createBalance": "Create Balance"
+              },
+              "buttons": {
+                "create": "Create"
+              },
+              "subtitles": {
+                "general": "General",
+                "entries": "Entries"
+              },
+              "labels": {
+                "settledTime": "Settled Time",
+                "amount": "Amount"
+              }
+            },
             "balanceSheetReference": {
               "pages": {
                 "edit": {}
               }
-            },
-            "new": {}
+            }
           }
         }
       }

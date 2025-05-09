@@ -276,12 +276,31 @@
             }
           },
           "pages": {
+            "new": {
+              "breadcrumbs": {
+                "balance": "結餘",
+                "create": "新增"
+              },
+              "titles": {
+                "createBalance": "新增結餘"
+              },
+              "buttons": {
+                "create": "新增"
+              },
+              "subtitles": {
+                "general": "一般",
+                "entries": "帳目"
+              },
+              "labels": {
+                "settledTime": "結算時間",
+                "amount": "數量"
+              }
+            },
             "balanceSheetReference": {
               "pages": {
                 "edit": {}
               }
-            },
-            "new": {}
+            }
           }
         }
       }
