@@ -73,6 +73,27 @@
         "users": "Users"
       }
     },
+    "profile": {
+      "name": "Profile",
+      "navigations": {
+        "quota": "Quota"
+      },
+      "pages": {
+        "quota": {
+          "titles": {
+            "quota": "Quota"
+          },
+          "subtitles": {
+            "storage": "Storage"
+          },
+          "typographies": {
+            "used": "Used",
+            "limit": "Limit",
+            "utilizationRate": "Utilization Rate"
+          }
+        }
+      }
+    },
     "finance": {
       "name": "Finance",
       "navigations": {

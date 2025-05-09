@@ -77,6 +77,21 @@
       "name": "帳號中心",
       "navigations": {
         "quota": "配額"
+      },
+      "pages": {
+        "quota": {
+          "titles": {
+            "quota": "配額"
+          },
+          "subtitles": {
+            "storage": "儲存格"
+          },
+          "typographies": {
+            "used": "已使用",
+            "limit": "配額上限",
+            "utilizationRate": "使用率"
+          }
+        }
       }
     },
     "finance": {
