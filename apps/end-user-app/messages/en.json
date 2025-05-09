@@ -195,6 +195,52 @@
             }
           }
         },
+        "accounts": {
+          "titles": {
+            "account": "Account"
+          },
+          "buttons": {
+            "create": "Create"
+          },
+          "tables": {
+            "headers": {
+              "name": "Name",
+              "openedTime": "Opened Time",
+              "closedTime": "Closed Time",
+              "settlementAsset": "Settlement Asset",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "sidePanels": {
+            "createAccount": {
+              "title": "Create Account",
+              "labels": {
+                "name": "Name",
+                "settlementAsset": "Settlement Asset",
+                "openedTime": "Opened Time",
+                "closedTime": "Closed Time"
+              },
+              "helperTexts": {
+                "immutable": "Cannot be changed after creation"
+              },
+              "buttons": {
+                "create": "Create"
+              }
+            },
+            "editAccount": {
+              "title": "Edit Account",
+              "labels": {
+                "name": "Name",
+                "openedTime": "Opened Time",
+                "closedTime": "Closed Time"
+              },
+              "buttons": {
+                "update": "Save"
+              }
+            }
+          }
+        },
         "balanceSheets": {
           "titles": {
             "balance": "Balance"

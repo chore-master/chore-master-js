@@ -41,12 +41,15 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
+  const t = useTranslations('modules.finance.pages.accounts')
+  const tGlobal = useTranslations('global')
   const sidePanel = useSidePanel()
 
   // Asset
@@ -206,9 +209,9 @@ export default function Page() {
     <React.Fragment>
       <ModuleFunction>
         <ModuleFunctionHeader
-          title="帳戶"
+          title={t('titles.account')}
           actions={[
-            <Tooltip key="refresh" title="立即重整">
+            <Tooltip key="refresh" title={tGlobal('refresh')}>
               <span>
                 <IconButton
                   onClick={fetchAccounts}
@@ -227,7 +230,7 @@ export default function Page() {
                 sidePanel.open('createAccount')
               }}
             >
-              新增
+              {t('buttons.create')}
             </Button>,
           ]}
         />
@@ -240,12 +243,22 @@ export default function Page() {
                   <NoWrapTableCell align="right">
                     <PlaceholderTypography>#</PlaceholderTypography>
                   </NoWrapTableCell>
-                  <NoWrapTableCell>名字</NoWrapTableCell>
-                  <NoWrapTableCell>結算資產</NoWrapTableCell>
-                  <NoWrapTableCell>開戶時間</NoWrapTableCell>
-                  <NoWrapTableCell>關戶時間</NoWrapTableCell>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                  <NoWrapTableCell align="right">操作</NoWrapTableCell>
+                  <NoWrapTableCell>{t('tables.headers.name')}</NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.settlementAsset')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.openedTime')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.closedTime')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.reference')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    {t('tables.headers.action')}
+                  </NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody
@@ -332,7 +345,7 @@ export default function Page() {
 
       <SidePanel id="createAccount">
         <CardHeader
-          title="新增帳戶"
+          title={t('sidePanels.createAccount.title')}
           action={
             <IconButton onClick={() => sidePanel.close()}>
               <CloseIcon fontSize="small" />
@@ -354,7 +367,12 @@ export default function Page() {
               control={createAccountForm.control}
               defaultValue=""
               render={({ field }) => (
-                <TextField {...field} required label="名字" variant="filled" />
+                <TextField
+                  {...field}
+                  required
+                  label={t('sidePanels.createAccount.labels.name')}
+                  variant="filled"
+                />
               )}
               rules={{ required: '必填' }}
             />
@@ -374,7 +392,7 @@ export default function Page() {
                       {...field}
                       inputRef={inputRef}
                       required
-                      label="開戶時間"
+                      label={t('sidePanels.createAccount.labels.openedTime')}
                       variant="filled"
                       type="datetime-local"
                       slotProps={{
@@ -407,7 +425,7 @@ export default function Page() {
                     <TextField
                       {...field}
                       inputRef={inputRef}
-                      label="關戶時間"
+                      label={t('sidePanels.createAccount.labels.closedTime')}
                       variant="filled"
                       type="datetime-local"
                       slotProps={{
@@ -472,10 +490,14 @@ export default function Page() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="結算資產"
+                      label={t(
+                        'sidePanels.createAccount.labels.settlementAsset'
+                      )}
                       variant="filled"
                       size="small"
-                      helperText="建立後無法變更"
+                      helperText={t(
+                        'sidePanels.createAccount.helperTexts.immutable'
+                      )}
                       required
                     />
                   )}
@@ -492,14 +514,14 @@ export default function Page() {
               handleSubmitCreateAccountForm
             )}
           >
-            新增
+            {t('sidePanels.createAccount.buttons.create')}
           </AutoLoadingButton>
         </Stack>
       </SidePanel>
 
       <SidePanel id="editAccount">
         <CardHeader
-          title="編輯帳戶"
+          title={t('sidePanels.editAccount.title')}
           action={
             <IconButton onClick={() => sidePanel.close()}>
               <CloseIcon fontSize="small" />
@@ -521,7 +543,12 @@ export default function Page() {
               control={updateAccountForm.control}
               defaultValue=""
               render={({ field }) => (
-                <TextField {...field} required label="名字" variant="filled" />
+                <TextField
+                  {...field}
+                  required
+                  label={t('sidePanels.editAccount.labels.name')}
+                  variant="filled"
+                />
               )}
               rules={{ required: '必填' }}
             />
@@ -538,7 +565,7 @@ export default function Page() {
                       {...field}
                       inputRef={inputRef}
                       required
-                      label="開戶時間"
+                      label={t('sidePanels.editAccount.labels.openedTime')}
                       variant="filled"
                       type="datetime-local"
                       slotProps={{
@@ -571,7 +598,7 @@ export default function Page() {
                     <TextField
                       {...field}
                       inputRef={inputRef}
-                      label="關戶時間"
+                      label={t('sidePanels.editAccount.labels.closedTime')}
                       variant="filled"
                       type="datetime-local"
                       slotProps={{
@@ -601,7 +628,7 @@ export default function Page() {
               handleSubmitUpdateAccountForm
             )}
           >
-            儲存
+            {t('sidePanels.editAccount.buttons.update')}
           </AutoLoadingButton>
         </Stack>
       </SidePanel>

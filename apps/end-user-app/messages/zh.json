@@ -195,6 +195,52 @@
             }
           }
         },
+        "accounts": {
+          "titles": {
+            "account": "帳戶"
+          },
+          "buttons": {
+            "create": "新增"
+          },
+          "tables": {
+            "headers": {
+              "name": "名稱",
+              "openedTime": "開戶時間",
+              "closedTime": "關戶時間",
+              "settlementAsset": "結算資產",
+              "reference": "系統識別碼",
+              "action": "操作"
+            }
+          },
+          "sidePanels": {
+            "createAccount": {
+              "title": "新增帳戶",
+              "labels": {
+                "name": "名稱",
+                "settlementAsset": "結算資產",
+                "openedTime": "開戶時間",
+                "closedTime": "關戶時間"
+              },
+              "helperTexts": {
+                "immutable": "建立後無法變更"
+              },
+              "buttons": {
+                "create": "新增"
+              }
+            },
+            "editAccount": {
+              "title": "編輯帳戶",
+              "labels": {
+                "name": "名稱",
+                "openedTime": "開戶時間",
+                "closedTime": "關戶時間"
+              },
+              "buttons": {
+                "update": "儲存"
+              }
+            }
+          }
+        },
         "balanceSheets": {
           "titles": {
             "balance": "結餘"
