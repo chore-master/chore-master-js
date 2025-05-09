@@ -250,7 +250,7 @@
             "details": "明細"
           },
           "dropdowns": {
-            "dimension": "維度",
+            "dimension": "檢視維度",
             "settlementAsset": "結算資產"
           },
           "dropdownItems": {
@@ -297,6 +297,37 @@
               }
             },
             "balanceSheetReference": {
+              "breadcrumbs": {
+                "balance": "結餘"
+              },
+              "subtitles": {
+                "breakdown": "結構組成",
+                "details": "明細"
+              },
+              "tooltips": {
+                "edit": "編輯"
+              },
+              "dropdowns": {
+                "dimension": "檢視維度",
+                "settlementAsset": "結算資產"
+              },
+              "dropdownItems": {
+                "netWorthBreakdown": "淨值組成",
+                "assetsBreakdown": "資產組成",
+                "liabilitiesBreakdown": "負債組成"
+              },
+              "chartAnnotations": {
+                "assets": "資產",
+                "liabilities": "負債"
+              },
+              "tables": {
+                "headers": {
+                  "account": "帳戶",
+                  "amount": "數量",
+                  "settlementAsset": "結算資產",
+                  "reference": "系統識別碼"
+                }
+              },
               "pages": {
                 "edit": {
                   "breadcrumbs": {

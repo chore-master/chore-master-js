@@ -39,6 +39,7 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import Decimal from 'decimal.js'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -46,15 +47,15 @@ import { pieChartOptionsTemplate } from './optionsTemplate'
 
 const chartTypes = [
   {
-    label: '淨值組成',
+    translationKey: 'netWorthBreakdown',
     value: 'net_value_pie',
   },
   {
-    label: '資產組成',
+    translationKey: 'assetsBreakdown',
     value: 'asset_pie',
   },
   {
-    label: '負債組成',
+    translationKey: 'liabilitiesBreakdown',
     value: 'liability_pie',
   },
 ]
@@ -63,6 +64,10 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
   const router = useRouter()
+  const t = useTranslations(
+    'modules.finance.pages.balanceSheets.pages.balanceSheetReference'
+  )
+  const tGlobal = useTranslations('global')
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
 
@@ -298,10 +303,10 @@ export default function Page() {
           {
             id: `net_value_${selectedSettleableAssetSymbol}_pie`,
             type: 'pie',
-            name: '淨值組成',
+            name: t('dropdownItems.netWorthBreakdown'),
             data: [
               {
-                name: '資產',
+                name: t('chartAnnotations.assets'),
                 y: accountSeries
                   .filter((point) => point.y > 0)
                   .reduce((acc, point) => acc + point.y, 0),
@@ -310,7 +315,7 @@ export default function Page() {
                 },
               },
               {
-                name: '負債',
+                name: t('chartAnnotations.liabilities'),
                 y: -accountSeries
                   .filter((point) => point.y < 0)
                   .reduce((acc, point) => acc + point.y, 0),
@@ -326,7 +331,7 @@ export default function Page() {
           {
             id: `asset_${selectedSettleableAssetSymbol}_pie`,
             type: 'pie',
-            name: '資產組成',
+            name: t('dropdownItems.assetsBreakdown'),
             data: accountSeries
               .filter((point) => point.y > 0)
               .map((point) => ({
@@ -343,7 +348,7 @@ export default function Page() {
           {
             id: `liability_${selectedSettleableAssetSymbol}_pie`,
             type: 'pie',
-            name: '負債組成',
+            name: t('dropdownItems.liabilitiesBreakdown'),
             data: accountSeries
               .filter((point) => point.y < 0)
               .map((point) => ({
@@ -382,7 +387,7 @@ export default function Page() {
             color="inherit"
             href="/finance/balance-sheets"
           >
-            結餘
+            {t('breadcrumbs.balance')}
           </MuiLink>
           {balanceSheet && (
             <ReferenceBlock
@@ -403,7 +408,7 @@ export default function Page() {
             </Typography>
           }
           actions={[
-            <Tooltip key="refresh" title="立即重整">
+            <Tooltip key="refresh" title={tGlobal('refresh')}>
               <span>
                 <IconButton
                   onClick={fetchBalanceSheet}
@@ -416,7 +421,7 @@ export default function Page() {
           ]}
         />
 
-        <ModuleFunctionHeader subtitle="結構組成" />
+        <ModuleFunctionHeader subtitle={t('subtitles.breakdown')} />
         <ModuleFunctionBody
           loading={
             isFetchingSettleableAssets ||
@@ -431,7 +436,7 @@ export default function Page() {
               sx={{ p: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
               <FormControl variant="standard">
-                <InputLabel>檢視維度</InputLabel>
+                <InputLabel>{t('dropdowns.dimension')}</InputLabel>
                 <Select
                   value={selectedChartType}
                   onChange={(event: SelectChangeEvent) => {
@@ -441,13 +446,13 @@ export default function Page() {
                 >
                   {chartTypes.map((chartType) => (
                     <MenuItem key={chartType.value} value={chartType.value}>
-                      {chartType.label}
+                      {t(`dropdownItems.${chartType.translationKey}`)}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <FormControl variant="standard">
-                <InputLabel>結算資產</InputLabel>
+                <InputLabel>{t('dropdowns.settlementAsset')}</InputLabel>
                 <Select
                   value={selectedSettleableAssetReference}
                   onChange={(event: SelectChangeEvent) => {
@@ -468,9 +473,9 @@ export default function Page() {
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
-          subtitle="明細"
+          subtitle={t('subtitles.details')}
           actions={[
-            <Tooltip key="edit" title="編輯">
+            <Tooltip key="edit" title={t('tooltips.edit')}>
               <IconButton
                 onClick={() => {
                   router.push(
@@ -497,10 +502,18 @@ export default function Page() {
                   <NoWrapTableCell align="right">
                     <PlaceholderTypography>#</PlaceholderTypography>
                   </NoWrapTableCell>
-                  <NoWrapTableCell>帳戶</NoWrapTableCell>
-                  <NoWrapTableCell align="right">數量</NoWrapTableCell>
-                  <NoWrapTableCell>結算資產</NoWrapTableCell>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.account')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    {t('tables.headers.amount')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.settlementAsset')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.reference')}
+                  </NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody

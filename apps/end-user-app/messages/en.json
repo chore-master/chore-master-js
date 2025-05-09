@@ -297,6 +297,37 @@
               }
             },
             "balanceSheetReference": {
+              "breadcrumbs": {
+                "balance": "Balance"
+              },
+              "subtitles": {
+                "breakdown": "Breakdown",
+                "details": "Details"
+              },
+              "tooltips": {
+                "edit": "Edit"
+              },
+              "dropdowns": {
+                "dimension": "Dimension",
+                "settlementAsset": "Settlement Asset"
+              },
+              "dropdownItems": {
+                "netWorthBreakdown": "Net Worth Breakdown",
+                "assetsBreakdown": "Assets Breakdown",
+                "liabilitiesBreakdown": "Liabilities Breakdown"
+              },
+              "chartAnnotations": {
+                "assets": "Assets",
+                "liabilities": "Liabilities"
+              },
+              "tables": {
+                "headers": {
+                  "account": "Account",
+                  "amount": "Amount",
+                  "settlementAsset": "Settlement Asset",
+                  "reference": "Reference"
+                }
+              },
               "pages": {
                 "edit": {
                   "breadcrumbs": {
