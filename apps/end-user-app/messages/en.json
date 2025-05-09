@@ -52,6 +52,10 @@
         "after": "later",
         "": ""
       }
+    },
+    "TablePagination": {
+      "rowsPerPage": "Rows per page:",
+      "displayedRows": "{from}-{to} of {count}"
     }
   },
   "global": {

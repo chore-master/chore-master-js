@@ -52,6 +52,10 @@
         "after": "後",
         "": ""
       }
+    },
+    "TablePagination": {
+      "rowsPerPage": "每頁數量：",
+      "displayedRows": "第 {from} 筆至第 {to} 筆／共 {count} 筆"
     }
   },
   "global": {
