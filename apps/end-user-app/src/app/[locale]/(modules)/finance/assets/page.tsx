@@ -188,7 +188,7 @@ export default function Page() {
                 </NoWrapTableCell>
                 <NoWrapTableCell>{t('tables.headers.name')}</NoWrapTableCell>
                 <NoWrapTableCell>{t('tables.headers.symbol')}</NoWrapTableCell>
-                <NoWrapTableCell>
+                <NoWrapTableCell align="right">
                   {t('tables.headers.decimalPlaces')}
                 </NoWrapTableCell>
                 <NoWrapTableCell>
@@ -215,7 +215,9 @@ export default function Page() {
                   </NoWrapTableCell>
                   <NoWrapTableCell>{asset.name}</NoWrapTableCell>
                   <NoWrapTableCell>{asset.symbol}</NoWrapTableCell>
-                  <NoWrapTableCell>{asset.decimals}</NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    {asset.decimals}
+                  </NoWrapTableCell>
                   <NoWrapTableCell>
                     {asset.is_settleable ? (
                       <CheckBoxIcon color="disabled" />
