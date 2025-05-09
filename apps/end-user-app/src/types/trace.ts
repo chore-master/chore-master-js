@@ -5,3 +5,8 @@ export interface Quota {
   used: number
   limit: number
 }
+
+export interface UpdateQuotaFormInputs {
+  used?: number
+  limit?: number
+}

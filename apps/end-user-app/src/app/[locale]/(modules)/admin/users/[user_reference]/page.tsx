@@ -12,6 +12,7 @@ import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTab } from '@/hooks/useTab'
 import type { UpdateUserFormInputs, UserDetail } from '@/types/admin'
 import type { Role } from '@/types/identity'
+import { Quota, UpdateQuotaFormInputs } from '@/types/trace'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -23,6 +24,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Checkbox from '@mui/material/Checkbox'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
+import LinearProgress from '@mui/material/LinearProgress'
 import MuiLink from '@mui/material/Link'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -36,6 +38,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -57,6 +60,11 @@ export default function Page() {
   // Role
   const [roles, setRoles] = React.useState<Role[]>([])
   const [isFetchingRoles, setIsFetchingRoles] = React.useState(false)
+
+  // Quotas
+  const [quotas, setQuotas] = React.useState<Quota[]>([])
+  const [isFetchingQuotas, setIsFetchingQuotas] = React.useState(false)
+  const updateQuotaForm = useForm<UpdateQuotaFormInputs>({ mode: 'all' })
 
   const fetchUser = React.useCallback(async () => {
     setIsFetchingUser(true)
@@ -94,7 +102,68 @@ export default function Page() {
       },
     })
     setIsFetchingRoles(false)
-  }, [enqueueNotification])
+  }, [])
+
+  const fetchQuotas = React.useCallback(async () => {
+    setIsFetchingQuotas(true)
+    await choreMasterAPIAgent.get(`/v1/admin/users/${user_reference}/quotas`, {
+      params: {},
+      onError: () => {
+        enqueueNotification(`Unable to fetch quotas now.`, 'error')
+      },
+      onFail: ({ message }: any) => {
+        enqueueNotification(message, 'error')
+      },
+      onSuccess: async ({ data }: { data: Quota[] }) => {
+        setQuotas(data)
+        if (data.length > 0) {
+          updateQuotaForm.reset({
+            used: data[0].used,
+            limit: data[0].limit,
+          })
+        }
+      },
+    })
+    setIsFetchingQuotas(false)
+  }, [user_reference])
+
+  const recalculateQuotas = React.useCallback(async () => {
+    await choreMasterAPIAgent.patch(
+      `/v1/admin/users/${user_reference}/quotas/recalculate`,
+      {},
+      {
+        onError: () => {
+          enqueueNotification(`Unable to recalculate quotas now.`, 'error')
+        },
+        onFail: ({ message }: { message: string }) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          fetchQuotas()
+        },
+      }
+    )
+  }, [user_reference])
+
+  const handleSubmitUpdateQuotaForm: SubmitHandler<
+    UpdateQuotaFormInputs
+  > = async (data) => {
+    await choreMasterAPIAgent.patch(
+      `/v1/admin/quotas/${quotas[0].reference}`,
+      data,
+      {
+        onError: () => {
+          enqueueNotification(`Unable to update quota now.`, 'error')
+        },
+        onFail: ({ message }: { message: string }) => {
+          enqueueNotification(message, 'error')
+        },
+        onSuccess: () => {
+          fetchQuotas()
+        },
+      }
+    )
+  }
 
   const handleSubmitUpdateUserForm: SubmitHandler<
     UpdateUserFormInputs
@@ -181,6 +250,8 @@ export default function Page() {
     []
   )
 
+  // Effects
+
   React.useEffect(() => {
     fetchUser()
   }, [])
@@ -188,6 +259,12 @@ export default function Page() {
   React.useEffect(() => {
     fetchRoles()
   }, [])
+
+  React.useEffect(() => {
+    if (tab.value === 'quotas') {
+      fetchQuotas()
+    }
+  }, [tab.value])
 
   return (
     <TabContext value={tab.value}>
@@ -217,8 +294,11 @@ export default function Page() {
                   onClick={() => {
                     fetchUser()
                     fetchRoles()
+                    fetchQuotas()
                   }}
-                  disabled={isFetchingUser || isFetchingRoles}
+                  disabled={
+                    isFetchingUser || isFetchingRoles || isFetchingQuotas
+                  }
                 >
                   <RefreshIcon />
                 </IconButton>
@@ -240,6 +320,7 @@ export default function Page() {
             >
               <Tab label="總覽" value="overview" />
               <Tab label="設定" value="settings" />
+              <Tab label="配額" value="quotas" />
             </TabList>
           </Box>
         </ModuleFunction>
@@ -459,6 +540,106 @@ export default function Page() {
               >
                 刪除
               </AutoLoadingButton>
+            </Stack>
+          </ModuleFunctionBody>
+        </ModuleFunction>
+      </TabPanel>
+
+      <TabPanel value="quotas" sx={{ p: 0 }}>
+        <ModuleFunction>
+          <ModuleFunctionHeader
+            title="配額"
+            actions={[
+              <AutoLoadingButton
+                key="recalculate"
+                variant="contained"
+                onClick={recalculateQuotas}
+              >
+                重新計算
+              </AutoLoadingButton>,
+            ]}
+          />
+          <ModuleFunctionBody loading={isFetchingQuotas}>
+            <Stack spacing={2} sx={{ p: 2, flexGrow: 1 }}>
+              {quotas.map((quota) => (
+                <Stack
+                  key={quota.reference}
+                  component="form"
+                  spacing={3}
+                  p={2}
+                  autoComplete="off"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                  }}
+                >
+                  <FormControl>
+                    <Controller
+                      name="used"
+                      control={updateQuotaForm.control}
+                      defaultValue={quota.used}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          required
+                          label="已使用"
+                          variant="filled"
+                          type="number"
+                        />
+                      )}
+                      rules={{ required: '必填' }}
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <Controller
+                      name="limit"
+                      control={updateQuotaForm.control}
+                      defaultValue={quota.limit}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          required
+                          label="配額上限"
+                          variant="filled"
+                          type="number"
+                        />
+                      )}
+                      rules={{ required: '必填' }}
+                    />
+                  </FormControl>
+                  <Typography variant="body1">
+                    {`使用率 ${(
+                      ((updateQuotaForm.watch('used') || 0) /
+                        (updateQuotaForm.watch('limit') || 0)) *
+                      100
+                    ).toFixed(2)}%`}
+                  </Typography>
+                  <LinearProgress
+                    value={
+                      ((updateQuotaForm.watch('used') || 0) /
+                        (updateQuotaForm.watch('limit') || 0)) *
+                      100
+                    }
+                    variant="determinate"
+                    sx={{
+                      height: 10,
+                      borderRadius: 5,
+                    }}
+                  />
+                  <AutoLoadingButton
+                    type="submit"
+                    variant="contained"
+                    disabled={
+                      !updateQuotaForm.formState.isDirty ||
+                      !updateQuotaForm.formState.isValid
+                    }
+                    onClick={updateQuotaForm.handleSubmit(
+                      handleSubmitUpdateQuotaForm
+                    )}
+                  >
+                    儲存
+                  </AutoLoadingButton>
+                </Stack>
+              ))}
             </Stack>
           </ModuleFunctionBody>
         </ModuleFunction>
