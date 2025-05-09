@@ -129,7 +129,7 @@
                 "confirmedTime": "Confirmed Time"
               },
               "buttons": {
-                "update": "Update"
+                "update": "Save"
               }
             },
             "refillPrice": {
@@ -145,6 +145,52 @@
               },
               "buttons": {
                 "refill": "Refill"
+              }
+            }
+          }
+        },
+        "assets": {
+          "titles": {
+            "asset": "Asset"
+          },
+          "buttons": {
+            "create": "Create"
+          },
+          "tables": {
+            "headers": {
+              "name": "Name",
+              "symbol": "Symbol",
+              "decimalPlaces": "Decimal Places",
+              "isSettleable": "Settleable",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "sidePanels": {
+            "createAsset": {
+              "title": "Create Asset",
+              "labels": {
+                "name": "Name",
+                "symbol": "Symbol",
+                "decimalPlaces": "Decimal Places",
+                "isSettleable": "Settleable"
+              },
+              "helperTexts": {
+                "immutable": "Cannot be changed after creation"
+              },
+              "buttons": {
+                "create": "Create"
+              }
+            },
+            "editAsset": {
+              "title": "Edit Asset",
+              "labels": {
+                "name": "Name",
+                "symbol": "Symbol",
+                "isSettleable": "Settleable"
+              },
+              "buttons": {
+                "update": "Save"
               }
             }
           }

@@ -149,6 +149,52 @@
             }
           }
         },
+        "assets": {
+          "titles": {
+            "asset": "資產"
+          },
+          "buttons": {
+            "create": "新增"
+          },
+          "tables": {
+            "headers": {
+              "name": "名稱",
+              "symbol": "代號",
+              "decimalPlaces": "精度",
+              "isSettleable": "可結算",
+              "reference": "系統識別碼",
+              "action": "操作"
+            }
+          },
+          "sidePanels": {
+            "createAsset": {
+              "title": "新增資產",
+              "labels": {
+                "name": "名稱",
+                "symbol": "代號",
+                "decimalPlaces": "精度",
+                "isSettleable": "可結算"
+              },
+              "helperTexts": {
+                "immutable": "建立後無法變更"
+              },
+              "buttons": {
+                "create": "新增"
+              }
+            },
+            "editAsset": {
+              "title": "編輯資產",
+              "labels": {
+                "name": "名稱",
+                "symbol": "代號",
+                "isSettleable": "可結算"
+              },
+              "buttons": {
+                "update": "儲存"
+              }
+            }
+          }
+        },
         "balanceSheets": {
           "titles": {
             "balance": "結餘"

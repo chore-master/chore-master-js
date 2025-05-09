@@ -38,11 +38,14 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
+  const t = useTranslations('modules.finance.pages.assets')
+  const tGlobal = useTranslations('global')
   const sidePanel = useSidePanel()
 
   // Asset
@@ -153,9 +156,9 @@ export default function Page() {
   return (
     <ModuleFunction>
       <ModuleFunctionHeader
-        title="資產"
+        title={t('titles.asset')}
         actions={[
-          <Tooltip key="refresh" title="立即重整">
+          <Tooltip key="refresh" title={tGlobal('refresh')}>
             <span>
               <IconButton onClick={fetchAssets} disabled={isFetchingAssets}>
                 <RefreshIcon />
@@ -171,7 +174,7 @@ export default function Page() {
               sidePanel.open('createAsset')
             }}
           >
-            新增
+            {t('buttons.create')}
           </Button>,
         ]}
       />
@@ -183,12 +186,20 @@ export default function Page() {
                 <NoWrapTableCell align="right">
                   <PlaceholderTypography>#</PlaceholderTypography>
                 </NoWrapTableCell>
-                <NoWrapTableCell>名稱</NoWrapTableCell>
-                <NoWrapTableCell>代號</NoWrapTableCell>
-                <NoWrapTableCell>精度</NoWrapTableCell>
-                <NoWrapTableCell>可結算</NoWrapTableCell>
-                <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                <NoWrapTableCell align="right">操作</NoWrapTableCell>
+                <NoWrapTableCell>{t('tables.headers.name')}</NoWrapTableCell>
+                <NoWrapTableCell>{t('tables.headers.symbol')}</NoWrapTableCell>
+                <NoWrapTableCell>
+                  {t('tables.headers.decimalPlaces')}
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  {t('tables.headers.isSettleable')}
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  {t('tables.headers.reference')}
+                </NoWrapTableCell>
+                <NoWrapTableCell align="right">
+                  {t('tables.headers.action')}
+                </NoWrapTableCell>
               </TableRow>
             </TableHead>
             <StatefulTableBody
@@ -275,7 +286,7 @@ export default function Page() {
             <Divider />
           </AppBar> */}
         <CardHeader
-          title="新增資產"
+          title={t('sidePanels.createAsset.title')}
           action={
             <IconButton onClick={() => sidePanel.close()}>
               <CloseIcon fontSize="small" />
@@ -297,7 +308,12 @@ export default function Page() {
               control={createAssetForm.control}
               defaultValue=""
               render={({ field }) => (
-                <TextField {...field} required label="名稱" variant="filled" />
+                <TextField
+                  {...field}
+                  required
+                  label={t('sidePanels.createAsset.labels.name')}
+                  variant="filled"
+                />
               )}
               rules={{ required: '必填' }}
             />
@@ -308,7 +324,12 @@ export default function Page() {
               control={createAssetForm.control}
               defaultValue=""
               render={({ field }) => (
-                <TextField {...field} required label="代號" variant="filled" />
+                <TextField
+                  {...field}
+                  required
+                  label={t('sidePanels.createAsset.labels.symbol')}
+                  variant="filled"
+                />
               )}
               rules={{ required: '必填' }}
             />
@@ -322,10 +343,10 @@ export default function Page() {
                 <TextField
                   {...field}
                   required
-                  label="精度"
+                  label={t('sidePanels.createAsset.labels.decimalPlaces')}
                   variant="filled"
                   type="number"
-                  helperText="建立後無法變更"
+                  helperText={t('sidePanels.createAsset.helperTexts.immutable')}
                 />
               )}
               rules={{ required: '必填' }}
@@ -338,7 +359,7 @@ export default function Page() {
               defaultValue={false}
               render={({ field }) => (
                 <FormControlLabel
-                  label="可結算"
+                  label={t('sidePanels.createAsset.labels.isSettleable')}
                   control={<Checkbox {...field} checked={field.value} />}
                 />
               )}
@@ -350,14 +371,14 @@ export default function Page() {
             disabled={!createAssetForm.formState.isValid}
             onClick={createAssetForm.handleSubmit(handleSubmitCreateAssetForm)}
           >
-            新增
+            {t('sidePanels.createAsset.buttons.create')}
           </AutoLoadingButton>
         </Stack>
       </SidePanel>
 
       <SidePanel id="editAsset">
         <CardHeader
-          title="編輯資產"
+          title={t('sidePanels.editAsset.title')}
           action={
             <IconButton
               onClick={() => {
@@ -383,7 +404,12 @@ export default function Page() {
               control={updateAssetForm.control}
               defaultValue=""
               render={({ field }) => (
-                <TextField {...field} required label="名稱" variant="filled" />
+                <TextField
+                  {...field}
+                  required
+                  label={t('sidePanels.editAsset.labels.name')}
+                  variant="filled"
+                />
               )}
               rules={{ required: '必填' }}
             />
@@ -394,7 +420,12 @@ export default function Page() {
               control={updateAssetForm.control}
               defaultValue=""
               render={({ field }) => (
-                <TextField {...field} required label="代號" variant="filled" />
+                <TextField
+                  {...field}
+                  required
+                  label={t('sidePanels.editAsset.labels.symbol')}
+                  variant="filled"
+                />
               )}
               rules={{ required: '必填' }}
             />
@@ -406,7 +437,7 @@ export default function Page() {
               defaultValue={false}
               render={({ field }) => (
                 <FormControlLabel
-                  label="可結算"
+                  label={t('sidePanels.editAsset.labels.isSettleable')}
                   control={<Checkbox {...field} checked={field.value} />}
                 />
               )}
@@ -418,7 +449,7 @@ export default function Page() {
             disabled={!updateAssetForm.formState.isValid}
             onClick={updateAssetForm.handleSubmit(handleSubmitUpdateAssetForm)}
           >
-            儲存
+            {t('sidePanels.editAsset.buttons.update')}
           </AutoLoadingButton>
         </Stack>
       </SidePanel>
