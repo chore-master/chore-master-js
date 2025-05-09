@@ -298,7 +298,28 @@
             },
             "balanceSheetReference": {
               "pages": {
-                "edit": {}
+                "edit": {
+                  "breadcrumbs": {
+                    "balance": "Balance",
+                    "edit": "Edit"
+                  },
+                  "titles": {
+                    "editBalance": "Edit Balance"
+                  },
+                  "buttons": {
+                    "update": "Update",
+                    "delete": "Delete"
+                  },
+                  "subtitles": {
+                    "general": "General",
+                    "entries": "Entries",
+                    "advanced": "Advanced"
+                  },
+                  "labels": {
+                    "settledTime": "Settled Time",
+                    "amount": "Amount"
+                  }
+                }
               }
             }
           }

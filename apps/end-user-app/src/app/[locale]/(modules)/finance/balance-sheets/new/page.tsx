@@ -40,7 +40,6 @@ export default function Page() {
   const timezone = useTimezone()
   const router = useRouter()
   const t = useTranslations('modules.finance.pages.balanceSheets.pages.new')
-  const tGlobal = useTranslations('global')
 
   // Asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])

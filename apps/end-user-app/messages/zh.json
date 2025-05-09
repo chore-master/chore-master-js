@@ -298,7 +298,28 @@
             },
             "balanceSheetReference": {
               "pages": {
-                "edit": {}
+                "edit": {
+                  "breadcrumbs": {
+                    "balance": "結餘",
+                    "edit": "更新"
+                  },
+                  "titles": {
+                    "editBalance": "更新結餘"
+                  },
+                  "buttons": {
+                    "update": "更新",
+                    "delete": "刪除"
+                  },
+                  "subtitles": {
+                    "general": "一般",
+                    "entries": "帳目",
+                    "advanced": "進階"
+                  },
+                  "labels": {
+                    "settledTime": "結算時間",
+                    "amount": "數量"
+                  }
+                }
               }
             }
           }
