@@ -89,6 +89,66 @@
         "flow": "Flow"
       },
       "pages": {
+        "prices": {
+          "titles": {
+            "price": "Price"
+          },
+          "tables": {
+            "headers": {
+              "baseAsset": "Base Asset",
+              "quoteAsset": "Quote Asset",
+              "price": "Price",
+              "confirmedTime": "Confirmed Time",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "buttons": {
+            "create": "Create",
+            "refillWizard": "Refill Wizard"
+          },
+          "sidePanels": {
+            "createPrice": {
+              "title": "Create Price",
+              "labels": {
+                "baseAsset": "Base Asset",
+                "quoteAsset": "Quote Asset",
+                "price": "Price",
+                "confirmedTime": "Confirmed Time"
+              },
+              "buttons": {
+                "create": "Create"
+              }
+            },
+            "editPrice": {
+              "title": "Edit Price",
+              "labels": {
+                "baseAsset": "Base Asset",
+                "quoteAsset": "Quote Asset",
+                "price": "Price",
+                "confirmedTime": "Confirmed Time"
+              },
+              "buttons": {
+                "update": "Update"
+              }
+            },
+            "refillPrice": {
+              "title": "Refill Wizard",
+              "accordions": {
+                "description": {
+                  "summary": "Description",
+                  "details": "The refill wizard automatically retrieves historical daily prices based on the timestamps, currency pairs, and integrated price sources used in Chore Master. Please note that this feature may not be available at all times due to the load on the Chore Master and price source server systems. We apologize for any inconvenience."
+                }
+              },
+              "labels": {
+                "operatorReference": "Price Source"
+              },
+              "buttons": {
+                "refill": "Refill"
+              }
+            }
+          }
+        },
         "balanceSheets": {
           "titles": {
             "balance": "Balance"

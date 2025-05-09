@@ -53,6 +53,7 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { debounce } from 'lodash'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
@@ -60,6 +61,8 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
   const sidePanel = useSidePanel()
+  const t = useTranslations('modules.finance.pages.prices')
+  const tGlobal = useTranslations('global')
 
   // Assets
   const [assets, setAssets] = React.useState<Asset[]>([])
@@ -323,22 +326,15 @@ export default function Page() {
   return (
     <ModuleFunction>
       <ModuleFunctionHeader
-        title="價格"
+        title={t('titles.price')}
         actions={[
-          <Tooltip key="refresh" title="立即重整">
+          <Tooltip key="refresh" title={tGlobal('refresh')}>
             <span>
               <IconButton onClick={fetchPrices} disabled={isFetchingPrices}>
                 <RefreshIcon />
               </IconButton>
             </span>
           </Tooltip>,
-          // <Button
-          //   key="refill"
-          //   component={Link}
-          //   href="/finance/market/prices/refill"
-          // >
-          //   批次回補
-          // </Button>,
           <AutoLoadingButton
             key="refill"
             onClick={async () => {
@@ -346,7 +342,7 @@ export default function Page() {
               sidePanel.open('refillPrice')
             }}
           >
-            回補精靈
+            {t('buttons.refillWizard')}
           </AutoLoadingButton>,
           <Button
             key="create"
@@ -357,7 +353,7 @@ export default function Page() {
               sidePanel.open('createPrice')
             }}
           >
-            新增
+            {t('buttons.create')}
           </Button>,
         ]}
       />
@@ -369,12 +365,22 @@ export default function Page() {
                 <NoWrapTableCell align="right">
                   <PlaceholderTypography>#</PlaceholderTypography>
                 </NoWrapTableCell>
-                <NoWrapTableCell>外幣資產</NoWrapTableCell>
-                <NoWrapTableCell>本幣資產</NoWrapTableCell>
-                <NoWrapTableCell>價格</NoWrapTableCell>
-                <NoWrapTableCell>收定時間</NoWrapTableCell>
-                <NoWrapTableCell>系統識別碼</NoWrapTableCell>
-                <NoWrapTableCell align="right">操作</NoWrapTableCell>
+                <NoWrapTableCell>
+                  {t('tables.headers.baseAsset')}
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  {t('tables.headers.quoteAsset')}
+                </NoWrapTableCell>
+                <NoWrapTableCell>{t('tables.headers.price')}</NoWrapTableCell>
+                <NoWrapTableCell>
+                  {t('tables.headers.confirmedTime')}
+                </NoWrapTableCell>
+                <NoWrapTableCell>
+                  {t('tables.headers.reference')}
+                </NoWrapTableCell>
+                <NoWrapTableCell align="right">
+                  {t('tables.headers.action')}
+                </NoWrapTableCell>
               </TableRow>
             </TableHead>
             <StatefulTableBody
@@ -459,7 +465,7 @@ export default function Page() {
 
       <SidePanel id="createPrice">
         <CardHeader
-          title="新增價格"
+          title={t('sidePanels.createPrice.title')}
           action={
             <IconButton onClick={() => sidePanel.close()}>
               <CloseIcon fontSize="small" />
@@ -535,7 +541,7 @@ export default function Page() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="外幣資產"
+                      label={t('sidePanels.createPrice.labels.baseAsset')}
                       variant="filled"
                       required
                     />
@@ -605,7 +611,7 @@ export default function Page() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="本幣資產"
+                      label={t('sidePanels.createPrice.labels.quoteAsset')}
                       variant="filled"
                       required
                     />
@@ -624,7 +630,7 @@ export default function Page() {
                 <TextField
                   {...field}
                   required
-                  label="價格"
+                  label={t('sidePanels.createPrice.labels.price')}
                   variant="filled"
                   type="number"
                 />
@@ -647,7 +653,7 @@ export default function Page() {
                       {...field}
                       inputRef={inputRef}
                       required
-                      label="收定時間"
+                      label={t('sidePanels.createPrice.labels.confirmedTime')}
                       variant="filled"
                       type="datetime-local"
                       slotProps={{
@@ -675,14 +681,14 @@ export default function Page() {
             disabled={!createPriceForm.formState.isValid}
             onClick={createPriceForm.handleSubmit(handleSubmitCreatePriceForm)}
           >
-            新增
+            {t('sidePanels.createPrice.buttons.create')}
           </AutoLoadingButton>
         </Stack>
       </SidePanel>
 
       <SidePanel id="editPrice">
         <CardHeader
-          title="編輯價格"
+          title={t('sidePanels.editPrice.title')}
           action={
             <IconButton
               onClick={() => {
@@ -762,7 +768,7 @@ export default function Page() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="外幣資產"
+                      label={t('sidePanels.editPrice.labels.baseAsset')}
                       variant="filled"
                       required
                     />
@@ -832,7 +838,7 @@ export default function Page() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="本幣資產"
+                      label={t('sidePanels.editPrice.labels.quoteAsset')}
                       variant="filled"
                       required
                     />
@@ -851,7 +857,7 @@ export default function Page() {
                 <TextField
                   {...field}
                   required
-                  label="價格"
+                  label={t('sidePanels.editPrice.labels.price')}
                   variant="filled"
                   type="number"
                 />
@@ -870,7 +876,7 @@ export default function Page() {
                       {...field}
                       inputRef={inputRef}
                       required
-                      label="收定時間"
+                      label={t('sidePanels.editPrice.labels.confirmedTime')}
                       variant="filled"
                       type="datetime-local"
                       slotProps={{
@@ -898,14 +904,14 @@ export default function Page() {
             disabled={!updatePriceForm.formState.isValid}
             onClick={updatePriceForm.handleSubmit(handleSubmitUpdatePriceForm)}
           >
-            儲存
+            {t('sidePanels.editPrice.buttons.update')}
           </AutoLoadingButton>
         </Stack>
       </SidePanel>
 
       <SidePanel id="refillPrice">
         <CardHeader
-          title="回補精靈"
+          title={t('sidePanels.refillPrice.title')}
           action={
             <IconButton
               onClick={() => {
@@ -930,15 +936,14 @@ export default function Page() {
             <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
               <Stack spacing={1} direction="row" alignItems="center">
                 <InfoOutlinedIcon fontSize="small" />
-                <Typography>說明</Typography>
+                <Typography>
+                  {t('sidePanels.refillPrice.accordions.description.summary')}
+                </Typography>
               </Stack>
             </AccordionSummary>
             <AccordionDetails>
               <Typography>
-                回補精靈根據您在 Chore Master
-                所使用到的時間戳、貨幣對，以及整合的價格來源，自動撈取最高精確至每日的歷史價格。視
-                Chore Master
-                及價格來源伺服器系統負載情況，本功能不一定隨時可用，請使用者見諒。
+                {t('sidePanels.refillPrice.accordions.description.details')}
               </Typography>
             </AccordionDetails>
           </Accordion>
@@ -948,7 +953,9 @@ export default function Page() {
             defaultValue=""
             render={({ field }) => (
               <FormControl required variant="standard">
-                <InputLabel>價格來源</InputLabel>
+                <InputLabel>
+                  {t('sidePanels.refillPrice.labels.operatorReference')}
+                </InputLabel>
                 <Select
                   {...field}
                   onChange={(event: SelectChangeEvent) => {
@@ -978,7 +985,7 @@ export default function Page() {
               handleSubmitAutoFillPriceForm
             )}
           >
-            回補
+            {t('sidePanels.refillPrice.buttons.refill')}
           </AutoLoadingButton>
         </Stack>
       </SidePanel>
