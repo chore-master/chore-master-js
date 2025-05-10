@@ -6,11 +6,14 @@ import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
+import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
+import { useTheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import Image from 'next/image'
 import React from 'react'
 
@@ -21,6 +24,8 @@ const pages = [
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
 
 export default function TopNavigation() {
+  const theme = useTheme()
+  const isUpMd = useMediaQuery(theme.breakpoints.up('md'))
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
@@ -111,6 +116,18 @@ export default function TopNavigation() {
                   </Typography>
                 </MenuItem>
               ))}
+              {!isUpMd && <Divider />}
+              {!isUpMd && (
+                <MenuItem
+                  key="啟動 App"
+                  onClick={handleCloseNavMenu}
+                  component={Link}
+                  href="https://www.chore-master.app"
+                  target="_blank"
+                >
+                  <Typography sx={{ textAlign: 'center' }}>啟動 App</Typography>
+                </MenuItem>
+              )}
               {/* {pages.map((page) => (
                 <Link key={page.title} href={page.href} passHref legacyBehavior>
                   <MenuItem component="a" onClick={handleCloseNavMenu}>
@@ -161,7 +178,13 @@ export default function TopNavigation() {
               </Button>
             ))}
           </Box>
-          <Box sx={{ flexGrow: 0 }} />
+          {isUpMd && (
+            <Box sx={{ flexGrow: 0 }}>
+              <Button variant="outlined" color="inherit">
+                啟動 App
+              </Button>
+            </Box>
+          )}
           {/* <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
