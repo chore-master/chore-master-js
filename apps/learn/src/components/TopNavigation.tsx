@@ -111,9 +111,7 @@ export default function TopNavigation() {
                   component={Link}
                   href={page.href}
                 >
-                  <Typography sx={{ textAlign: 'center' }}>
-                    {page.title}
-                  </Typography>
+                  {page.title}
                 </MenuItem>
               ))}
               {!isUpMd && <Divider />}
@@ -125,7 +123,7 @@ export default function TopNavigation() {
                   href="https://www.chore-master.app"
                   target="_blank"
                 >
-                  <Typography sx={{ textAlign: 'center' }}>啟動 App</Typography>
+                  啟動 App
                 </MenuItem>
               )}
               {/* {pages.map((page) => (
@@ -170,9 +168,13 @@ export default function TopNavigation() {
             {pages.map((page) => (
               <Button
                 key={page.title}
-                onClick={handleCloseNavMenu}
                 href={page.href}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{
+                  my: 2,
+                  color: 'white',
+                  display: 'block',
+                  textAlign: 'center',
+                }}
               >
                 {page.title}
               </Button>
@@ -180,7 +182,12 @@ export default function TopNavigation() {
           </Box>
           {isUpMd && (
             <Box sx={{ flexGrow: 0 }}>
-              <Button variant="outlined" color="inherit">
+              <Button
+                href="https://www.chore-master.app"
+                target="_blank"
+                variant="outlined"
+                color="inherit"
+              >
                 啟動 App
               </Button>
             </Box>
