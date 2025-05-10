@@ -1,8 +1,6 @@
 'use client'
 
-// import { zhTW as coreZhTW } from '@mui/material/locale'
 import { createTheme } from '@mui/material/styles'
-// import { zhTW } from '@mui/x-data-grid/locales'
 
 const theme = createTheme({
   colorSchemes: {

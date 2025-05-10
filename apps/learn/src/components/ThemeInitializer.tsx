@@ -11,6 +11,11 @@ export default function ThemeInitializer({
   children: React.ReactNode
 }) {
   const { mode, setMode } = useColorScheme()
+
+  React.useEffect(() => {
+    setMode('light')
+  }, [])
+
   // const isMatchedDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
   // https://mui.com/material-ui/customization/dark-mode/#toggling-color-mode
   if (!mode) {

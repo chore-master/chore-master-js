@@ -1,3 +1,4 @@
+import AppLayout from '@/components/AppLayout'
 import ThemeProvider from '@/components/ThemeProvider'
 import { routing } from '@/i18n/routing'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
@@ -9,8 +10,8 @@ import { notFound } from 'next/navigation'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Chore Master',
-  description: 'Chore Master',
+  title: 'Chore Master Learn',
+  description: 'Chore Master Learn',
   icons: {
     icon: [
       { url: '/images/logo.svg', sizes: '16x16', type: 'image/svg+xml' },
@@ -38,7 +39,9 @@ export default async function Layout({
       <body className={inter.className}>
         <NextIntlClientProvider>
           <AppRouterCacheProvider>
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider>
+              <AppLayout>{children}</AppLayout>
+            </ThemeProvider>
           </AppRouterCacheProvider>
         </NextIntlClientProvider>
       </body>
