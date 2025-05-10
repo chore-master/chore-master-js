@@ -14,7 +14,10 @@ import Typography from '@mui/material/Typography'
 import Image from 'next/image'
 import React from 'react'
 
-const pages = ['開始使用', '定價']
+const pages = [
+  { title: '開始使用', href: '/guide' },
+  { title: '定價', href: '/pricing' },
+]
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
 
 export default function TopNavigation() {
@@ -97,10 +100,26 @@ export default function TopNavigation() {
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                <MenuItem
+                  key={page.title}
+                  onClick={handleCloseNavMenu}
+                  component={Link}
+                  href={page.href}
+                >
+                  <Typography sx={{ textAlign: 'center' }}>
+                    {page.title}
+                  </Typography>
                 </MenuItem>
               ))}
+              {/* {pages.map((page) => (
+                <Link key={page.title} href={page.href} passHref legacyBehavior>
+                  <MenuItem component="a" onClick={handleCloseNavMenu}>
+                    <Typography sx={{ textAlign: 'center' }}>
+                      {page.title}
+                    </Typography>
+                  </MenuItem>
+                </Link>
+              ))} */}
             </Menu>
           </Box>
           {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
@@ -133,11 +152,12 @@ export default function TopNavigation() {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
-                key={page}
+                key={page.title}
                 onClick={handleCloseNavMenu}
+                href={page.href}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {page}
+                {page.title}
               </Button>
             ))}
           </Box>
