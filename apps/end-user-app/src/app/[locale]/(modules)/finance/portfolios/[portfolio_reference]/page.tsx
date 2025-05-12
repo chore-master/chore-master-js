@@ -14,6 +14,7 @@ import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
 import { useTab } from '@/hooks/useTab'
+import { Link } from '@/i18n/navigation'
 import {
   Asset,
   CreateTransactionFormInputs,
@@ -51,7 +52,6 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Decimal from 'decimal.js'
 import { debounce } from 'lodash'
-import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'

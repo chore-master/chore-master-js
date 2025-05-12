@@ -1,5 +1,6 @@
 'use client'
 
+import { Link, useRouter } from '@/i18n/navigation'
 import { LoginForm } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
@@ -21,8 +22,6 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Image from 'next/image'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 

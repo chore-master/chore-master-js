@@ -4,12 +4,12 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { Link } from '@/i18n/navigation'
 import Box from '@mui/material/Box'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Chip from '@mui/material/Chip'
 import MuiLink from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
 

@@ -1,11 +1,11 @@
 'use client'
 
+import { Link } from '@/i18n/navigation'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Paper from '@mui/material/Paper'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import Link from 'next/link'
 
 // Create a custom theme with updated colors to match landing page
 const policyTheme = createTheme({

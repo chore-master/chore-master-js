@@ -14,6 +14,7 @@ import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { colors20, INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
 import { useOffsetPagination } from '@/hooks/useOffsetPagination'
+import { useRouter } from '@/i18n/navigation'
 import type {
   Account,
   Asset,
@@ -50,7 +51,6 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import { Decimal } from 'decimal.js'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
 import React from 'react'
 import { areaChartOptionsTemplate } from './optionsTemplate'
 
