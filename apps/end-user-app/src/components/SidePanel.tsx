@@ -1,5 +1,6 @@
 'use client'
 
+import { usePathname } from '@/i18n/navigation'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
@@ -25,6 +26,11 @@ export const SidePanelProvider = (props: any) => {
   const [portalContainer, setPortalContainer] =
     React.useState<HTMLElement | null>(null)
   const [activeId, setActiveId] = React.useState<string | null>(null)
+  const pathname = usePathname()
+
+  React.useEffect(() => {
+    setActiveId(null)
+  }, [pathname])
 
   const open = (panelId: string) => {
     setActiveId(panelId)

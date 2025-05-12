@@ -1,5 +1,6 @@
 import { useTimezone } from '@/components/timezone'
 import * as datetimeUtils from '@/utils/datetime'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 export default function DatetimeBlock({
@@ -13,6 +14,7 @@ export default function DatetimeBlock({
   date?: Date | null
   realTime?: boolean
 }>) {
+  const t = useTranslations('components.DatetimeBlock')
   const timezone = useTimezone()
   const [baseTimestampInSeconds, setBaseTimestampInSeconds] = React.useState(
     new Date().getTime() / 1000
@@ -48,11 +50,17 @@ export default function DatetimeBlock({
   const timeDeltaInSeconds = Math.floor(
     baseTimestampInSeconds - timezone.deviceOffsetInMinutes * 60 - ts / 1000
   )
+  const { value, unitKey, suffixKey } =
+    datetimeUtils.getTimeDeltaTranslationParts(timeDeltaInSeconds)
 
   return (
     <React.Fragment>
       {localDate.toLocaleString(undefined, { hour12: false })}
-      {` (${datetimeUtils.humanReadableTimeDeltaText(timeDeltaInSeconds)})`}
+      {` (${t('timeDelta', {
+        value,
+        unit: t(`units.${unitKey}`, { value }),
+        suffix: t(`suffixes.${suffixKey}`),
+      })})`}
     </React.Fragment>
   )
 }

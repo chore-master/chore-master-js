@@ -1,6 +1,7 @@
 import TablePaginationActions from '@/components/TablePaginationActions'
 import { OffsetPagination } from '@/types/global'
 import MuiTablePagination from '@mui/material/TablePagination'
+import { useTranslations } from 'next-intl'
 
 export const TablePagination = ({
   offsetPagination,
@@ -8,6 +9,7 @@ export const TablePagination = ({
 }: {
   offsetPagination: OffsetPagination
 }) => {
+  const t = useTranslations('components.TablePagination')
   const rowsPerPageOptions = offsetPagination.rowsPerPageOptions.includes(
     offsetPagination.rowsPerPage
   )
@@ -19,11 +21,9 @@ export const TablePagination = ({
   return (
     <MuiTablePagination
       component="div"
-      labelRowsPerPage="每頁數量："
+      labelRowsPerPage={t('rowsPerPage')}
       labelDisplayedRows={({ from, to, count }: any) =>
-        `第 ${from} 筆至第 ${to} 筆／共 ${
-          count !== -1 ? count : `超過 ${to}`
-        } 筆`
+        t('displayedRows', { from, to, count })
       }
       rowsPerPageOptions={rowsPerPageOptions}
       count={offsetPagination.count}

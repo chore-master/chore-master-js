@@ -2,6 +2,7 @@
   "components": {
     "ModuleLayout": {
       "menu": {
+        "profile": "Profile",
         "loginOtherAccount": "Login another account",
         "logoutCurrentDevice": "Logout current device"
       },
@@ -35,7 +36,31 @@
           "language": "Language"
         }
       }
+    },
+    "DatetimeBlock": {
+      "timeDelta": "{value, plural, =0 {{unit}} other {# {unit} {suffix}}}",
+      "units": {
+        "now": "now",
+        "second": "{value, plural, =1 {second} other {seconds}}",
+        "minute": "{value, plural, =1 {minute} other {minutes}}",
+        "hour": "{value, plural, =1 {hour} other {hours}}",
+        "day": "{value, plural, =1 {day} other {days}}",
+        "month": "{value, plural, =1 {month} other {months}}",
+        "year": "{value, plural, =1 {year} other {years}}"
+      },
+      "suffixes": {
+        "before": "ago",
+        "after": "later",
+        "": ""
+      }
+    },
+    "TablePagination": {
+      "rowsPerPage": "Rows per page:",
+      "displayedRows": "{from}-{to} of {count}"
     }
+  },
+  "global": {
+    "refresh": "Refresh"
   },
   "modules": {
     "admin": {
@@ -48,20 +73,311 @@
         "users": "Users"
       }
     },
+    "profile": {
+      "name": "Profile",
+      "navigations": {
+        "quota": "Quota"
+      },
+      "pages": {
+        "quota": {
+          "titles": {
+            "quota": "Quota"
+          },
+          "subtitles": {
+            "storage": "Storage"
+          },
+          "typographies": {
+            "noQuota": "No quota information",
+            "used": "Used",
+            "limit": "Limit",
+            "utilizationRate": "Utilization Rate"
+          }
+        }
+      }
+    },
     "finance": {
       "name": "Finance",
       "navigations": {
         "market": "Market",
-        "interestRateQuotation": "Interest Rate Quotation",
-        "ecosystem": "Ecosystem",
-        "flow": "Flow",
+        "prices": "Prices",
         "myWealth": "My Wealth",
         "assets": "Assets",
         "accounts": "Accounts",
         "balance": "Balance",
         "myInvestment": "My Investment",
         "portfolios": "Portfolios",
-        "others": "Others"
+        "others": "Others",
+        "interestRateQuotation": "Interest Rate Quotation",
+        "ecosystem": "Ecosystem",
+        "flow": "Flow"
+      },
+      "pages": {
+        "prices": {
+          "titles": {
+            "price": "Price"
+          },
+          "tables": {
+            "headers": {
+              "baseAsset": "Base Asset",
+              "quoteAsset": "Quote Asset",
+              "price": "Price",
+              "confirmedTime": "Confirmed Time",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "buttons": {
+            "create": "Create",
+            "refillWizard": "Refill Wizard"
+          },
+          "sidePanels": {
+            "createPrice": {
+              "title": "Create Price",
+              "labels": {
+                "baseAsset": "Base Asset",
+                "quoteAsset": "Quote Asset",
+                "price": "Price",
+                "confirmedTime": "Confirmed Time"
+              },
+              "buttons": {
+                "create": "Create"
+              }
+            },
+            "editPrice": {
+              "title": "Edit Price",
+              "labels": {
+                "baseAsset": "Base Asset",
+                "quoteAsset": "Quote Asset",
+                "price": "Price",
+                "confirmedTime": "Confirmed Time"
+              },
+              "buttons": {
+                "update": "Save"
+              }
+            },
+            "refillPrice": {
+              "title": "Refill Wizard",
+              "accordions": {
+                "description": {
+                  "summary": "Description",
+                  "details": "The refill wizard automatically retrieves historical daily prices based on the timestamps, currency pairs, and integrated price sources used in Chore Master. Please note that this feature may not be available at all times due to the load on the Chore Master and price source server systems. We apologize for any inconvenience."
+                }
+              },
+              "labels": {
+                "operatorReference": "Price Source"
+              },
+              "buttons": {
+                "refill": "Refill"
+              }
+            }
+          }
+        },
+        "assets": {
+          "titles": {
+            "asset": "Asset"
+          },
+          "buttons": {
+            "create": "Create"
+          },
+          "tables": {
+            "headers": {
+              "name": "Name",
+              "symbol": "Symbol",
+              "decimalPlaces": "Decimal Places",
+              "isSettleable": "Settleable",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "sidePanels": {
+            "createAsset": {
+              "title": "Create Asset",
+              "labels": {
+                "name": "Name",
+                "symbol": "Symbol",
+                "decimalPlaces": "Decimal Places",
+                "isSettleable": "Settleable"
+              },
+              "helperTexts": {
+                "immutable": "Cannot be changed after creation"
+              },
+              "buttons": {
+                "create": "Create"
+              }
+            },
+            "editAsset": {
+              "title": "Edit Asset",
+              "labels": {
+                "name": "Name",
+                "symbol": "Symbol",
+                "isSettleable": "Settleable"
+              },
+              "buttons": {
+                "update": "Save"
+              }
+            }
+          }
+        },
+        "accounts": {
+          "titles": {
+            "account": "Account"
+          },
+          "buttons": {
+            "create": "Create"
+          },
+          "tables": {
+            "headers": {
+              "name": "Name",
+              "openedTime": "Opened Time",
+              "closedTime": "Closed Time",
+              "settlementAsset": "Settlement Asset",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "sidePanels": {
+            "createAccount": {
+              "title": "Create Account",
+              "labels": {
+                "name": "Name",
+                "settlementAsset": "Settlement Asset",
+                "openedTime": "Opened Time",
+                "closedTime": "Closed Time"
+              },
+              "helperTexts": {
+                "immutable": "Cannot be changed after creation"
+              },
+              "buttons": {
+                "create": "Create"
+              }
+            },
+            "editAccount": {
+              "title": "Edit Account",
+              "labels": {
+                "name": "Name",
+                "openedTime": "Opened Time",
+                "closedTime": "Closed Time"
+              },
+              "buttons": {
+                "update": "Save"
+              }
+            }
+          }
+        },
+        "balanceSheets": {
+          "titles": {
+            "balance": "Balance"
+          },
+          "subtitles": {
+            "equityCurve": "Equity Curve",
+            "details": "Details"
+          },
+          "dropdowns": {
+            "dimension": "Dimension",
+            "settlementAsset": "Settlement Asset"
+          },
+          "dropdownItems": {
+            "netWorth": "Net Worth",
+            "netWorthBreakdown": "Net Worth Breakdown",
+            "assetsAndLiabilitiesBreakdown": "Assets and Liabilities Breakdown",
+            "exchangeRate": "Exchange Rate"
+          },
+          "placeholders": {
+            "noData": "No data to plot"
+          },
+          "checkboxes": {
+            "selectAll": "Select All"
+          },
+          "buttons": {
+            "create": "Create"
+          },
+          "tables": {
+            "headers": {
+              "settledTime": "Settled Time",
+              "reference": "Reference",
+              "action": "Action"
+            }
+          },
+          "pages": {
+            "new": {
+              "breadcrumbs": {
+                "balance": "Balance",
+                "create": "Create"
+              },
+              "titles": {
+                "createBalance": "Create Balance"
+              },
+              "buttons": {
+                "create": "Create"
+              },
+              "subtitles": {
+                "general": "General",
+                "entries": "Entries"
+              },
+              "labels": {
+                "settledTime": "Settled Time",
+                "amount": "Amount"
+              }
+            },
+            "balanceSheetReference": {
+              "breadcrumbs": {
+                "balance": "Balance"
+              },
+              "subtitles": {
+                "breakdown": "Breakdown",
+                "details": "Details"
+              },
+              "tooltips": {
+                "edit": "Edit"
+              },
+              "dropdowns": {
+                "dimension": "Dimension",
+                "settlementAsset": "Settlement Asset"
+              },
+              "dropdownItems": {
+                "netWorthBreakdown": "Net Worth Breakdown",
+                "assetsBreakdown": "Assets Breakdown",
+                "liabilitiesBreakdown": "Liabilities Breakdown"
+              },
+              "chartAnnotations": {
+                "assets": "Assets",
+                "liabilities": "Liabilities"
+              },
+              "tables": {
+                "headers": {
+                  "account": "Account",
+                  "amount": "Amount",
+                  "settlementAsset": "Settlement Asset",
+                  "reference": "Reference"
+                }
+              },
+              "pages": {
+                "edit": {
+                  "breadcrumbs": {
+                    "balance": "Balance",
+                    "edit": "Edit"
+                  },
+                  "titles": {
+                    "editBalance": "Edit Balance"
+                  },
+                  "buttons": {
+                    "update": "Update",
+                    "delete": "Delete"
+                  },
+                  "subtitles": {
+                    "general": "General",
+                    "entries": "Entries",
+                    "advanced": "Advanced"
+                  },
+                  "labels": {
+                    "settledTime": "Settled Time",
+                    "amount": "Amount"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "integration": {

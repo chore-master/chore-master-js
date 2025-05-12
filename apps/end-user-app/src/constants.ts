@@ -3,9 +3,9 @@ export const minSidePanelWidth = 160
 export const mobileBreakpoint = 320
 
 export const integrationOperatorDiscriminators = [
-  'oanda_feed',
+  // 'oanda_feed',
   'yahoo_finance_feed',
-  'coingecko_feed',
+  // 'coingecko_feed',
 ]
 export const INTERMEDIATE_ASSET_SYMBOL = 'USD'
 

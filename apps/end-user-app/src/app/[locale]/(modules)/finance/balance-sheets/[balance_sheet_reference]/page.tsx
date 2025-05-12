@@ -12,8 +12,12 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
-import type { Account, Asset, BalanceSheetDetail } from '@/types/finance'
-import type { Operator } from '@/types/integration'
+import type {
+  Account,
+  Asset,
+  BalanceSheetDetail,
+  MarkPrice,
+} from '@/types/finance'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useNotification } from '@/utils/notification'
 import { getSyntheticPrice } from '@/utils/price'
@@ -35,6 +39,7 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import Decimal from 'decimal.js'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -42,15 +47,15 @@ import { pieChartOptionsTemplate } from './optionsTemplate'
 
 const chartTypes = [
   {
-    label: '淨值組成',
+    translationKey: 'netWorthBreakdown',
     value: 'net_value_pie',
   },
   {
-    label: '資產組成',
+    translationKey: 'assetsBreakdown',
     value: 'asset_pie',
   },
   {
-    label: '負債組成',
+    translationKey: 'liabilitiesBreakdown',
     value: 'liability_pie',
   },
 ]
@@ -59,15 +64,12 @@ export default function Page() {
   const { enqueueNotification } = useNotification()
   const timezone = useTimezone()
   const router = useRouter()
+  const t = useTranslations(
+    'modules.finance.pages.balanceSheets.pages.balanceSheetReference'
+  )
+  const tGlobal = useTranslations('global')
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
-
-  // Feed operator
-  const [feedOperators, setFeedOperators] = React.useState<Operator[]>([])
-  const [isFetchingFeedOperators, setIsFetchingFeedOperators] =
-    React.useState(false)
-  const [selectedFeedOperatorReference, setSelectedFeedOperatorReference] =
-    React.useState('')
 
   // Settleable asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
@@ -89,8 +91,8 @@ export default function Page() {
   const [isFetchingAccounts, setIsFetchingAccounts] = React.useState(false)
 
   // Prices
-  const [prices, setPrices] = React.useState<any>([])
-  const [isFetchingPrices, setIsFetchingPrices] = React.useState(false)
+  const [markPrices, setMarkPrices] = React.useState<MarkPrice[]>([])
+  const [isFetchingMarkPrices, setIsFetchingMarkPrices] = React.useState(false)
 
   // Chart
   const [pieChartOptions, setPieChartOptions] =
@@ -98,25 +100,6 @@ export default function Page() {
   const [selectedChartType, setSelectedChartType] = React.useState(
     chartTypes[0].value
   )
-
-  const fetchFeedOperators = React.useCallback(async () => {
-    setIsFetchingFeedOperators(true)
-    await choreMasterAPIAgent.get('/v1/integration/users/me/operators', {
-      params: {
-        discriminators: ['oanda_feed', 'yahoo_finance_feed'],
-      },
-      onError: () => {
-        enqueueNotification(`Unable to fetch feed operators now.`, 'error')
-      },
-      onFail: ({ message }: any) => {
-        enqueueNotification(message, 'error')
-      },
-      onSuccess: async ({ data }: any) => {
-        setFeedOperators(data)
-      },
-    })
-    setIsFetchingFeedOperators(false)
-  }, [enqueueNotification])
 
   const fetchSettleableAssets = React.useCallback(async () => {
     setIsFetchingSettleableAssets(true)
@@ -179,40 +162,38 @@ export default function Page() {
     [enqueueNotification]
   )
 
-  const fetchPrices = React.useCallback(
+  const fetchMarkPrices = React.useCallback(
     async (
-      feedOperatorReference: string,
-      datetimes: string[],
-      instrumentSymbols: string[]
+      queryDatetimes: string[],
+      queryPairs: {
+        base_asset_reference: string
+        quote_asset_reference: string
+      }[]
     ) => {
-      setIsFetchingPrices(true)
+      setIsFetchingMarkPrices(true)
       await choreMasterAPIAgent.post(
-        `/v1/integration/users/me/operators/${feedOperatorReference}/feed/fetch_prices`,
+        `/v1/finance/users/me/query-mark-prices`,
         {
-          target_datetimes: datetimes,
-          target_interval: '1d',
-          instrument_symbols: instrumentSymbols,
+          query_datetimes: queryDatetimes,
+          query_pairs: queryPairs,
+          max_allowed_timedelta_ms: 1000 * 60 * 60 * 24 * 3,
         },
         {
           onError: () => {
-            enqueueNotification(`Unable to fetch prices now.`, 'error')
+            enqueueNotification(`Unable to fetch mark prices now.`, 'error')
           },
           onFail: ({ message }: any) => {
             enqueueNotification(message, 'error')
           },
           onSuccess: async ({ data }: any) => {
-            setPrices(data)
+            setMarkPrices(data)
           },
         }
       )
-      setIsFetchingPrices(false)
+      setIsFetchingMarkPrices(false)
     },
     [enqueueNotification]
   )
-
-  React.useEffect(() => {
-    fetchFeedOperators()
-  }, [fetchFeedOperators])
 
   React.useEffect(() => {
     fetchSettleableAssets()
@@ -221,15 +202,6 @@ export default function Page() {
   React.useEffect(() => {
     fetchBalanceSheet()
   }, [fetchBalanceSheet])
-
-  React.useEffect(() => {
-    const feedOperator = feedOperators.find(
-      (operator) => operator.reference === selectedFeedOperatorReference
-    )
-    if (!feedOperator) {
-      setSelectedFeedOperatorReference(feedOperators[0]?.reference || '')
-    }
-  }, [feedOperators, selectedFeedOperatorReference])
 
   React.useEffect(() => {
     const settleableAsset = settleableAssets.find(
@@ -252,45 +224,40 @@ export default function Page() {
   }, [balanceSheet, fetchAccounts])
 
   React.useEffect(() => {
-    if (
-      balanceSheet &&
-      selectedFeedOperatorReference &&
-      settleableAssets.length > 0
-    ) {
+    if (balanceSheet && settleableAssets.length > 0) {
       const datetimes = [balanceSheet.balanced_time]
-      const baseAssetIndex = settleableAssets.findIndex(
+      const baseAsset = settleableAssets.find(
         (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
       )
-      if (baseAssetIndex === -1) {
+      if (!baseAsset) {
         enqueueNotification(
           `Intermediate asset ${INTERMEDIATE_ASSET_SYMBOL} not found.`,
           'error'
         )
         return
       }
-      const instrumentSymbols = settleableAssets
+      const queryPairs = settleableAssets
         .filter((asset) => asset.symbol !== INTERMEDIATE_ASSET_SYMBOL)
-        .map(
-          (quoteAsset) => `${INTERMEDIATE_ASSET_SYMBOL}_${quoteAsset.symbol}`
-        )
-      fetchPrices(selectedFeedOperatorReference, datetimes, instrumentSymbols)
+        .map((quoteAsset) => ({
+          base_asset_reference: baseAsset.reference,
+          quote_asset_reference: quoteAsset.reference,
+        }))
+      fetchMarkPrices(datetimes, queryPairs)
     }
-  }, [
-    balanceSheet,
-    selectedFeedOperatorReference,
-    settleableAssets,
-    fetchPrices,
-    enqueueNotification,
-  ])
+  }, [balanceSheet, settleableAssets, fetchMarkPrices, enqueueNotification])
 
   React.useEffect(() => {
     if (
       selectedSettleableAssetReference &&
       balanceSheet &&
-      prices.length > 0 &&
+      markPrices.length > 0 &&
       accounts.length > 0 &&
       settleableAssets.length > 0
     ) {
+      const intermediateAssetReference =
+        settleableAssets.find(
+          (asset) => asset.symbol === INTERMEDIATE_ASSET_SYMBOL
+        )?.reference || ''
       const accountReferenceToAccountMap: Record<string, Account> =
         accounts.reduce((acc: any, account: Account) => {
           acc[account.reference] = account
@@ -311,17 +278,18 @@ export default function Page() {
           accountReferenceToAccountMap[balanceEntry.account_reference]
         const accountSettlementAsset =
           assetReferenceToSettleableAssetMap[account.settlement_asset_reference]
-        const accountSettlementAssetSymbol = accountSettlementAsset.symbol
         const price = getSyntheticPrice(
-          prices.filter(
-            (price: any) => price.target_datetime === balanceSheet.balanced_time
+          markPrices.filter(
+            (markPrice: MarkPrice) =>
+              markPrice.query_datetime === balanceSheet.balanced_time
           ),
-          accountSettlementAssetSymbol,
-          selectedSettleableAssetSymbol
+          account.settlement_asset_reference,
+          selectedSettleableAssetReference,
+          intermediateAssetReference
         )
         const value = new Decimal(balanceEntry.amount)
           .dividedBy(10 ** accountSettlementAsset.decimals)
-          .times(price)
+          .times(price || 0)
           .toNumber()
         return {
           name: account.name,
@@ -335,10 +303,10 @@ export default function Page() {
           {
             id: `net_value_${selectedSettleableAssetSymbol}_pie`,
             type: 'pie',
-            name: '淨值組成',
+            name: t('dropdownItems.netWorthBreakdown'),
             data: [
               {
-                name: '資產',
+                name: t('chartAnnotations.assets'),
                 y: accountSeries
                   .filter((point) => point.y > 0)
                   .reduce((acc, point) => acc + point.y, 0),
@@ -347,7 +315,7 @@ export default function Page() {
                 },
               },
               {
-                name: '負債',
+                name: t('chartAnnotations.liabilities'),
                 y: -accountSeries
                   .filter((point) => point.y < 0)
                   .reduce((acc, point) => acc + point.y, 0),
@@ -363,7 +331,7 @@ export default function Page() {
           {
             id: `asset_${selectedSettleableAssetSymbol}_pie`,
             type: 'pie',
-            name: '資產組成',
+            name: t('dropdownItems.assetsBreakdown'),
             data: accountSeries
               .filter((point) => point.y > 0)
               .map((point) => ({
@@ -380,7 +348,7 @@ export default function Page() {
           {
             id: `liability_${selectedSettleableAssetSymbol}_pie`,
             type: 'pie',
-            name: '負債組成',
+            name: t('dropdownItems.liabilitiesBreakdown'),
             data: accountSeries
               .filter((point) => point.y < 0)
               .map((point) => ({
@@ -404,7 +372,7 @@ export default function Page() {
     balanceSheet,
     selectedSettleableAssetReference,
     selectedChartType,
-    prices,
+    markPrices,
     accounts,
     settleableAssets,
   ])
@@ -419,7 +387,7 @@ export default function Page() {
             color="inherit"
             href="/finance/balance-sheets"
           >
-            結餘
+            {t('breadcrumbs.balance')}
           </MuiLink>
           {balanceSheet && (
             <ReferenceBlock
@@ -440,7 +408,7 @@ export default function Page() {
             </Typography>
           }
           actions={[
-            <Tooltip key="refresh" title="立即重整">
+            <Tooltip key="refresh" title={tGlobal('refresh')}>
               <span>
                 <IconButton
                   onClick={fetchBalanceSheet}
@@ -453,13 +421,12 @@ export default function Page() {
           ]}
         />
 
-        <ModuleFunctionHeader subtitle="結構組成" />
+        <ModuleFunctionHeader subtitle={t('subtitles.breakdown')} />
         <ModuleFunctionBody
           loading={
-            isFetchingFeedOperators ||
             isFetchingSettleableAssets ||
             isFetchingBalanceSheet ||
-            isFetchingPrices
+            isFetchingMarkPrices
           }
         >
           <Box sx={{ minWidth: 480 }}>
@@ -469,7 +436,7 @@ export default function Page() {
               sx={{ p: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}
             >
               <FormControl variant="standard">
-                <InputLabel>檢視維度</InputLabel>
+                <InputLabel>{t('dropdowns.dimension')}</InputLabel>
                 <Select
                   value={selectedChartType}
                   onChange={(event: SelectChangeEvent) => {
@@ -479,13 +446,13 @@ export default function Page() {
                 >
                   {chartTypes.map((chartType) => (
                     <MenuItem key={chartType.value} value={chartType.value}>
-                      {chartType.label}
+                      {t(`dropdownItems.${chartType.translationKey}`)}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <FormControl variant="standard">
-                <InputLabel>結算資產</InputLabel>
+                <InputLabel>{t('dropdowns.settlementAsset')}</InputLabel>
                 <Select
                   value={selectedSettleableAssetReference}
                   onChange={(event: SelectChangeEvent) => {
@@ -500,34 +467,15 @@ export default function Page() {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl variant="standard">
-                <InputLabel>報價來源</InputLabel>
-                <Select
-                  value={selectedFeedOperatorReference}
-                  onChange={(event: SelectChangeEvent) => {
-                    setSelectedFeedOperatorReference(event.target.value)
-                  }}
-                  autoWidth
-                >
-                  {feedOperators.map((operator) => (
-                    <MenuItem
-                      key={operator.reference}
-                      value={operator.reference}
-                    >
-                      {operator.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
             </Stack>
             <HighChartsCore options={pieChartOptions} />
           </Box>
         </ModuleFunctionBody>
 
         <ModuleFunctionHeader
-          subtitle="明細"
+          subtitle={t('subtitles.details')}
           actions={[
-            <Tooltip key="edit" title="編輯">
+            <Tooltip key="edit" title={t('tooltips.edit')}>
               <IconButton
                 onClick={() => {
                   router.push(
@@ -554,10 +502,18 @@ export default function Page() {
                   <NoWrapTableCell align="right">
                     <PlaceholderTypography>#</PlaceholderTypography>
                   </NoWrapTableCell>
-                  <NoWrapTableCell>帳戶</NoWrapTableCell>
-                  <NoWrapTableCell align="right">數量</NoWrapTableCell>
-                  <NoWrapTableCell>結算資產</NoWrapTableCell>
-                  <NoWrapTableCell>系統識別碼</NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.account')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell align="right">
+                    {t('tables.headers.amount')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.settlementAsset')}
+                  </NoWrapTableCell>
+                  <NoWrapTableCell>
+                    {t('tables.headers.reference')}
+                  </NoWrapTableCell>
                 </TableRow>
               </TableHead>
               <StatefulTableBody
