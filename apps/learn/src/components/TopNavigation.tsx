@@ -117,13 +117,12 @@ export default function TopNavigation() {
               {!isUpMd && <Divider />}
               {!isUpMd && (
                 <MenuItem
-                  key="啟動 App"
                   onClick={handleCloseNavMenu}
                   component={Link}
                   href="https://www.chore-master.app"
                   target="_blank"
                 >
-                  啟動 App
+                  前往 App
                 </MenuItem>
               )}
               {/* {pages.map((page) => (
@@ -188,7 +187,7 @@ export default function TopNavigation() {
                 variant="outlined"
                 color="inherit"
               >
-                啟動 App
+                前往 App
               </Button>
             </Box>
           )}
