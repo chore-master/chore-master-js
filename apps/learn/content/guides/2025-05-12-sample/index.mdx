@@ -1,0 +1,78 @@
+---
+slug: guest-story
+isDraft: false
+title: 文章測試
+excerpt: '這是一個簡單的測試文章，用於測試 MDX 渲染功能'
+date: 2025-01-01T00:00:00.000Z
+---
+
+# MDX Client 測試頁面
+
+這是一個測試 **next-mdx-remote-client** 渲染功能的頁面。
+
+## 功能示範
+
+這裡展示一些 Markdown 語法：
+
+- 列表項目 1
+- 列表項目 2
+- 列表項目 3
+
+### 代碼塊
+
+```javascript
+function greeting(name) {
+  return `Hello, ${name}!`
+}
+
+console.log(greeting('MDX User'))
+```
+
+### 表格
+
+| 名稱                   | 說明       | 版本   |
+| ---------------------- | ---------- | ------ |
+| Next.js                | React 框架 | 14.0.0 |
+| React                  | UI 函式庫  | 18.0.0 |
+| next-mdx-remote-client | MDX 渲染器 | 2.0.1  |
+
+### 引用
+
+> 這是一段引用文字，展示 Markdown 的引用功能。
+>
+> 引用可以包含多個段落。
+
+## JSX 與 HTML 支援
+
+<div
+  style={{
+    padding: '1rem',
+    backgroundColor: '#f0f0f0',
+    borderRadius: '0.5rem',
+    marginBottom: '1rem',
+  }}
+>
+  這是一個使用 JSX 樣式的 div 元素。
+</div>
+
+<button
+  onClick={() => alert('你好，這是 MDX 中的互動元素！')}
+  style={{
+    backgroundColor: '#4299e1',
+    color: 'white',
+    padding: '0.5rem 1rem',
+    borderRadius: '0.25rem',
+    border: 'none',
+    cursor: 'pointer',
+  }}
+>
+  點擊我！
+</button>
+
+---
+
+這個頁面展示了 `next-mdx-remote-client` 的渲染能力。
+
+### 使用 Markdown 語法的圖片
+
+![Markdown 語法的圖片](/images/sample-image.png)
