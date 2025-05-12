@@ -28,24 +28,12 @@ export default function Layout({
             return isCollapsed && pathname.startsWith('/finance/market')
           },
           title: t('finance.navigations.market'),
-          isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
+          isVisible: auth.currentUserHasSomeOfRoles(['FREEMIUM']),
           navigations: [
             {
               type: 'link',
-              title: t('finance.navigations.interestRateQuotation'),
-              href: '/finance/market/interest-rate-inspector',
-              selectedWhenPartiallyMatched: true,
-            },
-            {
-              type: 'link',
-              title: t('finance.navigations.ecosystem'),
-              href: '/finance/market/ecosystem',
-              selectedWhenPartiallyMatched: true,
-            },
-            {
-              type: 'link',
-              title: t('finance.navigations.flow'),
-              href: '/finance/market/flow',
+              title: t('finance.navigations.prices'),
+              href: '/finance/prices',
               selectedWhenPartiallyMatched: true,
             },
           ],
@@ -119,6 +107,24 @@ export default function Layout({
           title: t('finance.navigations.others'),
           isVisible: auth.currentUserHasSomeOfRoles(['ADMIN']),
           navigations: [
+            {
+              type: 'link',
+              title: t('finance.navigations.interestRateQuotation'),
+              href: '/finance/market/interest-rate-inspector',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: t('finance.navigations.ecosystem'),
+              href: '/finance/market/ecosystem',
+              selectedWhenPartiallyMatched: true,
+            },
+            {
+              type: 'link',
+              title: t('finance.navigations.flow'),
+              href: '/finance/market/flow',
+              selectedWhenPartiallyMatched: true,
+            },
             {
               type: 'link',
               title: '執行階段',

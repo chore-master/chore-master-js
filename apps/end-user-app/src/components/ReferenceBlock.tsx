@@ -1,7 +1,7 @@
+import { Link } from '@/i18n/navigation'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import Chip from '@mui/material/Chip'
 import { SxProps } from '@mui/material/styles'
-import Link from 'next/link'
 import { ReactElement } from 'react'
 
 export default function ReferenceBlock({

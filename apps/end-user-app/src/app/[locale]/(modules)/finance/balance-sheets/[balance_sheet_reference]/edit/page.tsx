@@ -26,6 +26,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Decimal from 'decimal.js'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -42,6 +43,9 @@ export default function Page() {
   const router = useRouter()
   const { balance_sheet_reference }: { balance_sheet_reference: string } =
     useParams()
+  const t = useTranslations(
+    'modules.finance.pages.balanceSheets.pages.balanceSheetReference.pages.edit'
+  )
 
   // Asset
   const [settleableAssets, setSettleableAssets] = React.useState<Asset[]>([])
@@ -271,7 +275,7 @@ export default function Page() {
             color="inherit"
             href="/finance/balance-sheets"
           >
-            結餘
+            {t('breadcrumbs.balance')}
           </MuiLink>
           {balanceSheet && (
             <MuiLink
@@ -287,14 +291,14 @@ export default function Page() {
               />
             </MuiLink>
           )}
-          <Typography color="text.primary">更新</Typography>
+          <Typography color="text.primary">{t('breadcrumbs.edit')}</Typography>
         </Breadcrumbs>
       </Box>
 
       <ModuleFunction sx={{ pb: 0 }}>
         <ModuleFunctionHeader
           stickyTop
-          title="更新結餘"
+          title={t('titles.editBalance')}
           actions={[
             <AutoLoadingButton
               key="update"
@@ -305,7 +309,7 @@ export default function Page() {
               disabled={!updateBalanceSheetForm.formState.isValid}
               startIcon={<SaveIcon />}
             >
-              更新
+              {t('buttons.update')}
             </AutoLoadingButton>,
           ]}
         />
@@ -313,7 +317,7 @@ export default function Page() {
         <ModuleFunctionBody>
           <Stack spacing={3} p={2}>
             <Typography variant="h6" color="textSecondary">
-              一般
+              {t('subtitles.general')}
             </Typography>
             <FormControl>
               <Controller
@@ -324,7 +328,7 @@ export default function Page() {
                   <TextField
                     {...field}
                     required
-                    label="結算時間"
+                    label={t('labels.settledTime')}
                     variant="filled"
                     type="datetime-local"
                     slotProps={{
@@ -356,7 +360,7 @@ export default function Page() {
         >
           <Stack spacing={3} p={2}>
             <Typography variant="h6" color="textSecondary">
-              帳目
+              {t('subtitles.entries')}
             </Typography>
           </Stack>
 
@@ -386,7 +390,7 @@ export default function Page() {
                               <TextField
                                 {...field}
                                 required
-                                label="數量"
+                                label={t('labels.amount')}
                                 variant="filled"
                                 type="number"
                                 size="small"
@@ -423,7 +427,7 @@ export default function Page() {
             }}
           >
             <Typography variant="h6" color="textSecondary">
-              進階
+              {t('subtitles.advanced')}
             </Typography>
             <AutoLoadingButton
               variant="contained"
@@ -432,7 +436,7 @@ export default function Page() {
                 await deleteBalanceSheet(balance_sheet_reference)
               }}
             >
-              刪除
+              {t('buttons.delete')}
             </AutoLoadingButton>
           </Stack>
         </ModuleFunctionBody>

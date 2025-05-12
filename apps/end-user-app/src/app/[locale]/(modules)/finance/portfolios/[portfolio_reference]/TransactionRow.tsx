@@ -2,6 +2,7 @@ import DatetimeBlock from '@/components/DatetimeBlock'
 import NumberBlock from '@/components/NumberBlock'
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import { useSidePanel } from '@/components/SidePanel'
 import { NoWrapTableCell } from '@/components/Table'
 import { financeTransferFlowTypes } from '@/constants'
 import {
@@ -38,7 +39,6 @@ export default function TransactionRow({
   updateTransferForm,
   setEditingTransactionReference,
   setFocusedTransactionReference,
-  setIsCreateTransferDrawerOpen,
   setEditingTransferReference,
   deleteTransaction,
   deleteTransfer,
@@ -54,7 +54,6 @@ export default function TransactionRow({
   updateTransferForm: UseFormReturn<UpdateTransferFormInputs>
   setEditingTransactionReference: (reference: string) => void
   setFocusedTransactionReference: (reference: string) => void
-  setIsCreateTransferDrawerOpen: (isOpen: boolean) => void
   setEditingTransferReference: (reference: string) => void
   deleteTransaction: (transactionReference: string) => void
   deleteTransfer: (
@@ -62,6 +61,7 @@ export default function TransactionRow({
     transferReference: string
   ) => void
 }) {
+  const sidePanel = useSidePanel()
   const [isOpen, setIsOpen] = React.useState(false)
   const settlementAsset =
     assetReferenceToAssetMap[portfolio?.settlement_asset_reference as string]
@@ -101,7 +101,11 @@ export default function TransactionRow({
             disabled={transaction.transfers.length === 0}
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? <ArrowDropDownIcon /> : <ArrowRightIcon />}
+            {isOpen ? (
+              <ArrowDropDownIcon fontSize="inherit" />
+            ) : (
+              <ArrowRightIcon fontSize="inherit" />
+            )}
           </IconButton>
         </NoWrapTableCell>
         <NoWrapTableCell align="right">
@@ -188,10 +192,10 @@ export default function TransactionRow({
                 remark: '',
               })
               setFocusedTransactionReference(transaction.reference)
-              setIsCreateTransferDrawerOpen(true)
+              sidePanel.open('createTransfer')
             }}
           >
-            <AddIcon />
+            <AddIcon fontSize="inherit" />
           </IconButton>
           <IconButton
             size="small"
@@ -205,15 +209,16 @@ export default function TransactionRow({
                 remark: transaction.remark,
               })
               setEditingTransactionReference(transaction.reference)
+              sidePanel.open('updateTransaction')
             }}
           >
-            <EditIcon />
+            <EditIcon fontSize="inherit" />
           </IconButton>
           <IconButton
             size="small"
             onClick={() => deleteTransaction(transaction.reference)}
           >
-            <DeleteIcon />
+            <DeleteIcon fontSize="inherit" />
           </IconButton>
         </NoWrapTableCell>
       </TableRow>
@@ -308,9 +313,10 @@ export default function TransactionRow({
                     })
                     setFocusedTransactionReference(transaction.reference)
                     setEditingTransferReference(transfer.reference)
+                    sidePanel.open('updateTransfer')
                   }}
                 >
-                  <EditIcon />
+                  <EditIcon fontSize="inherit" />
                 </IconButton>
                 <IconButton
                   size="small"
@@ -319,7 +325,7 @@ export default function TransactionRow({
                     deleteTransfer(transaction.reference, transfer.reference)
                   }}
                 >
-                  <DeleteIcon />
+                  <DeleteIcon fontSize="inherit" />
                 </IconButton>
               </NoWrapTableCell>
             </TableRow>

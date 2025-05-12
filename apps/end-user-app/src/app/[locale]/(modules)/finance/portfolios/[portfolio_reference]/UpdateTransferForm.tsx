@@ -1,17 +1,21 @@
 import AutoLoadingButton from '@/components/AutoLoadingButton'
 import ReferenceBlock from '@/components/ReferenceBlock'
+import { useSidePanel } from '@/components/SidePanel'
 import { financeTransferFlowTypes } from '@/constants'
 import { Asset, Portfolio, UpdateTransferFormInputs } from '@/types/finance'
+import CloseIcon from '@mui/icons-material/Close'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import CardHeader from '@mui/material/CardHeader'
 import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
+import React from 'react'
 import { Controller, SubmitHandler, UseFormReturn } from 'react-hook-form'
 
 export default function UpdateTransferForm({
@@ -35,11 +39,19 @@ export default function UpdateTransferForm({
   fetchAssets: (params: { search: string }) => void
   handleSubmitUpdateTransferForm: SubmitHandler<UpdateTransferFormInputs>
 }) {
+  const sidePanel = useSidePanel()
   const settlementAsset =
     assetReferenceToAssetMap[portfolio?.settlement_asset_reference as string]
   return (
-    <Box sx={{ minWidth: 320 }}>
-      <CardHeader title="編輯流量" />
+    <React.Fragment>
+      <CardHeader
+        title="編輯流量"
+        action={
+          <IconButton onClick={() => sidePanel.close()}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
       <Stack
         component="form"
         spacing={3}
@@ -217,6 +229,6 @@ export default function UpdateTransferForm({
           更新
         </AutoLoadingButton>
       </Stack>
-    </Box>
+    </React.Fragment>
   )
 }

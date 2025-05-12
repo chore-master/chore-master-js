@@ -2,6 +2,7 @@
   "components": {
     "ModuleLayout": {
       "menu": {
+        "profile": "帳號中心",
         "loginOtherAccount": "登入其他帳號",
         "logoutCurrentDevice": "登出目前裝置"
       },
@@ -35,7 +36,31 @@
           "language": "語言"
         }
       }
+    },
+    "DatetimeBlock": {
+      "timeDelta": "{value, plural, =0 {{unit}} other {# {unit}{suffix}}}",
+      "units": {
+        "now": "現在",
+        "second": "秒",
+        "minute": "分鐘",
+        "hour": "小時",
+        "day": "天",
+        "month": "個月",
+        "year": "年"
+      },
+      "suffixes": {
+        "before": "前",
+        "after": "後",
+        "": ""
+      }
+    },
+    "TablePagination": {
+      "rowsPerPage": "每頁數量：",
+      "displayedRows": "第 {from} 筆至第 {to} 筆／共 {count} 筆"
     }
+  },
+  "global": {
+    "refresh": "立即重整"
   },
   "modules": {
     "admin": {
@@ -48,20 +73,311 @@
         "users": "使用者"
       }
     },
+    "profile": {
+      "name": "帳號中心",
+      "navigations": {
+        "quota": "配額"
+      },
+      "pages": {
+        "quota": {
+          "titles": {
+            "quota": "配額"
+          },
+          "subtitles": {
+            "storage": "儲存格"
+          },
+          "typographies": {
+            "noQuota": "目前沒有配額資訊",
+            "used": "已使用",
+            "limit": "配額上限",
+            "utilizationRate": "使用率"
+          }
+        }
+      }
+    },
     "finance": {
       "name": "金融",
       "navigations": {
         "market": "市場",
-        "interestRateQuotation": "利率行情",
-        "ecosystem": "生態",
-        "flow": "流量",
+        "prices": "價格",
         "myWealth": "我的資金",
         "assets": "資產",
         "accounts": "帳戶",
-        "balance": "餘額",
+        "balance": "結餘",
         "myInvestment": "我的投資",
         "portfolios": "投資組合",
-        "others": "其他"
+        "others": "其他",
+        "interestRateQuotation": "利率行情",
+        "ecosystem": "生態",
+        "flow": "流量"
+      },
+      "pages": {
+        "prices": {
+          "titles": {
+            "price": "價格"
+          },
+          "tables": {
+            "headers": {
+              "baseAsset": "外幣資產",
+              "quoteAsset": "本幣資產",
+              "price": "價格",
+              "confirmedTime": "收定時間",
+              "reference": "系統識別碼",
+              "action": "操作"
+            }
+          },
+          "buttons": {
+            "create": "新增",
+            "refillWizard": "回補精靈"
+          },
+          "sidePanels": {
+            "createPrice": {
+              "title": "新增價格",
+              "labels": {
+                "baseAsset": "外幣資產",
+                "quoteAsset": "本幣資產",
+                "price": "價格",
+                "confirmedTime": "收定時間"
+              },
+              "buttons": {
+                "create": "新增"
+              }
+            },
+            "editPrice": {
+              "title": "編輯價格",
+              "labels": {
+                "baseAsset": "外幣資產",
+                "quoteAsset": "本幣資產",
+                "price": "價格",
+                "confirmedTime": "收定時間"
+              },
+              "buttons": {
+                "update": "儲存"
+              }
+            },
+            "refillPrice": {
+              "title": "回補精靈",
+              "accordions": {
+                "description": {
+                  "summary": "說明",
+                  "details": "回補精靈根據您在 Chore Master 所使用到的時間戳、貨幣對，以及整合的價格來源，自動撈取最高精確至每日的歷史價格。視 Chore Master 及價格來源伺服器系統負載情況，本功能不一定隨時可用，請使用者見諒。"
+                }
+              },
+              "labels": {
+                "operatorReference": "價格來源"
+              },
+              "buttons": {
+                "refill": "回補"
+              }
+            }
+          }
+        },
+        "assets": {
+          "titles": {
+            "asset": "資產"
+          },
+          "buttons": {
+            "create": "新增"
+          },
+          "tables": {
+            "headers": {
+              "name": "名稱",
+              "symbol": "代號",
+              "decimalPlaces": "精度",
+              "isSettleable": "可結算",
+              "reference": "系統識別碼",
+              "action": "操作"
+            }
+          },
+          "sidePanels": {
+            "createAsset": {
+              "title": "新增資產",
+              "labels": {
+                "name": "名稱",
+                "symbol": "代號",
+                "decimalPlaces": "精度",
+                "isSettleable": "可結算"
+              },
+              "helperTexts": {
+                "immutable": "建立後無法變更"
+              },
+              "buttons": {
+                "create": "新增"
+              }
+            },
+            "editAsset": {
+              "title": "編輯資產",
+              "labels": {
+                "name": "名稱",
+                "symbol": "代號",
+                "isSettleable": "可結算"
+              },
+              "buttons": {
+                "update": "儲存"
+              }
+            }
+          }
+        },
+        "accounts": {
+          "titles": {
+            "account": "帳戶"
+          },
+          "buttons": {
+            "create": "新增"
+          },
+          "tables": {
+            "headers": {
+              "name": "名稱",
+              "openedTime": "開戶時間",
+              "closedTime": "關戶時間",
+              "settlementAsset": "結算資產",
+              "reference": "系統識別碼",
+              "action": "操作"
+            }
+          },
+          "sidePanels": {
+            "createAccount": {
+              "title": "新增帳戶",
+              "labels": {
+                "name": "名稱",
+                "settlementAsset": "結算資產",
+                "openedTime": "開戶時間",
+                "closedTime": "關戶時間"
+              },
+              "helperTexts": {
+                "immutable": "建立後無法變更"
+              },
+              "buttons": {
+                "create": "新增"
+              }
+            },
+            "editAccount": {
+              "title": "編輯帳戶",
+              "labels": {
+                "name": "名稱",
+                "openedTime": "開戶時間",
+                "closedTime": "關戶時間"
+              },
+              "buttons": {
+                "update": "儲存"
+              }
+            }
+          }
+        },
+        "balanceSheets": {
+          "titles": {
+            "balance": "結餘"
+          },
+          "subtitles": {
+            "equityCurve": "資金曲線",
+            "details": "明細"
+          },
+          "dropdowns": {
+            "dimension": "檢視維度",
+            "settlementAsset": "結算資產"
+          },
+          "dropdownItems": {
+            "netWorth": "淨值",
+            "netWorthBreakdown": "淨值組成",
+            "assetsAndLiabilitiesBreakdown": "資產負債組成",
+            "exchangeRate": "參考匯率"
+          },
+          "placeholders": {
+            "noData": "目前沒有資料可以繪製"
+          },
+          "checkboxes": {
+            "selectAll": "全選"
+          },
+          "buttons": {
+            "create": "新增"
+          },
+          "tables": {
+            "headers": {
+              "settledTime": "結算時間",
+              "reference": "系統識別碼",
+              "action": "操作"
+            }
+          },
+          "pages": {
+            "new": {
+              "breadcrumbs": {
+                "balance": "結餘",
+                "create": "新增"
+              },
+              "titles": {
+                "createBalance": "新增結餘"
+              },
+              "buttons": {
+                "create": "新增"
+              },
+              "subtitles": {
+                "general": "一般",
+                "entries": "帳目"
+              },
+              "labels": {
+                "settledTime": "結算時間",
+                "amount": "數量"
+              }
+            },
+            "balanceSheetReference": {
+              "breadcrumbs": {
+                "balance": "結餘"
+              },
+              "subtitles": {
+                "breakdown": "結構組成",
+                "details": "明細"
+              },
+              "tooltips": {
+                "edit": "編輯"
+              },
+              "dropdowns": {
+                "dimension": "檢視維度",
+                "settlementAsset": "結算資產"
+              },
+              "dropdownItems": {
+                "netWorthBreakdown": "淨值組成",
+                "assetsBreakdown": "資產組成",
+                "liabilitiesBreakdown": "負債組成"
+              },
+              "chartAnnotations": {
+                "assets": "資產",
+                "liabilities": "負債"
+              },
+              "tables": {
+                "headers": {
+                  "account": "帳戶",
+                  "amount": "數量",
+                  "settlementAsset": "結算資產",
+                  "reference": "系統識別碼"
+                }
+              },
+              "pages": {
+                "edit": {
+                  "breadcrumbs": {
+                    "balance": "結餘",
+                    "edit": "更新"
+                  },
+                  "titles": {
+                    "editBalance": "更新結餘"
+                  },
+                  "buttons": {
+                    "update": "更新",
+                    "delete": "刪除"
+                  },
+                  "subtitles": {
+                    "general": "一般",
+                    "entries": "帳目",
+                    "advanced": "進階"
+                  },
+                  "labels": {
+                    "settledTime": "結算時間",
+                    "amount": "數量"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "integration": {
