@@ -25,23 +25,11 @@ export default async function Page() {
             const frontMatter = guide.frontMatter
             return (
               <Grid key={frontMatter.slug} size={{ xs: 12, sm: 6, md: 4 }}>
-                <Card
-                // sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                >
+                <Card sx={{ backgroundColor: 'white' }}>
                   <CardActionArea
                     component={Link}
                     href={`/guides/${frontMatter.slug}`}
                   >
-                    {/* <CardMedia
-                  component="img"
-                  height="140"
-                  image={`/images/guides/${guide.slug}.jpg`}
-                  alt={guide.title}
-                  sx={{ objectFit: 'cover' }}
-                  onError={(e) => {
-                    e.currentTarget.src = '/images/placeholder.jpg'
-                  }}
-                /> */}
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Typography gutterBottom variant="h6" color="primary">
                         {frontMatter.title}
