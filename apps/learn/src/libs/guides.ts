@@ -2,8 +2,6 @@ import matter from 'gray-matter'
 import { serialize } from 'next-mdx-remote-client/serialize'
 import fs from 'node:fs'
 import path from 'node:path'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypePrettyCode from 'rehype-pretty-code'
 import rehypeSlug from 'rehype-slug'
 import remarkGfm from 'remark-gfm'
 
@@ -56,8 +54,8 @@ export async function getBySlug(slug: string) {
         remarkPlugins: [remarkGfm],
         rehypePlugins: [
           rehypeSlug,
-          [rehypeAutolinkHeadings, { behavior: 'wrap' }],
-          [rehypePrettyCode, { theme: 'github-dark' }],
+          // [rehypeAutolinkHeadings, { behavior: 'append' }],
+          // [rehypePrettyCode, { theme: 'github-dark' }],
         ],
         format: 'mdx',
       },
