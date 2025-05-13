@@ -13,6 +13,7 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { SystemInspect } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useAuth } from '@/utils/auth'
+import getConfig from '@/utils/config'
 import { offsetInMinutesToTimedeltaString } from '@/utils/datetime'
 import { useNotification } from '@/utils/notification'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
@@ -73,6 +74,8 @@ import { useParams } from 'next/navigation'
 import { Splitter, SplitterPanel } from 'primereact/splitter'
 import React from 'react'
 import './style.css'
+
+const { CHORE_MASTER_LEARN_HOST } = getConfig()
 
 export interface ModuleLayoutProps {
   readonly moduleName: string
@@ -669,7 +672,11 @@ export default function ModuleLayout({
               <ListItemText
                 inset
                 primary={
-                  <MuiLink color="inherit" href="/privacy" target="_blank">
+                  <MuiLink
+                    color="inherit"
+                    href={`${CHORE_MASTER_LEARN_HOST}/privacy`}
+                    target="_blank"
+                  >
                     <Stack direction="row" spacing={0.5} alignItems="center">
                       <Typography variant="body2">
                         {t('dialogs.about.privacy')}
@@ -684,7 +691,11 @@ export default function ModuleLayout({
               <ListItemText
                 inset
                 primary={
-                  <MuiLink color="inherit" href="/terms" target="_blank">
+                  <MuiLink
+                    color="inherit"
+                    href={`${CHORE_MASTER_LEARN_HOST}/terms`}
+                    target="_blank"
+                  >
                     <Stack direction="row" spacing={0.5} alignItems="center">
                       <Typography variant="body2">
                         {t('dialogs.about.terms')}
