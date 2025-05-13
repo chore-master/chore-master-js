@@ -1,8 +1,10 @@
 import CodeBlock from '@/components/CodeBlock'
 import CardMedia from '@mui/material/CardMedia'
 import Divider from '@mui/material/Divider'
+import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
@@ -69,6 +71,12 @@ export const mdxComponents: MDXComponents = {
     )
   },
   hr: (props) => <Divider sx={{ my: 2 }} />,
+  table: (props) => (
+    <TableContainer>
+      {/* @ts-ignore */}
+      <Table {...props} />
+    </TableContainer>
+  ),
   // @ts-ignore
   thead: (props) => <TableHead {...props} />,
   // @ts-ignore
