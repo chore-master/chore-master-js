@@ -49,6 +49,7 @@ export type SideNavigation =
   | SideNavigationDivider
   | SideNavigationLink
   | SideNavigationCollapsible
+
 export default function SideNavigationList({
   pathname,
   navigations,
@@ -113,23 +114,21 @@ export default function SideNavigationList({
           } else if (nav.type === 'link') {
             content = (
               <ListItem disablePadding>
-                <Link href={nav.href} passHref legacyBehavior>
-                  <ListItemButton
-                    component="a"
-                    selected={
-                      (nav.selectedWhenExactlyMatched &&
-                        pathname === nav.href) ??
-                      (nav.selectedWhenPartiallyMatched &&
-                        pathname.startsWith(nav.href))
-                    }
-                  >
-                    <ListItemText
-                      primary={nav.title}
-                      sx={{ pl: indentionLevel * INDENTION_SCALE }}
-                    />
-                    {nav.endNode}
-                  </ListItemButton>
-                </Link>
+                <ListItemButton
+                  component={Link}
+                  href={nav.href}
+                  selected={
+                    (nav.selectedWhenExactlyMatched && pathname === nav.href) ??
+                    (nav.selectedWhenPartiallyMatched &&
+                      pathname.startsWith(nav.href))
+                  }
+                >
+                  <ListItemText
+                    primary={nav.title}
+                    sx={{ pl: indentionLevel * INDENTION_SCALE }}
+                  />
+                  {nav.endNode}
+                </ListItemButton>
               </ListItem>
             )
           } else if (nav.type === 'collapsible') {
