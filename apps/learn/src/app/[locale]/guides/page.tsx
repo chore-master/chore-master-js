@@ -8,7 +8,12 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Link from 'next/link'
 
-export default async function Page() {
+interface PageProps {
+  params: Promise<{ locale: string }>
+}
+
+export default async function Page({ params }: PageProps) {
+  const { locale } = await params
   const guides = await guideRepository.getMetadata()
 
   return (
@@ -39,7 +44,9 @@ export default async function Page() {
                       </Typography>
                       <Box sx={{ mt: 2 }}>
                         <Typography variant="caption" color="text.secondary">
-                          {new Date(frontMatter.date).toLocaleDateString()}
+                          {new Date(frontMatter.date).toLocaleDateString(
+                            locale
+                          )}
                         </Typography>
                       </Box>
                     </CardContent>

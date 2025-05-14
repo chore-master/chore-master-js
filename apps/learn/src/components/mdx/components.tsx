@@ -1,6 +1,7 @@
 import CodeBlock from '@/components/CodeBlock'
 import CardMedia from '@mui/material/CardMedia'
 import Divider from '@mui/material/Divider'
+import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -84,5 +85,23 @@ export const mdxComponents: MDXComponents = {
   // @ts-ignore
   tr: (props) => <TableRow {...props} />,
   // @ts-ignore
+  th: (props) => <TableCell {...props} />,
+  // @ts-ignore
   td: (props) => <TableCell {...props} />,
+  blockquote: (props) => (
+    // @ts-ignore
+    <Paper
+      elevation={0}
+      component="blockquote"
+      sx={{
+        p: 2,
+        my: 2,
+        borderLeft: 4,
+        borderColor: 'primary.main',
+        bgcolor: 'rgba(93, 138, 168, 0.1)',
+        borderRadius: 1,
+      }}
+      {...props}
+    />
+  ),
 }
