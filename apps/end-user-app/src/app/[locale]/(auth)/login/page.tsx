@@ -1,5 +1,9 @@
 'use client'
 
+import {
+  logingFailureRedirectPath,
+  logingSuccessRedirectPath,
+} from '@/constants'
 import { Link, useRouter } from '@/i18n/navigation'
 import { LoginForm } from '@/types/global'
 import choreMasterAPIAgent from '@/utils/apiAgent'
@@ -8,6 +12,7 @@ import getConfig from '@/utils/config'
 import { useNotification } from '@/utils/notification'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { Turnstile } from '@marsidev/react-turnstile'
+import GoogleIcon from '@mui/icons-material/Google'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import Box from '@mui/material/Box'
@@ -15,6 +20,7 @@ import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Container from '@mui/material/Container'
+import Divider from '@mui/material/Divider'
 import FormControl from '@mui/material/FormControl'
 import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
@@ -25,7 +31,8 @@ import Image from 'next/image'
 import { useRef } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
-const { CLOUDFLARE_TURNSTILE_SITE_KEY } = getConfig()
+const { CLOUDFLARE_TURNSTILE_SITE_KEY, CHORE_MASTER_API_HOST, HOST } =
+  getConfig()
 
 // Create a custom theme with updated colors to match landing page
 const loginTheme = createTheme({
@@ -60,8 +67,6 @@ const loginTheme = createTheme({
   },
 })
 
-const logingRedirectPath = '/finance'
-
 export default function Page() {
   const router = useRouter()
   const loginForm = useForm<LoginForm>()
@@ -84,7 +89,7 @@ export default function Page() {
       },
       onSuccess: () => {
         loginForm.reset()
-        router.push(logingRedirectPath)
+        router.push(logingSuccessRedirectPath)
       },
     })
   }
@@ -130,7 +135,7 @@ export default function Page() {
                 登入 Chore Master
               </Typography>
               <Typography variant="body2">
-                登入您的帳戶，開始使用個人化助理服務
+                登入您的帳戶，開始使用個人化儀表板
               </Typography>
             </Box>
 
@@ -144,6 +149,26 @@ export default function Page() {
                   void loginForm.handleSubmit(handleSubmitLoginForm)()
                 }}
               >
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{ py: 1.5 }}
+                  startIcon={<GoogleIcon />}
+                  href={`${CHORE_MASTER_API_HOST}/v1/identity/google/authorize?success_redirect_uri=${encodeURIComponent(
+                    `${HOST}${logingSuccessRedirectPath}`
+                  )}&error_redirect_uri=${encodeURIComponent(
+                    `${HOST}${logingFailureRedirectPath}`
+                  )}`}
+                >
+                  使用 Google 帳號繼續
+                </Button>
+
+                <Divider>
+                  <Typography variant="body2" color="text.secondary">
+                    或
+                  </Typography>
+                </Divider>
+
                 <FormControl fullWidth>
                   <Controller
                     name="username"
@@ -223,7 +248,7 @@ export default function Page() {
                   rules={{ required: true }}
                 />
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   type="submit"
                   size="large"
                   fullWidth
@@ -236,25 +261,14 @@ export default function Page() {
 
                 {!auth.isLoadingCurrentUser && auth.currentUser && (
                   <>
-                    <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
-                      <Box
-                        sx={{ flex: 1, borderBottom: '1px solid #e0e0e0' }}
-                      />
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mx: 1 }}
-                      >
+                    <Divider>
+                      <Typography variant="body2" color="text.secondary">
                         或
                       </Typography>
-                      <Box
-                        sx={{ flex: 1, borderBottom: '1px solid #e0e0e0' }}
-                      />
-                    </Box>
-
+                    </Divider>
                     <Button
                       variant="outlined"
-                      onClick={() => router.push(logingRedirectPath)}
+                      onClick={() => router.push(logingSuccessRedirectPath)}
                       fullWidth
                       sx={{ py: 1.5 }}
                     >

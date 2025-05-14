@@ -262,62 +262,52 @@ export default function ModuleLayout({
         <List disablePadding>
           {auth.currentUser && auth.currentUserHasSomeOfRoles(['ADMIN']) && (
             <ListItem disablePadding>
-              <Link href="/admin" passHref legacyBehavior>
-                <ListItemButton component="a">
-                  <ListItemIcon>
-                    <AdminPanelSettingsIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={tModules('admin.name')} />
-                </ListItemButton>
-              </Link>
+              <ListItemButton component={Link} href="/admin">
+                <ListItemIcon>
+                  <AdminPanelSettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary={tModules('admin.name')} />
+              </ListItemButton>
             </ListItem>
           )}
           {auth.currentUser && (
             <ListItem disablePadding>
-              <Link href="/finance" passHref legacyBehavior>
-                <ListItemButton component="a">
-                  <ListItemIcon>
-                    <AccountBalanceIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={tModules('finance.name')} />
-                </ListItemButton>
-              </Link>
+              <ListItemButton component={Link} href="/finance">
+                <ListItemIcon>
+                  <AccountBalanceIcon />
+                </ListItemIcon>
+                <ListItemText primary={tModules('finance.name')} />
+              </ListItemButton>
             </ListItem>
           )}
           {auth.currentUser && (
             <ListItem disablePadding>
-              <Link href="/integration" passHref legacyBehavior>
-                <ListItemButton component="a">
-                  <ListItemIcon>
-                    <LanIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={tModules('integration.name')} />
-                </ListItemButton>
-              </Link>
+              <ListItemButton component={Link} href="/integration">
+                <ListItemIcon>
+                  <LanIcon />
+                </ListItemIcon>
+                <ListItemText primary={tModules('integration.name')} />
+              </ListItemButton>
             </ListItem>
           )}
           {auth.currentUser && auth.currentUserHasSomeOfRoles(['ADMIN']) && (
             <ListItem disablePadding>
-              <Link href="/widget" passHref legacyBehavior>
-                <ListItemButton component="a">
-                  <ListItemIcon>
-                    <WidgetsIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={tModules('widget.name')} />
-                </ListItemButton>
-              </Link>
+              <ListItemButton component={Link} href="/widget">
+                <ListItemIcon>
+                  <WidgetsIcon />
+                </ListItemIcon>
+                <ListItemText primary={tModules('widget.name')} />
+              </ListItemButton>
             </ListItem>
           )}
           {auth.currentUser && auth.currentUserHasSomeOfRoles(['ADMIN']) && (
             <ListItem disablePadding>
-              <Link href="/example" passHref legacyBehavior>
-                <ListItemButton component="a">
-                  <ListItemIcon>
-                    <HelpIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={tModules('example.name')} />
-                </ListItemButton>
-              </Link>
+              <ListItemButton component={Link} href="/example">
+                <ListItemIcon>
+                  <HelpIcon />
+                </ListItemIcon>
+                <ListItemText primary={tModules('example.name')} />
+              </ListItemButton>
             </ListItem>
           )}
         </List>
@@ -499,36 +489,42 @@ export default function ModuleLayout({
                   anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
                   {/* <Link href="/iam" passHref legacyBehavior>
-                  <MenuItem component="a" onClick={handleCloseMenu}>
+                  <MenuItem component={Link} onClick={handleCloseMenu}>
                     <Avatar /> 帳戶中心
                   </MenuItem>
                 </Link>
                 <Divider /> */}
-                  <Link href="/profile" passHref legacyBehavior>
-                    <MenuItem component="a" onClick={handleCloseMenu}>
-                      <ListItemIcon>
-                        <AccountBoxIcon fontSize="small" />
-                      </ListItemIcon>
-                      {t('menu.profile')}
-                    </MenuItem>
-                  </Link>
+                  <MenuItem
+                    component={Link}
+                    href="/profile"
+                    onClick={handleCloseMenu}
+                  >
+                    <ListItemIcon>
+                      <AccountBoxIcon fontSize="small" />
+                    </ListItemIcon>
+                    {t('menu.profile')}
+                  </MenuItem>
                   <Divider />
-                  <Link href="/logout" passHref legacyBehavior>
-                    <MenuItem component="a" onClick={handleCloseMenu}>
-                      <ListItemIcon>
-                        <LogoutIcon fontSize="small" />
-                      </ListItemIcon>
-                      {t('menu.logoutCurrentDevice')}
-                    </MenuItem>
-                  </Link>
-                  <Link href="/login" passHref legacyBehavior>
-                    <MenuItem component="a" onClick={handleCloseMenu}>
-                      <ListItemIcon>
-                        <SwitchAccountIcon fontSize="small" />
-                      </ListItemIcon>
-                      {t('menu.loginOtherAccount')}
-                    </MenuItem>
-                  </Link>
+                  <MenuItem
+                    component={Link}
+                    href="/logout"
+                    onClick={handleCloseMenu}
+                  >
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" />
+                    </ListItemIcon>
+                    {t('menu.logoutCurrentDevice')}
+                  </MenuItem>
+                  <MenuItem
+                    component={Link}
+                    href="/login"
+                    onClick={handleCloseMenu}
+                  >
+                    <ListItemIcon>
+                      <SwitchAccountIcon fontSize="small" />
+                    </ListItemIcon>
+                    {t('menu.loginOtherAccount')}
+                  </MenuItem>
                 </Menu>
               </Toolbar>
               <Divider />
