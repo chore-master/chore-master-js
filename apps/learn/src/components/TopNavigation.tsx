@@ -131,10 +131,10 @@ export default function TopNavigation() {
                   href="https://www.chore-master.app"
                   target="_blank"
                 >
-                  <ListItemText>前往應用程式</ListItemText>
                   <ListItemIcon>
-                    <OpenInNewIcon />
+                    <OpenInNewIcon fontSize="small" />
                   </ListItemIcon>
+                  <ListItemText>前往應用程式</ListItemText>
                 </MenuItem>
               )}
               {/* {pages.map((page) => (
@@ -207,7 +207,7 @@ export default function TopNavigation() {
                 target="_blank"
                 variant="outlined"
                 color="inherit"
-                endIcon={<OpenInNewIcon />}
+                endIcon={<OpenInNewIcon fontSize="small" />}
               >
                 前往應用程式
               </Button>
