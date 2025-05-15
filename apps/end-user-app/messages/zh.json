@@ -76,7 +76,8 @@
     "profile": {
       "name": "帳號中心",
       "navigations": {
-        "quota": "配額"
+        "quota": "配額",
+        "membershipPlan": "會員方案"
       },
       "pages": {
         "quota": {

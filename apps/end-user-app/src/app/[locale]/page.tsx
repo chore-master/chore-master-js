@@ -1,16 +1,15 @@
 'use client'
 
 import { Link } from '@/i18n/navigation'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import Image from 'next/image'
-
 import getConfig from '@/utils/config'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import Image from 'next/image'
 
 const { CHORE_MASTER_LEARN_HOST } = getConfig()
 

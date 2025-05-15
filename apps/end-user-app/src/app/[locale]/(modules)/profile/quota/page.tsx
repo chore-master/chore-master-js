@@ -7,7 +7,9 @@ import ModuleFunction, {
 import PlaceholderTypography from '@/components/PlaceholderTypography'
 import { Quota } from '@/types/trace'
 import choreMasterAPIAgent from '@/utils/apiAgent'
+import getConfig from '@/utils/config'
 import { useNotification } from '@/utils/notification'
+import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import IconButton from '@mui/material/IconButton'
 import LinearProgress from '@mui/material/LinearProgress'
@@ -16,6 +18,8 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTranslations } from 'next-intl'
 import React from 'react'
+
+const { CHORE_MASTER_LEARN_HOST } = getConfig()
 
 export default function Page() {
   const { enqueueNotification } = useNotification()
@@ -71,7 +75,18 @@ export default function Page() {
             ) : (
               quotas.map((quota) => (
                 <Stack key={quota.reference} spacing={1}>
-                  <Typography variant="h6">{t('subtitles.storage')}</Typography>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Typography variant="h6">
+                      {t('subtitles.storage')}
+                    </Typography>
+                    <IconButton
+                      href={`${CHORE_MASTER_LEARN_HOST}/guides/slot-policies`}
+                      target="_blank"
+                      size="small"
+                    >
+                      <HelpOutlinedIcon fontSize="inherit" />
+                    </IconButton>
+                  </Stack>
                   <Typography variant="body1">
                     {`${t('typographies.used')} ${quota.used} / ${t(
                       'typographies.limit'

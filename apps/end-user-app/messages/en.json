@@ -76,7 +76,8 @@
     "profile": {
       "name": "Profile",
       "navigations": {
-        "quota": "Quota"
+        "quota": "Quota",
+        "membershipPlan": "Membership Plan"
       },
       "pages": {
         "quota": {
