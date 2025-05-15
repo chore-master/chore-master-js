@@ -134,6 +134,7 @@ export default function Page() {
                   </NoWrapTableCell>
                   <NoWrapTableCell>名字</NoWrapTableCell>
                   <NoWrapTableCell>使用者名稱</NoWrapTableCell>
+                  <NoWrapTableCell>電子信箱</NoWrapTableCell>
                   <NoWrapTableCell>系統識別碼</NoWrapTableCell>
                 </TableRow>
               </TableHead>
@@ -149,7 +150,16 @@ export default function Page() {
                       </PlaceholderTypography>
                     </NoWrapTableCell>
                     <NoWrapTableCell>{user.name}</NoWrapTableCell>
-                    <NoWrapTableCell>{user.username}</NoWrapTableCell>
+                    <NoWrapTableCell>
+                      {user.username ?? (
+                        <PlaceholderTypography>無</PlaceholderTypography>
+                      )}
+                    </NoWrapTableCell>
+                    <NoWrapTableCell>
+                      {user.email ?? (
+                        <PlaceholderTypography>無</PlaceholderTypography>
+                      )}
+                    </NoWrapTableCell>
                     <NoWrapTableCell>
                       <ReferenceBlock
                         label={user.reference}

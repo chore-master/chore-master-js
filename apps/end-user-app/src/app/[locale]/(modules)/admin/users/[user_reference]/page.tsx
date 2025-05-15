@@ -79,8 +79,9 @@ export default function Page() {
       onSuccess: async ({ data }: { data: UserDetail }) => {
         setUser(data)
         updateUserForm.reset({
+          reference: data.reference ? data.reference : undefined,
           name: data.name,
-          username: data.username,
+          username: data.username ? data.username : undefined,
         })
       },
     })
@@ -167,10 +168,11 @@ export default function Page() {
 
   const handleSubmitUpdateUserForm: SubmitHandler<
     UpdateUserFormInputs
-  > = async ({ password, ...data }) => {
+  > = async ({ reference, password, ...data }) => {
     await choreMasterAPIAgent.patch(
       `/v1/admin/users/${user_reference}`,
       {
+        reference: !!reference ? reference : undefined,
         password: !!password ? password : undefined,
         ...data,
       },
@@ -182,7 +184,11 @@ export default function Page() {
           enqueueNotification(message, 'error')
         },
         onSuccess: () => {
-          fetchUser()
+          if (reference !== user_reference) {
+            router.push(`/admin/users/${reference}?tab=settings`)
+          } else {
+            fetchUser()
+          }
         },
       }
     )
@@ -336,7 +342,27 @@ export default function Page() {
               </ListItem>
               <ListSubheader>使用者名稱</ListSubheader>
               <ListItem>
-                <ListItemText primary={user?.username} />
+                <ListItemText
+                  primary={
+                    user?.username ? (
+                      user.username
+                    ) : (
+                      <PlaceholderTypography>無</PlaceholderTypography>
+                    )
+                  }
+                />
+              </ListItem>
+              <ListSubheader>電子信箱</ListSubheader>
+              <ListItem>
+                <ListItemText
+                  primary={
+                    user?.email ? (
+                      user.email
+                    ) : (
+                      <PlaceholderTypography>無</PlaceholderTypography>
+                    )
+                  }
+                />
               </ListItem>
               <ListSubheader>角色</ListSubheader>
               <ListItem>
@@ -386,6 +412,16 @@ export default function Page() {
             >
               <FormControl>
                 <Controller
+                  name="reference"
+                  control={updateUserForm.control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <TextField {...field} label="系統識別碼" variant="filled" />
+                  )}
+                />
+              </FormControl>
+              <FormControl>
+                <Controller
                   name="name"
                   control={updateUserForm.control}
                   defaultValue=""
@@ -406,14 +442,8 @@ export default function Page() {
                   control={updateUserForm.control}
                   defaultValue=""
                   render={({ field }) => (
-                    <TextField
-                      {...field}
-                      required
-                      label="使用者名稱"
-                      variant="filled"
-                    />
+                    <TextField {...field} label="使用者名稱" variant="filled" />
                   )}
-                  rules={{ required: '必填' }}
                 />
               </FormControl>
               <FormControl>
@@ -561,85 +591,89 @@ export default function Page() {
           />
           <ModuleFunctionBody loading={isFetchingQuotas}>
             <Stack spacing={2} sx={{ p: 2, flexGrow: 1 }}>
-              {quotas.map((quota) => (
-                <Stack
-                  key={quota.reference}
-                  component="form"
-                  spacing={3}
-                  p={2}
-                  autoComplete="off"
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                  }}
-                >
-                  <FormControl>
-                    <Controller
-                      name="used"
-                      control={updateQuotaForm.control}
-                      defaultValue={quota.used}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          label="已使用"
-                          variant="filled"
-                          type="number"
-                        />
-                      )}
-                      rules={{ required: '必填' }}
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <Controller
-                      name="limit"
-                      control={updateQuotaForm.control}
-                      defaultValue={quota.limit}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          required
-                          label="配額上限"
-                          variant="filled"
-                          type="number"
-                        />
-                      )}
-                      rules={{ required: '必填' }}
-                    />
-                  </FormControl>
-                  <Typography variant="body1">
-                    {`使用率 ${(
-                      ((updateQuotaForm.watch('used') || 0) /
-                        (updateQuotaForm.watch('limit') || 0)) *
-                      100
-                    ).toFixed(2)}%`}
-                  </Typography>
-                  <LinearProgress
-                    value={
-                      ((updateQuotaForm.watch('used') || 0) /
-                        (updateQuotaForm.watch('limit') || 0)) *
-                      100
-                    }
-                    variant="determinate"
-                    sx={{
-                      height: 10,
-                      borderRadius: 5,
+              {quotas.length === 0 ? (
+                <PlaceholderTypography>目前沒有配額資訊</PlaceholderTypography>
+              ) : (
+                quotas.map((quota) => (
+                  <Stack
+                    key={quota.reference}
+                    component="form"
+                    spacing={3}
+                    p={2}
+                    autoComplete="off"
+                    onSubmit={(e) => {
+                      e.preventDefault()
                     }}
-                  />
-                  <AutoLoadingButton
-                    type="submit"
-                    variant="contained"
-                    disabled={
-                      !updateQuotaForm.formState.isDirty ||
-                      !updateQuotaForm.formState.isValid
-                    }
-                    onClick={updateQuotaForm.handleSubmit(
-                      handleSubmitUpdateQuotaForm
-                    )}
                   >
-                    儲存
-                  </AutoLoadingButton>
-                </Stack>
-              ))}
+                    <FormControl>
+                      <Controller
+                        name="used"
+                        control={updateQuotaForm.control}
+                        defaultValue={quota.used}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            required
+                            label="已使用"
+                            variant="filled"
+                            type="number"
+                          />
+                        )}
+                        rules={{ required: '必填' }}
+                      />
+                    </FormControl>
+                    <FormControl>
+                      <Controller
+                        name="limit"
+                        control={updateQuotaForm.control}
+                        defaultValue={quota.limit}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            required
+                            label="配額上限"
+                            variant="filled"
+                            type="number"
+                          />
+                        )}
+                        rules={{ required: '必填' }}
+                      />
+                    </FormControl>
+                    <Typography variant="body1">
+                      {`使用率 ${(
+                        ((updateQuotaForm.watch('used') || 0) /
+                          (updateQuotaForm.watch('limit') || 0)) *
+                        100
+                      ).toFixed(2)}%`}
+                    </Typography>
+                    <LinearProgress
+                      value={
+                        ((updateQuotaForm.watch('used') || 0) /
+                          (updateQuotaForm.watch('limit') || 0)) *
+                        100
+                      }
+                      variant="determinate"
+                      sx={{
+                        height: 10,
+                        borderRadius: 5,
+                      }}
+                    />
+                    <AutoLoadingButton
+                      type="submit"
+                      variant="contained"
+                      disabled={
+                        !updateQuotaForm.formState.isDirty ||
+                        !updateQuotaForm.formState.isValid
+                      }
+                      onClick={updateQuotaForm.handleSubmit(
+                        handleSubmitUpdateQuotaForm
+                      )}
+                    >
+                      儲存
+                    </AutoLoadingButton>
+                  </Stack>
+                ))
+              )}
             </Stack>
           </ModuleFunctionBody>
         </ModuleFunction>
