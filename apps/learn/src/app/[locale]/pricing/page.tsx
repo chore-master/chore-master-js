@@ -15,41 +15,43 @@ import Typography from '@mui/material/Typography'
 export default function Page() {
   return (
     <Container maxWidth="lg" sx={{ my: 8 }}>
-      <Typography variant="h2" component="h1" align="center" gutterBottom>
-        透明定價方案
+      <Typography variant="h3" color="primary" align="center" gutterBottom>
+        定價方案
       </Typography>
       <Typography variant="h5" align="center" color="text.secondary" paragraph>
-        依據您的使用需求，選擇最適合的儲存格方案
+        選擇最適合您的訂閱方案，享受彈性與專業的服務
       </Typography>
 
       <Box sx={{ my: 4 }}>
         <Typography variant="h6" gutterBottom>
-          什麼是儲存格？
+          什麼是 Slots（儲存格）？
         </Typography>
         <Typography paragraph>
-          儲存格是我們用來計算資源使用量的單位。每當您與應用程式互動時，都會佔用一定數量的儲存格。
-          當您達到配額上限時，將無法繼續新的寫入操作。您可以選擇購買更多儲存格或刪除現有資源來釋放空間。
+          Slots（儲存格）是我們用來計算資源使用量的單位。每當您與應用程式互動時，都會佔用一定數量的儲存格。
+          當您達到配額上限時，將無法繼續新的寫入操作。您可以升級方案來獲得更多儲存格。
         </Typography>
       </Box>
 
       <Grid container spacing={4} justifyContent="center">
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card
             sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
           >
             <CardHeader
               title="免費方案"
-              subheader="適合入門使用"
-              titleTypographyProps={{ align: 'center' }}
-              subheaderTypographyProps={{ align: 'center' }}
+              subheader="適合想要嚐鮮體驗、了解功能與操作的使用者"
+              slotProps={{
+                title: { align: 'center' },
+                subheader: { align: 'center' },
+              }}
             />
             <CardContent sx={{ flexGrow: 1 }}>
               <Box sx={{ textAlign: 'center', mb: 2 }}>
                 <Typography component="h2" variant="h3" color="text.primary">
-                  100
+                  NT$0
                 </Typography>
                 <Typography variant="h6" color="text.secondary">
-                  儲存格
+                  /月
                 </Typography>
               </Box>
               <List>
@@ -57,26 +59,20 @@ export default function Page() {
                   <ListItemIcon>
                     <CheckCircleIcon color="primary" />
                   </ListItemIcon>
-                  <ListItemText primary="註冊即贈送" />
+                  <ListItemText primary="註冊即享有 100 Slots 使用額度" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
                     <CheckCircleIcon color="primary" />
                   </ListItemIcon>
-                  <ListItemText primary="基本功能完整支援" />
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
-                  </ListItemIcon>
-                  <ListItemText primary="可隨時升級" />
+                  <ListItemText primary="完整體驗基本功能" />
                 </ListItem>
               </List>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card
             sx={{
               height: '100%',
@@ -87,17 +83,19 @@ export default function Page() {
           >
             <CardHeader
               title="彈性方案"
-              subheader="適合一般使用"
-              titleTypographyProps={{ align: 'center' }}
-              subheaderTypographyProps={{ align: 'center' }}
+              subheader="適合穩定使用特定功能的使用者"
+              slotProps={{
+                title: { align: 'center' },
+                subheader: { align: 'center' },
+              }}
             />
             <CardContent sx={{ flexGrow: 1 }}>
               <Box sx={{ textAlign: 'center', mb: 2 }}>
                 <Typography component="h2" variant="h3" color="text.primary">
-                  1
+                  NT$99
                 </Typography>
                 <Typography variant="h6" color="text.secondary">
-                  元/儲存格
+                  /月
                 </Typography>
               </Box>
               <List>
@@ -105,19 +103,57 @@ export default function Page() {
                   <ListItemIcon>
                     <CheckCircleIcon color="primary" />
                   </ListItemIcon>
-                  <ListItemText primary="最低購買 100 儲存格" />
+                  <ListItemText primary="5000 Slots 使用額度" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
                     <CheckCircleIcon color="primary" />
                   </ListItemIcon>
-                  <ListItemText primary="可隨時擴充" />
+                  <ListItemText primary="適合穩定使用" />
+                </ListItem>
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card
+            sx={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              border: '2px solid #ff9800',
+            }}
+          >
+            <CardHeader
+              title="專業方案"
+              subheader="適合中高度使用量，希望許願特定功能的使用者"
+              slotProps={{
+                title: { align: 'center' },
+                subheader: { align: 'center' },
+              }}
+            />
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Box sx={{ textAlign: 'center', mb: 2 }}>
+                <Typography component="h2" variant="h3" color="text.primary">
+                  NT$199
+                </Typography>
+                <Typography variant="h6" color="text.secondary">
+                  /月
+                </Typography>
+              </Box>
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <CheckCircleIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary="15000 Slots 使用額度" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
                     <CheckCircleIcon color="primary" />
                   </ListItemIcon>
-                  <ListItemText primary="無使用期限" />
+                  <ListItemText primary="優先回饋與功能許願" />
                 </ListItem>
               </List>
             </CardContent>
@@ -126,15 +162,24 @@ export default function Page() {
       </Grid>
 
       <Box sx={{ mt: 6, textAlign: 'center' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ mb: 4 }}
+          href="https://www.chore-master.app"
+          target="_blank"
+        >
+          立即註冊體驗
+        </Button>
         <Typography variant="h6" gutterBottom>
-          需要更多儲存格？
+          有更多需求嗎？
         </Typography>
         <Typography paragraph>
-          您可以隨時購買更多儲存格來擴充您的使用配額。每次最低購買量為 100
-          儲存格， 價格為每儲存格 1 元。購買後立即生效，無使用期限。
+          若您有更高的使用需求或特殊合作意願，歡迎聯絡我們取得專屬方案！
         </Typography>
-        <Button variant="contained" size="large" sx={{ mt: 2 }}>
-          立即購買
+        <Button variant="outlined" size="large" sx={{ mt: 2 }} href="/">
+          聯絡我們
         </Button>
       </Box>
     </Container>

@@ -12,6 +12,7 @@ import ReferenceBlock from '@/components/ReferenceBlock'
 import { NoWrapTableCell, StatefulTableBody } from '@/components/Table'
 import { useTimezone } from '@/components/timezone'
 import { INTERMEDIATE_ASSET_SYMBOL } from '@/constants'
+import { Link } from '@/i18n/navigation'
 import type {
   Account,
   Asset,
@@ -40,7 +41,6 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import Decimal from 'decimal.js'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { pieChartOptionsTemplate } from './optionsTemplate'

@@ -7,6 +7,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import ReferenceBlock from '@/components/ReferenceBlock'
 import { useTimezone } from '@/components/timezone'
+import { Link, useRouter } from '@/i18n/navigation'
 import type {
   Account,
   Asset,
@@ -25,8 +26,6 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Decimal from 'decimal.js'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import React from 'react'
 import {
   Controller,

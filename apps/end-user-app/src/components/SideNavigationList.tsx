@@ -1,3 +1,4 @@
+import { Link } from '@/i18n/navigation'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import Collapse from '@mui/material/Collapse'
@@ -7,7 +8,6 @@ import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import ListSubheader from '@mui/material/ListSubheader'
-import Link from 'next/link'
 import React from 'react'
 
 interface SideNavigationBase {
@@ -49,6 +49,7 @@ export type SideNavigation =
   | SideNavigationDivider
   | SideNavigationLink
   | SideNavigationCollapsible
+
 export default function SideNavigationList({
   pathname,
   navigations,
@@ -113,23 +114,21 @@ export default function SideNavigationList({
           } else if (nav.type === 'link') {
             content = (
               <ListItem disablePadding>
-                <Link href={nav.href} passHref legacyBehavior>
-                  <ListItemButton
-                    component="a"
-                    selected={
-                      (nav.selectedWhenExactlyMatched &&
-                        pathname === nav.href) ??
-                      (nav.selectedWhenPartiallyMatched &&
-                        pathname.startsWith(nav.href))
-                    }
-                  >
-                    <ListItemText
-                      primary={nav.title}
-                      sx={{ pl: indentionLevel * INDENTION_SCALE }}
-                    />
-                    {nav.endNode}
-                  </ListItemButton>
-                </Link>
+                <ListItemButton
+                  component={Link}
+                  href={nav.href}
+                  selected={
+                    (nav.selectedWhenExactlyMatched && pathname === nav.href) ??
+                    (nav.selectedWhenPartiallyMatched &&
+                      pathname.startsWith(nav.href))
+                  }
+                >
+                  <ListItemText
+                    primary={nav.title}
+                    sx={{ pl: indentionLevel * INDENTION_SCALE }}
+                  />
+                  {nav.endNode}
+                </ListItemButton>
               </ListItem>
             )
           } else if (nav.type === 'collapsible') {

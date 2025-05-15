@@ -18,8 +18,8 @@ import Image from 'next/image'
 import React from 'react'
 
 const pages = [
-  { title: '開始使用', href: '/guide' },
   { title: '定價', href: '/pricing' },
+  { title: '聯絡我們', href: '/contact' },
 ]
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
 

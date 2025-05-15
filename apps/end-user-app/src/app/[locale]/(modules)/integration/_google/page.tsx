@@ -5,6 +5,7 @@ import ModuleFunction, {
   ModuleFunctionBody,
   ModuleFunctionHeader,
 } from '@/components/ModuleFunction'
+import { Link } from '@/i18n/navigation'
 import choreMasterAPIAgent from '@/utils/apiAgent'
 import { useEndUser } from '@/utils/auth'
 import getConfig from '@/utils/config'
@@ -26,7 +27,6 @@ import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import Link from 'next/link'
 import React from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
