@@ -33,6 +33,7 @@
     "lodash": "^4.17.21",
     "next": "15.1.5",
     "next-intl": "^4.0.2",
+    "nextjs-google-analytics": "^2.3.7",
     "primereact": "^10.9.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
