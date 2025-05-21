@@ -129,6 +129,10 @@ export default function Page() {
                   alt="Chore Master Logo"
                   width={40}
                   height={40}
+                  style={{
+                    userSelect: 'none',
+                    pointerEvents: 'none',
+                  }}
                 />
               </Box>
               <Typography variant="h5" component="h1" gutterBottom>
@@ -150,10 +154,17 @@ export default function Page() {
                 }}
               >
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   fullWidth
-                  sx={{ py: 1.5 }}
-                  startIcon={<GoogleIcon />}
+                  sx={{
+                    py: 2,
+                    bgcolor: '#ffffff',
+                  }}
+                  startIcon={
+                    <GoogleIcon
+                      sx={(theme) => ({ color: theme.palette.primary.main })}
+                    />
+                  }
                   href={`${CHORE_MASTER_API_HOST}/v1/identity/google/authorize?success_redirect_uri=${encodeURIComponent(
                     `${HOST}${logingSuccessRedirectPath}`
                   )}&error_redirect_uri=${encodeURIComponent(

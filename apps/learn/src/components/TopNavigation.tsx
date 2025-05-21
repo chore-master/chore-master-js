@@ -1,15 +1,20 @@
 'use client'
 
 import { Link } from '@/i18n/navigation'
+import getConfig from '@/utils/config'
 import MenuIcon from '@mui/icons-material/Menu'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
+import Stack from '@mui/material/Stack'
 import { useTheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
@@ -17,8 +22,10 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import Image from 'next/image'
 import React from 'react'
 
+const { CHORE_MASTER_END_USER_APP_HOST } = getConfig()
+
 const pages = [
-  { title: '定價', href: '/pricing' },
+  { title: '價格方案', href: '/pricing' },
   { title: '聯絡我們', href: '/contact' },
 ]
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout']
@@ -50,34 +57,39 @@ export default function TopNavigation() {
     <AppBar position="static" elevation={0}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1}
+            component={Link}
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
             <Image
               src="/images/logo.svg"
               alt="Chore Master Learn"
               width={48}
               height={48}
             />
-          </Box>
-          {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
-          <Typography
-            variant="h6"
-            noWrap
-            component={Link}
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              //   fontFamily: 'monospace',
-              fontWeight: 700,
-              //   letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            Chore Master Learn
-          </Typography>
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{
+                //   fontFamily: 'monospace',
+                fontWeight: 700,
+                //   letterSpacing: '.3rem',
+              }}
+            >
+              Chore Master Learn
+            </Typography>
+          </Stack>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -119,10 +131,13 @@ export default function TopNavigation() {
                 <MenuItem
                   onClick={handleCloseNavMenu}
                   component={Link}
-                  href="https://www.chore-master.app"
+                  href={CHORE_MASTER_END_USER_APP_HOST as string}
                   target="_blank"
                 >
-                  前往 App
+                  <ListItemIcon>
+                    <OpenInNewIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>前往應用程式</ListItemText>
                 </MenuItem>
               )}
               {/* {pages.map((page) => (
@@ -136,33 +151,42 @@ export default function TopNavigation() {
               ))} */}
             </Menu>
           </Box>
-          {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            spacing={1}
+            component={Link}
+            href="/"
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              flexGrow: 1,
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
             <Image
               src="/images/logo.svg"
               alt="Chore Master Learn"
               width={32}
               height={32}
             />
-          </Box>
-          <Typography
-            // variant="h5"
-            noWrap
-            component={Link}
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              //   fontFamily: 'monospace',
-              fontWeight: 700,
-              //   letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            Chore Master Learn
-          </Typography>
+            <Typography
+              // variant="h5"
+              noWrap
+              sx={{
+                // mr: 2,
+
+                // flexGrow: 1,
+                //   fontFamily: 'monospace',
+                fontWeight: 700,
+                //   letterSpacing: '.3rem',
+              }}
+            >
+              Chore Master Learn
+            </Typography>
+          </Stack>
+
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
@@ -182,12 +206,13 @@ export default function TopNavigation() {
           {isUpMd && (
             <Box sx={{ flexGrow: 0 }}>
               <Button
-                href="https://www.chore-master.app"
+                href={CHORE_MASTER_END_USER_APP_HOST as string}
                 target="_blank"
                 variant="outlined"
                 color="inherit"
+                endIcon={<OpenInNewIcon fontSize="small" />}
               >
-                前往 App
+                前往應用程式
               </Button>
             </Box>
           )}

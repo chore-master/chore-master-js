@@ -1,0 +1,18 @@
+export default function getConfig() {
+  let CHORE_MASTER_END_USER_APP_HOST
+  let GA_MEASUREMENT_ID
+
+  if (process.env.NEXT_PUBLIC_CHORE_MASTER_END_USER_APP_HOST) {
+    CHORE_MASTER_END_USER_APP_HOST =
+      process.env.NEXT_PUBLIC_CHORE_MASTER_END_USER_APP_HOST
+  }
+
+  if (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) {
+    GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  }
+
+  return {
+    CHORE_MASTER_END_USER_APP_HOST,
+    GA_MEASUREMENT_ID,
+  }
+}

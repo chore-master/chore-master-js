@@ -1,6 +1,7 @@
 import AppLayout from '@/components/AppLayout'
 import ThemeProvider from '@/components/ThemeProvider'
 import { routing } from '@/i18n/routing'
+import { GoogleAnalyticsProvider } from '@/utils/googleAnalytics'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
 import { NextIntlClientProvider, hasLocale } from 'next-intl'
@@ -37,13 +38,15 @@ export default async function Layout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <NextIntlClientProvider>
-          <AppRouterCacheProvider>
-            <ThemeProvider>
-              <AppLayout>{children}</AppLayout>
-            </ThemeProvider>
-          </AppRouterCacheProvider>
-        </NextIntlClientProvider>
+        <GoogleAnalyticsProvider>
+          <NextIntlClientProvider>
+            <AppRouterCacheProvider>
+              <ThemeProvider>
+                <AppLayout>{children}</AppLayout>
+              </ThemeProvider>
+            </AppRouterCacheProvider>
+          </NextIntlClientProvider>
+        </GoogleAnalyticsProvider>
       </body>
     </html>
   )

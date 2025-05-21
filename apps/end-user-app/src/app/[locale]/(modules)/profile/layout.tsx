@@ -21,6 +21,12 @@ export default function Layout({
           href: '/profile/quota',
           selectedWhenPartiallyMatched: true,
         },
+        {
+          type: 'link',
+          title: t('profile.navigations.membershipPlan'),
+          href: '/profile/membership-plan',
+          selectedWhenPartiallyMatched: true,
+        },
       ]}
     >
       {children}

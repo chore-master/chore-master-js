@@ -16,7 +16,7 @@ export default function Page() {
   return (
     <Container maxWidth="lg" sx={{ my: 8 }}>
       <Typography variant="h3" color="primary" align="center" gutterBottom>
-        定價方案
+        價格方案
       </Typography>
       <Typography variant="h5" align="center" color="text.secondary" paragraph>
         選擇最適合您的訂閱方案，享受彈性與專業的服務
@@ -57,13 +57,13 @@ export default function Page() {
               <List>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
+                    <CheckCircleIcon color="disabled" />
                   </ListItemIcon>
                   <ListItemText primary="註冊即享有 100 Slots 使用額度" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
+                    <CheckCircleIcon color="disabled" />
                   </ListItemIcon>
                   <ListItemText primary="完整體驗基本功能" />
                 </ListItem>
@@ -78,7 +78,8 @@ export default function Page() {
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              border: '2px solid #1976d2',
+              border: '2px solid',
+              borderColor: 'primary.main',
             }}
           >
             <CardHeader
@@ -122,7 +123,7 @@ export default function Page() {
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              border: '2px solid #ff9800',
+              border: '2px solid #D2B48C',
             }}
           >
             <CardHeader
@@ -145,13 +146,13 @@ export default function Page() {
               <List>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
+                    <CheckCircleIcon sx={{ color: '#D2B48C' }} />
                   </ListItemIcon>
                   <ListItemText primary="15000 Slots 使用額度" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircleIcon color="primary" />
+                    <CheckCircleIcon sx={{ color: '#D2B48C' }} />
                   </ListItemIcon>
                   <ListItemText primary="優先回饋與功能許願" />
                 </ListItem>
@@ -161,24 +162,27 @@ export default function Page() {
         </Grid>
       </Grid>
 
-      <Box sx={{ mt: 6, textAlign: 'center' }}>
+      <Box sx={{ my: 4, textAlign: 'center' }}>
         <Button
           variant="contained"
           color="primary"
           size="large"
           sx={{ mb: 4 }}
-          href="https://www.chore-master.app"
+          href="https://www.chore-master.app/profile/membership-plan"
           target="_blank"
         >
-          立即註冊體驗
+          前往應用程式購買
         </Button>
+      </Box>
+
+      <Box sx={{ mt: 8, textAlign: 'center' }}>
         <Typography variant="h6" gutterBottom>
           有更多需求嗎？
         </Typography>
         <Typography paragraph>
           若您有更高的使用需求或特殊合作意願，歡迎聯絡我們取得專屬方案！
         </Typography>
-        <Button variant="outlined" size="large" sx={{ mt: 2 }} href="/">
+        <Button variant="outlined" size="large" sx={{ mt: 2 }} href="/contact">
           聯絡我們
         </Button>
       </Box>

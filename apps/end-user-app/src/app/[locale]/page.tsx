@@ -1,16 +1,15 @@
 'use client'
 
 import { Link } from '@/i18n/navigation'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import Image from 'next/image'
-
 import getConfig from '@/utils/config'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import Image from 'next/image'
 
 const { CHORE_MASTER_LEARN_HOST } = getConfig()
 
@@ -73,12 +72,14 @@ export default function Page() {
           <Typography variant="h2" component="h1" gutterBottom>
             Chore Master
           </Typography>
-          <Typography variant="h5" paragraph>
+          <Typography variant="h5" gutterBottom>
             您的個人專屬儀表板
           </Typography>
-          <Typography variant="body1" paragraph sx={{ mb: 4 }}>
+          <Typography variant="body1" sx={{ mb: 4 }}>
             Chore Master
-            致力於將繁瑣的事務與流程模組化、結構化、標準化與自動化，讓您能以更有條理的方式解決各種疑難雜症。透過視覺化的呈現，協助您快速追蹤、跟進並洞察細節。目前我們從生活金融功能切入，未來也將持續推出更多元、跨領域的實用工具，陪您一起打造高效有序的生活。
+            致力於將繁瑣的事務與流程模組化、結構化、標準化與自動化，讓您能以更有條理的方式解決各種疑難雜症。透過視覺化的呈現，協助您快速追蹤、跟進並洞察細節。
+            <br />
+            目前我們從生活金融功能切入，未來也將持續推出更多元、跨領域的實用工具，陪您一起打造高效有序的生活。
           </Typography>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
@@ -92,7 +93,7 @@ export default function Page() {
               component={Link}
               href="/login"
             >
-              前往 App
+              開始使用
             </Button>
             <Button
               variant="outlined"
