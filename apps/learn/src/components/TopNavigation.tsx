@@ -1,6 +1,7 @@
 'use client'
 
 import { Link } from '@/i18n/navigation'
+import getConfig from '@/utils/config'
 import MenuIcon from '@mui/icons-material/Menu'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import AppBar from '@mui/material/AppBar'
@@ -20,6 +21,8 @@ import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Image from 'next/image'
 import React from 'react'
+
+const { CHORE_MASTER_END_USER_APP_HOST } = getConfig()
 
 const pages = [
   { title: '價格方案', href: '/pricing' },
@@ -128,7 +131,7 @@ export default function TopNavigation() {
                 <MenuItem
                   onClick={handleCloseNavMenu}
                   component={Link}
-                  href="https://www.chore-master.app"
+                  href={CHORE_MASTER_END_USER_APP_HOST as string}
                   target="_blank"
                 >
                   <ListItemIcon>
@@ -203,7 +206,7 @@ export default function TopNavigation() {
           {isUpMd && (
             <Box sx={{ flexGrow: 0 }}>
               <Button
-                href="https://www.chore-master.app"
+                href={CHORE_MASTER_END_USER_APP_HOST as string}
                 target="_blank"
                 variant="outlined"
                 color="inherit"
