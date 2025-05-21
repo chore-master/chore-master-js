@@ -6,6 +6,7 @@ import ModuleFunction, {
 } from '@/components/ModuleFunction'
 import getConfig from '@/utils/config'
 import { useNotification } from '@/utils/notification'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
@@ -42,7 +43,20 @@ export default function Page() {
   return (
     <React.Fragment>
       <ModuleFunction>
-        <ModuleFunctionHeader title="會員方案" />
+        <ModuleFunctionHeader
+          title="會員方案"
+          actions={[
+            <Button
+              key="learn-more"
+              color="primary"
+              href={`${CHORE_MASTER_LEARN_HOST}/pricing`}
+              target="_blank"
+              endIcon={<OpenInNewIcon />}
+            >
+              瞭解更多
+            </Button>,
+          ]}
+        />
         <ModuleFunctionBody>
           <Grid container spacing={2} sx={{ m: 2 }}>
             {plans.map((plan) => (
