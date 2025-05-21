@@ -2,6 +2,7 @@ import { SidePanelProvider } from '@/components/SidePanel'
 import ThemeProvider from '@/components/ThemeProvider'
 import { TimezoneProvider } from '@/components/timezone'
 import { routing } from '@/i18n/routing'
+import { GoogleAnalyticsProvider } from '@/utils/googleAnalytics'
 import { NotificationProvider } from '@/utils/notification'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter'
 import type { Metadata } from 'next'
@@ -39,17 +40,19 @@ export default async function Layout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <NextIntlClientProvider>
-          <AppRouterCacheProvider>
-            <ThemeProvider>
-              <NotificationProvider>
-                <TimezoneProvider>
-                  <SidePanelProvider>{children}</SidePanelProvider>
-                </TimezoneProvider>
-              </NotificationProvider>
-            </ThemeProvider>
-          </AppRouterCacheProvider>
-        </NextIntlClientProvider>
+        <GoogleAnalyticsProvider>
+          <NextIntlClientProvider>
+            <AppRouterCacheProvider>
+              <ThemeProvider>
+                <NotificationProvider>
+                  <TimezoneProvider>
+                    <SidePanelProvider>{children}</SidePanelProvider>
+                  </TimezoneProvider>
+                </NotificationProvider>
+              </ThemeProvider>
+            </AppRouterCacheProvider>
+          </NextIntlClientProvider>
+        </GoogleAnalyticsProvider>
       </body>
     </html>
   )

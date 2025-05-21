@@ -8,6 +8,7 @@ export default function getConfig() {
   let HOST
   let CHORE_MASTER_API_HOST
   let CHORE_MASTER_LEARN_HOST
+  let GA_MEASUREMENT_ID
 
   if (ENV_NAME === EnvEnum.LOCAL) {
     HOST = 'http://localhost:2000'
@@ -31,11 +32,16 @@ export default function getConfig() {
     CHORE_MASTER_LEARN_HOST = process.env.NEXT_PUBLIC_CHORE_MASTER_LEARN_HOST
   }
 
+  if (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) {
+    GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  }
+
   return {
     ENV_NAME,
     HOST,
     CHORE_MASTER_API_HOST,
     CHORE_MASTER_LEARN_HOST,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
+    GA_MEASUREMENT_ID,
   }
 }
