@@ -62,6 +62,22 @@
   "global": {
     "refresh": "Refresh",
     "pages": {
+      "landing": {
+        "titles": { "hero": "Chore Master" },
+        "subtitles": { "slogan": "Your personal dashboard" },
+        "paragraphs": {
+          "1": "Chore Master is dedicated to modularizing, structuring, standardizing, and automating tedious tasks and processes, enabling you to solve various problems with more organization. Through visual representation, it helps you quickly track, follow up, and gain insights.",
+          "2": "Currently, we are focusing on life finance features, and we will continue to launch more diverse and cross-domain practical tools in the future to accompany you in building an efficient and orderly life."
+        },
+        "buttons": {
+          "getStarted": "Get Started",
+          "learnMore": "Learn More"
+        },
+        "links": {
+          "privacy": "Privacy",
+          "terms": "Terms"
+        }
+      },
       "login": {
         "titles": { "login": "Login Chore Master" },
         "subtitles": {
