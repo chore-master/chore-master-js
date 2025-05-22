@@ -10,6 +10,7 @@ interface AuthContextType {
   currentUserRes: any
   currentUser: CurrentUser | null
   currentUserHasSomeOfRoles: (roleSymbols: string[]) => boolean
+  reset: () => void
 }
 
 const AuthContext = React.createContext<AuthContextType>({
@@ -18,6 +19,7 @@ const AuthContext = React.createContext<AuthContextType>({
   currentUserRes: null,
   currentUser: null,
   currentUserHasSomeOfRoles: () => false,
+  reset: () => {},
 })
 
 export const AuthProvider = (props: any) => {
@@ -63,6 +65,12 @@ export const AuthProvider = (props: any) => {
             ) ?? false
           )
         },
+        reset: () => {
+          setIsLoadingCurrentUser(false)
+          setUserSuccessLoadedCount(0)
+          setUserRes(null)
+          setCurrentUser(null)
+        },
       }}
       {...props}
     />
@@ -77,5 +85,6 @@ export const useAuth = () => {
     currentUserRes: authContext.currentUserRes,
     currentUser: authContext.currentUser,
     currentUserHasSomeOfRoles: authContext.currentUserHasSomeOfRoles,
+    reset: authContext.reset,
   }
 }

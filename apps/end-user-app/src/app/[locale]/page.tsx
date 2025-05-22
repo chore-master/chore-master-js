@@ -9,6 +9,7 @@ import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 
 const { CHORE_MASTER_LEARN_HOST } = getConfig()
@@ -49,6 +50,8 @@ const landingTheme = createTheme({
 })
 
 export default function Page() {
+  const t = useTranslations('global.pages.landing')
+
   return (
     <ThemeProvider theme={landingTheme}>
       <Box
@@ -70,16 +73,15 @@ export default function Page() {
             />
           </Box>
           <Typography variant="h2" component="h1" gutterBottom>
-            Chore Master
+            {t('titles.hero')}
           </Typography>
           <Typography variant="h5" gutterBottom>
-            您的個人專屬儀表板
+            {t('subtitles.slogan')}
           </Typography>
           <Typography variant="body1" sx={{ mb: 4 }}>
-            Chore Master
-            致力於將繁瑣的事務與流程模組化、結構化、標準化與自動化，讓您能以更有條理的方式解決各種疑難雜症。透過視覺化的呈現，協助您快速追蹤、跟進並洞察細節。
+            {t('paragraphs.1')}
             <br />
-            目前我們從生活金融功能切入，未來也將持續推出更多元、跨領域的實用工具，陪您一起打造高效有序的生活。
+            {t('paragraphs.2')}
           </Typography>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
@@ -93,7 +95,7 @@ export default function Page() {
               component={Link}
               href="/login"
             >
-              開始使用
+              {t('buttons.getStarted')}
             </Button>
             <Button
               variant="outlined"
@@ -105,7 +107,7 @@ export default function Page() {
               rel="noopener"
               endIcon={<OpenInNewIcon fontSize="small" />}
             >
-              了解更多
+              {t('buttons.learnMore')}
             </Button>
           </Stack>
         </Container>
@@ -126,7 +128,7 @@ export default function Page() {
                 style={{ textDecoration: 'none', color: 'inherit' }}
                 target="_blank"
               >
-                隱私權政策
+                {t('links.privacy')}
               </Link>
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -135,7 +137,7 @@ export default function Page() {
                 style={{ textDecoration: 'none', color: 'inherit' }}
                 target="_blank"
               >
-                服務條款
+                {t('links.terms')}
               </Link>
             </Typography>
           </Stack>

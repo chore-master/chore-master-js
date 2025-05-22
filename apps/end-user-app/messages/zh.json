@@ -22,7 +22,7 @@
           "commitSHA": "提交版本",
           "environment": "環境",
           "claim": "聲明",
-          "privacy": "隱私權",
+          "privacy": "隱私權政策",
           "terms": "服務條款"
         },
         "settings": {
@@ -60,7 +60,42 @@
     }
   },
   "global": {
-    "refresh": "立即重整"
+    "refresh": "立即重整",
+    "pages": {
+      "landing": {
+        "titles": { "hero": "Chore Master" },
+        "subtitles": { "slogan": "您的個人專屬儀表板" },
+        "paragraphs": {
+          "1": "Chore Master 致力於將繁瑣的事務與流程模組化、結構化、標準化與自動化，讓您能以更有條理的方式解決各種疑難雜症。透過視覺化的呈現，協助您快速追蹤、跟進並洞察細節。",
+          "2": "目前我們從生活金融功能切入，未來也將持續推出更多元、跨領域的實用工具，陪您一起打造高效有序的生活。"
+        },
+        "buttons": {
+          "getStarted": "開始使用",
+          "learnMore": "了解更多"
+        },
+        "links": {
+          "privacy": "隱私權政策",
+          "terms": "服務條款"
+        }
+      },
+      "login": {
+        "titles": { "login": "登入 Chore Master" },
+        "subtitles": { "slogan": "登入您的帳戶，開始使用個人化儀表板" },
+        "dividers": {
+          "or": "或"
+        },
+        "buttons": {
+          "googleLogin": "使用 Google 帳號繼續",
+          "credentialLogin": "使用帳號密碼登入",
+          "continueAs": "以 {name} 身份繼續",
+          "backToHome": "返回首頁"
+        },
+        "labels": {
+          "username": "使用者名稱",
+          "password": "密碼"
+        }
+      }
+    }
   },
   "modules": {
     "admin": {
