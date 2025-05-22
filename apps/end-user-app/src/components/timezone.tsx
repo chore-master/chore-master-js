@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from '@/i18n/navigation'
+import debounce from 'lodash/debounce'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
 
@@ -46,12 +47,17 @@ export const TimezoneProvider = ({
     [searchParams, pathname, router]
   )
 
+  const debouncedSetOffsetInMinutes = React.useCallback(
+    debounce(setOffsetInMinutes, 200),
+    [setOffsetInMinutes]
+  )
+
   return (
     <TimezoneContext.Provider
       value={{
         deviceOffsetInMinutes,
         offsetInMinutes: _offsetInMinutes,
-        setOffsetInMinutes,
+        setOffsetInMinutes: debouncedSetOffsetInMinutes,
       }}
     >
       {children}
