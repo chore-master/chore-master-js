@@ -801,10 +801,17 @@ export default function ModuleLayout({
                       ) => {
                         const nextLocale = event.target.value as Locale
                         startTransition(() => {
-                          router.replace(pathname, {
-                            ...params,
-                            locale: nextLocale,
-                          })
+                          router.replace(
+                            `${pathname}${
+                              searchParams.size > 0
+                                ? `?${searchParams.toString()}`
+                                : ''
+                            }`,
+                            {
+                              ...params,
+                              locale: nextLocale,
+                            }
+                          )
                         })
                       }}
                     >

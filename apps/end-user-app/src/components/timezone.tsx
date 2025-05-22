@@ -1,5 +1,7 @@
 'use client'
 
+import { usePathname, useRouter } from '@/i18n/navigation'
+import { useSearchParams } from 'next/navigation'
 import React from 'react'
 
 interface TimezoneContextType {
@@ -18,15 +20,37 @@ export const TimezoneProvider = ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
   const deviceOffsetInMinutes = -new Date().getTimezoneOffset()
-  const [offsetInMinutes, setOffsetInMinutes] = React.useState(
-    deviceOffsetInMinutes
+  const searchParams = useSearchParams()
+  const [_offsetInMinutes, _setOffsetInMinutes] = React.useState(
+    searchParams.get('tz_offset')
+      ? parseInt(searchParams.get('tz_offset')!)
+      : deviceOffsetInMinutes
+  )
+  const pathname = usePathname()
+  const router = useRouter()
+
+  React.useEffect(() => {
+    const tzOffset = searchParams.get('tz_offset')
+    if (tzOffset) {
+      _setOffsetInMinutes(parseInt(tzOffset))
+    }
+  }, [searchParams])
+
+  const setOffsetInMinutes = React.useCallback(
+    (tzOffset: number) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('tz_offset', `${tzOffset}`)
+      const url = `${pathname}?${params.toString()}`
+      router.replace(url, { scroll: false })
+    },
+    [searchParams, pathname, router]
   )
 
   return (
     <TimezoneContext.Provider
       value={{
         deviceOffsetInMinutes,
-        offsetInMinutes,
+        offsetInMinutes: _offsetInMinutes,
         setOffsetInMinutes,
       }}
     >
