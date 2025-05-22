@@ -60,7 +60,26 @@
     }
   },
   "global": {
-    "refresh": "立即重整"
+    "refresh": "立即重整",
+    "pages": {
+      "login": {
+        "titles": { "login": "登入 Chore Master" },
+        "subtitles": { "slogan": "登入您的帳戶，開始使用個人化儀表板" },
+        "dividers": {
+          "or": "或"
+        },
+        "buttons": {
+          "googleLogin": "使用 Google 帳號繼續",
+          "credentialLogin": "使用帳號密碼登入",
+          "continueAs": "以 {name} 身份繼續",
+          "backToHome": "返回首頁"
+        },
+        "labels": {
+          "username": "使用者名稱",
+          "password": "密碼"
+        }
+      }
+    }
   },
   "modules": {
     "admin": {

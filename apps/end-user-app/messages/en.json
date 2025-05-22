@@ -60,7 +60,28 @@
     }
   },
   "global": {
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "pages": {
+      "login": {
+        "titles": { "login": "Login Chore Master" },
+        "subtitles": {
+          "slogan": "Login to your account to start using the personalized dashboard"
+        },
+        "dividers": {
+          "or": "OR"
+        },
+        "buttons": {
+          "googleLogin": "Continue with Google",
+          "credentialLogin": "Login with credentials",
+          "continueAs": "Continue as {name}",
+          "backToHome": "Back to home"
+        },
+        "labels": {
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    }
   },
   "modules": {
     "admin": {

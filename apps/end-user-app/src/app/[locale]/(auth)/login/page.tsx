@@ -27,6 +27,7 @@ import Stack from '@mui/material/Stack'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
@@ -70,6 +71,7 @@ const loginTheme = createTheme({
 
 export default function Page() {
   const router = useRouter()
+  const locale = useLocale()
   const loginForm = useForm<LoginForm>()
   const loginFormTokenTurnstileRef = useRef<TurnstileInstance | null>(null)
   const { enqueueNotification } = useNotification()
@@ -81,6 +83,7 @@ export default function Page() {
   )
   const searchParams = useSearchParams()
   const auth = useAuth()
+  const t = useTranslations('global.pages.login')
 
   const handleSubmitLoginForm: SubmitHandler<LoginForm> = async (data) => {
     await choreMasterAPIAgent.post('/v1/identity/user_sessions/login', data, {
@@ -153,11 +156,9 @@ export default function Page() {
                 />
               </Box>
               <Typography variant="h5" component="h1" gutterBottom>
-                登入 Chore Master
+                {t('titles.login')}
               </Typography>
-              <Typography variant="body2">
-                登入您的帳戶，開始使用個人化儀表板
-              </Typography>
+              <Typography variant="body2">{t('subtitles.slogan')}</Typography>
             </Box>
 
             <CardContent sx={{ p: 4 }}>
@@ -188,12 +189,12 @@ export default function Page() {
                     loginErrorRedirectURI
                   )}`}
                 >
-                  使用 Google 帳號繼續
+                  {t('buttons.googleLogin')}
                 </Button>
 
                 <Divider>
                   <Typography variant="body2" color="text.secondary">
-                    或
+                    {t('dividers.or')}
                   </Typography>
                 </Divider>
 
@@ -206,7 +207,7 @@ export default function Page() {
                       <TextField
                         {...field}
                         required
-                        label="使用者名稱"
+                        label={t('labels.username')}
                         variant="outlined"
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message}
@@ -234,7 +235,7 @@ export default function Page() {
                       <TextField
                         {...field}
                         required
-                        label="密碼"
+                        label={t('labels.password')}
                         variant="outlined"
                         type="password"
                         error={!!fieldState.error}
@@ -266,7 +267,9 @@ export default function Page() {
                         theme: 'light',
                         size: 'flexible',
                         appearance: 'execute',
-                        language: 'zh-tw',
+                        // https://developers.cloudflare.com/turnstile/reference/supported-languages/
+                        language:
+                          { zh: 'zh-tw', en: 'en-us' }[locale] || 'auto',
                       }}
                       onSuccess={(token) => {
                         field.onChange(token)
@@ -284,14 +287,14 @@ export default function Page() {
                   loading={loginForm.formState.isSubmitting}
                   sx={{ py: 1.5 }}
                 >
-                  使用帳號密碼登入
+                  {t('buttons.credentialLogin')}
                 </Button>
 
                 {!auth.isLoadingCurrentUser && auth.currentUser && (
                   <>
                     <Divider>
                       <Typography variant="body2" color="text.secondary">
-                        或
+                        {t('dividers.or')}
                       </Typography>
                     </Divider>
                     <Button
@@ -300,7 +303,9 @@ export default function Page() {
                       fullWidth
                       sx={{ py: 1.5 }}
                     >
-                      以 {auth.currentUser.name} 身份繼續
+                      {t('buttons.continueAs', {
+                        name: auth.currentUser.name,
+                      })}
                     </Button>
                   </>
                 )}
@@ -314,7 +319,7 @@ export default function Page() {
                       fontSize: '0.875rem',
                     }}
                   >
-                    返回首頁
+                    {t('buttons.backToHome')}
                   </Link>
                 </Box>
               </Stack>
