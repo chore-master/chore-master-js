@@ -70,12 +70,12 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Locale, useLocale, useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { Splitter, SplitterPanel } from 'primereact/splitter'
 import React from 'react'
 import './style.css'
 
-const { CHORE_MASTER_LEARN_HOST } = getConfig()
+const { CHORE_MASTER_LEARN_HOST, HOST } = getConfig()
 
 export interface ModuleLayoutProps {
   readonly moduleName: string
@@ -119,6 +119,7 @@ export default function ModuleLayout({
   const router = useRouter()
   const pathname = usePathname()
   const params = useParams()
+  const searchParams = useSearchParams()
   const [isPending, startTransition] = React.useTransition()
   const auth = useAuth()
   const timezone = useTimezone()
@@ -160,7 +161,12 @@ export default function ModuleLayout({
 
   React.useEffect(() => {
     if (loginRequired && auth.currentUserRes?.status === 401) {
-      router.push('/login')
+      const successRedirectURI = encodeURIComponent(
+        `${HOST}${pathname}${
+          searchParams.size > 0 ? `?${searchParams.toString()}` : ''
+        }`
+      )
+      router.push(`/login?success_redirect_uri=${successRedirectURI}`)
     }
   }, [loginRequired, auth.currentUserRes, router])
 

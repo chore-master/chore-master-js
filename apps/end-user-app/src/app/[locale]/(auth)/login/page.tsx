@@ -1,8 +1,8 @@
 'use client'
 
 import {
-  logingFailureRedirectPath,
-  logingSuccessRedirectPath,
+  defaultLoginFailureRedirectPath,
+  defaultLoginSuccessRedirectPath,
 } from '@/constants'
 import { Link, useRouter } from '@/i18n/navigation'
 import { LoginForm } from '@/types/global'
@@ -28,7 +28,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Image from 'next/image'
-import { useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 const { CLOUDFLARE_TURNSTILE_SITE_KEY, CHORE_MASTER_API_HOST, HOST } =
@@ -72,6 +73,13 @@ export default function Page() {
   const loginForm = useForm<LoginForm>()
   const loginFormTokenTurnstileRef = useRef<TurnstileInstance | null>(null)
   const { enqueueNotification } = useNotification()
+  const [loginSuccessRedirectURI, setLoginSuccessRedirectURI] = useState(
+    `${HOST}${defaultLoginSuccessRedirectPath}`
+  )
+  const [loginErrorRedirectURI, setLoginErrorRedirectURI] = useState(
+    `${HOST}${defaultLoginFailureRedirectPath}`
+  )
+  const searchParams = useSearchParams()
   const auth = useAuth()
 
   const handleSubmitLoginForm: SubmitHandler<LoginForm> = async (data) => {
@@ -89,10 +97,19 @@ export default function Page() {
       },
       onSuccess: () => {
         loginForm.reset()
-        router.push(logingSuccessRedirectPath)
+        router.push(loginSuccessRedirectURI)
       },
     })
   }
+
+  useEffect(() => {
+    if (searchParams.get('success_redirect_uri') !== null) {
+      setLoginSuccessRedirectURI(`${searchParams.get('success_redirect_uri')}`)
+    }
+    if (searchParams.get('error_redirect_uri') !== null) {
+      setLoginErrorRedirectURI(`${searchParams.get('error_redirect_uri')}`)
+    }
+  }, [searchParams])
 
   return (
     <ThemeProvider theme={loginTheme}>
@@ -166,9 +183,9 @@ export default function Page() {
                     />
                   }
                   href={`${CHORE_MASTER_API_HOST}/v1/identity/google/authorize?success_redirect_uri=${encodeURIComponent(
-                    `${HOST}${logingSuccessRedirectPath}`
+                    loginSuccessRedirectURI
                   )}&error_redirect_uri=${encodeURIComponent(
-                    `${HOST}${logingFailureRedirectPath}`
+                    loginErrorRedirectURI
                   )}`}
                 >
                   使用 Google 帳號繼續
@@ -267,7 +284,7 @@ export default function Page() {
                   loading={loginForm.formState.isSubmitting}
                   sx={{ py: 1.5 }}
                 >
-                  登入
+                  使用帳號密碼登入
                 </Button>
 
                 {!auth.isLoadingCurrentUser && auth.currentUser && (
@@ -279,7 +296,7 @@ export default function Page() {
                     </Divider>
                     <Button
                       variant="outlined"
-                      onClick={() => router.push(logingSuccessRedirectPath)}
+                      onClick={() => router.push(loginSuccessRedirectURI)}
                       fullWidth
                       sx={{ py: 1.5 }}
                     >
